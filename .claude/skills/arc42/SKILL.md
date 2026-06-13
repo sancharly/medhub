@@ -49,7 +49,7 @@ docs/
     07-cross-cutting-concepts.md
 ```
 
-## Guidelines & best practices
+## Mandatory Rules — READ BEFORE STARTING
 - Prefer conservative defaults: produce concise text and TODOs where repository-specific details are missing.
 - For runtime views, prioritize critical scenarios that illustrate key interactions, error handling, and operational aspects.
 - If a template is available for a section, use it to ensure consistent structure and coverage.

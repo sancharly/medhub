@@ -18,7 +18,7 @@ Use this skill whenever you need to generate a commit message for any type of ch
 - Refactoring code
 - Updating documentation
 
-## Guidelines & best practices
+## Mandatory Rules — READ BEFORE STARTING
 
 - ALWAYS use american English for commit messages.
 - Use the imperative mood in commit messages (e.g., "Add feature" instead of "Added feature").
