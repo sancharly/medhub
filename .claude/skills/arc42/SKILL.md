@@ -36,9 +36,9 @@ arguments: [module, branch]
    7. Cross-cutting concepts: Overall, principal regulations and solution approaches relevant in multiple parts (→ cross-cutting) of the system. Concepts are often related to multiple building blocks. Include different topics like domain models, architecture patterns and -styles, rules for using specific technology and implementation rules.
 4. Generate diagrams and insert embedding snippets.
 5. Run a lightweight completeness check against arc42 checklist and flag missing or low-confidence sections.
-6. Produce a final Markdown. Each section in a dedicated file (e.g., `doc/design/01-introduction-and-goals.md`) with the following structure in the module's root folder:
+6. Produce a final Markdown. Each section in a dedicated file (e.g., `docs/design/01-introduction-and-goals.md`) with the following structure in the module's root folder:
 ```
-doc/
+docs/
   design/
     01-introduction-and-goals.md
     02-architecture-constraints.md
