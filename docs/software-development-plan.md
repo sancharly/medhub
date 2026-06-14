@@ -26,13 +26,13 @@ The activities to execute in this phase are the following.
 
 #### Requirements analysis activity
 
-The Product Owner receives inputs regarding what the application should accomplish from various sources, including user feedback, industry needs, and application [goals](./design-inputs/goals.md). The Product Owner then translates this information into design inputs. The higher-level design inputs are [User Needs](./design-inputs/user-needs.md) and [non-functional requirements](./design-inputs/non-functional-requirements.md).
+The Product Owner receives inputs regarding what the application should accomplish from various sources, including user feedback, industry needs, and application [goals](./design-inputs/goals.md). The Product Owner then translates this information into design inputs. The higher-level design inputs are [User Needs](./design-inputs/user-needs/) and [non-functional requirements](./design-inputs/non-functional-requirements).
 
 A **User Need** is a qualitative statement of a problem, desire, or challenge faced by an end-user (e.g., clinician, patient). It describes what the user must accomplish to achieve their clinical goals within a specific context, without dictating the technical software solution.
 
 **Non-functional requirements** describe how the system performs a task, rather than what tasks it performs. They are related to the quality attributes of the system.
 
-After defining these design inputs, they shall be decomposed into [software requirements](./design-inputs/software-requirements.md). The Product Owner shall define these requirements with sufficient detail to enable the Software Architect and Software Developers to implement them into working software. It shall be verified that software requirements:
+After defining these design inputs, they shall be decomposed into [software requirements](./design-inputs/software-requirements). The Product Owner shall define these requirements with sufficient detail to enable the Software Architect and Software Developers to implement them into working software. It shall be verified that software requirements:
 
 - Implement user needs and non-functional requirements
 - Do not contradict each other
@@ -41,15 +41,15 @@ After defining these design inputs, they shall be decomposed into [software requ
 - Can be uniquely identified
 - Are traceable to user needs or non-functional requirements
 
-The outputs of this activity are:
+The outputs of this activity are (Each requirement lives in one file):
 
-- List of approved user needs: [user-needs.md](./design-inputs/user-needs.md)
+- List of approved user needs: [user-needs.md](./design-inputs/user-needs)
 - List of approved non-functional requirements: [non-functional-requirements.md](./design-inputs/non-functional-requirements)
-- List of approved software requirements: [software-requirements.md](./design-inputs/software-requirements.md)
+- List of approved software requirements: [software-requirements.md](./design-inputs/software-requirements)
 
 #### Architecture design activity
 
-In this activity, the Software Architect shall transform the list of approved [software requirements](./design-inputs/software-requirements.md) into software architecture and design decisions. These decisions shall be documented with text and/or diagrams (class, components, activity) with sufficient detail to enable the Software Developer to implement decisions without ambiguity. The software system shall be hierarchically decomposed into software items, which are further decomposed until no further decomposition is possible. These software items define the software units. It shall be verified that the architecture implements all requirements. The outputs of this activity are:
+In this activity, the Software Architect shall transform the list of approved [software requirements](./design-inputs/software-requirements) into software architecture and design decisions. These decisions shall be documented with text and/or diagrams (class, components, activity) with sufficient detail to enable the Software Developer to implement decisions without ambiguity. The software system shall be hierarchically decomposed into software items, which are further decomposed until no further decomposition is possible. These software items define the software units. It shall be verified that the architecture implements all requirements. The outputs of this activity are:
 
 - The architecture and design document following Arc42 guidelines in the [design](./design/) folder
 - Any additional design specifications in the [specifications](./specifications/) folder
