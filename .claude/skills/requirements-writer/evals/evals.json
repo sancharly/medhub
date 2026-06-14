@@ -1,0 +1,85 @@
+{
+  "skill_name": "requirements-writer",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Create user needs from the following problem statement: Emergency room physicians currently waste 5-10 minutes per patient searching through paper records and multiple systems to find critical information like allergies, current medications, and recent lab results. This delays treatment decisions and increases risk of adverse events. The hospital wants to centralize all this data so doctors can access a complete patient history in one place within seconds during emergencies.",
+      "expected_output": "2-3 well-formed User Needs that capture the clinical problems without prescribing technical solutions. Each should identify the user role, the problem/goal, and the context.",
+      "files": [],
+      "assertions": [
+        {
+          "name": "user-role-identified",
+          "description": "Each user need identifies a specific user role (e.g., emergency room physician, clinician)"
+        },
+        {
+          "name": "problem-focused",
+          "description": "User needs focus on the problem or goal, not on technical solutions or implementation details"
+        },
+        {
+          "name": "context-included",
+          "description": "User needs include relevant context about when, where, or why the need exists"
+        },
+        {
+          "name": "unambiguous",
+          "description": "User needs are clearly stated and free of jargon that would confuse a non-technical reader"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Create non-functional requirements for a medical records system based on these constraints and goals: (1) HIPAA compliance required - all patient data must be encrypted; (2) FDA regulatory approval needed for the system; (3) Clinical users (doctors, nurses) need fast access - response time under 2 seconds for critical data; (4) System must be available 24/7 with 99.9% uptime; (5) The system handles thousands of patient records. Write 3-4 non-functional requirements with measurable criteria.",
+      "expected_output": "Non-Functional Requirements that are specific, measurable, and justified by the regulatory/business context. Should cover security, compliance, performance, and reliability.",
+      "files": [],
+      "assertions": [
+        {
+          "name": "measurable-criteria",
+          "description": "Each non-functional requirement includes specific, measurable criteria (e.g., encryption standard, response time in seconds, uptime percentage)"
+        },
+        {
+          "name": "regulatory-justification",
+          "description": "Requirements reference or justify their connection to regulatory drivers (HIPAA, FDA) or business goals"
+        },
+        {
+          "name": "covers-key-attributes",
+          "description": "Requirements address the four key quality attributes: security, compliance, performance, and reliability"
+        },
+        {
+          "name": "unambiguous",
+          "description": "Requirements are specific enough that different developers would interpret them the same way"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Decompose the following User Need into 3-4 Software Requirements with clear acceptance criteria and risk analysis: User Need: 'A clinician needs to quickly view a patient's medication history including current medications, discontinued medications, and medication change history to identify potential drug interactions and ensure safe prescribing decisions.' The decomposed requirements should trace back to this user need and include acceptance criteria that are testable, plus a risk analysis section identifying potential risks and control measures.",
+      "expected_output": "3-4 Software Requirements in markdown format (using the template: Summary, Description, Acceptance Criteria, Origin Requirement, Risk Analysis with Rationale/Potential Risks/Control Measures, Status). Each requirement should be independently testable and include risk mitigation strategies.",
+      "files": [],
+      "assertions": [
+        {
+          "name": "requirement-count",
+          "description": "Output includes 3-4 distinct software requirements"
+        },
+        {
+          "name": "testable-acceptance-criteria",
+          "description": "Each requirement has acceptance criteria that are objective and verifiable (not subjective like 'looks good')"
+        },
+        {
+          "name": "origin-traceability",
+          "description": "Each software requirement explicitly traces back to the original user need or identifies the source"
+        },
+        {
+          "name": "risk-analysis-complete",
+          "description": "Risk Analysis sections include all three components: Rationale, Potential Risks, and Control Measures"
+        },
+        {
+          "name": "medical-device-compliance",
+          "description": "Risk Analysis identifies medical device-specific risks (e.g., wrong drug interaction detection, missed medications) and mitigation strategies"
+        },
+        {
+          "name": "markdown-template-used",
+          "description": "Requirements follow the specified template structure (Summary, Description, Acceptance Criteria, Origin Requirement, Risk Analysis, Status)"
+        }
+      ]
+    }
+  ]
+}
