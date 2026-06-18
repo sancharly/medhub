@@ -6,7 +6,7 @@ Accepted
 
 ## Context
 
-The domain is highly relational and consistency-critical: accounts, user types, groups, group-module enablement, care relationships, appointments and their confirmation states, clinical entries, attachments metadata, and — crucially — **consent grants tracked per source** (SR-036 requires grants keyed by appointment ID or "manual", evaluated as a union). Authorization decisions (SR-005) and immediate revocation (SR-008) demand strong transactional consistency. An append-only audit log (SR-023) and erasure/anonymization (SR-024, SR-034) must be supported. Data at rest must be encrypted (SR-022).
+The domain is highly relational and consistency-critical: accounts, user types, groups, group-module enablement, appointments and their confirmation states, clinical entries, attachments metadata, and — crucially — **consent grants tracked per source** (SR-036 requires grants keyed by appointment ID or "manual", evaluated as a union; these grants are the sole basis of doctor access, with no separate care-relationship entity per ADR-0006). Authorization decisions (SR-005) and immediate revocation (SR-008) demand strong transactional consistency. An append-only audit log (SR-023) and erasure/anonymization (SR-024, SR-034) must be supported. Data at rest must be encrypted (SR-022).
 
 ## Decision
 

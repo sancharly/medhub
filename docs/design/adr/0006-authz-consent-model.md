@@ -37,7 +37,7 @@ Administrative personnel are served by a **field-level projection** (name, famil
 
 ### Neutral
 
-- Care-relationship modeling for the MVP is satisfied primarily through consent grants (manual + appointment-confirmation); an explicit standalone "care team" entity is deferred.
+- **Care-relationship modeling — resolved (no explicit care-team entity).** Doctor access to clinical data is governed **solely** by (a) manual patient-granted consent (SR-008) and (b) confirmed-appointment-derived grants (SR-036). The "care relationship OR granted access" wording of SR-006 is satisfied entirely by these `ConsentGrant` sources; no standalone "care team"/care-relationship entity is introduced now or required for the MVP. This was previously an open assumption and is now a confirmed decision.
 
 ## Alternatives Considered
 

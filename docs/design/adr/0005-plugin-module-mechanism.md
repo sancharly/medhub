@@ -38,7 +38,7 @@ Define a two-sided **Module Contract**:
 
 ### Neutral
 
-- "Plugin" is build/deploy-time installed (package present in the image) and **runtime-enabled** per group; it is not hot-loaded from arbitrary uploads (a deliberate security simplification for the MVP — see Open Questions in the Arc42 doc).
+- "Plugin" is build/deploy-time installed (package present in the image) and **runtime-enabled** per group; it is not hot-loaded from arbitrary uploads (a deliberate security simplification for the MVP — see section 11 risks/technical debt in the Arc42 doc).
 
 ## Alternatives Considered
 

@@ -16,6 +16,8 @@ The DICOM viewer is the first module and the proof of the plugin system (SR-016,
 
 **Viewing:** Rendering is done **client-side in the browser** with **Cornerstone3D** (`@cornerstonejs/core`, `@cornerstonejs/tools`, `@cornerstonejs/dicom-image-loader`). Cornerstone3D parses DICOM, applies modality/VOI LUT for correct scaling and default window/level (SR-017 AC-4), orders slices for volumetric series (SR-017 AC-3), and provides built-in tools for window/level, zoom, pan and slice scroll (SR-018) using WebGL.
 
+**MVP modality scope — confirmed:** the viewer targets **CT, MRI, and X-ray** for the MVP (SR-017); no other modalities (e.g., ultrasound, PET, mammography) are in scope for MVP verification. The module is, however, designed for **low-effort modality extension**: because Cornerstone3D's image loaders and modality/VOI LUT handling are modality-agnostic, adding a modality is primarily a matter of confirming/registering its handling and adding it to the verification matrix (reference-image system test), not re-architecting the viewer. New modalities therefore enter through the same module/verification path with minimal code change.
+
 ## Consequences
 
 ### Positive

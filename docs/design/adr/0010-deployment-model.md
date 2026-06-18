@@ -16,13 +16,15 @@ Package every component as a **Docker container** and orchestrate the MVP with *
 - Secrets (DB credentials, object-store keys, session signing key, SMTP creds) are injected via environment/secret files, never committed.
 - The same images target a single VM/host for the MVP; the container boundary keeps a future move to Kubernetes or a managed cloud additive, not a rewrite.
 
+**Data residency is a deployment-time configuration choice made by the operator.** MedHub does not pin a hosting region or depend on any non-EU-only managed service: every backing store (PostgreSQL, Redis, MinIO, SMTP) is a self-hosted container or an externally-configured endpoint, and the deployment region is selected by the operator at deploy time via externalized config (env/secret files, twelve-factor; section 8.11). The architecture therefore imposes **no obstacle to EU-only hosting / EU data residency**; whether a given deployment is hosted in the EU is the client/operator's decision per their GDPR obligations (NFR-004), not a property baked into the architecture. The system only needs to be *technically prepared* for EU residency, which this externalized, self-hostable design guarantees.
+
 ## Consequences
 
 ### Positive
 
 - Simple, reproducible, version-controlled deployment matching the dev plan's DEPLOY/INSTALL outputs (NFR-006) and a small team's capacity.
 - Single reverse proxy gives one place to enforce TLS, HSTS, and security headers (SR-001, SR-022, SR-031).
-- Single-tenant isolation simplifies the GDPR/data-residency story (NFR-004) — one organization's PHI per deployment.
+- Single-tenant isolation simplifies the GDPR/data-residency story (NFR-004) — one organization's PHI per deployment, hostable in any operator-chosen region including EU-only.
 - Container images are portable; scaling later (replicas behind the proxy, managed Postgres, managed object store) is incremental.
 
 ### Negative

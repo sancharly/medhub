@@ -1,0 +1,39 @@
+@startuml seq-dicom-view
+!include cyber.puml
+!include sprites/all.sprite
+skinparam linetype ortho
+
+title Runtime - Open & view DICOM via plugin module (SR-015, SR-016, SR-017, SR-018, SR-026)
+
+actor Doctor
+participant "SPA Shell\n+ Module Registry" as Shell #lightblue
+participant "DICOM Viewer\nModule (FE)\nCornerstone3D" as FEDicom #lightblue
+participant "API /modules/dicom-viewer" as API #lightblue
+participant "ModuleAccessGuard\n(part of SI-AUTHZ)" as Guard #lightblue
+participant "AuthorizationService" as Authz #lightblue
+participant "Attachment Service\n(SI-ATTACH)" as Attach #lightblue
+participant "Object Storage" as Obj #lightgray
+participant "AuditService" as Audit #lightblue
+
+Doctor -> Shell : navigate to DICOM viewer
+note right of Shell : nav item shown only if module enabled\nfor one of user's groups (SR-015.3, SR-016.2)
+Shell -> FEDicom : lazy-load chunk (ADR-0005)
+FEDicom -> API : GET attachment (DICOM) bytes
+API -> Guard : module enabled for user's group? (SR-015)
+Guard -> Authz : authorize READ attachment\n(patient, doctor consent) (SR-005, SR-017.5)
+alt not enabled OR not authorized
+  Authz -> Audit : record DENIED
+  API --> FEDicom : 403
+else allowed
+  API -> Attach : fetch object (authorized)
+  Attach -> Obj : GET encrypted object (SR-013.4, SR-022)
+  Obj --> Attach : DICOM bytes
+  Attach --> API : stream bytes
+  API -> Audit : record clinical-data access (SR-023.2)
+  API --> FEDicom : 200 DICOM stream
+  FEDicom -> FEDicom : parse, apply modality/VOI LUT,\norder slices, default window/level (SR-017.3/4)
+  FEDicom -> Doctor : initial rendered image < 10s (SR-026.3)
+  Doctor -> FEDicom : window/level, zoom, pan, slice nav (SR-018)
+end
+
+@enduml

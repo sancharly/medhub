@@ -1,0 +1,91 @@
+@startuml building-blocks
+!include cyber.puml
+!include sprites/all.sprite
+skinparam linetype ortho
+
+title MedHub - Building Block View (C4 Level 2, Containers & Core Items)
+
+rectangle "Reverse Proxy\n(TLS, HSTS, security headers)" as Proxy #lightgray
+
+package "Frontend SPA (React + TS)" as SPA #lightblue {
+  rectangle "App Shell\n(SI-FE-SHELL)" as Shell #lightblue
+  rectangle "Auth/Session UI\n(SI-FE-AUTH)" as FEAuth #lightblue
+  rectangle "Core Feature Views\n(SI-FE-CORE)" as FECore #lightblue
+  rectangle "Module Registry\n(SI-FE-MODREG)" as FEModReg #lightblue
+  rectangle "DICOM Viewer Module\n(SI-MOD-DICOM-FE)\nCornerstone3D" as FEDicom #lightblue
+  rectangle "API Client\n(generated from OpenAPI)" as FEApi #lightblue
+}
+
+package "Backend (FastAPI, modular monolith)" as BE #lightblue {
+  rectangle "API Layer / Routers\n(SI-API)" as API #lightblue
+  rectangle "AuthN & Session\n(SI-AUTH)" as Auth #lightblue
+  rectangle "Authorization &\nConsent (SI-AUTHZ)" as Authz #lightblue
+  rectangle "Identity & Account\nLifecycle (SI-IDENTITY)" as Identity #lightblue
+  rectangle "Groups & Module\nEnablement (SI-GROUPS)" as Groups #lightblue
+  rectangle "Appointments &\nNotifications (SI-APPT)" as Appt #lightblue
+  rectangle "Clinical Records\n(SI-CLINICAL)" as Clinical #lightblue
+  rectangle "Attachment Service\n(SI-ATTACH)" as Attach #lightblue
+  rectangle "Audit Service\n(SI-AUDIT)" as Audit #lightblue
+  rectangle "Module Host /\nPlugin Registry (SI-MODHOST)" as ModHost #lightblue
+  rectangle "DICOM Module API\n(SI-MOD-DICOM-BE)" as BEDicom #lightblue
+  rectangle "Persistence\n(SQLAlchemy) (SI-PERSIST)" as Persist #lightblue
+}
+
+database "PostgreSQL\n(domain + audit)" as PG #lightgray
+queue "Redis\n(sessions + Celery broker)" as Redis #lightgray
+rectangle "Celery Worker\n(SI-WORKER)" as Worker #lightblue
+rectangle "Object Storage\n(MinIO / S3)" as Obj #lightgray
+rectangle "SMTP" as SMTP #lightgray
+
+Proxy --> Shell : HTTPS
+Shell --> FEAuth
+Shell --> FECore
+Shell --> FEModReg
+FEModReg --> FEDicom : lazy chunk if enabled
+FEAuth --> FEApi
+FECore --> FEApi
+FEDicom --> FEApi
+FEApi --> Proxy
+Proxy --> API : HTTPS
+
+API --> Auth
+API --> Authz
+API --> Identity
+API --> Groups
+API --> Appt
+API --> Clinical
+API --> Attach
+API --> ModHost
+ModHost --> BEDicom : mounts module router
+BEDicom --> Authz : data only via platform services
+BEDicom --> Attach
+Auth --> Redis : session store
+Auth --> Audit
+Authz --> Persist
+Identity --> Persist
+Identity --> Worker : enqueue activation email
+Groups --> Persist
+Appt --> Persist
+Appt --> Worker : enqueue notification
+Clinical --> Persist
+Clinical --> Authz
+Attach --> Obj
+Attach --> Persist
+Authz --> Audit
+Clinical --> Audit
+Appt --> Audit
+Groups --> Audit
+Identity --> Audit
+Persist --> PG
+Audit --> PG
+Worker --> Redis
+Worker --> SMTP
+
+note right of Authz
+  Deny-by-default choke point (SR-005).
+  Evaluates user type, relationship,
+  per-source ConsentGrant union (SR-036),
+  module/group enablement (SR-015).
+end note
+
+@enduml

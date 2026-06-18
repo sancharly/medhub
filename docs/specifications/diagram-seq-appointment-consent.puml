@@ -1,0 +1,50 @@
+@startuml seq-appointment-consent
+!include cyber.puml
+!include sprites/all.sprite
+skinparam linetype ortho
+
+title Runtime - Appointment creation, notification, confirmation -> consent grant (SR-010, SR-035, SR-036)
+
+actor "Admin/Doctor" as Creator
+actor Patient
+participant "SPA" as SPA #lightblue
+participant "API" as API #lightblue
+participant "Appointments\n(SI-APPT)" as Appt #lightblue
+participant "Authorization &\nConsent (SI-AUTHZ)" as Authz #lightblue
+database "PostgreSQL" as PG #lightgray
+queue "Redis/Celery" as Q #lightgray
+participant "Worker -> SMTP" as Worker #lightblue
+participant "AuditService" as Audit #lightblue
+
+Creator -> SPA : create appointment(doctor, patient, datetime)
+SPA -> API : POST /api/v1/appointments
+API -> Appt : create(...)  (validate refs & datetime, SR-010.2)
+Appt -> PG : INSERT Appointment state=PENDING (SR-035.1)
+Appt -> Q : enqueue notification task (SR-035.2)
+Appt -> Audit : record appointment created
+API --> SPA : 201 appointment
+Q -> Worker : deliver notification
+Worker -> Patient : email + in-app notice\n(doctor, datetime, link) (SR-035.3)
+
+== Patient confirms ==
+Patient -> SPA : open appointment -> Confirm
+SPA -> API : POST /api/v1/appointments/{id}/confirm
+API -> Appt : confirm(id) [only patient may, SR-035.9]
+Appt -> PG : UPDATE state=CONFIRMED
+Appt -> Authz : create ConsentGrant\n(patient, doctor, source=APPOINTMENT:{id}) (SR-036.1)
+Authz -> PG : INSERT ConsentGrant active=true
+Appt -> Audit : record confirm + grant (SR-035.10, SR-036.6)
+API --> SPA : 200 confirmed
+note over Authz : Doctor access = union of all active grants (SR-036.3)
+
+== Patient declines a previously confirmed appointment ==
+Patient -> SPA : Decline
+SPA -> API : POST /api/v1/appointments/{id}/decline
+API -> Appt : decline(id)
+Appt -> PG : UPDATE state=DECLINED
+Appt -> Authz : deactivate ONLY grant source=APPOINTMENT:{id} (SR-036.4)
+note right of Authz : Other grants (manual / other appts) unaffected\n(Cases A/B/C, SR-036.4)
+Appt -> Audit : record decline + grant revoke (SR-036.6)
+API --> SPA : 200 declined
+
+@enduml
