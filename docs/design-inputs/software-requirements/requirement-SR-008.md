@@ -39,7 +39,7 @@ Grant/revoke consent realizes GDPR data-subject control and is the basis for law
 
 ## Status
 
-Draft
+Approved
 
 ## Version History
 

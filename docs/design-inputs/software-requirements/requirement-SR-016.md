@@ -37,7 +37,7 @@ A clear plugin mechanism lets MedHub grow into a multi-specialty hub while prese
 
 ## Status
 
-Draft
+Approved
 
 ## Version History
 
