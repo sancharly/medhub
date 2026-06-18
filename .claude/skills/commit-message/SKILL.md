@@ -26,8 +26,8 @@ Use this skill whenever you need to generate a commit message for any type of ch
 - Include relevant issue or ticket numbers in the commit message if applicable.
 - Avoid vague messages like "fix" or "update". Be specific about what was changed and why.
 - Use a consistent format for commit messages across the project to improve readability and maintainability of the project history.
-- Use the following format for commit messages: `<type>: <subject>`, where `<type>` is one of the following: 
-  - AI: Changes in AI (`.claude/` or `.github/`) configuration, prompts, agents, or skills.
+- Use the following format for commit messages: `<type>: <subject>`, where `<subject>` is a brief summary of the change and `<type>` is one of the following: 
+  - AI: Any change in [Claude](./claude) or [Github](./github) folders, CLAUDE.md, AGENTS.md, or any other file related to the AI agents and their instructions.
   - ENH: New features or enhancements to existing functionality.
   - FIX: Bug fixes or patches.
   - CI: Changes to continuous integration pipelines, build scripts, or related configuration.
