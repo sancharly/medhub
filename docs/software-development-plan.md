@@ -109,3 +109,10 @@ The project's code and documentation reside in a git repository. When new functi
 
 1. A new branch is created in the repository with a name following the convention: `feature/feature-description`, `user-story/story-description`, `enabler-story/enabler-description`, or `bug/bug-description`, depending on the implementation type.
 2. The complete development cycle is executed, committing all artifacts from each activity (specifications, requirements, source code, test definitions, etc.) to the repository. If testing is managed through an external tool or if automated testing results are stored in a CI server, those test reports need not be committed to the repository.
+3. Once the feature is done, the branch can be merged through a PR into the main repository branch. Definition of done is:
+
+    - [ ] Requirements have been defined
+    - [ ] Architecture has been defined
+    - [ ] Software Units have been implemented
+    - [ ] Software Units automatic tests have been implemented and successfully ran
+    - [ ] Code review has been performed and approved by QA Engineer
