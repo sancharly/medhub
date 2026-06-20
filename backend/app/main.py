@@ -15,7 +15,18 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager
 async def _lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     configure_logging()
-    logger.info("MedHub API starting up")
+    # Import here to avoid settings being loaded at module import time in tests
+    from app.core.config import get_settings  # noqa: PLC0415
+
+    settings = get_settings()
+    logger.info(
+        "MedHub API starting up",
+        extra={
+            "environment": settings.environment,
+            "smtp_host": settings.smtp_host,
+            "cors_origins": settings.cors_origins,
+        },
+    )
     yield
     logger.info("MedHub API shutting down")
 
