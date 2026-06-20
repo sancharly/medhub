@@ -52,7 +52,7 @@ def _patch_openapi(app: FastAPI) -> None:
     """Add fields required by the Redocly recommended ruleset."""
     original_openapi = app.openapi
 
-    def patched_openapi() -> dict:
+    def patched_openapi() -> dict[str, object]:
         schema = original_openapi()
         # Root-level security: [] means "no auth required by default"
         schema.setdefault("security", [])
