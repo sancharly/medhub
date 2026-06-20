@@ -1,4 +1,5 @@
 """TASK-003: Verify infra/.env.example covers all required Settings fields."""
+
 import re
 from pathlib import Path
 
@@ -33,6 +34,6 @@ def test_env_example_covers_all_settings_fields() -> None:
     }
     for field_name in Settings.model_fields:
         env_key = field_name.upper()
-        assert env_key in defined_keys, (
-            f"Settings field '{field_name}' is missing from infra/.env.example"
-        )
+        assert (
+            env_key in defined_keys
+        ), f"Settings field '{field_name}' is missing from infra/.env.example"

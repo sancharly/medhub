@@ -1,4 +1,5 @@
 """TASK-002: App factory and OpenAPI tests."""
+
 import pytest
 from fastapi import FastAPI
 from httpx import ASGITransport, AsyncClient
@@ -25,9 +26,7 @@ def test_app_version(app) -> None:
 
 @pytest.mark.asyncio
 async def test_openapi_json_returns_3x_doc(app) -> None:
-    async with AsyncClient(
-        transport=ASGITransport(app=app), base_url="http://test"
-    ) as client:
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
         response = await client.get("/api/v1/openapi.json")
     assert response.status_code == 200
     data = response.json()
@@ -37,8 +36,6 @@ async def test_openapi_json_returns_3x_doc(app) -> None:
 @pytest.mark.asyncio
 async def test_api_v1_prefix_exists(app) -> None:
     """Verify the /api/v1 router is mounted (openapi doc is accessible)."""
-    async with AsyncClient(
-        transport=ASGITransport(app=app), base_url="http://test"
-    ) as client:
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
         response = await client.get("/api/v1/openapi.json")
     assert response.status_code == 200

@@ -1,4 +1,5 @@
 """TASK-005: Test the export_openapi module."""
+
 import json
 import sys
 

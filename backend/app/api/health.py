@@ -1,4 +1,5 @@
 """Health check endpoint — no authentication, no PHI."""
+
 from fastapi import APIRouter
 from pydantic import BaseModel
 

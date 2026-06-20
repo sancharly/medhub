@@ -2,6 +2,7 @@
 
 Emits logs to stdout as JSON objects. Never logs PHI or credentials.
 """
+
 import json
 import logging
 import sys

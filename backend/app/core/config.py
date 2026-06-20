@@ -3,6 +3,7 @@
 All secrets are typed as SecretStr so they are never exposed in logs or repr.
 Call get_settings() to obtain the cached singleton instance.
 """
+
 import functools
 
 from pydantic import PostgresDsn, SecretStr

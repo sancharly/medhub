@@ -1,4 +1,5 @@
 """TASK-002: Logging configuration tests."""
+
 import json
 import logging
 

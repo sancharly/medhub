@@ -4,6 +4,7 @@ Usage:
     uv run python -m app.export_openapi
     uv run python -m app.export_openapi --output path/to/openapi.json
 """
+
 import argparse
 import json
 from pathlib import Path

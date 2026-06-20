@@ -1,4 +1,5 @@
 """TASK-003: Settings and secrets management tests."""
+
 import pytest
 from pydantic import ValidationError
 

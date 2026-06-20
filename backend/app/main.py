@@ -1,4 +1,5 @@
 """MedHub API application factory."""
+
 import logging
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
