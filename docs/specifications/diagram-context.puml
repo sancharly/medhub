@@ -1,0 +1,33 @@
+@startuml context
+!include cyber.puml
+!include sprites/all.sprite
+skinparam linetype ortho
+
+title MedHub - System Context (C4 Level 1)
+
+actor "Doctor" as Doctor
+actor "Patient" as Patient
+actor "Administrative\nPersonnel" as Admin
+actor "System\nAdministrator" as SysAdmin
+
+rectangle "MedHub\nWeb Application" as MedHub #lightblue
+
+rectangle "Web Browser\n(Safari/Firefox/Chrome/Edge)" as Browser #lightgray
+rectangle "SMTP / Email\nService" as SMTP #lightgray
+rectangle "Object Storage\n(S3-compatible / MinIO)" as ObjStore #lightgray
+
+Doctor --> Browser : uses
+Patient --> Browser : uses
+Admin --> Browser : uses
+SysAdmin --> Browser : uses
+
+Browser --> MedHub : HTTPS (TLS)\nREST/JSON, session cookie
+MedHub --> SMTP : activation & appointment\nnotification emails (SR-033, SR-035)
+MedHub --> ObjStore : store/fetch encrypted\nDICOM & report files (SR-013, SR-022)
+
+note bottom of MedHub
+  Single-tenant deployment per organization (ADR-0010).
+  All PHI access passes the central AuthorizationService (SR-005).
+end note
+
+@enduml

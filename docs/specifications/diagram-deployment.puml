@@ -1,0 +1,43 @@
+@startuml deployment
+!include cyber.puml
+!include sprites/all.sprite
+skinparam linetype ortho
+
+title MedHub - Deployment View (MVP, Docker Compose single host)
+
+node "Client Device\n(desktop / tablet / phone)" as Client #lightgray {
+  rectangle "Browser\n(SPA + Cornerstone3D WebGL)" as Browser #lightgray
+}
+
+node "Application Host (Docker Compose)" as Host #lightblue {
+  rectangle "Reverse Proxy\n(Traefik/nginx)\nTLS 1.2+, HSTS, headers" as Proxy #lightblue
+  rectangle "SPA Static Assets\n(nginx)" as StaticSPA #lightblue
+  rectangle "Backend API\n(gunicorn + uvicorn, FastAPI)" as ApiC #lightblue
+  rectangle "Celery Worker" as WorkerC #lightblue
+  database "PostgreSQL 16\n(encrypted volume)" as PGC #lightgray
+  queue "Redis\n(sessions + broker)" as RedisC #lightgray
+  rectangle "MinIO\n(S3, SSE AES-256)" as MinioC #lightgray
+}
+
+node "External Email" as Mail #lightgray {
+  rectangle "SMTP Server" as SMTP #lightgray
+}
+
+Browser --> Proxy : HTTPS 443 (SR-001, SR-022)
+Proxy --> StaticSPA : serve SPA
+Proxy --> ApiC : /api -> HTTP (internal)
+ApiC --> PGC : SQL (TLS/local)
+ApiC --> RedisC : sessions
+ApiC --> MinioC : objects (authorized)
+ApiC --> RedisC : enqueue tasks
+WorkerC --> RedisC : consume tasks
+WorkerC --> SMTP : send emails (SR-033, SR-035)
+WorkerC --> PGC : SQL
+
+note bottom of Host
+  Single-tenant per organization (ADR-0010).
+  Secrets injected via env/secret files, never committed.
+  Plain HTTP redirected to HTTPS at the proxy.
+end note
+
+@enduml

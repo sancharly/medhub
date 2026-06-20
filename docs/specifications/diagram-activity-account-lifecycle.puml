@@ -1,0 +1,71 @@
+@startuml activity-account-lifecycle
+!include cyber.puml
+!include sprites/all.sprite
+skinparam linetype ortho
+
+title Activity - Account creation, activation & lifecycle (SR-032, SR-033, SR-034)
+
+start
+:Authorized creator (Admin or SysAdmin) submits\nfirst name, surname, email, type;
+if (creator allowed to create this type?) then (no)
+  :Reject (Admin cannot create SysAdmin) (SR-032.4);
+  stop
+endif
+if (email unique across all states?) then (no)
+  :Reject duplicate email (SR-032.3);
+  stop
+endif
+:Create account status=INACTIVE (SR-032.6);
+:Audit account creation (SR-032.7);
+:Generate single-use activation token (72h) (SR-033.2);
+:Enqueue activation email -> Worker -> SMTP (SR-033.1);
+
+:User opens activation link;
+if (token valid & not expired?) then (no)
+  :Reject; admin may resend new link (SR-033.7);
+  stop
+endif
+:User sets password twice (SR-033.4);
+if (password meets SR-025 policy & matches?) then (no)
+  :Show rule violation / mismatch (SR-033.3/4);
+  stop
+endif
+:Activate account status=ACTIVE,\ninvalidate token (SR-033.5);
+:Audit activation (SR-033.9);
+
+:Account ACTIVE - user can log in (SR-033.6);
+
+partition "SysAdmin lifecycle actions" {
+  if (action?) then (deactivate)
+    :status=DEACTIVATED; invalidate sessions <=30s (SR-034.2);
+    :Data retained (SR-034.3); audit (SR-034.8);
+  elseif (reactivate)
+    :status=ACTIVE; existing credentials valid (SR-034.4);
+  else (delete)
+    :Confirm (email+type shown) (SR-034.6);
+    :Sever credentials & PII; anonymize record data into\nan anonymized dataset; retain 5 years (SR-034.5, SR-024, ADR-0013);
+    :Generate high-entropy anonymization code;\nemail it to user; store ONLY salted KDF hash (ADR-0013);
+    :Release email for reuse (SR-034.7);\naudit with dataset id, never the code (SR-034.8, SR-024.3);
+  endif
+}
+stop
+
+partition "Anonymized-dataset retention (ADR-0013)" {
+  fork
+    :User presents anonymization code;
+    if (salted hash matches a dataset within 5y?) then (yes)
+      :Authorize & return anonymized dataset; audit retrieval (SR-024.3);
+    else (no)
+      :Deny (lost/invalid code = unrecoverable by design);
+    endif
+    stop
+  fork again
+    :Scheduled Worker job;
+    if (dataset retention deadline > 5 years?) then (yes)
+      :Permanently & irreversibly erase dataset (SR-024.4);
+    endif
+    stop
+  end fork
+}
+
+@enduml

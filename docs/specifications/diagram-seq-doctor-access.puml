@@ -1,0 +1,36 @@
+@startuml seq-doctor-access
+!include cyber.puml
+!include sprites/all.sprite
+skinparam linetype ortho
+
+title Runtime - Doctor views a patient's clinical data (SR-005, SR-006, SR-036)
+
+actor Doctor
+participant "SPA" as SPA #lightblue
+participant "API /patients/{id}/clinical-entries" as API #lightblue
+participant "AuthN & Session" as Auth #lightblue
+participant "AuthorizationService\n(SI-AUTHZ)" as Authz #lightblue
+participant "Clinical Records\n(SI-CLINICAL)" as Clinical #lightblue
+database "PostgreSQL" as PG #lightgray
+participant "AuditService" as Audit #lightblue
+
+Doctor -> SPA : open patient clinical record
+SPA -> API : GET .../clinical-entries (cookie)
+API -> Auth : resolve session -> account, role
+Auth -> Authz : authorize(actor=doctor, action=READ_CLINICAL, patient_id)
+Authz -> PG : SELECT EXISTS active ConsentGrant\n(patient_id, doctor_id) any source (SR-036.3)
+alt no active grant (none / declined / pending only)
+  Authz -> Audit : record DENIED access (SR-023.2)
+  Authz --> API : DENY (deny-by-default, SR-005.2)
+  API --> SPA : 403 (no data disclosed, SR-005.4)
+else at least one active grant (manual or appointment)
+  Authz --> API : ALLOW
+  API -> Clinical : list entries for patient
+  Clinical -> PG : SELECT clinical entries + attachments meta
+  Clinical --> API : entries
+  API -> Audit : record clinical-data access\n(actor, patient, basis, ts) (SR-006.4, SR-023.2)
+  API --> SPA : 200 entries
+  SPA -> Doctor : render clinical history
+end
+
+@enduml

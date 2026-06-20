@@ -1,0 +1,37 @@
+@startuml seq-login
+!include cyber.puml
+!include sprites/all.sprite
+skinparam linetype ortho
+
+title Runtime - Login with lockout & session creation (SR-002, SR-029, SR-030)
+
+actor User
+participant "SPA\n(Auth UI)" as SPA #lightblue
+participant "API /auth/login" as API #lightblue
+participant "AuthN & Session\n(SI-AUTH)" as Auth #lightblue
+database "PostgreSQL\n(Account)" as PG #lightgray
+queue "Redis\n(sessions)" as Redis #lightgray
+participant "AuditService" as Audit #lightblue
+
+User -> SPA : enter email + password
+SPA -> API : POST /api/v1/auth/login (HTTPS)
+API -> Auth : authenticate(email, password)
+Auth -> PG : load account by email
+alt account locked OR invalid credentials
+  Auth -> Audit : record auth FAILURE (SR-023, SR-029.5)
+  Auth -> PG : increment failed_attempts
+  note right of Auth : at 5 failures -> lock 30 min (SR-029)\nsame generic error for locked/invalid (SR-029.6)
+  Auth --> API : 401 generic failure
+  API --> SPA : 401 (no field disclosure, SR-002.2)
+else valid & active
+  Auth -> Auth : verify Argon2id hash (SR-002.4)
+  Auth -> PG : reset failed_attempts (SR-029.4)
+  Auth -> Redis : create session (TTL = role timeout, SR-030.1/2)
+  note right of Redis : enforce 3-session cap;\nevict oldest if 4th (SR-030.7)
+  Auth -> Audit : record auth SUCCESS (SR-023.1)
+  Auth --> API : session_id
+  API --> SPA : 200 + Set-Cookie\nSecure;HttpOnly;SameSite=Strict (SR-030.6)
+  SPA -> User : role landing view (SR-001.3)
+end
+
+@enduml

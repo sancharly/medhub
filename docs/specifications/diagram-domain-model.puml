@@ -1,0 +1,145 @@
+@startuml domain-model
+!include cyber.puml
+!include sprites/all.sprite
+skinparam linetype ortho
+
+title MedHub - Domain Data Model (FHIR R4 aligned, see fhir-mapping.md)
+
+class Account {
+  +id : UUID
+  +email : string  <<unique, all states>>
+  +password_hash : string  <<Argon2id>>
+  +user_type : enum{DOCTOR,PATIENT,ADMIN,SYSADMIN}
+  +status : enum{INACTIVE,ACTIVE,DEACTIVATED,DELETED}
+  +first_name : string
+  +surname : string
+  +date_of_birth : date
+  +password_changed_at : datetime
+  +created_at : datetime
+}
+note right of Account : FHIR Patient / Practitioner\n(SR-003, SR-004, SR-032)
+
+class ActivationToken {
+  +id : UUID
+  +account_id : UUID
+  +token_hash : string
+  +expires_at : datetime  <<+72h>>
+  +used : bool
+}
+note right of ActivationToken : SR-033
+
+class PasswordHistory {
+  +id : UUID
+  +account_id : UUID
+  +password_hash : string
+  +created_at : datetime
+}
+note right of PasswordHistory : last 12 (SR-025)
+
+class UserGroup {
+  +id : UUID
+  +name : string
+  +auto_user_type : enum?  <<auto membership>>
+}
+note right of UserGroup : SR-014
+
+class GroupMembership {
+  +group_id : UUID
+  +account_id : UUID
+  +source : enum{AUTO,MANUAL}
+}
+
+class Module {
+  +id : UUID
+  +module_key : string
+  +name : string
+  +version : string
+}
+note right of Module : registry (SR-016)
+
+class GroupModuleEnablement {
+  +group_id : UUID
+  +module_id : UUID
+  +enabled : bool
+}
+note right of GroupModuleEnablement : SR-015
+
+class Appointment {
+  +id : UUID
+  +doctor_id : UUID
+  +patient_id : UUID
+  +scheduled_at : datetime
+  +state : enum{PENDING,CONFIRMED,DECLINED}
+  +created_at : datetime
+}
+note right of Appointment : FHIR Appointment\n(SR-010, SR-011, SR-035)
+
+class ConsentGrant {
+  +id : UUID
+  +patient_id : UUID
+  +doctor_id : UUID
+  +source : enum{MANUAL} | APPOINTMENT:{appointment_id}
+  +active : bool
+  +created_at : datetime
+  +revoked_at : datetime?
+}
+note right of ConsentGrant : FHIR Consent\nper-source union (SR-008, SR-036)
+
+class ClinicalEntry {
+  +id : UUID
+  +patient_id : UUID
+  +author_doctor_id : UUID
+  +occurred_at : datetime
+  +description : text
+  +created_at : datetime
+}
+note right of ClinicalEntry : FHIR Composition/\nDocumentReference (SR-012)
+
+class Attachment {
+  +id : UUID
+  +clinical_entry_id : UUID
+  +patient_id : UUID
+  +filename : string
+  +content_type : string
+  +size : int
+  +storage_key : string  <<object store>>
+  +checksum : string
+}
+note right of Attachment : FHIR Attachment\nbinary in object store (SR-013)
+
+class AuditEvent {
+  +id : UUID
+  +actor_id : UUID?
+  +action : string
+  +target_type : string
+  +target_id : string
+  +outcome : enum{SUCCESS,FAILURE}
+  +ip : string
+  +timestamp : datetime
+}
+note right of AuditEvent : append-only (SR-023)
+
+class Session {
+  +session_id : opaque
+  +account_id : UUID
+  +role : enum
+  +created_at : datetime
+  +last_seen_at : datetime
+  +ip : string
+}
+note right of Session : Redis, server-side (SR-030)
+
+Account "1" -- "0..*" ActivationToken
+Account "1" -- "0..*" PasswordHistory
+Account "1" -- "0..*" GroupMembership
+UserGroup "1" -- "0..*" GroupMembership
+UserGroup "1" -- "0..*" GroupModuleEnablement
+Module "1" -- "0..*" GroupModuleEnablement
+Account "1" -- "0..*" Appointment : as doctor/patient
+Account "1" -- "0..*" ConsentGrant : patient/doctor
+Appointment "1" .. "0..1" ConsentGrant : confirmation creates (SR-036)
+Account "1" -- "0..*" ClinicalEntry : patient/author
+ClinicalEntry "1" -- "0..*" Attachment
+Account "1" -- "0..*" Session
+
+@enduml

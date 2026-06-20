@@ -37,8 +37,9 @@ description: "Generates PlantUML diagram code following strict formatting and st
 5. Validate the PlantUML syntax for common mistakes (unbalanced braces, wrong directives, missing `allowmixing`). If errors detected, produce a corrected variant and explain changes.
 6. Provide embedding snippets for Markdown, AsciiDoc, or documentation systems used in the repo.
 
-## Guidelines & best practices
+## Mandatory Rules — READ BEFORE STARTING
 
+- NEVER put a image file name at the beginning of the diagram. Diagram ALWAYS begins with `@startuml` not with `@startuml filename`.
 - Prefer minimal, correct PlantUML first; add styling (`skinparam`) only when requested.
 - For code-to-class-diagram extraction, prioritize explicit class names and visible fields/methods; ask before inferring private/internal members.
 - Add the following lines at the beginning of the generated PlantUML diagrams to ensure consistent styling:
