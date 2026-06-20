@@ -1,0 +1,48 @@
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.4.10
+    hooks:
+      - id: ruff
+        args: [--fix]
+        files: ^backend/
+      - id: ruff-format
+        files: ^backend/
+
+  - repo: https://github.com/psf/black
+    rev: 24.4.2
+    hooks:
+      - id: black
+        language_version: python3.12
+        files: ^backend/
+
+  - repo: local
+    hooks:
+      - id: mypy
+        name: mypy
+        entry: bash -c 'cd backend && uv run mypy app'
+        language: system
+        types: [python]
+        pass_filenames: false
+        files: ^backend/
+
+      - id: eslint
+        name: eslint
+        entry: bash -c 'cd frontend && npm run lint'
+        language: system
+        types_or: [ts, tsx]
+        pass_filenames: false
+        files: ^frontend/src/
+
+      - id: prettier
+        name: prettier
+        entry: bash -c 'cd frontend && npx prettier --check src'
+        language: system
+        types_or: [ts, tsx, json]
+        pass_filenames: false
+        files: ^frontend/
+
+      - id: block-secrets
+        name: block secrets and .env files
+        entry: bash -c 'git diff --cached --name-only | grep -E "\.(env|pem|key|crt)$|^secrets/" && echo "ERROR: Attempting to commit a secret or env file" && exit 1 || exit 0'
+        language: system
+        pass_filenames: false
