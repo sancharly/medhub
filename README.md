@@ -2,7 +2,7 @@
 
 A medical web application built with FastAPI + React.
 
-![CI](https://github.com/sancharly/medhub-01/actions/workflows/ci.yml/badge.svg)
+![CI](https://github.com/sancharly/medhub/actions/workflows/ci.yml/badge.svg)
 
 ## Quick Start
 
