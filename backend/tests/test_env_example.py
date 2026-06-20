@@ -3,23 +3,7 @@
 import re
 from pathlib import Path
 
-from pydantic_settings import BaseSettings
-
 from app.core.config import Settings
-
-
-def _required_fields(model: type[BaseSettings]) -> list[str]:
-    """Return field names that have no default value."""
-    required = []
-    for name, field_info in model.model_fields.items():
-        if field_info.default is None and field_info.default_factory is None:  # type: ignore[misc]
-            # PydanticUndefined means no default
-            from pydantic_core import PydanticUndefinedType
-
-            if isinstance(field_info.default, PydanticUndefinedType):
-                required.append(name)
-        # A simpler check: no default at all
-    return required
 
 
 def test_env_example_covers_all_settings_fields() -> None:

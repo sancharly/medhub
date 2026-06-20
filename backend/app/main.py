@@ -24,7 +24,6 @@ async def _lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         "MedHub API starting up",
         extra={
             "environment": settings.environment,
-            "smtp_host": settings.smtp_host,
             "cors_origins": settings.cors_origins,
         },
     )

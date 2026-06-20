@@ -1,5 +1,7 @@
 """TASK-005: Test that the app lifespan starts up without error."""
 
+import logging
+
 import pytest
 from httpx import ASGITransport, AsyncClient
 
@@ -21,7 +23,7 @@ VALID_ENV = {
 
 
 @pytest.mark.asyncio
-async def test_lifespan_startup_logs_non_secret_config(monkeypatch) -> None:
+async def test_lifespan_startup_logs_non_secret_config(monkeypatch, caplog) -> None:
     """Lifespan startup must complete and health endpoint must still respond."""
     for k, v in VALID_ENV.items():
         monkeypatch.setenv(k, v)
@@ -32,8 +34,12 @@ async def test_lifespan_startup_logs_non_secret_config(monkeypatch) -> None:
     get_settings.cache_clear()
     try:
         app = create_app()
-        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
-            response = await client.get("/healthz")
+        transport = ASGITransport(app=app)
+        with caplog.at_level(logging.INFO, logger="app.main"):
+            async with AsyncClient(transport=transport, base_url="http://test") as client:
+                response = await client.get("/healthz")
         assert response.status_code == 200
+        # smtp_host must not leak into startup logs
+        assert VALID_ENV["SMTP_HOST"] not in caplog.text
     finally:
         get_settings.cache_clear()
