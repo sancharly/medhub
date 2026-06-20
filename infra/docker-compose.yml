@@ -108,7 +108,7 @@ services:
       context: ../backend
       dockerfile: Dockerfile
     command: >
-      uv run celery -A app.workers.celery_app worker
+      celery -A app.workers.celery_app worker
       --loglevel=info
       --concurrency=4
     env_file: .env

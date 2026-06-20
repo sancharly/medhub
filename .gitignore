@@ -48,3 +48,8 @@ secrets/
 
 # Docker
 *.log
+
+# Local infra secrets
+infra/.env
+infra/certs/*.crt
+infra/certs/*.key
