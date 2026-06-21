@@ -37,8 +37,7 @@ def test_no_fstring_sql():
 def test_no_string_concat_sql():
     """No string concatenation with SQL keywords in repository files."""
     sql_pattern = re.compile(
-        r'["\'][^"\']*\b(SELECT|INSERT|UPDATE|DELETE|WHERE|FROM)\b[^"\']*["\']'
-        r"\s*\+",
+        r'["\'][^"\']*\b(SELECT|INSERT|UPDATE|DELETE|WHERE|FROM)\b[^"\']*["\']' r"\s*\+",
         re.IGNORECASE,
     )
     for path in _python_files():
