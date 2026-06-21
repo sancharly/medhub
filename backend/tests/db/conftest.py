@@ -5,6 +5,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from testcontainers.postgres import PostgresContainer
 
+import app.db.models  # noqa: F401 — ensure all models are registered with Base.metadata
 from app.db.models.base import Base
 
 

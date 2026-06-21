@@ -25,6 +25,9 @@ class Repository[ModelT]:
         self._session.flush()
         return instance
 
+    def flush(self) -> None:
+        self._session.flush()
+
     def delete(self, instance: ModelT) -> None:
         self._session.delete(instance)
         self._session.flush()

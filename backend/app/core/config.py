@@ -39,6 +39,24 @@ class Settings(BaseSettings):
     # At-rest encryption
     at_rest_encryption_key: SecretStr
 
+    # Session timeouts (seconds)
+    session_inactivity_clinical_seconds: int = 900
+    session_inactivity_admin_seconds: int = 1800
+    session_absolute_lifetime_seconds: int = 28800
+    session_max_concurrent: int = 3
+
+    # Cookie security
+    session_cookie_secure: bool = True
+
+    # SMTP extras
+    smtp_use_tls: bool = True  # STARTTLS (port 587)
+    smtp_use_ssl: bool = False  # implicit TLS (port 465); takes precedence over smtp_use_tls
+    mail_from: str = ""
+    public_base_url: str = "https://medhub.example"
+
+    # Retention sweep cron
+    retention_sweep_cron: str = "0 2 * * *"  # daily at 02:00
+
     # CORS
     cors_origins: list[str] = []
 

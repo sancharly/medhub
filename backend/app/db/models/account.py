@@ -46,3 +46,9 @@ class Account(UUIDMixin, TimestampMixin, Base):
         DateTime(timezone=True), nullable=True
     )
     fhir_extensions: Mapped[dict[str, object] | None] = mapped_column(JSONB, nullable=True)
+
+    # Activation token — sha256 hash of raw token; raw token is emailed only
+    activation_token_hash: Mapped[str | None] = mapped_column(nullable=True)
+    activation_token_expires_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
