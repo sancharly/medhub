@@ -119,8 +119,9 @@ def test_get_current_user_raises_401_for_deactivated_account() -> None:
 
 
 def test_get_current_user_raises_401_for_inactive_account() -> None:
-    from fastapi import Depends
     from unittest.mock import patch
+
+    from fastapi import Depends
 
     from app.api.deps import get_current_user
     from app.db.repositories.account_repo import AccountRepository

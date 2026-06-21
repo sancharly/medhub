@@ -115,7 +115,7 @@ def test_send_activation_email_task_calls_smtp() -> None:
 
 # --- _send_smtp TLS branching ---
 
-def _make_notification() -> "Notification":
+def _make_notification() -> Notification:
     return Notification(
         channel=NotificationChannel.EMAIL,
         recipient="test@example.com",
@@ -130,7 +130,6 @@ def test_send_smtp_uses_smtp_ssl_when_smtp_use_ssl_true() -> None:
     from unittest.mock import MagicMock, patch
 
     import app.workers.email_tasks as et
-    from app.core.config import get_settings
 
     mock_settings = MagicMock()
     mock_settings.smtp_host = "smtp.example.com"
