@@ -142,3 +142,28 @@ def _get_authz_service() -> object:
     from app.authz.service import get_authorization_service  # noqa: PLC0415
 
     return get_authorization_service()
+
+
+# ---------------------------------------------------------------------------
+# Module access guard dependency factory (TASK-043)
+# ---------------------------------------------------------------------------
+
+
+def require_module_enabled(module_key: str) -> Callable[..., object]:
+    """Return a FastAPI dependency that raises AuthorizationError if module not enabled."""
+
+    async def _dependency(
+        actor: Account = Depends(get_current_user),
+        db: Session = Depends(get_db),
+    ) -> None:
+        from app.authz.module_guard import ModuleAccessGuard  # noqa: PLC0415
+        from app.db.repositories.group_repo import GroupRepository  # noqa: PLC0415
+        from app.db.repositories.module_repo import ModuleRepository  # noqa: PLC0415
+
+        guard = ModuleAccessGuard(GroupRepository(db), ModuleRepository(db))
+        if not guard.is_module_enabled(actor.id, module_key):
+            from app.api.errors import AuthorizationError  # noqa: PLC0415
+
+            raise AuthorizationError(f"Module '{module_key}' is not enabled for your account.")
+
+    return _dependency
