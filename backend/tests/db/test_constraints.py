@@ -47,7 +47,8 @@ def test_appointment_null_doctor_id_rejected(db_session):
     with pytest.raises((IntegrityError, Exception)):
         db_session.execute(
             text(
-                "INSERT INTO appointment (id, doctor_id, patient_id, scheduled_at, state, created_at)"
+                "INSERT INTO appointment"
+                " (id, doctor_id, patient_id, scheduled_at, state, created_at)"
                 " VALUES (:id, NULL, :patient_id, :scheduled_at, 'PENDING', now())"
             ),
             {"id": str(uuid.uuid4()), "patient_id": str(patient.id), "scheduled_at": _now()},
@@ -70,7 +71,8 @@ def test_appointment_null_patient_id_rejected(db_session):
     with pytest.raises((IntegrityError, Exception)):
         db_session.execute(
             text(
-                "INSERT INTO appointment (id, doctor_id, patient_id, scheduled_at, state, created_at)"
+                "INSERT INTO appointment"
+                " (id, doctor_id, patient_id, scheduled_at, state, created_at)"
                 " VALUES (:id, :doctor_id, NULL, :scheduled_at, 'PENDING', now())"
             ),
             {"id": str(uuid.uuid4()), "doctor_id": str(doctor.id), "scheduled_at": _now()},
@@ -88,7 +90,8 @@ def test_appointment_null_scheduled_at_rejected(db_session):
     with pytest.raises((IntegrityError, Exception)):
         db_session.execute(
             text(
-                "INSERT INTO appointment (id, doctor_id, patient_id, scheduled_at, state, created_at)"
+                "INSERT INTO appointment"
+                " (id, doctor_id, patient_id, scheduled_at, state, created_at)"
                 " VALUES (:id, :doctor_id, :patient_id, NULL, 'PENDING', now())"
             ),
             {"id": str(uuid.uuid4()), "doctor_id": str(doctor.id), "patient_id": str(patient.id)},
