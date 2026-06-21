@@ -11,6 +11,7 @@ from app.auth.csrf import _CSRF_COOKIE, _CSRF_HEADER, issue_csrf_token, require_
 
 # --- session cookie helpers ---
 
+
 def test_set_session_cookie_sets_httponly() -> None:
     from fastapi import FastAPI
     from fastapi.responses import Response
@@ -51,6 +52,7 @@ def test_clear_session_cookie_expires_it() -> None:
 
 
 # --- CSRF ---
+
 
 def _csrf_app() -> FastAPI:
     """Minimal app for CSRF tests."""

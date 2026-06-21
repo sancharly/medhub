@@ -38,6 +38,7 @@ VALID_PW = "Str0ng!Pass#99"  # meets all requirements
 
 # --- hash / verify ---
 
+
 def test_hash_produces_argon2id_prefix() -> None:
     svc = PasswordService()
     h = svc.hash(VALID_PW)
@@ -70,6 +71,7 @@ def test_check_needs_rehash_fresh_hash_false() -> None:
 
 # --- policy: length ---
 
+
 def test_policy_rejects_short_password() -> None:
     svc = PasswordService()
     acct = _make_account()
@@ -79,6 +81,7 @@ def test_policy_rejects_short_password() -> None:
 
 
 # --- policy: character classes ---
+
 
 def test_policy_rejects_missing_uppercase() -> None:
     svc = PasswordService()
@@ -114,6 +117,7 @@ def test_policy_rejects_missing_special() -> None:
 
 # --- policy: email substring ---
 
+
 def test_policy_rejects_email_as_substring() -> None:
     svc = PasswordService()
     acct = _make_account(email="alice@example.com")
@@ -132,6 +136,7 @@ def test_policy_rejects_email_case_insensitive() -> None:
 
 # --- policy: multiple violations ---
 
+
 def test_policy_collects_multiple_violations() -> None:
     svc = PasswordService()
     acct = _make_account()
@@ -144,11 +149,13 @@ def test_policy_collects_multiple_violations() -> None:
 
 # --- policy: history reuse ---
 
+
 def test_policy_rejects_history_reuse() -> None:
     svc_no_repo = PasswordService()
     old_hash = svc_no_repo.hash(VALID_PW)
 
     from app.db.models.password_history import PasswordHistory
+
     mock_entry = MagicMock(spec=PasswordHistory)
     mock_entry.password_hash = old_hash
 
@@ -171,6 +178,7 @@ def test_policy_passes_when_no_history_repo() -> None:
 
 
 # --- is_expired / expires_within ---
+
 
 def test_is_expired_false_when_no_changed_at() -> None:
     svc = PasswordService()
@@ -207,6 +215,7 @@ def test_expires_within_false_when_far() -> None:
 
 
 # --- dummy hash ---
+
 
 def test_dummy_hash_is_argon2id() -> None:
     h = get_dummy_hash()

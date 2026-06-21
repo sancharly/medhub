@@ -45,6 +45,7 @@ def _build_svc(creator: Account, existing_email: Account | None = None) -> Accou
 
 # --- create ---
 
+
 def test_sysadmin_can_create_any_user_type() -> None:
     creator = _make_account(UserType.SYSADMIN)
     svc = _build_svc(creator)
@@ -110,6 +111,7 @@ def test_create_audits_account_created() -> None:
 
 
 # --- get_profile ---
+
 
 def test_get_profile_returns_own_account_for_patient() -> None:
     acct = Account(

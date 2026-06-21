@@ -31,6 +31,7 @@ def _svc(r: fakeredis.FakeRedis) -> SessionService:  # type: ignore[type-arg]
 
 # --- create_session ---
 
+
 def test_create_session_returns_session_with_token() -> None:
     r = _redis()
     svc = _svc(r)
@@ -82,6 +83,7 @@ def test_create_session_admin_ttl() -> None:
 
 # --- concurrency cap ---
 
+
 def test_concurrency_cap_evicts_oldest() -> None:
     r = _redis()
     svc = _svc(r)
@@ -102,6 +104,7 @@ def test_concurrency_cap_evicts_oldest() -> None:
 
 
 # --- resolve ---
+
 
 def test_resolve_returns_session() -> None:
     r = _redis()
@@ -159,6 +162,7 @@ def test_resolve_returns_none_after_absolute_expiry() -> None:
 
 
 # --- invalidate_all ---
+
 
 def test_invalidate_all_removes_all_sessions() -> None:
     r = _redis()

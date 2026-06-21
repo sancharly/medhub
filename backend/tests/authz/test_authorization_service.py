@@ -38,6 +38,7 @@ def _resource(
 
 # --- PATIENT ---
 
+
 def test_patient_can_read_own_account() -> None:
     actor = _make_account(UserType.PATIENT)
     svc = _svc()
@@ -74,6 +75,7 @@ def test_patient_denied_clinical_write() -> None:
 
 # --- DOCTOR ---
 
+
 def test_doctor_with_consent_can_read_clinical() -> None:
     actor = _make_account(UserType.DOCTOR)
     patient_id = uuid.uuid4()
@@ -102,6 +104,7 @@ def test_doctor_can_read_own_account() -> None:
 
 # --- ADMIN ---
 
+
 def test_admin_denied_clinical_read() -> None:
     actor = _make_account(UserType.ADMIN)
     svc = _svc()
@@ -120,6 +123,7 @@ def test_admin_can_read_account() -> None:
 
 # --- SYSADMIN ---
 
+
 def test_sysadmin_can_create_account() -> None:
     actor = _make_account(UserType.SYSADMIN)
     svc = _svc()
@@ -137,6 +141,7 @@ def test_sysadmin_denied_clinical_read() -> None:
 
 
 # --- Audit ---
+
 
 def test_authz_denied_emits_audit_record() -> None:
     actor = _make_account(UserType.PATIENT)

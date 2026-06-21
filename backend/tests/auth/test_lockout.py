@@ -63,6 +63,7 @@ def test_admin_unlock_requires_sysadmin() -> None:
 
 def test_admin_unlock_sysadmin_clears_lock() -> None:
     from unittest.mock import MagicMock
+
     mock_audit = MagicMock()
     svc = _svc(mock_audit)
     acct_id = uuid.uuid4()
@@ -75,6 +76,7 @@ def test_admin_unlock_sysadmin_clears_lock() -> None:
 
 def test_admin_unlock_audits_event() -> None:
     from unittest.mock import MagicMock
+
     mock_audit = MagicMock()
     svc = _svc(mock_audit)
     acct_id = uuid.uuid4()
@@ -92,6 +94,7 @@ def test_record_failure_without_account_id_uses_email_key() -> None:
         svc.record_failure(None, "unknown@example.com", "5.6.7.8")
     # No account_id: is_locked(None) always False, but email key exists
     import hashlib
+
     key = f"lockout:{hashlib.sha256(b'unknown@example.com').hexdigest()}"
     assert int(r.get(key)) == 3
 
@@ -116,6 +119,7 @@ def test_is_email_locked_false_below_threshold() -> None:
 def test_admin_unlock_clears_email_key() -> None:
     """admin_unlock with email must also delete the email-keyed counter."""
     from unittest.mock import MagicMock
+
     mock_audit = MagicMock()
     r = fakeredis.FakeRedis()
     svc = LockoutService(r, mock_audit)
@@ -130,6 +134,7 @@ def test_admin_unlock_clears_email_key() -> None:
 
 def test_record_failure_locks_and_audits() -> None:
     from unittest.mock import MagicMock
+
     mock_audit = MagicMock()
     svc = _svc(mock_audit)
     acct_id = uuid.uuid4()

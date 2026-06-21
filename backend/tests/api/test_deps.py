@@ -17,6 +17,7 @@ from app.db.models.account import Account, AccountStatus, UserType
 
 def _make_session(account_id: uuid.UUID | None = None) -> UserSession:
     from datetime import UTC, datetime, timedelta
+
     now = datetime.now(UTC)
     return UserSession(
         session_id="test-session-id",
@@ -31,6 +32,7 @@ def _make_session(account_id: uuid.UUID | None = None) -> UserSession:
 
 def _app_with_session_route(mock_svc: SessionService) -> FastAPI:
     from fastapi import Depends
+
     app = FastAPI()
     register_error_handlers(app)
 

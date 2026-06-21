@@ -58,9 +58,7 @@ class LockoutService:
             return False
         return int(count_raw) >= MAX_FAILURES
 
-    def record_failure(
-        self, account_id: uuid.UUID | None, email: str, ip: str | None
-    ) -> None:
+    def record_failure(self, account_id: uuid.UUID | None, email: str, ip: str | None) -> None:
         """Increment failure counter; lock and audit if threshold is reached."""
         normalised = email.strip().lower()
         email_key = _lockout_key(normalised)

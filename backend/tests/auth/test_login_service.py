@@ -67,6 +67,7 @@ def _build_svc(account: Account | None, session: Session | None = None) -> Login
 
 # --- success ---
 
+
 def test_login_success_returns_session_and_csrf() -> None:
     acct, pw = _make_account()
     session = _make_session(acct)
@@ -113,6 +114,7 @@ def test_login_success_audits_success() -> None:
 
 
 # --- failures ---
+
 
 def test_login_wrong_password_returns_failure() -> None:
     acct, _ = _make_account()

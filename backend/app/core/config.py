@@ -49,7 +49,7 @@ class Settings(BaseSettings):
     session_cookie_secure: bool = True
 
     # SMTP extras
-    smtp_use_tls: bool = True   # STARTTLS (port 587)
+    smtp_use_tls: bool = True  # STARTTLS (port 587)
     smtp_use_ssl: bool = False  # implicit TLS (port 465); takes precedence over smtp_use_tls
     mail_from: str = ""
     public_base_url: str = "https://medhub.example"

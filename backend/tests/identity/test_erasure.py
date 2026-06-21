@@ -31,10 +31,12 @@ def _build_svc(account: Account | None) -> ErasureService:
     mock_repo.get_by_id.return_value = account
 
     mock_dataset_repo = MagicMock()
+
     # Make add() set an id on the dataset
     def fake_add(dataset):
         dataset.id = uuid.uuid4()
         return dataset
+
     mock_dataset_repo.add.side_effect = fake_add
 
     r = fakeredis.FakeRedis()
@@ -122,6 +124,7 @@ def test_erase_audits_deletion_and_anonymization() -> None:
     def fake_add(dataset):
         dataset.id = uuid.uuid4()
         return dataset
+
     mock_dataset_repo.add.side_effect = fake_add
 
     r = fakeredis.FakeRedis()

@@ -73,9 +73,7 @@ def _send_smtp(notification: Notification) -> None:
     retry_backoff=True,
     name="workers.send_activation_email",
 )
-def send_activation_email(
-    self: object, account_id: str, activation_token: str
-) -> None:
+def send_activation_email(self: object, account_id: str, activation_token: str) -> None:
     """Load account, render activation email, send via SMTP, audit (no token in audit)."""
     from app.audit.actions import AuditAction  # noqa: PLC0415
     from app.audit.service import AuditService  # noqa: PLC0415

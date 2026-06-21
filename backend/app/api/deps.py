@@ -24,6 +24,7 @@ from app.db.repositories.session import get_db
 # Redis client dependency
 # ---------------------------------------------------------------------------
 
+
 def get_redis() -> redis_lib.Redis:
     """Return a Redis client from the configured URL."""
     return redis_lib.Redis.from_url(get_settings().redis_url, decode_responses=False)
@@ -66,6 +67,7 @@ async def get_session(
 # Current-user dependency
 # ---------------------------------------------------------------------------
 
+
 async def get_current_user(
     session: UserSession = Depends(get_session),
     db: Session = Depends(get_db),
@@ -87,6 +89,7 @@ async def get_current_user(
 # Authorization protocol
 # ---------------------------------------------------------------------------
 
+
 class AuthorizationServiceProtocol(Protocol):
     def authorize(
         self,
@@ -99,6 +102,7 @@ class AuthorizationServiceProtocol(Protocol):
 # ---------------------------------------------------------------------------
 # require() factory
 # ---------------------------------------------------------------------------
+
 
 def require(
     action: str,

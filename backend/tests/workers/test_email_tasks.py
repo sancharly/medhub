@@ -10,6 +10,7 @@ from app.workers.notifications import Notification, NotificationChannel, Notific
 
 # --- email_renderer ---
 
+
 def test_render_activation_email_contains_link() -> None:
     subject, body = render_activation_email("Alice", "https://example.com/activate?token=abc")
     assert "https://example.com/activate?token=abc" in body
@@ -39,6 +40,7 @@ def test_render_appointment_notification_handles_missing_names() -> None:
 
 
 # --- Notification abstraction ---
+
 
 def test_notification_initial_status_queued() -> None:
     n = Notification(
@@ -77,6 +79,7 @@ def test_notification_mark_failed() -> None:
 
 # --- send_activation_email task (unit, no real SMTP) ---
 
+
 def test_send_activation_email_task_calls_smtp() -> None:
     """send_activation_email loads account, renders email, calls SMTP.
 
@@ -114,6 +117,7 @@ def test_send_activation_email_task_calls_smtp() -> None:
 
 
 # --- _send_smtp TLS branching ---
+
 
 def _make_notification() -> Notification:
     return Notification(

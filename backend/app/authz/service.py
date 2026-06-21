@@ -34,15 +34,16 @@ class Decision:
 @dataclass
 class Resource:
     """Lightweight resource descriptor passed to authorize()."""
-    resource_type: str           # e.g. "account", "clinical_entry"
-    owner_id: uuid.UUID | None   # account that owns this resource
-    patient_id: uuid.UUID | None # patient the resource belongs to
+
+    resource_type: str  # e.g. "account", "clinical_entry"
+    owner_id: uuid.UUID | None  # account that owns this resource
+    patient_id: uuid.UUID | None  # patient the resource belongs to
 
 
 class AuthorizationService:
     def __init__(
         self,
-        consent_svc: object,   # ConsentService — injected to avoid circular import
+        consent_svc: object,  # ConsentService — injected to avoid circular import
         audit_svc: AuditService,
     ) -> None:
         self._consent_svc = consent_svc
@@ -135,9 +136,15 @@ class AuthorizationService:
         if action.startswith("clinical:"):
             return Decision(allow=False, basis="ROLE")
         lifecycle_actions = {
-            "account:create", "account:read", "account:list",
-            "account:deactivate", "account:reactivate", "account:delete",
-            "group:manage", "module:manage", "account:unlock",
+            "account:create",
+            "account:read",
+            "account:list",
+            "account:deactivate",
+            "account:reactivate",
+            "account:delete",
+            "group:manage",
+            "module:manage",
+            "account:unlock",
         }
         if action in lifecycle_actions:
             return Decision(allow=True, basis="ROLE")

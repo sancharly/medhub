@@ -37,6 +37,7 @@ class LifecycleService:
         account = self._repo.get_by_id(account_id)
         if account is None:
             from app.api.errors import NotFoundError  # noqa: PLC0415
+
             raise NotFoundError(f"Account {account_id} not found.")
 
         account.status = AccountStatus.DEACTIVATED
@@ -51,6 +52,7 @@ class LifecycleService:
         # Enqueue async propagation task
         try:
             from app.workers.session_tasks import propagate_session_kill  # noqa: PLC0415
+
             propagate_session_kill.delay(str(account_id))
         except Exception:
             pass  # Best-effort; sync invalidation already done
@@ -72,6 +74,7 @@ class LifecycleService:
         account = self._repo.get_by_id(account_id)
         if account is None:
             from app.api.errors import NotFoundError  # noqa: PLC0415
+
             raise NotFoundError(f"Account {account_id} not found.")
 
         account.status = AccountStatus.ACTIVE

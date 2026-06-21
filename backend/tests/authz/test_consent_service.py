@@ -36,6 +36,7 @@ def _svc() -> tuple[ConsentService, MagicMock, MagicMock]:
 
 # --- grant ---
 
+
 def test_grant_creates_active_grant() -> None:
     svc, mock_repo, _ = _svc()
     patient_id = uuid.uuid4()
@@ -77,13 +78,12 @@ def test_grant_audits_event() -> None:
 
 # --- has_active_grant ---
 
+
 def test_has_active_grant_true_when_active_grant_exists() -> None:
     svc, mock_repo, _ = _svc()
     patient_id = uuid.uuid4()
     doctor_id = uuid.uuid4()
-    mock_repo.list_active_for_patient_doctor.return_value = [
-        _make_grant(patient_id, doctor_id)
-    ]
+    mock_repo.list_active_for_patient_doctor.return_value = [_make_grant(patient_id, doctor_id)]
     assert svc.has_active_grant(doctor_id, patient_id) is True
 
 
@@ -94,6 +94,7 @@ def test_has_active_grant_false_when_no_grants() -> None:
 
 
 # --- revoke ---
+
 
 def test_revoke_by_id_deactivates_grant() -> None:
     svc, mock_repo, mock_audit = _svc()
@@ -131,6 +132,7 @@ def test_revoke_by_source_only_revokes_matching_row() -> None:
 
 
 # --- list_grants ---
+
 
 def test_list_grants_returns_all() -> None:
     svc, mock_repo, _ = _svc()

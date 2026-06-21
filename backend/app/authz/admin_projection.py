@@ -16,6 +16,7 @@ from app.db.models.account import Account, UserType
 @dataclass
 class AdminAccountView:
     """Safe, non-clinical view of an Account for ADMIN role."""
+
     id: uuid.UUID
     account_type: UserType
     first_name: str | None
