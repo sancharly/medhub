@@ -114,10 +114,12 @@ class TestDeleteEndpoint:
             resp = client.request(
                 "DELETE",
                 f"/api/v1/accounts/{target_id}",
-                content=_json.dumps({
-                    "confirmEmail": "patient@example.com",
-                    "confirmAccountType": "PATIENT",
-                }),
+                content=_json.dumps(
+                    {
+                        "confirmEmail": "patient@example.com",
+                        "confirmAccountType": "PATIENT",
+                    }
+                ),
                 headers={
                     "Content-Type": "application/json",
                     "X-CSRF-Token": "tok",
@@ -149,10 +151,12 @@ class TestDeleteEndpoint:
             resp = client.request(
                 "DELETE",
                 f"/api/v1/accounts/{target_id}",
-                content=_json.dumps({
-                    "confirmEmail": "wrong@example.com",
-                    "confirmAccountType": "PATIENT",
-                }),
+                content=_json.dumps(
+                    {
+                        "confirmEmail": "wrong@example.com",
+                        "confirmAccountType": "PATIENT",
+                    }
+                ),
                 headers={
                     "Content-Type": "application/json",
                     "X-CSRF-Token": "tok",
@@ -169,10 +173,12 @@ class TestDeleteEndpoint:
         resp = client.request(
             "DELETE",
             f"/api/v1/accounts/{uuid.uuid4()}",
-            content=_json.dumps({
-                "confirmEmail": "x@example.com",
-                "confirmAccountType": "PATIENT",
-            }),
+            content=_json.dumps(
+                {
+                    "confirmEmail": "x@example.com",
+                    "confirmAccountType": "PATIENT",
+                }
+            ),
             headers={"Content-Type": "application/json"},
         )
         assert resp.status_code == 401

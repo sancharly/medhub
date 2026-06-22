@@ -57,10 +57,13 @@ class TestAnonymizedRetrieve:
         assert "payload" in data
 
     def test_invalid_code_returns_401(self, client):
-        with patch(
-            "app.identity.erasure.ErasureService.retrieve_anonymized",
-            side_effect=UnauthenticatedError("Invalid retrieval code."),
-        ), patch("app.api.routers.anonymized_data._check_rate_limit"):
+        with (
+            patch(
+                "app.identity.erasure.ErasureService.retrieve_anonymized",
+                side_effect=UnauthenticatedError("Invalid retrieval code."),
+            ),
+            patch("app.api.routers.anonymized_data._check_rate_limit"),
+        ):
             resp = client.post(
                 "/api/v1/anonymized-data/retrieve",
                 json={"retrievalCode": "bad-code"},

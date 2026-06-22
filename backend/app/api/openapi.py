@@ -63,9 +63,7 @@ def customize_openapi(app: FastAPI) -> None:
                                 }.get(code, "Error"),
                                 "content": {
                                     "application/problem+json": {
-                                        "schema": {
-                                            "$ref": "#/components/schemas/ProblemDetail"
-                                        }
+                                        "schema": {"$ref": "#/components/schemas/ProblemDetail"}
                                     }
                                 },
                             }

@@ -109,8 +109,10 @@ class TestRevokeConsent:
         mock_grant = MagicMock()
         mock_grant.patient_id = actor.id
 
-        with patch("app.authz.consent.ConsentService.revoke"), \
-             patch("app.db.repositories.base.Repository.get", return_value=mock_grant):
+        with (
+            patch("app.authz.consent.ConsentService.revoke"),
+            patch("app.db.repositories.base.Repository.get", return_value=mock_grant),
+        ):
             resp = client.delete(
                 f"/api/v1/consents/{grant_id}",
                 cookies={"medhub_csrf": "tok"},
