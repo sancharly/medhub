@@ -29,6 +29,15 @@ async def _lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
             "cors_origins": settings.cors_origins,
         },
     )
+
+    # Module discovery and registration
+    from app.modules.discovery import discover_modules  # noqa: PLC0415
+    from app.modules.host import register_all_modules  # noqa: PLC0415
+
+    manifests = discover_modules()
+    if manifests:
+        register_all_modules(app, manifests, None)  # type: ignore[arg-type]
+
     yield
     logger.info("MedHub API shutting down")
 

@@ -13,6 +13,7 @@ from app.api.routers.consents import router as consents_router
 from app.api.routers.groups import router as groups_router
 from app.api.routers.lifecycle import router as lifecycle_router
 from app.api.routers.me import router as me_router
+from app.api.routers.modules import router as modules_router
 
 api_router = APIRouter(prefix="/api/v1")
 
@@ -40,3 +41,6 @@ api_router.include_router(consents_router)
 
 # Me
 api_router.include_router(me_router)
+
+# Modules (sysadmin)
+api_router.include_router(modules_router)

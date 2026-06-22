@@ -1,8 +1,11 @@
 """ModuleRegistry and GroupModuleEnablement repository."""
 
-import uuid
+from __future__ import annotations
 
-from sqlalchemy import select
+import uuid
+from datetime import datetime
+
+from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
 from app.db.models.module import GroupModuleEnablement, ModuleRegistry
@@ -66,4 +69,44 @@ class ModuleRepository(Repository[ModuleRegistry]):
                 GroupModuleEnablement.enabled.is_(True),
             )
         )
+        return list(result.scalars().all())
+
+    def upsert(
+        self,
+        module_key: str,
+        name: str,
+        version: str,
+        required_permissions: list[str],
+        discovered_at: datetime | None,
+    ) -> ModuleRegistry:
+        """Insert or update a ModuleRegistry row by module_key."""
+        existing = self.get_by_key(module_key)
+        if existing is not None:
+            existing.name = name
+            existing.version = version
+            existing.required_permissions = required_permissions
+            existing.discovered_at = discovered_at
+            self._session.flush()
+            return existing
+        record = ModuleRegistry(
+            module_key=module_key,
+            name=name,
+            version=version,
+            required_permissions=required_permissions,
+            discovered_at=discovered_at,
+        )
+        self._session.add(record)
+        self._session.flush()
+        return record
+
+    def remove_absent(self, present_keys: list[str]) -> None:
+        """Delete rows whose module_key is not in present_keys."""
+        self._session.execute(
+            delete(ModuleRegistry).where(ModuleRegistry.module_key.notin_(present_keys))
+        )
+        self._session.flush()
+
+    def list_installed(self) -> list[ModuleRegistry]:
+        """Return all registered modules."""
+        result = self._session.execute(select(ModuleRegistry))
         return list(result.scalars().all())

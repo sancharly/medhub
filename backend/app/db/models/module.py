@@ -1,9 +1,13 @@
 """ModuleRegistry and GroupModuleEnablement models."""
 
+from __future__ import annotations
+
 import uuid
+from datetime import datetime
 
 import sqlalchemy as sa
 from sqlalchemy import ForeignKey
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.models.base import Base, TimestampMixin, UUIDMixin
@@ -16,6 +20,10 @@ class ModuleRegistry(UUIDMixin, TimestampMixin, Base):
     module_key: Mapped[str] = mapped_column(nullable=False)
     name: Mapped[str] = mapped_column(nullable=False)
     version: Mapped[str] = mapped_column(nullable=False)
+    required_permissions: Mapped[list[str]] = mapped_column(JSONB, nullable=False, default=list)
+    discovered_at: Mapped[datetime | None] = mapped_column(
+        sa.DateTime(timezone=True), nullable=True
+    )
 
 
 class GroupModuleEnablement(Base):
