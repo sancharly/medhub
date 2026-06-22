@@ -6,7 +6,7 @@
   confirm); ADR-0013
 - **Depends on:** TASK-030 (AccountService), TASK-014 (AuditService), TASK-031 (email task)
 - **Branch:** `feature/erasure-anonymize`
-- **Status:** Not started
+- **Status:** Completed
 
 ## Objective
 

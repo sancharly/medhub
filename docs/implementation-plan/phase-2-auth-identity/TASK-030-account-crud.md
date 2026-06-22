@@ -6,7 +6,7 @@
   (role-constrained creation)
 - **Depends on:** TASK-027 (AuthorizationService)
 - **Branch:** `feature/account-crud`
-- **Status:** Not started
+- **Status:** Completed
 
 ## Objective
 

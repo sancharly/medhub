@@ -5,7 +5,7 @@
 - **Implements:** SR-025 (password complexity & lifecycle), SR-002.4 (salted hashing, never clear text)
 - **Depends on:** TASK-012 (typed repositories — password-history persistence)
 - **Branch:** `feature/password-service`
-- **Status:** Not started
+- **Status:** Completed
 
 ## Objective
 

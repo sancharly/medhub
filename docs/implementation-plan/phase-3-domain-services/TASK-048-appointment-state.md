@@ -5,7 +5,7 @@
 - **Implements:** SR-035 (AC-5 confirm, AC-6 decline pending, AC-7 decline confirmed, AC-9 patient-only, AC-10 audited)
 - **Depends on:** TASK-047 (appointment create) — must be merged first
 - **Branch:** `feature/appointment-state`
-- **Status:** Not started
+- **Status:** Completed
 
 ## Objective
 

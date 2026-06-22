@@ -5,7 +5,7 @@
 - **Implements:** SR-013 (AC-3 authorized download/open), SR-005 (deny-by-default authorization), SR-022 (in transit / at rest preserved); ADR-0009, ADR-0008
 - **Depends on:** TASK-045 (attachment upload), TASK-027 (API deps / authz guard) — must be merged first
 - **Branch:** `feature/attachment-fetch`
-- **Status:** Not started
+- **Status:** Completed
 
 ## Objective
 

@@ -5,7 +5,7 @@
 - **Implements:** SR-012 (required fields, author from session, retrievable), SR-006 (doctor reads authorized patient), SR-007 (patient reads own); ADR-0004
 - **Depends on:** TASK-027 (API deps / authz guard), TASK-014 (`AuthorizationService` / consent evaluation) — must be merged first
 - **Branch:** `feature/clinical-entry`
-- **Status:** Not started
+- **Status:** Completed
 
 ## Objective
 

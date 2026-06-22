@@ -5,7 +5,7 @@
 - **Implements:** NFR-006, SR-028
 - **Depends on:** TASK-001 (must be merged first)
 - **Branch:** `enabler-story/ci-pipeline`
-- **Status:** Not started
+- **Status:** Completed
 
 ## Objective
 

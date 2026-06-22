@@ -5,7 +5,7 @@
 - **Implements:** SR-036 (AC-1 grant on confirm, AC-3 no grant while pending/declined, AC-4 Cases A/B/C scoped revoke, AC-5 grant persists, AC-6 audited, AC-7 unified view)
 - **Depends on:** TASK-048 (appointment state machine), TASK-028 (`ConsentService` / `ConsentGrant` per-source model) — must be merged first
 - **Branch:** `feature/appointment-consent-link`
-- **Status:** Not started
+- **Status:** Completed
 
 ## Objective
 

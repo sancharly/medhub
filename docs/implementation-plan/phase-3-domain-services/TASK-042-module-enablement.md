@@ -5,7 +5,7 @@
 - **Implements:** SR-015 (AC-1 enable, AC-2 disable); ADR-0005
 - **Depends on:** TASK-040 (Group CRUD) — must be merged first
 - **Branch:** `feature/module-enablement`
-- **Status:** Not started
+- **Status:** Completed
 
 ## Objective
 

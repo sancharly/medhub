@@ -5,7 +5,7 @@
 - **Implements:** NFR-006, SR-028
 - **Depends on:** none
 - **Branch:** `enabler-story/monorepo-tooling`
-- **Status:** Not started
+- **Status:** Completed
 
 ## Objective
 

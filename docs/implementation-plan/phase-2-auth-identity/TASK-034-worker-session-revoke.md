@@ -6,7 +6,7 @@
   SR-030.5 (server-side session invalidation)
 - **Depends on:** TASK-033 (lifecycle deactivate), TASK-031 (Celery base)
 - **Branch:** `feature/worker-session-revoke`
-- **Status:** Not started
+- **Status:** Completed
 
 ## Objective
 

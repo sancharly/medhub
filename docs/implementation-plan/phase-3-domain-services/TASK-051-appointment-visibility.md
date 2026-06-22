@@ -5,7 +5,7 @@
 - **Implements:** SR-011 (AC-1 doctor sees own, AC-2 patient sees own, AC-3 admin sees for scheduling, AC-4 unrelated cannot see); SR-035 AC-8 (participants see confirmation state)
 - **Depends on:** TASK-047 (appointment create / model), TASK-027 (API deps / authz guard) — must be merged first
 - **Branch:** `feature/appointment-visibility`
-- **Status:** Not started
+- **Status:** Completed
 
 ## Objective
 

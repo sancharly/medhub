@@ -5,7 +5,7 @@
 - **Implements:** SR-035 (AC-2 notify immediately on create, AC-3 dual-channel in-app + email)
 - **Depends on:** TASK-047 (appointment create), TASK-031 (Celery worker / `SI-WORKER` task interface + SMTP email task) — must be merged first
 - **Branch:** `feature/appointment-notify`
-- **Status:** Not started
+- **Status:** Completed
 
 ## Objective
 

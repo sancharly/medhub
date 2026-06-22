@@ -6,7 +6,7 @@
   effective access); ADR-0006
 - **Depends on:** TASK-027 (AuthorizationService — the consumer of the union)
 - **Branch:** `feature/consent-service`
-- **Status:** Not started
+- **Status:** Completed
 
 ## Objective
 

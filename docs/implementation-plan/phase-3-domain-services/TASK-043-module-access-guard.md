@@ -5,7 +5,7 @@
 - **Implements:** SR-015 (AC-3 access only if enabled for a group, AC-4 disabling removes access); ADR-0005
 - **Depends on:** TASK-042 (per-group module enablement) — must be merged first
 - **Branch:** `feature/module-access-guard`
-- **Status:** Not started
+- **Status:** Completed
 
 ## Objective
 
