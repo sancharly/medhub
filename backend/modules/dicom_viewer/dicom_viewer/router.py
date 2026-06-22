@@ -3,21 +3,20 @@
 from __future__ import annotations
 
 import uuid
-from typing import TYPE_CHECKING, Annotated, Any
+from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, Query
 from fastapi.responses import Response
 
-from app.api.deps import get_current_user
+from app.api.deps import get_current_user, get_platform_services
+from app.api.errors import AuthorizationError
 from app.audit.actions import AuditAction
+from app.modules.contract import AuditOutcome
 from dicom_viewer.dicom import stream_dicom, validate_dicom_content_type
 
-if TYPE_CHECKING:
-    pass
 
-
-def build_router(services: Any) -> APIRouter:
-    """Build and return the DICOM viewer APIRouter bound to platform services."""
+def build_router() -> APIRouter:
+    """Build and return the DICOM viewer APIRouter. Services are injected per-request via DI."""
     router = APIRouter()
 
     @router.get("/studies/{attachment_id}")
@@ -25,15 +24,23 @@ def build_router(services: Any) -> APIRouter:
         attachment_id: uuid.UUID,
         frame: Annotated[int | None, Query(ge=0)] = None,
         actor: Any = Depends(get_current_user),
+        services: Any = Depends(get_platform_services),
     ) -> Response:
-        data, content_type, _filename = services.attachments.open(actor, attachment_id)
+        try:
+            data, content_type, _filename = services.attachments.open(actor, attachment_id)
+        except AuthorizationError:
+            services.audit.record(
+                actor=actor.id,
+                action=AuditAction.DICOM_STUDY_READ,
+                target_type="attachment",
+                target_id=str(attachment_id),
+                outcome=AuditOutcome.FAILURE,
+                ip=None,
+            )
+            raise
 
         validate_dicom_content_type(content_type)
-
         result = stream_dicom(data, frame)
-
-        # Import AuditOutcome at call time to avoid module-level db import
-        from app.db.models.audit import AuditOutcome  # noqa: PLC0415
 
         services.audit.record(
             actor=actor.id,
@@ -43,7 +50,6 @@ def build_router(services: Any) -> APIRouter:
             outcome=AuditOutcome.SUCCESS,
             ip=None,
         )
-
         return Response(content=result, media_type="application/dicom")
 
     return router

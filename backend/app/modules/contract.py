@@ -2,10 +2,9 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Protocol
+from typing import Any, Protocol
 
-if TYPE_CHECKING:
-    pass
+from app.db.models.audit import AuditOutcome as AuditOutcome  # re-exported for modules
 
 
 class RouterRegistry(Protocol):

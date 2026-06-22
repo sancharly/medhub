@@ -8,7 +8,7 @@ from unittest.mock import MagicMock, patch
 from fastapi import APIRouter, FastAPI
 from fastapi.testclient import TestClient
 
-from app.api.deps import get_current_user, require_module_enabled
+from app.api.deps import get_current_user
 from app.api.errors import register_error_handlers
 from app.authz.module_guard import ModuleAccessGuard
 from app.db.models.account import Account, AccountStatus, UserType
@@ -21,36 +21,6 @@ def _make_account(user_type: UserType = UserType.DOCTOR) -> Account:
     acct.user_type = user_type
     acct.status = AccountStatus.ACTIVE
     return acct
-
-
-def _build_gated_app(module_enabled: bool) -> FastAPI:
-    app = FastAPI()
-    register_error_handlers(app)
-
-    sub = APIRouter()
-
-    @sub.get("/ping")
-    def ping() -> dict:
-        return {"pong": True}
-
-    registry = RouterRegistry(app)
-    registry.mount("test-module", sub)
-
-    actor = _make_account()
-    app.dependency_overrides[get_current_user] = lambda: actor
-
-    # Patch ModuleAccessGuard.is_module_enabled at the guard level
-    app.dependency_overrides[require_module_enabled("test-module")] = lambda: (
-        None
-        if module_enabled
-        else (_ for _ in ()).throw(
-            __import__("app.api.errors", fromlist=["AuthorizationError"]).AuthorizationError(
-                "Module not enabled"
-            )
-        )
-    )
-
-    return app
 
 
 class TestModuleGating:

@@ -36,7 +36,7 @@ async def _lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
     manifests = discover_modules()
     if manifests:
-        register_all_modules(app, manifests, None)  # type: ignore[arg-type]
+        register_all_modules(app, manifests)
 
     yield
     logger.info("MedHub API shutting down")

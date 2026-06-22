@@ -5,8 +5,6 @@ from __future__ import annotations
 import logging
 from datetime import UTC, datetime
 
-from sqlalchemy.orm import Session
-
 from app.audit.actions import AuditAction
 from app.audit.service import AuditService
 from app.db.models.audit import AuditOutcome
@@ -22,7 +20,7 @@ class ModuleRegistryService:
         self._repo = module_repo
         self._audit_svc = audit_svc
 
-    def sync_installed(self, manifests: list[ModuleManifest], db: Session) -> None:
+    def sync_installed(self, manifests: list[ModuleManifest], db: object) -> None:
         """Upsert all discovered manifests; remove absent ones; emit audit event."""
         now = datetime.now(UTC)
         present_keys: list[str] = []
@@ -48,8 +46,8 @@ class ModuleRegistryService:
         )
         logger.info("Module registry synced — %d module(s) installed", len(present_keys))
 
-    def list_installed(self, db: Session) -> list[ModuleRegistry]:
+    def list_installed(self) -> list[ModuleRegistry]:
         return self._repo.list_installed()
 
-    def get(self, module_key: str, db: Session) -> ModuleRegistry | None:
+    def get(self, module_key: str) -> ModuleRegistry | None:
         return self._repo.get_by_key(module_key)

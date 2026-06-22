@@ -17,7 +17,7 @@ class DICOMViewerManifest:
     def register(self, registry: RouterRegistry, services: PlatformServices) -> None:
         from dicom_viewer.router import build_router  # noqa: PLC0415
 
-        router = build_router(services)
+        router = build_router()
         registry.mount(self.module_key, router)
 
 

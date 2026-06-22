@@ -10,7 +10,7 @@ from dicom_viewer.router import build_router
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from app.api.deps import get_current_user
+from app.api.deps import get_current_user, get_platform_services
 from app.api.errors import AuthorizationError, register_error_handlers
 from app.audit.actions import AuditAction
 from app.db.models.account import Account, AccountStatus, UserType
@@ -50,10 +50,11 @@ def _build_app_with_dicom(
         audit=mock_audit,
     )
 
-    router = build_router(services)
+    router = build_router()
     app.include_router(router, prefix="/studies-test")
 
     app.dependency_overrides[get_current_user] = lambda: actor
+    app.dependency_overrides[get_platform_services] = lambda: services
     return app, mock_audit, actor
 
 
@@ -106,6 +107,17 @@ class TestDICOMStudiesEndpoint:
         resp = client.get(f"/studies-test/studies/{attachment_id}")
         assert resp.status_code == 403
 
+    def test_audit_emitted_on_authorization_failure(self) -> None:
+        """PHI denial is audited even when attachments.open raises AuthorizationError."""
+        app, mock_audit, actor = _build_app_with_dicom(raise_authz=True)
+        client = TestClient(app, raise_server_exceptions=False)
+        attachment_id = uuid.uuid4()
+        client.get(f"/studies-test/studies/{attachment_id}")
+        mock_audit.record.assert_called_once()
+        call_kwargs = mock_audit.record.call_args.kwargs
+        assert call_kwargs["action"] == AuditAction.DICOM_STUDY_READ
+        assert call_kwargs["outcome"] == AuditOutcome.FAILURE
+
     def test_non_dicom_attachment_returns_400(self) -> None:
         app, _, _ = _build_app_with_dicom(
             attachment_bytes=b"PDF_DATA", content_type="application/pdf"
@@ -115,7 +127,7 @@ class TestDICOMStudiesEndpoint:
         resp = client.get(f"/studies-test/studies/{attachment_id}")
         assert resp.status_code == 400
 
-    def test_audit_event_emitted(self) -> None:
+    def test_audit_event_emitted_on_success(self) -> None:
         app, mock_audit, actor = _build_app_with_dicom()
         client = TestClient(app, raise_server_exceptions=False)
         attachment_id = uuid.uuid4()
@@ -135,7 +147,6 @@ class TestDICOMStudiesEndpoint:
             client = TestClient(app, raise_server_exceptions=False)
             attachment_id = uuid.uuid4()
             client.get(f"/studies-test/studies/{attachment_id}?frame=0")
-            # stream_dicom called with frame=0
             mock_stream.assert_called_once_with(b"DICOM_DATA", 0)
 
     def test_ct_modality_streams_successfully(self) -> None:
