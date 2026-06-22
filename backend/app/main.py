@@ -10,6 +10,7 @@ from app.api.errors import register_error_handlers
 from app.api.health import router as health_router
 from app.api.router import api_router
 from app.core.logging import configure_logging
+from app.core.security_middleware import SecurityHeadersMiddleware
 
 logger = logging.getLogger(__name__)
 
@@ -46,27 +47,15 @@ def create_app() -> FastAPI:
     app.include_router(health_router)
     register_error_handlers(app)
 
-    _patch_openapi(app)
+    # Security middleware (TASK-069)
+    app.add_middleware(SecurityHeadersMiddleware)
+
+    # OpenAPI customization (TASK-068)
+    from app.api.openapi import customize_openapi  # noqa: PLC0415
+
+    customize_openapi(app)
+
     return app
-
-
-def _patch_openapi(app: FastAPI) -> None:
-    """Add fields required by the Redocly recommended ruleset."""
-    original_openapi = app.openapi
-
-    def patched_openapi() -> dict[str, object]:
-        schema = original_openapi()
-        # Root-level security: [] means "no auth required by default"
-        schema.setdefault("security", [])
-        # Ensure health endpoint declares a 4XX response
-        healthz_op = schema.get("paths", {}).get("/healthz", {}).get("get")
-        if healthz_op and "422" not in healthz_op.get("responses", {}):
-            healthz_op["responses"]["422"] = {
-                "description": "Unprocessable Entity",
-            }
-        return schema
-
-    app.openapi = patched_openapi  # type: ignore[method-assign]
 
 
 app = create_app()

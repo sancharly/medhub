@@ -158,6 +158,20 @@ class SessionService:
                 self._redis.zrem(_account_sessions_key(account_id), session_id)
         self._redis.delete(_session_key(session_id))
 
+    def list_account_session_ids(self, account_id: uuid.UUID) -> list[str]:
+        """Return all active session IDs for an account."""
+        account_key = _account_sessions_key(str(account_id))
+        raw_ids: list[bytes | str] = self._redis.zrange(account_key, 0, -1)  # type: ignore[assignment]
+        return [sid.decode() if isinstance(sid, bytes) else str(sid) for sid in raw_ids]
+
+    def get_inactivity_expiry(self, session: Session) -> datetime:
+        """Compute the inactivity expiry deadline for a resolved session."""
+        now = datetime.now(UTC)
+        ttl = self._inactivity_ttl(session.role)
+        remaining_absolute = int((session.absolute_expires_at - now).total_seconds())
+        effective_ttl = min(ttl, max(0, remaining_absolute))
+        return datetime.fromtimestamp(now.timestamp() + effective_ttl, UTC)
+
     def invalidate_all(self, account_id: uuid.UUID) -> None:
         """Delete all sessions for an account. Idempotent."""
         account_key = _account_sessions_key(str(account_id))

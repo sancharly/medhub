@@ -7,7 +7,7 @@
 - **Depends on:** TASK-030 (AccountService read), TASK-043 (ModuleAccessGuard / module enablement
   resolution) — must be merged first
 - **Branch:** `feature/me-endpoints`
-- **Status:** Not started
+- **Status:** COMMITTED on `feature/phase-4` (commit ae0f5ff)
 
 ## Objective
 

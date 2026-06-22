@@ -7,7 +7,7 @@
 - **Depends on:** TASK-030 (AccountService.create / read), TASK-032 (activation) — must be merged
   first
 - **Branch:** `feature/account-activation-endpoints`
-- **Status:** Not started
+- **Status:** COMMITTED on `feature/phase-4` (commit ae0f5ff)
 
 ## Objective
 
