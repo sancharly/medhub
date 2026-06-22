@@ -83,7 +83,10 @@ class TestLoginEndpoint:
         mock_login_svc = MagicMock(spec=LoginService)
         mock_login_svc.login.return_value = login_success
 
-        with patch("app.db.repositories.account_repo.AccountRepository.get_by_id", return_value=account):
+        with patch(
+            "app.db.repositories.account_repo.AccountRepository.get_by_id",
+            return_value=account,
+        ):
             client.app.dependency_overrides[_get_login_service] = lambda: mock_login_svc
             client.app.dependency_overrides[get_redis] = lambda: MagicMock()
 
@@ -139,7 +142,7 @@ class TestLoginEndpoint:
 class TestLogoutEndpoint:
     def test_logout_invalidates_session(self, client):
         account = _make_account()
-        session = _auth_as(client, account)
+        _auth_as(client, account)
         mock_svc = client.app.dependency_overrides[get_session_service]()
 
         resp = client.post(

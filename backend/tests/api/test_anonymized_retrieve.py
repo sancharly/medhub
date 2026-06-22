@@ -38,10 +38,14 @@ def _mock_redis() -> MagicMock:
 class TestAnonymizedRetrieve:
     def test_valid_code_returns_200(self, client):
         dataset = _make_dataset()
-        mock_redis = _mock_redis()
 
-        with patch("app.identity.erasure.ErasureService.retrieve_anonymized", return_value=dataset), \
-             patch("app.api.routers.anonymized_data._check_rate_limit"):
+        with (
+            patch(
+                "app.identity.erasure.ErasureService.retrieve_anonymized",
+                return_value=dataset,
+            ),
+            patch("app.api.routers.anonymized_data._check_rate_limit"),
+        ):
             resp = client.post(
                 "/api/v1/anonymized-data/retrieve",
                 json={"retrievalCode": "valid-code"},
@@ -68,8 +72,13 @@ class TestAnonymizedRetrieve:
         """Endpoint must be accessible without a session cookie."""
         dataset = _make_dataset()
 
-        with patch("app.identity.erasure.ErasureService.retrieve_anonymized", return_value=dataset), \
-             patch("app.api.routers.anonymized_data._check_rate_limit"):
+        with (
+            patch(
+                "app.identity.erasure.ErasureService.retrieve_anonymized",
+                return_value=dataset,
+            ),
+            patch("app.api.routers.anonymized_data._check_rate_limit"),
+        ):
             resp = client.post(
                 "/api/v1/anonymized-data/retrieve",
                 json={"retrievalCode": "valid-code"},

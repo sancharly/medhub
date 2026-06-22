@@ -66,7 +66,10 @@ class TestCSRFEnforcement:
         actor = _make_account()
         _setup_auth(client, actor)
 
-        with patch("app.db.repositories.account_repo.AccountRepository.get_by_id", return_value=actor):
+        with patch(
+            "app.db.repositories.account_repo.AccountRepository.get_by_id",
+            return_value=actor,
+        ):
             resp = client.post(
                 "/api/v1/auth/logout",
                 cookies={"medhub_session": "test-session-id"},
@@ -80,7 +83,10 @@ class TestCSRFEnforcement:
         actor = _make_account()
         _setup_auth(client, actor)
 
-        with patch("app.db.repositories.account_repo.AccountRepository.get_by_id", return_value=actor):
+        with patch(
+            "app.db.repositories.account_repo.AccountRepository.get_by_id",
+            return_value=actor,
+        ):
             resp = client.post(
                 "/api/v1/auth/logout",
                 cookies={"medhub_session": "test-session-id", "medhub_csrf": "valid-token"},
@@ -94,7 +100,10 @@ class TestCSRFEnforcement:
         actor = _make_account()
         _setup_auth(client, actor)
 
-        with patch("app.db.repositories.account_repo.AccountRepository.get_by_id", return_value=actor):
+        with patch(
+            "app.db.repositories.account_repo.AccountRepository.get_by_id",
+            return_value=actor,
+        ):
             resp = client.post(
                 "/api/v1/auth/logout",
                 cookies={"medhub_session": "test-session-id", "medhub_csrf": "cookie-token"},
@@ -109,7 +118,10 @@ class TestCSRFEnforcement:
         actor = _make_account()
         _setup_auth(client, actor)
 
-        with patch("app.db.repositories.account_repo.AccountRepository.get_by_id", return_value=actor):
+        with patch(
+            "app.db.repositories.account_repo.AccountRepository.get_by_id",
+            return_value=actor,
+        ):
             resp = client.get("/api/v1/me")
 
         client.app.dependency_overrides = {}

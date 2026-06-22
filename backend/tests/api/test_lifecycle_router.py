@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import uuid
-from datetime import UTC, datetime
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -105,8 +104,13 @@ class TestDeleteEndpoint:
 
         erasure_result = ErasureResult(dataset_id=dataset_id, retrieval_code="raw-code")
 
-        with patch("app.identity.erasure.ErasureService.delete", return_value=erasure_result), \
-             patch("app.db.repositories.account_repo.AccountRepository.get_by_id", return_value=target):
+        with (
+            patch("app.identity.erasure.ErasureService.delete", return_value=erasure_result),
+            patch(
+                "app.db.repositories.account_repo.AccountRepository.get_by_id",
+                return_value=target,
+            ),
+        ):
             resp = client.request(
                 "DELETE",
                 f"/api/v1/accounts/{target_id}",
@@ -138,7 +142,10 @@ class TestDeleteEndpoint:
         target.id = target_id
         target.email = "real@example.com"
 
-        with patch("app.db.repositories.account_repo.AccountRepository.get_by_id", return_value=target):
+        with patch(
+            "app.db.repositories.account_repo.AccountRepository.get_by_id",
+            return_value=target,
+        ):
             resp = client.request(
                 "DELETE",
                 f"/api/v1/accounts/{target_id}",

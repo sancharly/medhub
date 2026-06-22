@@ -40,7 +40,10 @@ class TestValidateToken:
         token_hash = __import__("hashlib").sha256(b"valid-token").hexdigest()
         account.activation_token_hash = token_hash
 
-        with patch("app.db.repositories.account_repo.AccountRepository.list", return_value=[account]):
+        with patch(
+            "app.db.repositories.account_repo.AccountRepository.list",
+            return_value=[account],
+        ):
             resp = client.get("/api/v1/activation/valid-token")
 
         assert resp.status_code == 200
@@ -61,7 +64,10 @@ class TestValidateToken:
         account.activation_token_hash = token_hash
         account.activation_token_expires_at = datetime.now(UTC) - timedelta(hours=1)
 
-        with patch("app.db.repositories.account_repo.AccountRepository.list", return_value=[account]):
+        with patch(
+            "app.db.repositories.account_repo.AccountRepository.list",
+            return_value=[account],
+        ):
             resp = client.get("/api/v1/activation/expired-token")
 
         assert resp.status_code == 200
