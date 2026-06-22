@@ -8,7 +8,7 @@
 - **Depends on:** TASK-060, TASK-061, TASK-062, TASK-063, TASK-064, TASK-065, TASK-066, TASK-067
   (all routers must be merged so the document is complete) — must be merged first
 - **Branch:** `enabler-story/openapi-contract`
-- **Status:** Not started
+- **Status:** COMMITTED on `feature/phase-4` (commit ae0f5ff)
 
 ## Objective
 

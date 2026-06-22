@@ -8,7 +8,7 @@
 - **Depends on:** TASK-025 (API auth/session deps — the auth pipeline the middleware composes with),
   TASK-026 (RFC 7807 error handlers — CSRF/denial rendering) — must be merged first
 - **Branch:** `feature/security-middleware`
-- **Status:** Not started
+- **Status:** COMMITTED on `feature/phase-4` (commit ae0f5ff)
 
 ## Objective
 

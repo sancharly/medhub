@@ -8,7 +8,7 @@
 - **Depends on:** TASK-047 (AppointmentService.create), TASK-048 (state machine), TASK-049
   (consent link), TASK-051 (visibility / list_for) — must be merged first
 - **Branch:** `feature/appointment-endpoints`
-- **Status:** Not started
+- **Status:** COMMITTED on `feature/phase-4` (commit ae0f5ff)
 
 ## Objective
 

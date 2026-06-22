@@ -9,7 +9,7 @@
 - **Depends on:** TASK-044 (clinical entry), TASK-045 (attachment upload), TASK-046 (attachment
   fetch) — must be merged first
 - **Branch:** `feature/clinical-attachment-endpoints`
-- **Status:** Not started
+- **Status:** COMMITTED on `feature/phase-4` (commit ae0f5ff)
 
 ## Objective
 

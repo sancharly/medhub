@@ -6,7 +6,7 @@
   SR-036.7 (unified view of all grants — manual + appointment-derived)
 - **Depends on:** TASK-028 (ConsentService) — must be merged first
 - **Branch:** `feature/consent-endpoints`
-- **Status:** Not started
+- **Status:** COMMITTED on `feature/phase-4` (commit ae0f5ff)
 
 ## Objective
 

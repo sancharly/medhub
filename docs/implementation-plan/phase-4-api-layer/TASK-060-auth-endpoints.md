@@ -7,7 +7,7 @@
 - **Depends on:** TASK-023 (LoginService), TASK-024 (lockout), TASK-022 (cookie/CSRF), TASK-020
   (PasswordService) — must be merged first
 - **Branch:** `feature/auth-endpoints`
-- **Status:** Not started
+- **Status:** COMMITTED on `feature/phase-4` (commit ae0f5ff)
 
 ## Objective
 

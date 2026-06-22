@@ -7,7 +7,7 @@
   retention, user-held never-stored code)
 - **Depends on:** TASK-033 (account lifecycle), TASK-035 (erasure/anonymize) — must be merged first
 - **Branch:** `feature/lifecycle-retrieval-endpoints`
-- **Status:** Not started
+- **Status:** COMMITTED on `feature/phase-4` (commit ae0f5ff)
 
 ## Objective
 

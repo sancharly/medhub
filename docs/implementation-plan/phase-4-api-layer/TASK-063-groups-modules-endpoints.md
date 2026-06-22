@@ -7,7 +7,7 @@
 - **Depends on:** TASK-040 (GroupService create/list), TASK-041 (membership), TASK-042 (module
   enablement) — must be merged first
 - **Branch:** `feature/groups-modules-endpoints`
-- **Status:** Not started
+- **Status:** COMMITTED on `feature/phase-4` (commit ae0f5ff)
 
 ## Objective
 
