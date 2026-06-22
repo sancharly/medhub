@@ -5,7 +5,7 @@
 - **Implements:** SR-014 (AC-2 auto-by-type, AC-3 manual add/remove, AC-4 retrievable), SR-004 (user type as membership input); ADR-0005
 - **Depends on:** TASK-040 (Group CRUD) — must be merged first
 - **Branch:** `feature/group-membership`
-- **Status:** Not started
+- **Status:** Completed
 
 ## Objective
 

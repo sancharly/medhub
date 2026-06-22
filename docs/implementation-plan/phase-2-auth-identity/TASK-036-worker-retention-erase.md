@@ -5,7 +5,7 @@
 - **Implements:** SR-024.4 (records past retention handled per policy → permanent erasure); ADR-0013
 - **Depends on:** TASK-035 (erasure → anonymized dataset with a retention deadline)
 - **Branch:** `feature/worker-retention-erase`
-- **Status:** Not started
+- **Status:** Completed
 
 ## Objective
 

@@ -5,7 +5,7 @@
 - **Implements:** SR-022
 - **Depends on:** TASK-011 (must be merged first)
 - **Branch:** `feature/persist-crypto-at-rest`
-- **Status:** Not started
+- **Status:** Completed
 
 ## Objective
 

@@ -5,7 +5,7 @@
 - **Implements:** SR-014 (AC-1, AC-4); ADR-0005
 - **Depends on:** TASK-027 (API deps / `AuthorizationService` guard, current-user DI) — must be merged first
 - **Branch:** `feature/group-crud`
-- **Status:** Not started
+- **Status:** Completed
 
 ## Objective
 

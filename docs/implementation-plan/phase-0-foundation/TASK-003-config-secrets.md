@@ -5,7 +5,7 @@
 - **Implements:** NFR-007, §8.11 (Configuration & secrets)
 - **Depends on:** TASK-002 (must be merged first)
 - **Branch:** `enabler-story/config-secrets`
-- **Status:** Not started
+- **Status:** Completed
 
 ## Objective
 

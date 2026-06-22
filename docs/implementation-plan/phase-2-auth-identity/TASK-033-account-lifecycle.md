@@ -5,7 +5,7 @@
 - **Implements:** SR-034.1–4 (deactivate with ≤30 s session kill; data retained; reactivate)
 - **Depends on:** TASK-030 (AccountService), TASK-021 (SessionService)
 - **Branch:** `feature/account-lifecycle`
-- **Status:** Not started
+- **Status:** Completed
 
 ## Objective
 

@@ -6,7 +6,7 @@
   self-access); ADR-0006
 - **Depends on:** TASK-014 (AuditService), TASK-025 (API deps that invoke the guard)
 - **Branch:** `feature/authorization-service`
-- **Status:** Not started
+- **Status:** Completed
 
 ## Objective
 

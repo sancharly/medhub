@@ -5,7 +5,7 @@
 - **Implements:** SR-013 (AC-1 attach incl. DICOM, AC-2 bound to entry/patient, AC-4 encrypted at rest), SR-022 (AC-2 AES-256 at rest); ADR-0009, ADR-0008
 - **Depends on:** TASK-044 (clinical entry), TASK-013 (object-storage / MinIO client + bucket config) — must be merged first
 - **Branch:** `feature/attachment-upload`
-- **Status:** Not started
+- **Status:** Completed
 
 ## Objective
 

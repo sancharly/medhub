@@ -5,7 +5,7 @@
 - **Implements:** SR-010 (AC-1 create with doctor+patient+datetime, AC-2 reject missing, AC-3 persisted/retrievable, AC-4 admin without clinical data)
 - **Depends on:** TASK-027 (API deps / authz guard, current-user DI) — must be merged first
 - **Branch:** `feature/appointment-create`
-- **Status:** Not started
+- **Status:** Completed
 
 ## Objective
 

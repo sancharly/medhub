@@ -5,7 +5,7 @@
 - **Implements:** SR-030.6 (hardened cookie attributes); SR-031.3 (CSRF protection on state-changing requests)
 - **Depends on:** TASK-021 (SessionService — the opaque id carried by the cookie)
 - **Branch:** `feature/cookie-csrf`
-- **Status:** Not started
+- **Status:** Completed
 
 ## Objective
 

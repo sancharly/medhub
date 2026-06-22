@@ -5,7 +5,7 @@
 - **Implements:** SR-001
 - **Depends on:** TASK-001 (must be merged first)
 - **Branch:** `enabler-story/backend-app-skeleton`
-- **Status:** Not started
+- **Status:** Completed
 
 ## Objective
 

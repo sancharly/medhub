@@ -18,3 +18,11 @@ class ClinicalRepository(Repository[ClinicalEntry]):
             select(ClinicalEntry).where(ClinicalEntry.patient_id == patient_id)
         )
         return list(result.scalars().all())
+
+    def list_for_patient_ordered(self, patient_id: uuid.UUID) -> list[ClinicalEntry]:
+        result = self._session.execute(
+            select(ClinicalEntry)
+            .where(ClinicalEntry.patient_id == patient_id)
+            .order_by(ClinicalEntry.occurred_at.desc())
+        )
+        return list(result.scalars().all())

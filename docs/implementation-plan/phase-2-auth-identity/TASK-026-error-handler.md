@@ -5,7 +5,7 @@
 - **Implements:** SR-027.3 (clear, actionable error messaging); api-design.md error catalog
 - **Depends on:** TASK-002 (backend FastAPI app skeleton)
 - **Branch:** `feature/rfc7807-error-handlers`
-- **Status:** Not started
+- **Status:** Completed
 
 ## Objective
 

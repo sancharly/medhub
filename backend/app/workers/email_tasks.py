@@ -180,6 +180,22 @@ def send_appointment_notification(self: object, appointment_id: str) -> None:
         )
         _send_smtp(notification)
         notification.mark_sent()
+
+        # Write in-app notification row (TASK-050)
+        try:
+            from app.db.models.notification import InAppNotification  # noqa: PLC0415
+
+            in_app = InAppNotification(
+                recipient_account_id=appt.patient_id,
+                appointment_id=appt.id,
+                message=body,
+                status="SENT",
+            )
+            db.add(in_app)
+        except Exception:
+            # Best-effort — don't fail the whole task if in-app write fails
+            pass
+
         db.commit()
         logger.info("Appointment notification sent", extra={"appointment_id": appointment_id})
     except Exception:

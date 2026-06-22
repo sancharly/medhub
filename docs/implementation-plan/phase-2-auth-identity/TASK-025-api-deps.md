@@ -6,7 +6,7 @@
   access enforcement)
 - **Depends on:** TASK-021 (SessionService)
 - **Branch:** `feature/api-auth-deps`
-- **Status:** Not started
+- **Status:** Completed
 
 ## Objective
 

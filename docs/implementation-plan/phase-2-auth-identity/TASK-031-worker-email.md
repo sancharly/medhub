@@ -6,7 +6,7 @@
   (best-effort `Notification` abstraction with `status` + post-send hook)
 - **Depends on:** TASK-003 (config & secrets — SMTP/Redis), TASK-012 (repositories)
 - **Branch:** `feature/worker-email`
-- **Status:** Not started
+- **Status:** Completed
 
 ## Objective
 

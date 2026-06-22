@@ -102,9 +102,20 @@ class AuthorizationService:
         own = resource.owner_id == actor.id or resource.patient_id == actor.id
         if action in ("account:read", "clinical:read") and own:
             return Decision(allow=True, basis="OWNER")
+        # Patients can confirm/decline their own appointments
+        if (
+            action in ("appointment:confirm", "appointment:decline")
+            and resource.owner_id == actor.id
+        ):
+            return Decision(allow=True, basis="OWNER")
+        # Patients can list their own appointments (scoped at repo level)
+        if action == "appointment:list":
+            return Decision(allow=True, basis="OWNER")
         return Decision(allow=False, basis="OWNER")
 
     def _eval_doctor(self, actor: Account, action: str, resource: Resource) -> Decision:
+        if action in ("appointment:create", "appointment:list"):
+            return Decision(allow=True, basis="ROLE")
         if action not in ("clinical:read", "clinical:write", "account:read"):
             return Decision(allow=False, basis="ROLE")
 
@@ -127,7 +138,7 @@ class AuthorizationService:
         if action.startswith("clinical:"):
             return Decision(allow=False, basis="ROLE")
         # Non-clinical reads are allowed (admin projection enforced at API layer)
-        if action in ("account:read", "account:list"):
+        if action in ("account:read", "account:list", "appointment:create", "appointment:list"):
             return Decision(allow=True, basis="ROLE")
         return Decision(allow=False, basis="ROLE")
 
@@ -145,6 +156,13 @@ class AuthorizationService:
             "group:manage",
             "module:manage",
             "account:unlock",
+            # Phase 3 additions
+            "groups:create",
+            "groups:list",
+            "groups:manage_members",
+            "modules:enable",
+            "appointment:create",
+            "appointment:list",
         }
         if action in lifecycle_actions:
             return Decision(allow=True, basis="ROLE")

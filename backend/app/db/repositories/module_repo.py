@@ -37,3 +37,33 @@ class ModuleRepository(Repository[ModuleRegistry]):
             enablement.enabled = enabled
         self._session.flush()
         return enablement
+
+    def enabled_module_keys_for_group(self, group_id: uuid.UUID) -> list[str]:
+        result = self._session.execute(
+            select(ModuleRegistry.module_key)
+            .join(
+                GroupModuleEnablement,
+                GroupModuleEnablement.module_id == ModuleRegistry.id,
+            )
+            .where(
+                GroupModuleEnablement.group_id == group_id,
+                GroupModuleEnablement.enabled.is_(True),
+            )
+        )
+        return list(result.scalars().all())
+
+    def enabled_module_keys_for_groups(self, group_ids: list[uuid.UUID]) -> list[str]:
+        if not group_ids:
+            return []
+        result = self._session.execute(
+            select(ModuleRegistry.module_key)
+            .join(
+                GroupModuleEnablement,
+                GroupModuleEnablement.module_id == ModuleRegistry.id,
+            )
+            .where(
+                GroupModuleEnablement.group_id.in_(group_ids),
+                GroupModuleEnablement.enabled.is_(True),
+            )
+        )
+        return list(result.scalars().all())

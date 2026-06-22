@@ -5,7 +5,7 @@
 - **Implements:** SR-033 (account activation via email)
 - **Depends on:** TASK-030 (AccountService create), TASK-031 (email task), TASK-020 (PasswordService)
 - **Branch:** `feature/account-activation`
-- **Status:** Not started
+- **Status:** Completed
 
 ## Objective
 

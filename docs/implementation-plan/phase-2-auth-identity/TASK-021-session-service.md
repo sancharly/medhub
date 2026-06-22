@@ -5,7 +5,7 @@
 - **Implements:** SR-030 (session management); ADR-0012 (server-side opaque tokens in Redis)
 - **Depends on:** TASK-012 (repositories; Redis client wiring established in TASK-003)
 - **Branch:** `feature/session-service`
-- **Status:** Not started
+- **Status:** Completed
 
 ## Objective
 

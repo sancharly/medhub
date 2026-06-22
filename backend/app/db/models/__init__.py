@@ -20,4 +20,5 @@ from app.db.models.group import GroupMembership as GroupMembership
 from app.db.models.group import MembershipSource as MembershipSource
 from app.db.models.module import GroupModuleEnablement as GroupModuleEnablement
 from app.db.models.module import ModuleRegistry as ModuleRegistry
+from app.db.models.notification import InAppNotification as InAppNotification
 from app.db.models.password_history import PasswordHistory as PasswordHistory

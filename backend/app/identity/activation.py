@@ -45,10 +45,12 @@ class ActivationService:
         account_repo: AccountRepository,
         password_svc: PasswordService,
         audit_svc: AuditService,
+        group_repo: object = None,
     ) -> None:
         self._repo = account_repo
         self._password_svc = password_svc
         self._audit_svc = audit_svc
+        self._group_repo = group_repo
 
     def activate(self, account_id: uuid.UUID, token: str, password: str) -> Account:
         """Activate an account: validate token, set password, set ACTIVE.
@@ -77,6 +79,14 @@ class ActivationService:
         # Invalidate the token
         account.activation_token_hash = None
         account.activation_token_expires_at = None
+
+        # Sync automatic group memberships based on user_type
+        if self._group_repo is not None:
+            from app.db.repositories.group_repo import GroupRepository  # noqa: PLC0415
+            from app.groups.auto_membership import sync_automatic_membership  # noqa: PLC0415
+
+            if isinstance(self._group_repo, GroupRepository):
+                sync_automatic_membership(account, self._group_repo)
 
         self._audit_svc.record(
             actor=account.id,
