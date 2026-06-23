@@ -15,17 +15,15 @@ describe("useNavItems", () => {
   it("patient does not see admin entries", () => {
     const { result } = renderHook(() => useNavItems("patient"));
     const labels = result.current.items.map((i) => i.label);
-    expect(labels).not.toContain("Users");
-    expect(labels).not.toContain("Audit Log");
-    expect(labels).not.toContain("System");
+    expect(labels).not.toContain("Accounts");
+    expect(labels).not.toContain("Groups");
   });
 
   it("sysadmin sees admin entries", () => {
     const { result } = renderHook(() => useNavItems("sysadmin"));
     const labels = result.current.items.map((i) => i.label);
-    expect(labels).toContain("Users");
-    expect(labels).toContain("Audit Log");
-    expect(labels).toContain("System");
+    expect(labels).toContain("Accounts");
+    expect(labels).toContain("Groups");
   });
 
   it("labels come from navConfig", () => {
@@ -45,10 +43,10 @@ describe("useNavItems", () => {
     expect(result.current.items.map((i) => i.label)).toContain("Extra");
   });
 
-  it("admin sees admin entries but not sysadmin-only entries", () => {
+  it("admin sees Accounts but not Groups (sysadmin-only)", () => {
     const { result } = renderHook(() => useNavItems("admin"));
     const labels = result.current.items.map((i) => i.label);
-    expect(labels).toContain("Users");
-    expect(labels).not.toContain("System");
+    expect(labels).toContain("Accounts");
+    expect(labels).not.toContain("Groups");
   });
 });

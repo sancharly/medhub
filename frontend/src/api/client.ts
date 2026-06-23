@@ -6,6 +6,18 @@ import type {
   ChangePasswordRequest,
   ExtendSessionResponse,
   ProblemError,
+  PatientSummary,
+  ClinicalEntry,
+  CreateClinicalEntryRequest,
+  Attachment,
+  UserModule,
+  Appointment,
+  CreateAppointmentRequest,
+  ConsentGrant,
+  AccountSummary,
+  CreateAccountRequest,
+  Group,
+  InstalledModule,
 } from "./generated/openapi";
 
 export type { ProblemError };
@@ -105,5 +117,132 @@ export class ApiClient {
 
   activate(token: string, password: string): Promise<void> {
     return this.request<void>("POST", `/activation/${token}`, { password });
+  }
+
+  // Patients
+  listPatients(): Promise<PatientSummary[]> {
+    return this.request<PatientSummary[]>("GET", "/clinical-entries/patients");
+  }
+
+  // Clinical entries
+  listClinicalEntries(patientId: string): Promise<ClinicalEntry[]> {
+    return this.request<ClinicalEntry[]>("GET", `/patients/${patientId}/clinical-entries`);
+  }
+
+  createClinicalEntry(patientId: string, data: CreateClinicalEntryRequest): Promise<ClinicalEntry> {
+    return this.request<ClinicalEntry>("POST", `/patients/${patientId}/clinical-entries`, data);
+  }
+
+  async uploadAttachment(entryId: string, file: File): Promise<Attachment> {
+    const formData = new FormData();
+    formData.append("file", file);
+    const headers = withCsrf({});
+    const response = await fetch(`${this.baseUrl}/clinical-entries/${entryId}/attachments`, {
+      method: "POST",
+      credentials: "include",
+      headers,
+      body: formData,
+    });
+    if (!response.ok) {
+      const contentType = response.headers.get("content-type") ?? "";
+      if (contentType.includes("application/problem+json")) {
+        const problem: ProblemError = await response.json();
+        throw new ApiError(problem);
+      }
+      throw new ApiError({
+        type: "/errors/unknown",
+        title: response.statusText || "Unknown error",
+        status: response.status,
+      });
+    }
+    return response.json() as Promise<Attachment>;
+  }
+
+  getAttachmentUrl(attachmentId: string): string {
+    return `${this.baseUrl}/attachments/${attachmentId}`;
+  }
+
+  listMyModules(): Promise<UserModule[]> {
+    return this.request<UserModule[]>("GET", "/users/me/modules");
+  }
+
+  // Appointments
+  listAppointments(): Promise<Appointment[]> {
+    return this.request<Appointment[]>("GET", "/appointments");
+  }
+
+  createAppointment(data: CreateAppointmentRequest): Promise<Appointment> {
+    return this.request<Appointment>("POST", "/appointments", data);
+  }
+
+  confirmAppointment(id: string): Promise<void> {
+    return this.request<void>("POST", `/appointments/${id}/confirm`);
+  }
+
+  declineAppointment(id: string): Promise<void> {
+    return this.request<void>("POST", `/appointments/${id}/decline`);
+  }
+
+  // Consents
+  listMyConsents(): Promise<ConsentGrant[]> {
+    return this.request<ConsentGrant[]>("GET", "/me/consents");
+  }
+
+  grantConsent(data: { doctorId: string }): Promise<ConsentGrant> {
+    return this.request<ConsentGrant>("POST", "/consents", data);
+  }
+
+  revokeConsent(grantId: string): Promise<void> {
+    return this.request<void>("DELETE", `/consents/${grantId}`);
+  }
+
+  // Accounts
+  listAccounts(): Promise<AccountSummary[]> {
+    return this.request<AccountSummary[]>("GET", "/accounts");
+  }
+
+  createAccount(data: CreateAccountRequest): Promise<AccountSummary> {
+    return this.request<AccountSummary>("POST", "/accounts", data);
+  }
+
+  deactivateAccount(id: string): Promise<void> {
+    return this.request<void>("POST", `/accounts/${id}/deactivate`);
+  }
+
+  reactivateAccount(id: string): Promise<void> {
+    return this.request<void>("POST", `/accounts/${id}/reactivate`);
+  }
+
+  deleteAccount(id: string): Promise<void> {
+    return this.request<void>("DELETE", `/accounts/${id}`);
+  }
+
+  resendActivation(id: string): Promise<void> {
+    return this.request<void>("POST", `/accounts/${id}/resend-activation`);
+  }
+
+  // Groups
+  listGroups(): Promise<Group[]> {
+    return this.request<Group[]>("GET", "/groups");
+  }
+
+  createGroup(data: { name: string }): Promise<Group> {
+    return this.request<Group>("POST", "/groups", data);
+  }
+
+  addGroupMember(groupId: string, accountId: string): Promise<void> {
+    return this.request<void>("POST", `/groups/${groupId}/members`, { accountId });
+  }
+
+  removeGroupMember(groupId: string, accountId: string): Promise<void> {
+    return this.request<void>("DELETE", `/groups/${groupId}/members/${accountId}`);
+  }
+
+  listInstalledModules(): Promise<InstalledModule[]> {
+    return this.request<InstalledModule[]>("GET", "/modules");
+  }
+
+  setGroupModuleEnabled(groupId: string, moduleKey: string, enabled: boolean): Promise<void> {
+    return this.request<void>("PUT", `/groups/${groupId}/modules/${moduleKey}`, { enabled });
   }
 }

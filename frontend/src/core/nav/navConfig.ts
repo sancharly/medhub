@@ -22,23 +22,13 @@ export const navConfig: NavEntry[] = [
     roles: ["doctor"],
   },
   {
-    label: "Clinical Notes",
-    path: "/clinical-notes",
-    roles: ["doctor"],
-  },
-  {
-    label: "Users",
-    path: "/admin/users",
+    label: "Accounts",
+    path: "/admin/accounts",
     roles: ["admin", "sysadmin"],
   },
   {
-    label: "Audit Log",
-    path: "/admin/audit",
-    roles: ["admin", "sysadmin"],
-  },
-  {
-    label: "System",
-    path: "/admin/system",
+    label: "Groups",
+    path: "/admin/groups",
     roles: ["sysadmin"],
   },
 ];

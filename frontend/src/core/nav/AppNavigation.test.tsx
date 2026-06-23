@@ -26,15 +26,14 @@ describe("AppNavigation role filtering", () => {
 
   it("patient does not see admin entries", () => {
     renderNav("patient");
-    expect(screen.queryByText("Users")).not.toBeInTheDocument();
-    expect(screen.queryByText("Audit Log")).not.toBeInTheDocument();
+    expect(screen.queryByText("Accounts")).not.toBeInTheDocument();
+    expect(screen.queryByText("Groups")).not.toBeInTheDocument();
   });
 
   it("sysadmin sees admin entries", () => {
     renderNav("sysadmin");
-    expect(screen.getByText("Users")).toBeInTheDocument();
-    expect(screen.getByText("Audit Log")).toBeInTheDocument();
-    expect(screen.getByText("System")).toBeInTheDocument();
+    expect(screen.getByText("Accounts")).toBeInTheDocument();
+    expect(screen.getByText("Groups")).toBeInTheDocument();
   });
 
   it("labels come from navConfig", () => {

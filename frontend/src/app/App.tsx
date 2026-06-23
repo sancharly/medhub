@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "../core/theme/ThemeProvider";
 import { QueryProvider } from "../api/QueryProvider";
 import { ConfirmProvider } from "../core/confirm/ConfirmProvider";
@@ -11,6 +11,50 @@ import { SessionActivityProvider } from "../auth/SessionActivityProvider";
 import { AppErrorBoundary } from "../core/error/AppErrorBoundary";
 import { ChangePasswordPage } from "../auth/ChangePasswordPage";
 import { AppLayout } from "../core/layout/AppLayout";
+import { AppNavigation } from "../core/nav/AppNavigation";
+import { ProfilePage } from "../core/profile";
+import { PatientListPage } from "../core/patients";
+import { ClinicalEntriesPage } from "../core/clinical";
+import { AppointmentsPage } from "../core/appointments";
+import { ConsentPage } from "../core/consent";
+import { AccountsPage } from "../core/admin/accounts";
+import { GroupsPage } from "../core/admin/groups";
+import { useQuery } from "@tanstack/react-query";
+import { apiClient } from "../api";
+
+function AuthenticatedApp() {
+  const { data: me } = useQuery({
+    queryKey: ["me"],
+    queryFn: () => apiClient.me(),
+  });
+
+  return (
+    <AppLayout navigation={<AppNavigation userType={me?.userType ?? "patient"} />}>
+      <Routes>
+        <Route path="/password" element={<ChangePasswordPage />} />
+        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/patients" element={<PatientListPage />} />
+        <Route
+          path="/patients/:patientId/clinical-entries"
+          element={
+            <ClinicalEntriesPage
+              userType={
+                me?.userType === "doctor" || me?.userType === "patient"
+                  ? me.userType
+                  : "patient"
+              }
+            />
+          }
+        />
+        <Route path="/appointments" element={<AppointmentsPage />} />
+        <Route path="/consent" element={<ConsentPage />} />
+        <Route path="/admin/accounts" element={<AccountsPage />} />
+        <Route path="/admin/groups" element={<GroupsPage />} />
+        <Route path="/*" element={<Navigate to="/profile" replace />} />
+      </Routes>
+    </AppLayout>
+  );
+}
 
 export function App() {
   return (
@@ -28,20 +72,7 @@ export function App() {
                       element={
                         <SessionActivityProvider>
                           <AppErrorBoundary>
-                            <AppLayout navigation={<div />}>
-                              <Routes>
-                                <Route
-                                  path="/password"
-                                  element={<ChangePasswordPage />}
-                                />
-                                <Route
-                                  path="/*"
-                                  element={
-                                    <div>App shell - phase 7</div>
-                                  }
-                                />
-                              </Routes>
-                            </AppLayout>
+                            <AuthenticatedApp />
                           </AppErrorBoundary>
                         </SessionActivityProvider>
                       }
