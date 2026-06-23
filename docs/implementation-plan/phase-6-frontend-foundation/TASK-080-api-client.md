@@ -5,7 +5,7 @@
 - **Implements:** SR-031 (AC-3 CSRF token on state-changing requests; AC-5 server-side authz is authoritative, client never the sole gate); NFR-006 (typed interface generated from the OpenAPI contract); ADR-0003, ADR-0012
 - **Depends on:** TASK-068 (OpenAPI 3.1 contract + typed-client generation artifact) — must be merged first
 - **Branch:** `enabler-story/fe-api-client`
-- **Status:** Not started
+- **Status:** COMPLETED (2026-06-23, commit 9d3b68b)
 
 ## Objective
 

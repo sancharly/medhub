@@ -5,7 +5,7 @@
 - **Implements:** SR-027 (AC-3 clear, actionable message identifying the problem when an operation fails or input is invalid)
 - **Depends on:** TASK-081 (AppLayout + MUI theme) — must be merged first
 - **Branch:** `feature/fe-error-boundary`
-- **Status:** Not started
+- **Status:** COMPLETED (2026-06-23, commit 9d3b68b)
 
 ## Objective
 

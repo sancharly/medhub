@@ -5,7 +5,7 @@
 - **Implements:** SR-025 (AC-1 min 12 chars; AC-2 four character classes; AC-3 no username/email substring; AC-4 not one of the last 12; AC-5 violated-rule message; AC-6 forced change on first login before any other action)
 - **Depends on:** TASK-080 (typed `ApiClient` + cookie/CSRF + Query) — must be merged first
 - **Branch:** `feature/fe-password-ui`
-- **Status:** Not started
+- **Status:** COMPLETED (2026-06-23, commit 9d3b68b)
 
 ## Objective
 

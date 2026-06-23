@@ -5,7 +5,7 @@
 - **Implements:** SR-030 (AC-4 a visible countdown 2 minutes before an inactivity timeout, with the option to extend the session); ADR-0012
 - **Depends on:** TASK-080 (typed `ApiClient` + cookie/CSRF + Query) — must be merged first
 - **Branch:** `feature/fe-idle-warning`
-- **Status:** Not started
+- **Status:** COMPLETED (2026-06-23, commit 9d3b68b)
 
 ## Objective
 
