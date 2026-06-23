@@ -66,8 +66,8 @@ export function App() {
               <Routes>
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/activation/:token" element={<ActivationPage />} />
-                <Route element={<RequireAuth />}>
-                  <Route element={<ForcedPasswordGate />}>
+                <Route path="*" element={<RequireAuth />}>
+                  <Route path="*" element={<ForcedPasswordGate />}>
                     <Route
                       path="*"
                       element={
