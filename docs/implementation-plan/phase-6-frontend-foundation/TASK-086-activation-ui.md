@@ -5,7 +5,7 @@
 - **Implements:** SR-033 (AC-2 the activation link validates the token; AC-3 password set must satisfy SR-025; AC-4 password entered twice and mismatch rejected with a non-disclosing message; AC-5 on success the account becomes active)
 - **Depends on:** TASK-080 (typed `ApiClient` + cookie/CSRF + Query) — must be merged first
 - **Branch:** `feature/fe-activation-ui`
-- **Status:** Not started
+- **Status:** COMPLETED (2026-06-23, commit 9d3b68b)
 
 ## Objective
 

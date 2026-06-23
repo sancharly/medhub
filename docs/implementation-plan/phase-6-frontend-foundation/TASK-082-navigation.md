@@ -5,7 +5,7 @@
 - **Implements:** SR-027 (AC-1 consistent navigation structure and terminology across screens and modules)
 - **Depends on:** TASK-081 (AppLayout + MUI theme + breakpoints) — must be merged first
 - **Branch:** `feature/fe-navigation`
-- **Status:** Not started
+- **Status:** COMPLETED (2026-06-23, commit 9d3b68b)
 
 ## Objective
 

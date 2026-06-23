@@ -5,7 +5,7 @@
 - **Implements:** SR-027 (AC-2 destructive or safety-relevant actions require an explicit confirmation step before execution); NFR-009 (AC-3 explicit confirmation of destructive/safety-relevant actions)
 - **Depends on:** TASK-081 (AppLayout + MUI theme) — must be merged first
 - **Branch:** `feature/fe-confirm-dialog`
-- **Status:** Not started
+- **Status:** COMPLETED (2026-06-23, commit 9d3b68b)
 
 ## Objective
 

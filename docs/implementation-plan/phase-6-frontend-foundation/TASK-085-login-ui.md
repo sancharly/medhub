@@ -5,7 +5,7 @@
 - **Implements:** SR-002 (AC-1 authenticate with email/password and obtain a session; AC-2 generic failure with no field disclosure; AC-3 unauthenticated requests routed to the login flow); ADR-0003, ADR-0012
 - **Depends on:** TASK-080 (typed `ApiClient` + cookie/CSRF + Query), TASK-082 (role-based navigation, post-login destination) — must be merged first
 - **Branch:** `feature/fe-login-ui`
-- **Status:** Not started
+- **Status:** COMPLETED (2026-06-23, commit 9d3b68b)
 
 ## Objective
 
