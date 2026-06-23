@@ -51,7 +51,7 @@ function renderPage(meResponse = adminMe) {
   });
 
   server.use(
-    http.get(`${BASE}/users/me`, () => HttpResponse.json(meResponse))
+    http.get(`${BASE}/me`, () => HttpResponse.json(meResponse))
   );
 
   return render(

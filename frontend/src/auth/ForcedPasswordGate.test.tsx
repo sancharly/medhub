@@ -33,7 +33,7 @@ function renderGate(initialPath: string) {
 describe("ForcedPasswordGate", () => {
   it("redirects to /password when mustChangePassword is true", async () => {
     server.use(
-      http.get(`${BASE}/users/me`, () =>
+      http.get(`${BASE}/me`, () =>
         HttpResponse.json({
           id: "1",
           email: "a@b.com",
@@ -52,7 +52,7 @@ describe("ForcedPasswordGate", () => {
 
   it("allows navigation normally when mustChangePassword is false", async () => {
     server.use(
-      http.get(`${BASE}/users/me`, () =>
+      http.get(`${BASE}/me`, () =>
         HttpResponse.json({
           id: "1",
           email: "a@b.com",

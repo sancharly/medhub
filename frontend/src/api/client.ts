@@ -96,11 +96,11 @@ export class ApiClient {
   }
 
   me(): Promise<MeResponse> {
-    return this.request<MeResponse>("GET", "/users/me");
+    return this.request<MeResponse>("GET", "/me");
   }
 
   changePassword(data: ChangePasswordRequest): Promise<void> {
-    return this.request<void>("PUT", "/users/me/password", data);
+    return this.request<void>("POST", "/auth/password", data);
   }
 
   extendSession(): Promise<ExtendSessionResponse> {
@@ -163,7 +163,7 @@ export class ApiClient {
   }
 
   listMyModules(): Promise<UserModule[]> {
-    return this.request<UserModule[]>("GET", "/users/me/modules");
+    return this.request<UserModule[]>("GET", "/me/modules");
   }
 
   // Appointments

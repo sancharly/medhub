@@ -28,7 +28,7 @@ function renderPage() {
 describe("ProfilePage", () => {
   it("SR-003 AC-2 / SR-007 AC-1: renders name, surname, email, userType from GET /me", async () => {
     server.use(
-      http.get(`${BASE}/users/me`, () =>
+      http.get(`${BASE}/me`, () =>
         HttpResponse.json({
           id: "1",
           email: "p@test.com",
@@ -54,7 +54,7 @@ describe("ProfilePage", () => {
     const accountsRequested = vi.fn();
 
     server.use(
-      http.get(`${BASE}/users/me`, () =>
+      http.get(`${BASE}/me`, () =>
         HttpResponse.json({
           id: "1",
           email: "p@test.com",
@@ -81,7 +81,7 @@ describe("ProfilePage", () => {
 
   it("SR-027.3: shows error detail on 500", async () => {
     server.use(
-      http.get(`${BASE}/users/me`, () =>
+      http.get(`${BASE}/me`, () =>
         HttpResponse.json(
           {
             type: "/errors/internal",

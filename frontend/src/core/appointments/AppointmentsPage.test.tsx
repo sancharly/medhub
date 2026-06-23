@@ -66,7 +66,7 @@ function renderPage() {
 describe("AppointmentsPage", () => {
   it("SR-035.4/5: patient sees Pending appointment with Confirm and Decline buttons", async () => {
     server.use(
-      http.get(`${BASE}/users/me`, () => HttpResponse.json(patientMe)),
+      http.get(`${BASE}/me`, () => HttpResponse.json(patientMe)),
       http.get(`${BASE}/appointments`, () =>
         HttpResponse.json([pendingAppointment])
       )
@@ -85,7 +85,7 @@ describe("AppointmentsPage", () => {
     const confirmSpy = vi.fn();
 
     server.use(
-      http.get(`${BASE}/users/me`, () => HttpResponse.json(patientMe)),
+      http.get(`${BASE}/me`, () => HttpResponse.json(patientMe)),
       http.get(`${BASE}/appointments`, () =>
         HttpResponse.json([pendingAppointment])
       ),
@@ -110,7 +110,7 @@ describe("AppointmentsPage", () => {
 
   it("SR-035.7: patient can decline a CONFIRMED appointment", async () => {
     server.use(
-      http.get(`${BASE}/users/me`, () => HttpResponse.json(patientMe)),
+      http.get(`${BASE}/me`, () => HttpResponse.json(patientMe)),
       http.get(`${BASE}/appointments`, () =>
         HttpResponse.json([confirmedAppointment])
       )
@@ -127,7 +127,7 @@ describe("AppointmentsPage", () => {
 
   it("SR-035.9: doctor sees state chip but no confirm/decline controls", async () => {
     server.use(
-      http.get(`${BASE}/users/me`, () => HttpResponse.json(doctorMe)),
+      http.get(`${BASE}/me`, () => HttpResponse.json(doctorMe)),
       http.get(`${BASE}/appointments`, () =>
         HttpResponse.json([pendingAppointment])
       )
@@ -145,7 +145,7 @@ describe("AppointmentsPage", () => {
 
   it("SR-010.2: create form: missing fields shows error / blocked (doctor role)", async () => {
     server.use(
-      http.get(`${BASE}/users/me`, () => HttpResponse.json(doctorMe)),
+      http.get(`${BASE}/me`, () => HttpResponse.json(doctorMe)),
       http.get(`${BASE}/appointments`, () => HttpResponse.json([]))
     );
 
@@ -161,7 +161,7 @@ describe("AppointmentsPage", () => {
 
   it("SR-035.9: patient does not see create appointment form", async () => {
     server.use(
-      http.get(`${BASE}/users/me`, () => HttpResponse.json(patientMe)),
+      http.get(`${BASE}/me`, () => HttpResponse.json(patientMe)),
       http.get(`${BASE}/appointments`, () => HttpResponse.json([]))
     );
 
@@ -177,7 +177,7 @@ describe("AppointmentsPage", () => {
   it("SR-011: renders exactly the server-returned appointments, no widening", async () => {
     const appts = [pendingAppointment, confirmedAppointment];
     server.use(
-      http.get(`${BASE}/users/me`, () => HttpResponse.json(patientMe)),
+      http.get(`${BASE}/me`, () => HttpResponse.json(patientMe)),
       http.get(`${BASE}/appointments`, () => HttpResponse.json(appts))
     );
 
@@ -195,7 +195,7 @@ describe("AppointmentsPage", () => {
     const declineSpy = vi.fn();
 
     server.use(
-      http.get(`${BASE}/users/me`, () => HttpResponse.json(patientMe)),
+      http.get(`${BASE}/me`, () => HttpResponse.json(patientMe)),
       http.get(`${BASE}/appointments`, () =>
         HttpResponse.json([pendingAppointment])
       ),

@@ -14,7 +14,7 @@ describe("ApiClient GET", () => {
   it("sends credentials:include but no X-CSRF-Token", async () => {
     let capturedRequest: Request | undefined;
     server.use(
-      http.get(`${BASE}/users/me`, ({ request }) => {
+      http.get(`${BASE}/me`, ({ request }) => {
         capturedRequest = request;
         return HttpResponse.json({ id: "1", email: "a@b.com", userType: "patient", mustChangePassword: false });
       })
@@ -105,7 +105,7 @@ describe("ApiClient error handling", () => {
       status: 401,
     };
     server.use(
-      http.get(`${BASE}/users/me`, () =>
+      http.get(`${BASE}/me`, () =>
         HttpResponse.json(problem, {
           status: 401,
           headers: { "Content-Type": "application/problem+json" },
