@@ -149,6 +149,49 @@ def _get_authz_service() -> object:
 # ---------------------------------------------------------------------------
 
 
+# ---------------------------------------------------------------------------
+# PlatformServices dependency (TASK-071)
+# ---------------------------------------------------------------------------
+
+
+def get_platform_services(
+    db: Session = Depends(get_db),
+) -> object:
+    """Yield a request-scoped PlatformServices wired from FastAPI DI."""
+    from app.attachments.service import AttachmentService  # noqa: PLC0415
+    from app.audit.service import AuditService  # noqa: PLC0415
+    from app.authz.consent import ConsentService  # noqa: PLC0415
+    from app.authz.service import AuthorizationService  # noqa: PLC0415
+    from app.clinical.service import ClinicalDataService  # noqa: PLC0415
+    from app.core.object_storage import ObjectStorageClient  # noqa: PLC0415
+    from app.db.repositories.account_repo import AccountRepository  # noqa: PLC0415
+    from app.db.repositories.attachment_repo import AttachmentRepository  # noqa: PLC0415
+    from app.db.repositories.audit_repo import AuditRepository  # noqa: PLC0415
+    from app.db.repositories.clinical_repo import ClinicalRepository  # noqa: PLC0415
+    from app.db.repositories.consent_repo import ConsentRepository  # noqa: PLC0415
+    from app.modules.platform_services import PlatformServices  # noqa: PLC0415
+
+    audit_svc = AuditService(AuditRepository(db))
+    consent_svc = ConsentService(ConsentRepository(db), audit_svc)
+    authz_svc = AuthorizationService(consent_svc, audit_svc)
+    clinical_svc = ClinicalDataService(
+        ClinicalRepository(db), AccountRepository(db), audit_svc, authz_svc
+    )
+    attachment_svc = AttachmentService(
+        AttachmentRepository(db),
+        ClinicalRepository(db),
+        audit_svc,
+        authz_svc,
+        ObjectStorageClient(),
+    )
+    return PlatformServices(
+        authorization=authz_svc,
+        clinical=clinical_svc,
+        attachments=attachment_svc,
+        audit=audit_svc,
+    )
+
+
 def require_module_enabled(module_key: str) -> Callable[..., object]:
     """Return a FastAPI dependency that raises AuthorizationError if module not enabled."""
 

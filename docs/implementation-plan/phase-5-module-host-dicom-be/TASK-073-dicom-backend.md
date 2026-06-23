@@ -5,7 +5,7 @@
 - **Implements:** SR-016 (data via platform services only), SR-017 (AC-5 only enabled + authorized users can open; bytes for CT/MRI/X-ray); ADR-0008, ADR-0005
 - **Depends on:** TASK-072 (router mount + module gating), TASK-046 (`AttachmentService.open`) — must be merged first
 - **Branch:** `feature/dicom-backend`
-- **Status:** Not started
+- **Status:** COMPLETED (feature/phase-5)
 
 ## Objective
 

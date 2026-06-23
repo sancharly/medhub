@@ -5,7 +5,7 @@
 - **Implements:** SR-016 (AC-3 modules obtain data only through platform's authorized interfaces), SR-005 (authorization choke point preserved), SR-023 (audit preserved); ADR-0005
 - **Depends on:** TASK-070 (module discovery / contract), TASK-027 (`AuthorizationService` / API deps), TASK-044 (`ClinicalDataService`), TASK-046 (`AttachmentService.open`), TASK-014 (`AuthorizationService`/audit) — must be merged first
 - **Branch:** `feature/platform-services`
-- **Status:** Not started
+- **Status:** COMPLETED (feature/phase-5)
 
 ## Objective
 

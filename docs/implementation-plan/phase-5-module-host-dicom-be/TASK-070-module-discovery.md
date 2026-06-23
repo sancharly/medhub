@@ -5,7 +5,7 @@
 - **Implements:** SR-016 (AC-1 add without modifying existing modules, AC-3 defined contract); ADR-0005
 - **Depends on:** TASK-042 (per-group module enablement — `ModuleRegistry` is the soft-ref target for enablement) — must be merged first
 - **Branch:** `feature/module-discovery`
-- **Status:** Not started
+- **Status:** COMPLETED (feature/phase-5)
 
 ## Objective
 
