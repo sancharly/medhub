@@ -5,7 +5,7 @@
 - **Implements:** SR-016 (AC-2 enabled module presented to authorized users, mounted under module path), SR-015 (AC-3/AC-4 access only when enabled)
 - **Depends on:** TASK-071 (PlatformServices), TASK-043 (ModuleAccessGuard) — must be merged first
 - **Branch:** `feature/router-mount`
-- **Status:** Not started
+- **Status:** COMPLETED (feature/phase-5)
 
 ## Objective
 
