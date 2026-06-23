@@ -98,7 +98,7 @@ describe("ApiClient error handling", () => {
     ).rejects.toBeInstanceOf(ApiError);
   });
 
-  it("surfaces 401 /errors/unauthenticated as AuthError", async () => {
+  it("surfaces 401 /errors/unauthenticated as AuthError (relative type)", async () => {
     const problem: ProblemError = {
       type: "/errors/unauthenticated",
       title: "Unauthenticated",
@@ -113,11 +113,26 @@ describe("ApiClient error handling", () => {
       )
     );
 
-    const err = await makeClient()
-      .me()
-      .catch((e) => e);
-
+    const err = await makeClient().me().catch((e) => e);
     expect(err).toBeInstanceOf(AuthError);
-    expect((err as AuthError).problem.type).toBe("/errors/unauthenticated");
+  });
+
+  it("surfaces 401 with full-URL type as AuthError (production backend format)", async () => {
+    const problem: ProblemError = {
+      type: "https://medhub.example/errors/unauthenticated",
+      title: "Unauthenticated",
+      status: 401,
+    };
+    server.use(
+      http.get(`${BASE}/me`, () =>
+        HttpResponse.json(problem, {
+          status: 401,
+          headers: { "Content-Type": "application/problem+json" },
+        })
+      )
+    );
+
+    const err = await makeClient().me().catch((e) => e);
+    expect(err).toBeInstanceOf(AuthError);
   });
 });

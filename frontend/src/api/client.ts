@@ -68,7 +68,7 @@ export class ApiClient {
         const problem: ProblemError = await response.json();
         if (
           response.status === 401 &&
-          problem.type === "/errors/unauthenticated"
+          problem.type.endsWith("/errors/unauthenticated")
         ) {
           throw new AuthError(problem);
         }
