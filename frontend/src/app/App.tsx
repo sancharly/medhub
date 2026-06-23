@@ -69,6 +69,7 @@ export function App() {
                 <Route element={<RequireAuth />}>
                   <Route element={<ForcedPasswordGate />}>
                     <Route
+                      path="*"
                       element={
                         <SessionActivityProvider>
                           <AppErrorBoundary>
