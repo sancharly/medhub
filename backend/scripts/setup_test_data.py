@@ -17,19 +17,19 @@ from app.db.models.account import Account, AccountStatus, UserType
 from app.db.models.group import Group, GroupMembership, MembershipSource
 
 # Get database URL from environment
-DATABASE_URL = os.getenv(
-    "DATABASE_URL",
-    "postgresql://postgres:postgres@localhost:5432/medhub"
-)
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/medhub")
+
 
 def get_engine():
     """Create database engine."""
     return create_engine(DATABASE_URL, echo=False)
 
+
 def hash_password(password: str) -> str:
     """Hash a password using argon2."""
     ph = argon2.PasswordHasher()
     return ph.hash(password)
+
 
 def list_users(session: Session):
     """List all existing users."""
@@ -46,12 +46,11 @@ def list_users(session: Session):
         print(f"    Status: {acc.status.value}")
     print()
 
+
 def update_admin_to_sysadmin(session: Session, email: str):
     """Update an admin user to sysadmin."""
     print(f"\n🔧 Updating {email} to SYSADMIN...")
-    account = session.execute(
-        select(Account).where(Account.email == email)
-    ).scalar_one_or_none()
+    account = session.execute(select(Account).where(Account.email == email)).scalar_one_or_none()
 
     if not account:
         print(f"  ❌ User {email} not found")
@@ -62,12 +61,11 @@ def update_admin_to_sysadmin(session: Session, email: str):
     print(f"  ✅ {email} is now SYSADMIN")
     return True
 
+
 def set_password(session: Session, email: str, password: str):
     """Set password for a user."""
     print(f"\n🔐 Setting password for {email}...")
-    account = session.execute(
-        select(Account).where(Account.email == email)
-    ).scalar_one_or_none()
+    account = session.execute(select(Account).where(Account.email == email)).scalar_one_or_none()
 
     if not account:
         print(f"  ❌ User {email} not found")
@@ -80,13 +78,12 @@ def set_password(session: Session, email: str, password: str):
     print(f"  ✅ Password set for {email}")
     return True
 
+
 def create_doctor(session: Session, email: str, first_name: str, surname: str, password: str):
     """Create a doctor user."""
     print(f"\n👨‍⚕️ Creating doctor {email}...")
 
-    existing = session.execute(
-        select(Account).where(Account.email == email)
-    ).scalar_one_or_none()
+    existing = session.execute(select(Account).where(Account.email == email)).scalar_one_or_none()
 
     if existing:
         print(f"  ⚠️  User {email} already exists")
@@ -107,13 +104,12 @@ def create_doctor(session: Session, email: str, first_name: str, surname: str, p
     print(f"  ✅ Doctor created: {email}")
     return doctor
 
+
 def create_patient(session: Session, email: str, first_name: str, surname: str, password: str):
     """Create a patient user."""
     print(f"\n👤 Creating patient {email}...")
 
-    existing = session.execute(
-        select(Account).where(Account.email == email)
-    ).scalar_one_or_none()
+    existing = session.execute(select(Account).where(Account.email == email)).scalar_one_or_none()
 
     if existing:
         print(f"  ⚠️  User {email} already exists")
@@ -134,13 +130,12 @@ def create_patient(session: Session, email: str, first_name: str, surname: str, 
     print(f"  ✅ Patient created: {email}")
     return patient
 
+
 def create_group(session: Session, name: str):
     """Create a group/organization."""
     print(f"\n🏥 Creating group '{name}'...")
 
-    existing = session.execute(
-        select(Group).where(Group.name == name)
-    ).scalar_one_or_none()
+    existing = session.execute(select(Group).where(Group.name == name)).scalar_one_or_none()
 
     if existing:
         print(f"  ⚠️  Group '{name}' already exists")
@@ -155,6 +150,7 @@ def create_group(session: Session, name: str):
     print(f"  ✅ Group created: {name}")
     return group
 
+
 def add_group_member(
     session: Session,
     group: Group,
@@ -166,8 +162,7 @@ def add_group_member(
 
     existing = session.execute(
         select(GroupMembership).where(
-            (GroupMembership.group_id == group.id) &
-            (GroupMembership.account_id == account.id)
+            (GroupMembership.group_id == group.id) & (GroupMembership.account_id == account.id)
         )
     ).scalar_one_or_none()
 
@@ -184,6 +179,7 @@ def add_group_member(
     session.commit()
     print("  ✅ Added to group")
 
+
 def main():
     """Main setup function."""
     engine = get_engine()
@@ -197,9 +193,11 @@ def main():
             list_users(session)
 
             # Find the existing SYSADMIN
-            sysadmin_account = session.execute(
-                select(Account).where(Account.user_type == UserType.SYSADMIN)
-            ).scalars().first()
+            sysadmin_account = (
+                session.execute(select(Account).where(Account.user_type == UserType.SYSADMIN))
+                .scalars()
+                .first()
+            )
 
             if not sysadmin_account:
                 print("\n❌ No SYSADMIN user found in database!")
@@ -217,9 +215,7 @@ def main():
             add_group_member(session, test_group, doctor)
 
             # Step 3: Create test patients
-            patient1 = create_patient(
-                session, "john.doe@example.com", "John", "Doe", "patient123"
-            )
+            patient1 = create_patient(session, "john.doe@example.com", "John", "Doe", "patient123")
             patient2 = create_patient(
                 session, "jane.smith@example.com", "Jane", "Smith", "patient123"
             )
@@ -244,8 +240,10 @@ def main():
     except Exception as e:
         print(f"\n❌ Error: {e}")
         import traceback
+
         traceback.print_exc()
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()
