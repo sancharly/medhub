@@ -88,6 +88,9 @@ Provide a structured report with:
 - Be contextual: Consider the project scope and complexity level
 - Be thorough: Don't miss security issues or requirement gaps
 - Prioritize issues: Surface critical/security issues first, quality improvements second
+- If you are reviewing code from a TASK file, ensure you follow the instructions in the TASK file and update it with your progress.
+- If you are reviewing code from a TASK file, verify that all the acceptance criteria and definition of done items are met, and check the list items to reflect its status.
+- If you are reviewing code from a TASK file, when all the acceptance criteria and definition of done items are met, update the task status to `Completed`.
 
 ### Handling Edge Cases
 - If code is incomplete or unclear, ask clarifying questions before finalizing review
