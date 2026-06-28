@@ -1,4 +1,4 @@
-import type { ProblemError } from "../../api/generated/openapi";
+import type { ProblemError } from "../../api/generated/types";
 
 export interface MappedError {
   summary: string;
@@ -6,10 +6,10 @@ export interface MappedError {
 }
 
 export function problemToMessage(problem: ProblemError): MappedError {
-  const summary = problem.detail ?? problem.title;
+  const summary = problem.detail || problem.title;
   const result: MappedError = { summary };
   if (problem.errors && problem.errors.length > 0) {
-    result.fieldErrors = problem.errors;
+    result.fieldErrors = problem.errors as Array<{ field: string; message: string }>;
   }
   return result;
 }

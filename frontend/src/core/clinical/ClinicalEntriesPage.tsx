@@ -11,10 +11,10 @@ import { CreateEntryForm } from "./CreateEntryForm";
 import { AttachmentUpload } from "./AttachmentUpload";
 
 interface ClinicalEntriesPageProps {
-  userType?: "doctor" | "patient";
+  userType?: "DOCTOR" | "PATIENT";
 }
 
-export function ClinicalEntriesPage({ userType = "doctor" }: ClinicalEntriesPageProps) {
+export function ClinicalEntriesPage({ userType = "DOCTOR" }: ClinicalEntriesPageProps) {
   const { patientId } = useParams<{ patientId: string }>();
 
   const { data, isLoading, error } = useQuery({
@@ -55,7 +55,7 @@ export function ClinicalEntriesPage({ userType = "doctor" }: ClinicalEntriesPage
     );
   }
 
-  const isDoctor = userType === "doctor";
+  const isDoctor = userType === "DOCTOR";
 
   return (
     <Box>

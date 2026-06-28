@@ -64,3 +64,21 @@ For multi-step tasks, state a brief plan:
 ```
 
 Strong success criteria let you loop independently. Weak criteria ("make it work") require constant clarification.
+
+## 5. Backend/Frontend Contract
+
+**The OpenAPI schema is the source of truth. Never hand-write types.**
+
+When changing a backend Pydantic schema:
+
+1. Edit the schema in `backend/app/api/schemas/` (or the relevant router)
+2. Regenerate the schema: `cd backend && uv run python -m app.export_openapi --output openapi/openapi.json`
+3. Regenerate frontend types: `cd frontend && npm run generate:types`
+4. Fix any TypeScript errors that surface — they are real contract violations
+5. Commit `backend/openapi/openapi.json` and `frontend/src/api/generated/openapi.ts` alongside the backend change
+
+**Import types from `frontend/src/api/generated/types.ts`** (named aliases), not from `openapi.ts` directly. Never hand-edit either generated file.
+
+CI enforces this: the `openapi-lint` job regenerates `openapi.ts` after exporting the schema and fails if the committed file differs.
+
+**UserType enum values are uppercase**: `"PATIENT"`, `"DOCTOR"`, `"ADMIN"`, `"SYSADMIN"`. Use these constants everywhere in the frontend.

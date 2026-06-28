@@ -30,7 +30,7 @@ function renderLogin() {
   );
 }
 
-const patientUser = { id: "1", email: "p@test.com", userType: "patient", mustChangePassword: false };
+const patientUser = { id: "1", firstName: null, surname: null, accountType: "PATIENT" };
 
 describe("LoginPage", () => {
   beforeEach(() => {

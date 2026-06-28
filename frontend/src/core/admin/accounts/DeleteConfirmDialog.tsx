@@ -5,7 +5,7 @@ import DialogActions from "@mui/material/DialogActions";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import Alert from "@mui/material/Alert";
-import type { AccountSummary } from "../../../api/generated/openapi";
+import type { AccountSummary } from "../../../api/generated/types";
 
 interface DeleteConfirmDialogProps {
   account: AccountSummary | null;

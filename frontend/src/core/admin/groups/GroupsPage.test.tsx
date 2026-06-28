@@ -21,10 +21,13 @@ const groupWithMembers = {
   enabledModules: [],
 };
 
-const installedModules = [
-  { moduleKey: "dicom-viewer", name: "DICOM Viewer" },
-  { moduleKey: "analytics", name: "Analytics" },
-];
+const installedModules = {
+  items: [
+    { moduleKey: "dicom-viewer", name: "DICOM Viewer", version: "1.0", requiredPermissions: [] },
+    { moduleKey: "analytics", name: "Analytics", version: "1.0", requiredPermissions: [] },
+  ],
+  total: 2,
+};
 
 function renderPage() {
   const client = new QueryClient({

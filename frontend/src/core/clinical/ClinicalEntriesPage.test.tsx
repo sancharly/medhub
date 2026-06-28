@@ -30,7 +30,7 @@ const newerEntry = {
   attachments: [],
 };
 
-function renderPage(userType = "doctor") {
+function renderPage(userType = "DOCTOR") {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
   });
@@ -41,7 +41,7 @@ function renderPage(userType = "doctor") {
           <Routes>
             <Route
               path="/patients/:patientId/clinical-entries"
-              element={<ClinicalEntriesPage userType={userType as "doctor" | "patient"} />}
+              element={<ClinicalEntriesPage userType={userType as "DOCTOR" | "PATIENT"} />}
             />
           </Routes>
         </MemoryRouter>

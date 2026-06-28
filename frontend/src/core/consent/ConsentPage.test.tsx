@@ -15,18 +15,20 @@ const BASE = "http://localhost/api/v1";
 
 const manualGrant = {
   id: "g1",
+  patientId: "patient-1",
   doctorId: "doc-1",
-  doctorName: "Dr. Smith",
-  source: "MANUAL",
-  grantedAt: "2024-01-10T10:00:00Z",
+  sourceType: "MANUAL",
+  appointmentId: null,
+  active: true,
 };
 
 const appointmentGrant = {
   id: "g2",
+  patientId: "patient-1",
   doctorId: "doc-2",
-  doctorName: "Dr. Jones",
-  source: "APPOINTMENT:appt-abc",
-  grantedAt: "2024-03-05T14:00:00Z",
+  sourceType: "APPOINTMENT",
+  appointmentId: "appt-abc",
+  active: true,
 };
 
 function renderPage() {
@@ -59,9 +61,9 @@ describe("ConsentPage", () => {
     renderPage();
 
     await waitFor(() => {
-      expect(screen.getByText(/Dr. Smith/)).toBeInTheDocument();
+      expect(screen.getByText(/doc-1/)).toBeInTheDocument();
     });
-    expect(screen.getByText(/Dr. Jones/)).toBeInTheDocument();
+    expect(screen.getByText(/doc-2/)).toBeInTheDocument();
     expect(screen.getByText(/MANUAL/i)).toBeInTheDocument();
     expect(screen.getByText(/APPOINTMENT/i)).toBeInTheDocument();
   });
@@ -70,10 +72,11 @@ describe("ConsentPage", () => {
     const postSpy = vi.fn();
     const newGrant = {
       id: "g3",
+      patientId: "patient-1",
       doctorId: "doc-3",
-      doctorName: "Dr. New",
-      source: "MANUAL",
-      grantedAt: "2024-06-01T10:00:00Z",
+      sourceType: "MANUAL",
+      appointmentId: null,
+      active: true,
     };
 
     server.use(
@@ -178,7 +181,7 @@ describe("ConsentPage", () => {
     renderPage();
 
     await waitFor(() => {
-      expect(screen.getByText(/Dr. Smith/)).toBeInTheDocument();
+      expect(screen.getByText(/doc-1/)).toBeInTheDocument();
     });
 
     const revokeButtons = screen.getAllByRole("button", { name: /revoke/i });
@@ -186,10 +189,10 @@ describe("ConsentPage", () => {
     await userEvent.click(screen.getByRole("button", { name: /confirm/i }));
 
     await waitFor(() => {
-      expect(screen.queryByText(/Dr. Smith/)).not.toBeInTheDocument();
+      expect(screen.queryByText(/Doctor: doc-1/)).not.toBeInTheDocument();
     });
 
-    expect(screen.getByText(/Dr. Jones/)).toBeInTheDocument();
+    expect(screen.getByText(/doc-2/)).toBeInTheDocument();
   });
 
   it("SR-027.3: 404 on revoke shows error message", async () => {

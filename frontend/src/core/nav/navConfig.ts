@@ -4,31 +4,31 @@ export const navConfig: NavEntry[] = [
   {
     label: "Profile",
     path: "/profile",
-    roles: ["patient", "doctor", "admin", "sysadmin"],
+    roles: ["PATIENT", "DOCTOR", "ADMIN", "SYSADMIN"],
   },
   {
     label: "Appointments",
     path: "/appointments",
-    roles: ["patient", "doctor"],
+    roles: ["PATIENT", "DOCTOR"],
   },
   {
     label: "Consent",
     path: "/consent",
-    roles: ["patient"],
+    roles: ["PATIENT"],
   },
   {
     label: "Patients",
     path: "/patients",
-    roles: ["doctor"],
+    roles: ["DOCTOR"],
   },
   {
     label: "Accounts",
     path: "/admin/accounts",
-    roles: ["admin", "sysadmin"],
+    roles: ["ADMIN", "SYSADMIN"],
   },
   {
     label: "Groups",
     path: "/admin/groups",
-    roles: ["sysadmin"],
+    roles: ["SYSADMIN"],
   },
 ];

@@ -11,13 +11,15 @@ export function ForcedPasswordGate() {
     queryFn: () => apiClient.me(),
   });
 
+  const mustChangePassword = (me as Record<string, unknown> | undefined)?.mustChangePassword as boolean | undefined;
+
   useEffect(() => {
-    if (me?.mustChangePassword && location.pathname !== "/password") {
+    if (mustChangePassword && location.pathname !== "/password") {
       navigate("/password", { replace: true });
     }
-  }, [me, navigate, location.pathname]);
+  }, [mustChangePassword, navigate, location.pathname]);
 
-  if (me?.mustChangePassword && location.pathname !== "/password") {
+  if (mustChangePassword && location.pathname !== "/password") {
     return null;
   }
 

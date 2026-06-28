@@ -3,7 +3,7 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import { apiClient } from "../../api";
 import { useConfirm } from "../confirm/useConfirm";
-import type { Appointment } from "../../api/generated/openapi";
+import type { Appointment } from "../../api/generated/types";
 
 interface PatientActionsProps {
   appointment: Appointment;
@@ -28,9 +28,9 @@ export function PatientActions({ appointment }: PatientActionsProps) {
   });
 
   // Patient can confirm PENDING appointments
-  const canConfirm = appointment.status === "PENDING";
+  const canConfirm = appointment.state === "PENDING";
   // Patient can decline PENDING or CONFIRMED appointments
-  const canDecline = appointment.status === "PENDING" || appointment.status === "CONFIRMED";
+  const canDecline = appointment.state === "PENDING" || appointment.state === "CONFIRMED";
 
   async function handleDecline() {
     const ok = await confirm({

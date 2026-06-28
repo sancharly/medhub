@@ -184,6 +184,14 @@ jobs:
         working-directory: backend
         run: npx --yes @redocly/cli lint openapi.json
 
+      - name: Check frontend types are in sync with backend schema
+        run: |
+          cp backend/openapi.json backend/openapi/openapi.json
+          cd frontend
+          npm ci --silent
+          npm run generate:types
+          git diff --exit-code src/api/generated/openapi.ts || (echo "ERROR: openapi.ts is out of sync. Run 'npm run generate:types' in frontend/ and commit the result." && exit 1)
+
   # ── Docker builds ────────────────────────────────────────────────────────────
   build:
     name: Docker Build

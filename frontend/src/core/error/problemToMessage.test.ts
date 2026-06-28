@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { problemToMessage } from "./problemToMessage";
-import type { ProblemError } from "../../api/generated/openapi";
+import type { ProblemError } from "../../api/generated/types";
 
 describe("problemToMessage", () => {
   it("uses detail as summary when present", () => {

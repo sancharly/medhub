@@ -5,7 +5,7 @@ import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import { apiClient } from "../../api";
-import type { CreateAppointmentRequest } from "../../api/generated/openapi";
+import type { CreateAppointmentRequest } from "../../api/generated/types";
 
 export function CreateAppointmentForm() {
   const [doctorId, setDoctorId] = useState("");

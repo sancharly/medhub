@@ -1,7 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { apiClient } from "../api";
 import { ApiError } from "../api/client";
-import type { ChangePasswordRequest } from "../api/generated/openapi";
+import type { ChangePasswordRequest } from "../api/generated/types";
 
 export interface ChangePasswordError {
   field?: string;
@@ -22,7 +22,7 @@ export function extractChangePasswordError(
   if (error instanceof ApiError) {
     if (error.problem.errors?.length) {
       const first = error.problem.errors[0];
-      return { field: first.field, message: first.message };
+      return { field: first.field, message: first.message ?? "" };
     }
     return { message: error.problem.detail ?? error.problem.title };
   }

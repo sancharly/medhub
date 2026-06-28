@@ -34,7 +34,7 @@ export function AppointmentsPage() {
     );
   }
 
-  const isPatient = me?.userType === "patient";
+  const isPatient = me?.userType === "PATIENT";
 
   return (
     <Box>

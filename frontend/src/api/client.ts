@@ -10,7 +10,6 @@ import type {
   ClinicalEntry,
   CreateClinicalEntryRequest,
   Attachment,
-  UserModule,
   Appointment,
   CreateAppointmentRequest,
   ConsentGrant,
@@ -18,7 +17,7 @@ import type {
   CreateAccountRequest,
   Group,
   InstalledModule,
-} from "./generated/openapi";
+} from "./generated/types";
 
 export type { ProblemError };
 
@@ -74,12 +73,12 @@ export class ApiClient {
         }
         throw new ApiError(problem);
       }
-      const problem: ProblemError = {
+      throw new ApiError({
         type: "/errors/unknown",
         title: response.statusText || "Unknown error",
         status: response.status,
-      };
-      throw new ApiError(problem);
+
+      });
     }
 
     if (response.status === 204 || response.headers.get("content-length") === "0") {
@@ -153,6 +152,7 @@ export class ApiClient {
         type: "/errors/unknown",
         title: response.statusText || "Unknown error",
         status: response.status,
+
       });
     }
     return response.json() as Promise<Attachment>;
@@ -162,8 +162,8 @@ export class ApiClient {
     return `${this.baseUrl}/attachments/${attachmentId}`;
   }
 
-  listMyModules(): Promise<UserModule[]> {
-    return this.request<UserModule[]>("GET", "/me/modules");
+  listMyModules(): Promise<string[]> {
+    return this.request<{ modules: string[] }>("GET", "/me/modules").then((r) => r.modules);
   }
 
   // Appointments
@@ -198,23 +198,12 @@ export class ApiClient {
 
   // Accounts
   async listAccounts(): Promise<AccountSummary[]> {
-    const response = await this.request<{ items: Array<AccountSummary & { status?: string }> }>("GET", "/accounts");
-    // Backend returns paginated { items: [...] } and uses "status" field instead of "state"
-    return response.items.map((a) => ({
-      ...a,
-      state: (a.state ?? a.status) as AccountSummary["state"],
-    }));
+    const response = await this.request<{ items: AccountSummary[] }>("GET", "/accounts");
+    return response.items;
   }
 
   createAccount(data: CreateAccountRequest): Promise<AccountSummary> {
-    // Backend uses familyName (not surname) and uppercase enum values
-    const payload = {
-      firstName: data.firstName,
-      familyName: data.surname,
-      email: data.email,
-      userType: data.userType.toUpperCase(),
-    };
-    return this.request<AccountSummary>("POST", "/accounts", payload);
+    return this.request<AccountSummary>("POST", "/accounts", data);
   }
 
   deactivateAccount(id: string): Promise<void> {

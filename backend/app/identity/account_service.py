@@ -31,7 +31,7 @@ class AccountCreate:
     email: str
     user_type: UserType
     first_name: str | None = None
-    family_name: str | None = None
+    surname: str | None = None
     date_of_birth: date | None = None
 
 
@@ -65,7 +65,7 @@ class AccountService:
             user_type=data.user_type,
             status=AccountStatus.INACTIVE,
             first_name=data.first_name,
-            surname=data.family_name,
+            surname=data.surname,
             date_of_birth=data.date_of_birth,
         )
 

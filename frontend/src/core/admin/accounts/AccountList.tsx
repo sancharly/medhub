@@ -4,7 +4,7 @@ import TableBody from "@mui/material/TableBody";
 import TableRow from "@mui/material/TableRow";
 import TableCell from "@mui/material/TableCell";
 import Chip from "@mui/material/Chip";
-import type { AccountSummary } from "../../../api/generated/openapi";
+import type { AccountSummary } from "../../../api/generated/types";
 import { LifecycleActions } from "./LifecycleActions";
 
 interface AccountListProps {

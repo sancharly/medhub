@@ -3,7 +3,7 @@ import ListItem from "@mui/material/ListItem";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Chip from "@mui/material/Chip";
-import type { Appointment } from "../../api/generated/openapi";
+import type { Appointment } from "../../api/generated/types";
 import { PatientActions } from "./PatientActions";
 
 interface AppointmentListProps {
@@ -28,15 +28,15 @@ export function AppointmentList({ appointments, isPatient }: AppointmentListProp
           <Box sx={{ display: "flex", alignItems: "center", gap: 1, width: "100%" }}>
             <Box sx={{ flexGrow: 1 }}>
               <Typography variant="body1">
-                {appt.doctorName} — {appt.patientName}
+                Dr. {appt.doctorId} — Patient {appt.patientId}
               </Typography>
               <Typography variant="caption" color="text.secondary">
                 {new Date(appt.scheduledAt).toLocaleString()}
               </Typography>
             </Box>
             <Chip
-              label={appt.status}
-              color={STATUS_COLOR[appt.status] ?? "default"}
+              label={appt.state}
+              color={STATUS_COLOR[appt.state] ?? "default"}
               size="small"
             />
           </Box>

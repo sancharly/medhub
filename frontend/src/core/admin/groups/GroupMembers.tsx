@@ -6,7 +6,7 @@ import IconButton from "@mui/material/IconButton";
 import DeleteIcon from "@mui/icons-material/Delete";
 import Typography from "@mui/material/Typography";
 import { apiClient } from "../../../api";
-import type { GroupMember } from "../../../api/generated/openapi";
+import type { GroupMember } from "../../../api/generated/types";
 
 interface GroupMembersProps {
   groupId: string;

@@ -9,7 +9,7 @@ import MenuItem from "@mui/material/MenuItem";
 import InputLabel from "@mui/material/InputLabel";
 import FormControl from "@mui/material/FormControl";
 import { apiClient } from "../../../api";
-import type { UserType, CreateAccountRequest } from "../../../api/generated/openapi";
+import type { UserType, CreateAccountRequest } from "../../../api/generated/types";
 
 interface CreateAccountFormProps {
   isSysadmin: boolean;
@@ -19,7 +19,7 @@ type FieldErrors = Partial<Record<string, string>>;
 
 export function CreateAccountForm({ isSysadmin }: CreateAccountFormProps) {
   const [firstName, setFirstName] = useState("");
-  const [surname, setSurname] = useState("");
+  const [familyName, setFamilyName] = useState("");
   const [email, setEmail] = useState("");
   const [userType, setUserType] = useState<UserType | "">("");
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
@@ -31,7 +31,7 @@ export function CreateAccountForm({ isSysadmin }: CreateAccountFormProps) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["accounts"] });
       setFirstName("");
-      setSurname("");
+      setFamilyName("");
       setEmail("");
       setUserType("");
       setFieldErrors({});
@@ -52,10 +52,10 @@ export function CreateAccountForm({ isSysadmin }: CreateAccountFormProps) {
     e.preventDefault();
     if (!userType) return;
     setFieldErrors({});
-    mutation.mutate({ firstName, surname, email, userType });
+    mutation.mutate({ firstName, surname: familyName, email, userType });
   }
 
-  const isDisabled = !firstName.trim() || !surname.trim() || !email.trim() || !userType;
+  const isDisabled = !firstName.trim() || !familyName.trim() || !email.trim() || !userType;
 
   return (
     <Box
@@ -74,8 +74,8 @@ export function CreateAccountForm({ isSysadmin }: CreateAccountFormProps) {
       <TextField
         label="Surname"
         id="create-surname"
-        value={surname}
-        onChange={(e) => setSurname(e.target.value)}
+        value={familyName}
+        onChange={(e) => setFamilyName(e.target.value)}
         required
       />
       <TextField
@@ -97,11 +97,11 @@ export function CreateAccountForm({ isSysadmin }: CreateAccountFormProps) {
           value={userType}
           onChange={(e) => setUserType(e.target.value as UserType)}
         >
-          <MenuItem value="patient">Patient</MenuItem>
-          <MenuItem value="doctor">Doctor</MenuItem>
-          <MenuItem value="admin">Administrator</MenuItem>
+          <MenuItem value="PATIENT">Patient</MenuItem>
+          <MenuItem value="DOCTOR">Doctor</MenuItem>
+          <MenuItem value="ADMIN">Administrator</MenuItem>
           {isSysadmin && (
-            <MenuItem value="sysadmin">System Administrator</MenuItem>
+            <MenuItem value="SYSADMIN">System Administrator</MenuItem>
           )}
         </Select>
       </FormControl>

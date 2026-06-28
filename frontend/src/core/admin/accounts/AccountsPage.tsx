@@ -34,7 +34,7 @@ export function AccountsPage() {
     );
   }
 
-  const isSysadmin = me.userType === "sysadmin";
+  const isSysadmin = me.userType === "SYSADMIN";
 
   return (
     <Box>

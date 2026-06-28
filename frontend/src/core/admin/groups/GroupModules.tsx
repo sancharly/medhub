@@ -5,7 +5,7 @@ import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
 import Switch from "@mui/material/Switch";
 import { apiClient } from "../../../api";
-import type { InstalledModule } from "../../../api/generated/openapi";
+import type { InstalledModule } from "../../../api/generated/types";
 
 interface GroupModulesProps {
   groupId: string;

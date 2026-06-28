@@ -1,6 +1,6 @@
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
-import type { MeResponse } from "../../api/generated/openapi";
+import type { MeResponse } from "../../api/generated/types";
 
 interface ProfileFieldsProps {
   user: MeResponse;

@@ -2038,7 +2038,7 @@
             ],
             "title": "Firstname"
           },
-          "familyName": {
+          "surname": {
             "anyOf": [
               {
                 "type": "string"
@@ -2047,7 +2047,7 @@
                 "type": "null"
               }
             ],
-            "title": "Familyname"
+            "title": "Surname"
           },
           "dateOfBirth": {
             "anyOf": [
@@ -2114,7 +2114,7 @@
           "userType": {
             "$ref": "#/components/schemas/UserType"
           },
-          "status": {
+          "state": {
             "$ref": "#/components/schemas/AccountStatus"
           },
           "firstName": {
@@ -2162,7 +2162,7 @@
           "id",
           "email",
           "userType",
-          "status",
+          "state",
           "firstName",
           "surname",
           "dateOfBirth",
@@ -2748,7 +2748,7 @@
           "userType": {
             "$ref": "#/components/schemas/UserType"
           },
-          "status": {
+          "state": {
             "$ref": "#/components/schemas/AccountStatus"
           },
           "firstName": {
@@ -2796,7 +2796,7 @@
           "id",
           "email",
           "userType",
-          "status",
+          "state",
           "firstName",
           "surname",
           "dateOfBirth",
@@ -2869,9 +2869,9 @@
       },
       "ModuleResponse": {
         "properties": {
-          "module_key": {
+          "moduleKey": {
             "type": "string",
-            "title": "Module Key"
+            "title": "Modulekey"
           },
           "name": {
             "type": "string",
@@ -2881,20 +2881,20 @@
             "type": "string",
             "title": "Version"
           },
-          "required_permissions": {
+          "requiredPermissions": {
             "items": {
               "type": "string"
             },
             "type": "array",
-            "title": "Required Permissions"
+            "title": "Requiredpermissions"
           }
         },
         "type": "object",
         "required": [
-          "module_key",
+          "moduleKey",
           "name",
           "version",
-          "required_permissions"
+          "requiredPermissions"
         ],
         "title": "ModuleResponse"
       },

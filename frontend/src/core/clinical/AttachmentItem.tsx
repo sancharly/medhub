@@ -1,7 +1,7 @@
 import Box from "@mui/material/Box";
 import Link from "@mui/material/Link";
 import Typography from "@mui/material/Typography";
-import type { Attachment } from "../../api/generated/openapi";
+import type { Attachment } from "../../api/generated/types";
 import { apiClient } from "../../api";
 
 interface AttachmentItemProps {

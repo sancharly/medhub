@@ -7,12 +7,12 @@ import Typography from "@mui/material/Typography";
 import Alert from "@mui/material/Alert";
 import Paper from "@mui/material/Paper";
 import { useLogin } from "./useLogin";
-import type { UserType } from "../api/generated/openapi";
+import type { UserType } from "../api/generated/types";
 
 function roleLanding(userType: UserType): string {
-  if (userType === "patient") return "/appointments";
-  if (userType === "doctor") return "/patients";
-  return "/admin/users";
+  if (userType === "PATIENT") return "/appointments";
+  if (userType === "DOCTOR") return "/patients";
+  return "/admin/accounts";
 }
 
 export function LoginPage() {
@@ -30,7 +30,7 @@ export function LoginPage() {
         return;
       }
       const notice = result.evictedSession ? "?evicted=1" : "";
-      navigate(roleLanding(result.user.userType) + notice);
+      navigate(roleLanding(result.user.accountType) + notice);
     } catch {
       // error rendered below
     }

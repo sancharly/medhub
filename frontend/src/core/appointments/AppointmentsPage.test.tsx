@@ -15,35 +15,33 @@ const BASE = "http://localhost/api/v1";
 const patientMe = {
   id: "user-1",
   email: "p@test.com",
-  userType: "patient",
-  mustChangePassword: false,
+  userType: "PATIENT",
+  state: "ACTIVE",
 };
 
 const doctorMe = {
   id: "doc-1",
   email: "doc@test.com",
-  userType: "doctor",
-  mustChangePassword: false,
+  userType: "DOCTOR",
+  state: "ACTIVE",
 };
 
 const pendingAppointment = {
   id: "appt-1",
   doctorId: "doc-1",
-  doctorName: "Dr. Adams",
   patientId: "user-1",
-  patientName: "Jane Doe",
   scheduledAt: "2025-03-15T10:00:00Z",
-  status: "PENDING",
+  state: "PENDING",
+  createdAt: "2025-03-01T00:00:00Z",
 };
 
 const confirmedAppointment = {
   id: "appt-2",
   doctorId: "doc-1",
-  doctorName: "Dr. Adams",
   patientId: "user-1",
-  patientName: "Jane Doe",
   scheduledAt: "2025-04-01T14:00:00Z",
-  status: "CONFIRMED",
+  state: "CONFIRMED",
+  createdAt: "2025-03-01T00:00:00Z",
 };
 
 function renderPage() {
@@ -75,7 +73,7 @@ describe("AppointmentsPage", () => {
     renderPage();
 
     await waitFor(() => {
-      expect(screen.getByText(/Dr. Adams/)).toBeInTheDocument();
+      expect(screen.getByText(/doc-1/)).toBeInTheDocument();
     });
     expect(screen.getByRole("button", { name: /confirm/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /decline/i })).toBeInTheDocument();
@@ -119,7 +117,7 @@ describe("AppointmentsPage", () => {
     renderPage();
 
     await waitFor(() => {
-      expect(screen.getByText(/Dr. Adams/)).toBeInTheDocument();
+      expect(screen.getByText(/doc-1/)).toBeInTheDocument();
     });
 
     expect(screen.getByRole("button", { name: /decline/i })).toBeInTheDocument();
@@ -184,7 +182,7 @@ describe("AppointmentsPage", () => {
     renderPage();
 
     await waitFor(() => {
-      expect(screen.getAllByText(/Dr. Adams/).length).toBeGreaterThan(0);
+      expect(screen.getAllByText(/doc-1/).length).toBeGreaterThan(0);
     });
 
     const rows = screen.getAllByRole("listitem");

@@ -6,7 +6,7 @@ import { AppNavigation } from "./AppNavigation";
 import { navConfig } from "./navConfig";
 import { theme } from "../theme/theme";
 
-function renderNav(userType: "patient" | "sysadmin" | "doctor" | "admin") {
+function renderNav(userType: "PATIENT" | "SYSADMIN" | "DOCTOR" | "ADMIN") {
   return render(
     <MuiThemeProvider theme={theme}>
       <MemoryRouter>
@@ -18,28 +18,28 @@ function renderNav(userType: "patient" | "sysadmin" | "doctor" | "admin") {
 
 describe("AppNavigation role filtering", () => {
   it("patient sees patient entries", () => {
-    renderNav("patient");
+    renderNav("PATIENT");
     expect(screen.getByText("Profile")).toBeInTheDocument();
     expect(screen.getByText("Appointments")).toBeInTheDocument();
     expect(screen.getByText("Consent")).toBeInTheDocument();
   });
 
   it("patient does not see admin entries", () => {
-    renderNav("patient");
+    renderNav("PATIENT");
     expect(screen.queryByText("Accounts")).not.toBeInTheDocument();
     expect(screen.queryByText("Groups")).not.toBeInTheDocument();
   });
 
   it("sysadmin sees admin entries", () => {
-    renderNav("sysadmin");
+    renderNav("SYSADMIN");
     expect(screen.getByText("Accounts")).toBeInTheDocument();
     expect(screen.getByText("Groups")).toBeInTheDocument();
   });
 
   it("labels come from navConfig", () => {
-    renderNav("doctor");
+    renderNav("DOCTOR");
     const doctorLabels = navConfig
-      .filter((e) => e.roles.includes("doctor"))
+      .filter((e) => e.roles.includes("DOCTOR"))
       .map((e) => e.label);
     doctorLabels.forEach((label) => {
       expect(screen.getByText(label)).toBeInTheDocument();

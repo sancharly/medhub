@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
-import type { PatientSummary } from "../../api/generated/openapi";
+import type { PatientSummary } from "../../api/generated/types";
 
 interface PatientRowProps {
   patient: PatientSummary;

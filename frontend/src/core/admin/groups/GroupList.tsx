@@ -1,7 +1,7 @@
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
-import type { Group, InstalledModule } from "../../../api/generated/openapi";
+import type { Group, InstalledModule } from "../../../api/generated/types";
 import { GroupMembers } from "./GroupMembers";
 import { GroupModules } from "./GroupModules";
 

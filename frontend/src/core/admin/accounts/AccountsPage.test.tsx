@@ -15,15 +15,15 @@ const BASE = "http://localhost/api/v1";
 const adminMe = {
   id: "admin-1",
   email: "admin@test.com",
-  userType: "admin",
-  mustChangePassword: false,
+  userType: "ADMIN",
+  state: "ACTIVE",
 };
 
 const sysadminMe = {
   id: "sys-1",
   email: "sys@test.com",
-  userType: "sysadmin",
-  mustChangePassword: false,
+  userType: "SYSADMIN",
+  state: "ACTIVE",
 };
 
 const accounts = [
@@ -32,18 +32,22 @@ const accounts = [
     firstName: "Alice",
     surname: "Smith",
     email: "alice@test.com",
-    userType: "patient",
+    userType: "PATIENT",
     state: "ACTIVE",
+    createdAt: "2024-01-01T00:00:00Z",
   },
   {
     id: "u2",
     firstName: "Bob",
     surname: "Jones",
     email: "bob@test.com",
-    userType: "doctor",
+    userType: "DOCTOR",
     state: "INACTIVE",
+    createdAt: "2024-01-01T00:00:00Z",
   },
 ];
+
+const accountsResponse = { items: accounts, total: 2, page: 1, pageSize: 20 };
 
 function renderPage(meResponse = adminMe) {
   const client = new QueryClient({
@@ -70,7 +74,7 @@ function renderPage(meResponse = adminMe) {
 describe("AccountsPage", () => {
   it("SR-009 AC-1/2: account list shows non-clinical fields only; no clinical data", async () => {
     server.use(
-      http.get(`${BASE}/accounts`, () => HttpResponse.json(accounts))
+      http.get(`${BASE}/accounts`, () => HttpResponse.json(accountsResponse))
     );
 
     renderPage();
@@ -92,7 +96,7 @@ describe("AccountsPage", () => {
 
   it("SR-032.4: admin creator user-type select does not offer System Administrator", async () => {
     server.use(
-      http.get(`${BASE}/accounts`, () => HttpResponse.json([]))
+      http.get(`${BASE}/accounts`, () => HttpResponse.json({ items: [], total: 0, page: 1, pageSize: 20 }))
     );
 
     renderPage(adminMe);
@@ -111,7 +115,7 @@ describe("AccountsPage", () => {
 
   it("SR-032.5: sysadmin creator can select System Administrator", async () => {
     server.use(
-      http.get(`${BASE}/accounts`, () => HttpResponse.json([]))
+      http.get(`${BASE}/accounts`, () => HttpResponse.json({ items: [], total: 0, page: 1, pageSize: 20 }))
     );
 
     renderPage(sysadminMe);
@@ -130,7 +134,7 @@ describe("AccountsPage", () => {
 
   it("SR-032.2: create with missing fields shows error", async () => {
     server.use(
-      http.get(`${BASE}/accounts`, () => HttpResponse.json([]))
+      http.get(`${BASE}/accounts`, () => HttpResponse.json({ items: [], total: 0, page: 1, pageSize: 20 }))
     );
 
     renderPage();
@@ -144,7 +148,7 @@ describe("AccountsPage", () => {
 
   it("SR-032.3: duplicate email 409 mapped to email field error", async () => {
     server.use(
-      http.get(`${BASE}/accounts`, () => HttpResponse.json([])),
+      http.get(`${BASE}/accounts`, () => HttpResponse.json({ items: [], total: 0, page: 1, pageSize: 20 })),
       http.post(`${BASE}/accounts`, () =>
         HttpResponse.json(
           {
@@ -183,7 +187,7 @@ describe("AccountsPage", () => {
 
   it("SR-034.6 / ADR-0013: delete dialog shows email + type + lost-code warning text", async () => {
     server.use(
-      http.get(`${BASE}/accounts`, () => HttpResponse.json(accounts))
+      http.get(`${BASE}/accounts`, () => HttpResponse.json(accountsResponse))
     );
 
     renderPage(sysadminMe);
@@ -209,7 +213,7 @@ describe("AccountsPage", () => {
     const deleteSpy = vi.fn();
 
     server.use(
-      http.get(`${BASE}/accounts`, () => HttpResponse.json(accounts)),
+      http.get(`${BASE}/accounts`, () => HttpResponse.json(accountsResponse)),
       http.delete(`${BASE}/accounts/u1`, () => {
         deleteSpy();
         return new HttpResponse(null, { status: 204 });
@@ -244,12 +248,15 @@ describe("AccountsPage", () => {
       firstName: "System",
       surname: "Admin",
       email: "sys@test.com",
-      userType: "sysadmin",
+      userType: "SYSADMIN",
       state: "ACTIVE",
+      createdAt: "2024-01-01T00:00:00Z",
     };
 
+    const withSelf = { items: [selfAccount, ...accounts], total: 3, page: 1, pageSize: 20 };
+
     server.use(
-      http.get(`${BASE}/accounts`, () => HttpResponse.json([selfAccount, ...accounts]))
+      http.get(`${BASE}/accounts`, () => HttpResponse.json(withSelf))
     );
 
     renderPage(sysadminMe);
@@ -268,7 +275,7 @@ describe("AccountsPage", () => {
 
   it("SR-034 sysadmin-only: lifecycle actions absent for admin role", async () => {
     server.use(
-      http.get(`${BASE}/accounts`, () => HttpResponse.json(accounts))
+      http.get(`${BASE}/accounts`, () => HttpResponse.json(accountsResponse))
     );
 
     renderPage(adminMe);

@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import { apiClient } from "../../../api";
-import type { AccountSummary } from "../../../api/generated/openapi";
+import type { AccountSummary } from "../../../api/generated/types";
 import { DeleteConfirmDialog } from "./DeleteConfirmDialog";
 
 interface LifecycleActionsProps {
