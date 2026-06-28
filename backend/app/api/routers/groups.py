@@ -23,9 +23,6 @@ from app.db.repositories.audit_repo import AuditRepository
 from app.db.repositories.group_repo import GroupRepository
 from app.db.repositories.module_repo import ModuleRepository
 from app.db.repositories.session import get_db
-from app.db.models.account import Account as AccountModel
-from app.db.repositories.account_repo import AccountRepository
-from app.db.repositories.module_repo import ModuleRepository
 from app.groups.service import GroupService
 
 router = APIRouter(prefix="/groups", tags=["groups"])

@@ -3,19 +3,18 @@
 
 import os
 import sys
-import argon2
-from datetime import datetime, timedelta, timezone
+from datetime import datetime
 from uuid import uuid4
+
+import argon2
+from sqlalchemy import create_engine, select
+from sqlalchemy.orm import Session
 
 # Add backend root to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from sqlalchemy import create_engine, select
-from sqlalchemy.orm import Session
-
 from app.db.models.account import Account, AccountStatus, UserType
 from app.db.models.group import Group, GroupMembership, MembershipSource
-from app.db.models.base import Base
 
 # Get database URL from environment
 DATABASE_URL = os.getenv(
@@ -76,7 +75,7 @@ def set_password(session: Session, email: str, password: str):
 
     account.password_hash = hash_password(password)
     account.status = AccountStatus.ACTIVE
-    account.password_changed_at = datetime.now(timezone.utc)
+    account.password_changed_at = datetime.now(datetime.UTC)
     session.commit()
     print(f"  ✅ Password set for {email}")
     return True
@@ -101,7 +100,7 @@ def create_doctor(session: Session, email: str, first_name: str, surname: str, p
         status=AccountStatus.ACTIVE,
         first_name=first_name,
         surname=surname,
-        password_changed_at=datetime.now(timezone.utc),
+        password_changed_at=datetime.now(datetime.UTC),
     )
     session.add(doctor)
     session.commit()
@@ -128,7 +127,7 @@ def create_patient(session: Session, email: str, first_name: str, surname: str, 
         status=AccountStatus.ACTIVE,
         first_name=first_name,
         surname=surname,
-        password_changed_at=datetime.now(timezone.utc),
+        password_changed_at=datetime.now(datetime.UTC),
     )
     session.add(patient)
     session.commit()
@@ -156,7 +155,12 @@ def create_group(session: Session, name: str):
     print(f"  ✅ Group created: {name}")
     return group
 
-def add_group_member(session: Session, group: Group, account: Account, source: MembershipSource = MembershipSource.MANUAL):
+def add_group_member(
+    session: Session,
+    group: Group,
+    account: Account,
+    source: MembershipSource = MembershipSource.MANUAL,
+):
     """Add a member to a group."""
     print(f"\n👥 Adding {account.email} to group '{group.name}'...")
 
@@ -178,7 +182,7 @@ def add_group_member(session: Session, group: Group, account: Account, source: M
     )
     session.add(membership)
     session.commit()
-    print(f"  ✅ Added to group")
+    print("  ✅ Added to group")
 
 def main():
     """Main setup function."""
@@ -213,8 +217,12 @@ def main():
             add_group_member(session, test_group, doctor)
 
             # Step 3: Create test patients
-            patient1 = create_patient(session, "john.doe@example.com", "John", "Doe", "patient123")
-            patient2 = create_patient(session, "jane.smith@example.com", "Jane", "Smith", "patient123")
+            patient1 = create_patient(
+                session, "john.doe@example.com", "John", "Doe", "patient123"
+            )
+            patient2 = create_patient(
+                session, "jane.smith@example.com", "Jane", "Smith", "patient123"
+            )
             add_group_member(session, test_group, patient1)
             add_group_member(session, test_group, patient2)
 
@@ -223,9 +231,9 @@ def main():
             print("=" * 60)
             print("\n📝 Test credentials:")
             print(f"  Admin:    {sysadmin_account.email} (ya tiene acceso)")
-            print(f"  Doctor:   doctor@medhub.local / doctor123")
-            print(f"  Patient1: john.doe@example.com / patient123")
-            print(f"  Patient2: jane.smith@example.com / patient123")
+            print("  Doctor:   doctor@medhub.local / doctor123")
+            print("  Patient1: john.doe@example.com / patient123")
+            print("  Patient2: jane.smith@example.com / patient123")
             print("\n💡 Next steps:")
             print("  1. Refresh your browser (still logged in as admin)")
             print("  2. Go to 'Accounts' to ver los usuarios creados")
