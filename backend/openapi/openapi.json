@@ -2587,6 +2587,30 @@
         ],
         "title": "GroupCreate"
       },
+      "GroupMemberResponse": {
+        "properties": {
+          "accountId": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Accountid"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "membershipSource": {
+            "type": "string",
+            "title": "Membershipsource"
+          }
+        },
+        "type": "object",
+        "required": [
+          "accountId",
+          "name",
+          "membershipSource"
+        ],
+        "title": "GroupMemberResponse"
+      },
       "GroupResponse": {
         "properties": {
           "id": {
@@ -2602,6 +2626,22 @@
             "type": "string",
             "format": "date-time",
             "title": "Createdat"
+          },
+          "members": {
+            "items": {
+              "$ref": "#/components/schemas/GroupMemberResponse"
+            },
+            "type": "array",
+            "title": "Members",
+            "default": []
+          },
+          "enabledModules": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Enabledmodules",
+            "default": []
           }
         },
         "type": "object",

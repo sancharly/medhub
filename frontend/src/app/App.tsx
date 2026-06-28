@@ -21,6 +21,7 @@ import { AccountsPage } from "../core/admin/accounts";
 import { GroupsPage } from "../core/admin/groups";
 import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "../api";
+import type { UserType } from "../api/generated/openapi";
 
 function AuthenticatedApp() {
   const { data: me } = useQuery({
@@ -28,8 +29,11 @@ function AuthenticatedApp() {
     queryFn: () => apiClient.me(),
   });
 
+  // Backend returns uppercase enums ("SYSADMIN"), navConfig expects lowercase ("sysadmin")
+  const userType = (me?.userType?.toLowerCase() ?? "patient") as UserType;
+
   return (
-    <AppLayout navigation={<AppNavigation userType={me?.userType ?? "patient"} />}>
+    <AppLayout navigation={<AppNavigation userType={userType} />}>
       <Routes>
         <Route path="/password" element={<ChangePasswordPage />} />
         <Route path="/profile" element={<ProfilePage />} />

@@ -9,6 +9,7 @@ Token lifecycle:
 from __future__ import annotations
 
 import hashlib
+import logging
 import secrets
 import uuid
 from datetime import UTC, datetime, timedelta
@@ -20,6 +21,8 @@ from app.auth.password import PasswordService
 from app.db.models.account import Account, AccountStatus, UserType
 from app.db.models.audit import AuditOutcome
 from app.db.repositories.account_repo import AccountRepository
+
+logger = logging.getLogger(__name__)
 
 TOKEN_EXPIRY_HOURS = 72
 
@@ -63,6 +66,14 @@ class ActivationService:
             raise UnauthenticatedError("Invalid or expired activation token.")
 
         if not self._validate_token(account, token):
+            self._audit_svc.record(
+                actor=None,
+                action=AuditAction.ACTIVATION_FAILED,
+                target_type="account",
+                target_id=str(account.id),
+                outcome=AuditOutcome.FAILURE,
+                ip=None,
+            )
             raise UnauthenticatedError("Invalid or expired activation token.")
 
         if account.status != AccountStatus.INACTIVE:
@@ -112,6 +123,17 @@ class ActivationService:
             raise NotFoundError(f"Account {account_id} not found.")
 
         raw_token = issue_activation_token(account)
+
+        # Email delivery is best-effort; the token is already stored so the admin can retry
+        try:
+            from app.workers.email_tasks import send_activation_email  # noqa: PLC0415
+
+            send_activation_email.delay(str(account.id), raw_token)
+        except Exception:
+            logger.warning(
+                "Failed to enqueue resend activation email for account %s",
+                account.id,
+            )
 
         self._audit_svc.record(
             actor=actor.id,

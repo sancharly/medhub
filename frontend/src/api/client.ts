@@ -197,12 +197,24 @@ export class ApiClient {
   }
 
   // Accounts
-  listAccounts(): Promise<AccountSummary[]> {
-    return this.request<AccountSummary[]>("GET", "/accounts");
+  async listAccounts(): Promise<AccountSummary[]> {
+    const response = await this.request<{ items: Array<AccountSummary & { status?: string }> }>("GET", "/accounts");
+    // Backend returns paginated { items: [...] } and uses "status" field instead of "state"
+    return response.items.map((a) => ({
+      ...a,
+      state: (a.state ?? a.status) as AccountSummary["state"],
+    }));
   }
 
   createAccount(data: CreateAccountRequest): Promise<AccountSummary> {
-    return this.request<AccountSummary>("POST", "/accounts", data);
+    // Backend uses familyName (not surname) and uppercase enum values
+    const payload = {
+      firstName: data.firstName,
+      familyName: data.surname,
+      email: data.email,
+      userType: data.userType.toUpperCase(),
+    };
+    return this.request<AccountSummary>("POST", "/accounts", payload);
   }
 
   deactivateAccount(id: string): Promise<void> {
@@ -238,8 +250,9 @@ export class ApiClient {
     return this.request<void>("DELETE", `/groups/${groupId}/members/${accountId}`);
   }
 
-  listInstalledModules(): Promise<InstalledModule[]> {
-    return this.request<InstalledModule[]>("GET", "/modules");
+  async listInstalledModules(): Promise<InstalledModule[]> {
+    const response = await this.request<{ items: InstalledModule[] }>("GET", "/modules");
+    return response.items;
   }
 
   setGroupModuleEnabled(groupId: string, moduleKey: string, enabled: boolean): Promise<void> {
