@@ -113,6 +113,45 @@ def test_activate_audits_event() -> None:
     assert "ACCOUNT_ACTIVATED" in str(mock_audit.record.call_args)
 
 
+def test_activate_wrong_token_audits_failure() -> None:
+    """SR-033.9: invalid token records ACTIVATION_FAILED audit event."""
+    acct = _make_inactive_account()
+    issue_activation_token(acct)
+    mock_repo = MagicMock()
+    mock_repo.get_by_id.return_value = acct
+    mock_audit = MagicMock()
+    svc = ActivationService(mock_repo, PasswordService(), mock_audit)
+
+    with pytest.raises(UnauthenticatedError):
+        svc.activate(acct.id, "wrong-token", VALID_PW)
+
+    mock_audit.record.assert_called_once()
+    call_kwargs = mock_audit.record.call_args.kwargs
+    assert call_kwargs["action"] == "ACTIVATION_FAILED"
+    assert call_kwargs["actor"] is None
+    assert call_kwargs["target_id"] == str(acct.id)
+
+
+def test_activate_expired_token_audits_failure() -> None:
+    """SR-033.9: expired token records ACTIVATION_FAILED audit event."""
+    acct = _make_inactive_account()
+    raw = issue_activation_token(acct)
+    acct.activation_token_expires_at = datetime.now(UTC) - timedelta(seconds=1)
+    mock_repo = MagicMock()
+    mock_repo.get_by_id.return_value = acct
+    mock_audit = MagicMock()
+    svc = ActivationService(mock_repo, PasswordService(), mock_audit)
+
+    with pytest.raises(UnauthenticatedError):
+        svc.activate(acct.id, raw, VALID_PW)
+
+    mock_audit.record.assert_called_once()
+    call_kwargs = mock_audit.record.call_args.kwargs
+    assert call_kwargs["action"] == "ACTIVATION_FAILED"
+    assert call_kwargs["actor"] is None
+    assert call_kwargs["target_id"] == str(acct.id)
+
+
 def test_resend_activation_admin_only() -> None:
     acct = _make_inactive_account()
     actor = Account(
@@ -124,6 +163,27 @@ def test_resend_activation_admin_only() -> None:
     svc = _build_svc(acct)
     with pytest.raises(AuthorizationError):
         svc.resend_activation(actor, acct.id)
+
+
+def test_resend_activation_enqueues_email() -> None:
+    """SR-033.7: resend_activation enqueues a new activation email."""
+    from unittest.mock import patch
+
+    acct = _make_inactive_account()
+    actor = Account(
+        id=uuid.uuid4(),
+        email="admin@example.com",
+        user_type=UserType.ADMIN,
+        status=AccountStatus.ACTIVE,
+    )
+    svc = _build_svc(acct)
+
+    with patch("app.workers.email_tasks.send_activation_email") as mock_task:
+        svc.resend_activation(actor, acct.id)
+        mock_task.delay.assert_called_once()
+        account_id_arg, token_arg = mock_task.delay.call_args.args
+        assert account_id_arg == str(acct.id)
+        assert token_arg  # raw token must be non-empty
 
 
 def test_resend_activation_invalidates_old_token() -> None:

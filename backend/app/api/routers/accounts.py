@@ -45,7 +45,7 @@ def create_account(
         email=body.email,
         user_type=body.user_type,
         first_name=body.first_name,
-        family_name=body.family_name,
+        surname=body.surname,
         date_of_birth=body.date_of_birth,
     )
     account = svc.create(actor, data)

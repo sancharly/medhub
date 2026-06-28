@@ -36,7 +36,7 @@ export function ChangePasswordPage() {
     setMismatch(false);
 
     try {
-      await changePassword.mutateAsync({ currentPassword, newPassword });
+      await changePassword.mutateAsync({ currentPassword, newPassword, confirmNewPassword: confirmPassword });
       queryClient.setQueryData(["me"], (old: typeof me) =>
         old ? { ...old, mustChangePassword: false } : old
       );

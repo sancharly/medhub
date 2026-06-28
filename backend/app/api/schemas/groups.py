@@ -15,10 +15,18 @@ class GroupCreate(_CamelModel):
     name: str
 
 
+class GroupMemberResponse(_CamelModel):
+    account_id: uuid.UUID
+    name: str
+    membership_source: str
+
+
 class GroupResponse(_CamelModel):
     id: uuid.UUID
     name: str
     created_at: datetime
+    members: list[GroupMemberResponse] = []
+    enabled_modules: list[str] = []
 
     model_config = ConfigDict(
         alias_generator=to_camel,

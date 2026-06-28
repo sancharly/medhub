@@ -5,7 +5,7 @@ from __future__ import annotations
 import uuid
 from datetime import date, datetime
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 from pydantic.alias_generators import to_camel
 
 from app.db.models.account import AccountStatus, UserType
@@ -19,7 +19,7 @@ class MeResponse(_CamelModel):
     id: uuid.UUID
     email: str
     user_type: UserType
-    status: AccountStatus
+    state: AccountStatus = Field(validation_alias="status")
     first_name: str | None
     surname: str | None
     date_of_birth: date | None

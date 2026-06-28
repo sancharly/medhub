@@ -4,7 +4,7 @@ import Alert from "@mui/material/Alert";
 import { problemToMessage } from "./problemToMessage";
 import { AuthError } from "../../api/client";
 import { ErrorToastContext } from "./context";
-import type { ProblemError } from "../../api/generated/openapi";
+import type { ProblemError } from "../../api/generated/types";
 
 export function ErrorToastProvider({ children }: { children: React.ReactNode }) {
   const [message, setMessage] = useState<string | null>(null);

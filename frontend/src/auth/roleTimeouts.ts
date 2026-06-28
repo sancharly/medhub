@@ -1,4 +1,4 @@
-import type { UserType } from "../api/generated/openapi";
+import type { UserType } from "../api/generated/types";
 
 export const roleTimeouts = {
   clinical: 15,
@@ -7,7 +7,7 @@ export const roleTimeouts = {
 } as const;
 
 export function getTimeoutMinutes(userType: UserType): number {
-  if (userType === "doctor" || userType === "patient") {
+  if (userType === "DOCTOR" || userType === "PATIENT") {
     return roleTimeouts.clinical;
   }
   return roleTimeouts.admin;

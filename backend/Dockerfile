@@ -8,5 +8,6 @@ FROM python:3.12-slim
 WORKDIR /app
 COPY --from=builder /app/.venv /app/.venv
 COPY app/ ./app/
+COPY scripts/ ./scripts/
 ENV PATH="/app/.venv/bin:$PATH"
 CMD ["gunicorn", "-k", "uvicorn.workers.UvicornWorker", "-b", "0.0.0.0:8000", "app.main:app"]

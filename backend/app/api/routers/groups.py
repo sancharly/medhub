@@ -11,6 +11,7 @@ from app.api.deps import get_current_user
 from app.api.schemas.groups import (
     AddMemberRequest,
     GroupCreate,
+    GroupMemberResponse,
     GroupResponse,
     SetModuleEnabledRequest,
 )
@@ -53,13 +54,47 @@ def create_group(
     return GroupResponse.model_validate(group)
 
 
+def _to_group_response(group: object, db: Session) -> GroupResponse:
+    from app.db.models.group import Group  # noqa: PLC0415
+
+    assert isinstance(group, Group)
+    group_repo = GroupRepository(db)
+    account_repo = AccountRepository(db)
+    module_repo = ModuleRepository(db)
+    memberships = group_repo.members_of_group(group.id)
+    enabled_modules = module_repo.enabled_module_keys_for_group(group.id)
+
+    members = []
+    for m in memberships:
+        account = account_repo.get(m.account_id)
+        if account is None:
+            continue
+        full_name = " ".join(filter(None, [account.first_name, account.surname])) or account.email
+        members.append(
+            GroupMemberResponse(
+                account_id=m.account_id,
+                name=full_name,
+                membership_source=m.source.value,
+            )
+        )
+
+    return GroupResponse(
+        id=group.id,
+        name=group.name,
+        created_at=group.created_at,
+        members=members,
+        enabled_modules=enabled_modules,
+    )
+
+
 @router.get("", response_model=list[GroupResponse])
 def list_groups(
     actor: Account = Depends(get_current_user),
     svc: GroupService = Depends(_get_group_service),
+    db: Session = Depends(get_db),
 ) -> list[GroupResponse]:
     groups = svc.list_groups(actor)
-    return [GroupResponse.model_validate(g) for g in groups]
+    return [_to_group_response(g, db) for g in groups]
 
 
 @router.post("/{group_id}/members", status_code=status.HTTP_204_NO_CONTENT)

@@ -92,6 +92,22 @@ def test_create_duplicate_email_raises_conflict() -> None:
         svc.create(creator, data)
 
 
+def test_create_enqueues_activation_email() -> None:
+    """SR-033.1: activation email task is enqueued on account creation."""
+    from unittest.mock import patch
+
+    creator = _make_account(UserType.SYSADMIN)
+    svc = _build_svc(creator)
+    data = AccountCreate(email="new@example.com", user_type=UserType.DOCTOR)
+
+    with patch("app.workers.email_tasks.send_activation_email") as mock_task:
+        account = svc.create(creator, data)
+        mock_task.delay.assert_called_once()
+        account_id_arg, token_arg = mock_task.delay.call_args.args
+        assert account_id_arg == str(account.id)
+        assert token_arg  # raw token must be non-empty
+
+
 def test_create_audits_account_created() -> None:
     creator = _make_account(UserType.SYSADMIN)
     mock_repo = MagicMock()

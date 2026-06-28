@@ -2038,7 +2038,7 @@
             ],
             "title": "Firstname"
           },
-          "familyName": {
+          "surname": {
             "anyOf": [
               {
                 "type": "string"
@@ -2047,7 +2047,7 @@
                 "type": "null"
               }
             ],
-            "title": "Familyname"
+            "title": "Surname"
           },
           "dateOfBirth": {
             "anyOf": [
@@ -2114,7 +2114,7 @@
           "userType": {
             "$ref": "#/components/schemas/UserType"
           },
-          "status": {
+          "state": {
             "$ref": "#/components/schemas/AccountStatus"
           },
           "firstName": {
@@ -2162,7 +2162,7 @@
           "id",
           "email",
           "userType",
-          "status",
+          "state",
           "firstName",
           "surname",
           "dateOfBirth",
@@ -2587,6 +2587,30 @@
         ],
         "title": "GroupCreate"
       },
+      "GroupMemberResponse": {
+        "properties": {
+          "accountId": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Accountid"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "membershipSource": {
+            "type": "string",
+            "title": "Membershipsource"
+          }
+        },
+        "type": "object",
+        "required": [
+          "accountId",
+          "name",
+          "membershipSource"
+        ],
+        "title": "GroupMemberResponse"
+      },
       "GroupResponse": {
         "properties": {
           "id": {
@@ -2602,6 +2626,22 @@
             "type": "string",
             "format": "date-time",
             "title": "Createdat"
+          },
+          "members": {
+            "items": {
+              "$ref": "#/components/schemas/GroupMemberResponse"
+            },
+            "type": "array",
+            "title": "Members",
+            "default": []
+          },
+          "enabledModules": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Enabledmodules",
+            "default": []
           }
         },
         "type": "object",
@@ -2708,7 +2748,7 @@
           "userType": {
             "$ref": "#/components/schemas/UserType"
           },
-          "status": {
+          "state": {
             "$ref": "#/components/schemas/AccountStatus"
           },
           "firstName": {
@@ -2756,7 +2796,7 @@
           "id",
           "email",
           "userType",
-          "status",
+          "state",
           "firstName",
           "surname",
           "dateOfBirth",
@@ -2829,9 +2869,9 @@
       },
       "ModuleResponse": {
         "properties": {
-          "module_key": {
+          "moduleKey": {
             "type": "string",
-            "title": "Module Key"
+            "title": "Modulekey"
           },
           "name": {
             "type": "string",
@@ -2841,20 +2881,20 @@
             "type": "string",
             "title": "Version"
           },
-          "required_permissions": {
+          "requiredPermissions": {
             "items": {
               "type": "string"
             },
             "type": "array",
-            "title": "Required Permissions"
+            "title": "Requiredpermissions"
           }
         },
         "type": "object",
         "required": [
-          "module_key",
+          "moduleKey",
           "name",
           "version",
-          "required_permissions"
+          "requiredPermissions"
         ],
         "title": "ModuleResponse"
       },

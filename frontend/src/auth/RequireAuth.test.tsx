@@ -32,7 +32,7 @@ function renderWithAuth(initialPath: string) {
 describe("RequireAuth", () => {
   it("redirects unauthenticated user to /login preserving destination", async () => {
     server.use(
-      http.get(`${BASE}/users/me`, () =>
+      http.get(`${BASE}/me`, () =>
         HttpResponse.json(
           { type: "/errors/unauthenticated", title: "Unauthenticated", status: 401 },
           { status: 401, headers: { "Content-Type": "application/problem+json" } }
@@ -49,7 +49,7 @@ describe("RequireAuth", () => {
 
   it("renders children for authenticated user", async () => {
     server.use(
-      http.get(`${BASE}/users/me`, () =>
+      http.get(`${BASE}/me`, () =>
         HttpResponse.json({
           id: "1",
           email: "a@b.com",

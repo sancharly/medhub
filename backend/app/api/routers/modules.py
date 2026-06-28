@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 from fastapi import APIRouter, Depends
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
+from pydantic.alias_generators import to_camel
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user
@@ -21,7 +22,7 @@ class ModuleResponse(BaseModel):
     version: str
     required_permissions: list[str]
 
-    model_config = {"from_attributes": True}
+    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True, from_attributes=True)
 
 
 class ModuleListResponse(BaseModel):

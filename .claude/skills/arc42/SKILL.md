@@ -33,7 +33,12 @@ arguments: [module, branch]
    4. Solution strategy: Summary of the fundamental decisions and solution strategies that shape the architecture. Can include technology, top-level decomposition, approaches to achieve top quality goals and relevant organizational decisions.
    5. Building block view: Static decomposition of the system, abstractions of source-code, shown as hierarchy of white boxes (containing black boxes), up to the appropriate level of detail. Suggested diagrams: component diagram, module diagram, and package diagram
    6. Runtime view (scenarios):  Behavior of building blocks as scenarios, covering important use cases or features, interactions at critical external interfaces, operation and administration plus error and exception behavior. Suggested diagrams: sequence diagram, communication diagram, and activity diagram.
-   7. Cross-cutting concepts: Overall, principal regulations and solution approaches relevant in multiple parts (→ cross-cutting) of the system. Concepts are often related to multiple building blocks. Include different topics like domain models, architecture patterns and -styles, rules for using specific technology and implementation rules.
+   7. Deployment view: Technical infrastructure with environments, computers, processors, topologies. Mapping of (software) building blocks to infrastructure elements. Suggested diagrams: deployment diagram, network diagram, and infrastructure diagram.
+   8. Cross-cutting concepts: Overall, principal regulations and solution approaches relevant in multiple parts (→ cross-cutting) of the system. Concepts are often related to multiple building blocks. Include different topics like domain models, architecture patterns and -styles, rules for using specific technology and implementation rules.
+   9. Architectural Decisions: Important, expensive, critical, large scale or risky architecture decisions including rationales.
+   10. Quality Requirements: Quality requirements as scenarios, with quality tree to provide high-level overview. The most important quality goals should have been described in section 1.2. (quality goals).
+   11. Risks and Technical Debts: Known technical risks or technical debt. What potential problems exist within or around the system? What does the development team feel miserable about?
+   12. Glossary: Important domain and technical terms that stakeholders use when discussing the system. Also: translation reference if you work in a multi-language environment.
 4. Generate diagrams and insert embedding snippets.
 5. Run a lightweight completeness check against arc42 checklist and flag missing or low-confidence sections.
 6. Produce a final Markdown. Each section in a dedicated file (e.g., `docs/design/01-introduction-and-goals.md`) with the following structure in the module's root folder:
@@ -46,7 +51,12 @@ docs/
     04-solution-strategy.md
     05-building-blocks.md
     06-runtime-views.md
-    07-cross-cutting-concepts.md
+    07-deployment-view.md
+    08-cross-cutting-concepts.md
+    09-architectural-decisions.md
+    10-quality-requirements.md
+    11-risks-and-technical-debts.md
+    12-glossary.md
 ```
 
 ## Mandatory Rules — READ BEFORE STARTING
@@ -72,6 +82,7 @@ docs/
 - Each critical architectural aspect (security, scalability, resilience, operability) has at least one addressed point or an explicit gap note.
 - Direct references to files and symbols in the repo (relative paths).
 - Include at least two design decisions (ADRs) for detailed mode when required.
+- If ADRs are stored in a separate folder, for example `docs/adr`, include a link to that folder in the `09-architectural-decisions.md` file.
 - Reasonable length: enough to cover the architecture and design without being exhaustive.
 - Prefer diagrams and tables to explain complex concepts and relationships.
 - Diagrams are generated using PlantUML and embedded in Markdown with proper syntax.

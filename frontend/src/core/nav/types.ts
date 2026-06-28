@@ -1,4 +1,4 @@
-import type { UserType } from "../../api/generated/openapi";
+import type { UserType } from "../../api/generated/types";
 
 export type { UserType };
 
