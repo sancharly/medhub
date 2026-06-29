@@ -41,7 +41,7 @@ function renderDialog(props: {
 describe("IdleWarningDialog", () => {
   beforeEach(() => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
-    Object.defineProperty(document, "cookie", { writable: true, value: "csrftoken=csrf-test" });
+    Object.defineProperty(document, "cookie", { writable: true, value: "medhub_csrf=csrf-test" });
   });
 
   afterEach(() => {

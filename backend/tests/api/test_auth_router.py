@@ -104,7 +104,7 @@ class TestLoginEndpoint:
         assert resp.status_code == 200
         data = resp.json()
         assert "user" in data
-        assert data["user"]["accountType"] == account.user_type.value
+        assert data["user"]["userType"] == account.user_type.value
         assert "mustChangePassword" in data
         assert "evictedSession" in data
 

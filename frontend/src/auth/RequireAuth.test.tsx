@@ -53,7 +53,7 @@ describe("RequireAuth", () => {
         HttpResponse.json({
           id: "1",
           email: "a@b.com",
-          userType: "patient",
+          userType: "PATIENT",
           mustChangePassword: false,
         })
       )

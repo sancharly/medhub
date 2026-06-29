@@ -74,7 +74,7 @@ def login(
             id=account.id,
             first_name=account.first_name,
             surname=account.surname,
-            account_type=account.user_type,
+            user_type=account.user_type,
         ),
         must_change_password=must_change,
         evicted_session=False,

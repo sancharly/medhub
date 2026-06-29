@@ -32,7 +32,7 @@ describe("ProfilePage", () => {
         HttpResponse.json({
           id: "1",
           email: "p@test.com",
-          userType: "patient",
+          userType: "PATIENT",
           firstName: "Jane",
           surname: "Doe",
           mustChangePassword: false,
@@ -58,7 +58,7 @@ describe("ProfilePage", () => {
         HttpResponse.json({
           id: "1",
           email: "p@test.com",
-          userType: "patient",
+          userType: "PATIENT",
           firstName: "Jane",
           surname: "Doe",
           mustChangePassword: false,

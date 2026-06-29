@@ -24,7 +24,7 @@ class MeSummary(_CamelModel):
     id: uuid.UUID
     first_name: str | None
     surname: str | None
-    account_type: UserType
+    user_type: UserType
 
     model_config = ConfigDict(
         alias_generator=to_camel,

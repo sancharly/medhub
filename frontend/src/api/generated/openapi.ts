@@ -921,7 +921,7 @@ export interface components {
             firstName: string | null;
             /** Surname */
             surname: string | null;
-            accountType: components["schemas"]["UserType"];
+            userType: components["schemas"]["UserType"];
         };
         /** ModuleListResponse */
         ModuleListResponse: {

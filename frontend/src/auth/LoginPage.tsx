@@ -30,7 +30,7 @@ export function LoginPage() {
         return;
       }
       const notice = result.evictedSession ? "?evicted=1" : "";
-      navigate(roleLanding(result.user.accountType) + notice);
+      navigate(roleLanding(result.user.userType) + notice);
     } catch {
       // error rendered below
     }
