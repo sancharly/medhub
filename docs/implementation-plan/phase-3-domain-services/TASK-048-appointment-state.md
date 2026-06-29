@@ -5,7 +5,7 @@
 - **Implements:** SR-035 (AC-5 confirm, AC-6 decline pending, AC-7 decline confirmed, AC-9 patient-only, AC-10 audited)
 - **Depends on:** TASK-047 (appointment create) — must be merged first
 - **Branch:** `feature/appointment-state`
-- **Status:** Completed
+- **Status:** Completed (audit-verified 2026-06-29)
 
 ## Objective
 
@@ -51,18 +51,24 @@ class AppointmentService:
 
 ## Acceptance criteria
 
-- [ ] A patient can confirm a PENDING appointment → CONFIRMED (SR-035 AC-5).
-- [ ] A patient can decline a PENDING appointment → DECLINED (SR-035 AC-6).
-- [ ] A patient can decline a previously CONFIRMED appointment → DECLINED (SR-035 AC-7).
-- [ ] Only the associated patient may confirm/decline; doctor and admin are denied (SR-035 AC-9).
-- [ ] Disallowed transitions are rejected with 409; state is never corrupted.
-- [ ] Each confirm/decline is audited with patient, doctor, appointment id, action, timestamp (SR-035 AC-10).
+- [x] A patient can confirm a PENDING appointment → CONFIRMED (SR-035 AC-5).
+- [x] A patient can decline a PENDING appointment → DECLINED (SR-035 AC-6).
+- [x] A patient can decline a previously CONFIRMED appointment → DECLINED (SR-035 AC-7).
+- [x] Only the associated patient may confirm/decline; doctor and admin are denied (SR-035 AC-9).
+- [x] Disallowed transitions are rejected with 409; state is never corrupted.
+- [x] Each confirm/decline is audited with patient, doctor, appointment id, action, timestamp (SR-035 AC-10).
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass (`ruff`/`mypy`)
-- [ ] Unit + integration tests pass; coverage target met
-- [ ] OpenAPI regenerated and re-linted (confirm/decline endpoints)
-- [ ] Audit events emitted for security-relevant actions (SR-023, SR-035 AC-10)
-- [ ] Traceability matrix row updated (SR-035 → TASK-048 → tests)
-- [ ] Security review N/A (authz consumed; patient-only rule covered by tests)
+- [x] Lint + type-check pass (`ruff`/`mypy`)
+- [x] Unit + integration tests pass; coverage target met
+- [x] OpenAPI regenerated and re-linted (confirm/decline endpoints)
+- [x] Audit events emitted for security-relevant actions (SR-023, SR-035 AC-10)
+- [x] Traceability matrix row updated (SR-035 → TASK-048 → tests)
+- [x] Security review N/A (authz consumed; patient-only rule covered by tests)
+
+## Audit verdict (2026-06-29)
+
+- **Verdict:** PASS
+- Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
+- Acceptance criteria verified met; boxes checked.

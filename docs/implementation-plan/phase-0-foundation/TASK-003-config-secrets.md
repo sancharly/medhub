@@ -5,7 +5,7 @@
 - **Implements:** NFR-007, §8.11 (Configuration & secrets)
 - **Depends on:** TASK-002 (must be merged first)
 - **Branch:** `enabler-story/config-secrets`
-- **Status:** Completed
+- **Status:** Completed (audit-verified 2026-06-29)
 
 ## Objective
 
@@ -40,17 +40,23 @@ Provide one typed, twelve-factor configuration surface (`Settings`) that every b
 
 Distilled from NFR-007 and §8.11 / 07-deployment-view operational notes:
 
-- [ ] All configuration is read from the environment through a single typed `Settings`; no direct `os.environ` reads in app code.
-- [ ] Secrets (DB, object-store keys, session signing key, SMTP, at-rest key) are env-injected and never committed; only `infra/.env.example` with placeholders is in the repo.
-- [ ] Secret values are masked in `repr`/logs (`SecretStr`) and absent from `/healthz` and error bodies.
-- [ ] Missing required configuration fails fast at startup with a clear, non-secret message.
-- [ ] `.env`/secret files are blocked from commits (TASK-001 hook) and ignored by git.
+- [x] All configuration is read from the environment through a single typed `Settings`; no direct `os.environ` reads in app code.
+- [x] Secrets (DB, object-store keys, session signing key, SMTP, at-rest key) are env-injected and never committed; only `infra/.env.example` with placeholders is in the repo.
+- [x] Secret values are masked in `repr`/logs (`SecretStr`) and absent from `/healthz` and error bodies.
+- [x] Missing required configuration fails fast at startup with a clear, non-secret message.
+- [x] `.env`/secret files are blocked from commits (TASK-001 hook) and ignored by git.
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass (`ruff`/`mypy`)
-- [ ] Unit tests pass; coverage target met
-- [ ] OpenAPI regenerated and re-linted (no contract change expected)
-- [ ] Audit events emitted for security-relevant actions (N/A)
-- [ ] Traceability matrix row updated (NFR-007, §8.11 → TASK-003 → config tests)
-- [ ] Security review completed (N/A here; the auth/session review gate is SR-031.6 in later tasks)
+- [x] Lint + type-check pass (`ruff`/`mypy`)
+- [x] Unit tests pass; coverage target met
+- [x] OpenAPI regenerated and re-linted (no contract change expected)
+- [x] Audit events emitted for security-relevant actions (N/A)
+- [x] Traceability matrix row updated (NFR-007, §8.11 → TASK-003 → config tests)
+- [x] Security review completed (N/A here; the auth/session review gate is SR-031.6 in later tasks)
+
+## Audit verdict (2026-06-29)
+
+- **Verdict:** PASS
+- Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
+- Acceptance criteria verified met; boxes checked.

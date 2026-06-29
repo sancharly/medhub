@@ -5,7 +5,7 @@
 - **Implements:** SR-014 (AC-2 auto-by-type, AC-3 manual add/remove, AC-4 retrievable), SR-004 (user type as membership input); ADR-0005
 - **Depends on:** TASK-040 (Group CRUD) — must be merged first
 - **Branch:** `feature/group-membership`
-- **Status:** Completed
+- **Status:** In Progress (audit 2026-06-29)
 
 ## Objective
 
@@ -73,3 +73,9 @@ class GroupService:
 - [ ] Audit events emitted for security-relevant actions (SR-023)
 - [ ] Traceability matrix row updated (SR-014, SR-004 → TASK-041 → tests)
 - [ ] Security review N/A (authz consumed, not implemented here)
+
+## Audit verdict (2026-06-29)
+
+- **Verdict:** PARTIAL
+- Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
+- **Remediation:** TASK-040a. Unchecked acceptance-criteria / DoD items above reflect the gaps the audit found; this task stays **In Progress** until they are addressed.

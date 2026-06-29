@@ -5,7 +5,7 @@
 - **Implements:** SR-031
 - **Depends on:** TASK-011 (must be merged first)
 - **Branch:** `feature/persist-repositories`
-- **Status:** Completed
+- **Status:** In Progress (audit 2026-06-29)
 
 ## Objective
 
@@ -57,3 +57,9 @@ Distilled from SR-031:
 - [ ] Audit events emitted for security-relevant actions (N/A — persistence layer; audit writer is TASK-014)
 - [ ] Traceability matrix row updated (SR-031 → TASK-012 → repository/no-raw-SQL tests)
 - [ ] Security review completed (N/A here; the auth/session SR-031.6 review gate applies to later auth tasks)
+
+## Audit verdict (2026-06-29)
+
+- **Verdict:** PARTIAL
+- Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
+- **Remediation:** AUDIT-FINDINGS.md (repo boundary leak). Unchecked acceptance-criteria / DoD items above reflect the gaps the audit found; this task stays **In Progress** until they are addressed.

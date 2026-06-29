@@ -5,7 +5,7 @@
 - **Implements:** SR-012 (required fields, author from session, retrievable), SR-006 (doctor reads authorized patient), SR-007 (patient reads own); ADR-0004
 - **Depends on:** TASK-027 (API deps / authz guard), TASK-014 (`AuthorizationService` / consent evaluation) — must be merged first
 - **Branch:** `feature/clinical-entry`
-- **Status:** Completed
+- **Status:** In Progress (audit 2026-06-29)
 
 ## Objective
 
@@ -72,3 +72,9 @@ class ClinicalDataService:
 - [ ] Audit events emitted for security-relevant actions (SR-023)
 - [ ] Traceability matrix row updated (SR-012, SR-006, SR-007 → TASK-044 → tests)
 - [ ] Security review N/A (authz consumed, not implemented here)
+
+## Audit verdict (2026-06-29)
+
+- **Verdict:** FAIL
+- Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
+- **Remediation:** TASK-044a. Unchecked acceptance-criteria / DoD items above reflect the gaps the audit found; this task stays **In Progress** until they are addressed.

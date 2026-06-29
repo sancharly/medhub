@@ -5,7 +5,7 @@
 - **Implements:** SR-034.1–4 (deactivate with ≤30 s session kill; data retained; reactivate)
 - **Depends on:** TASK-030 (AccountService), TASK-021 (SessionService)
 - **Branch:** `feature/account-lifecycle`
-- **Status:** Completed
+- **Status:** Completed (audit-verified 2026-06-29)
 
 ## Objective
 
@@ -82,17 +82,23 @@ activation email on reactivate (SR-034.4); leave a deactivated account's session
 
 Distilled from SR-034.1–4 / .8:
 
-- [ ] SYSADMIN can deactivate any account type except their own (AC-1).
-- [ ] Deactivated account cannot authenticate; active sessions invalidated within 30 s (AC-2).
-- [ ] Deactivated account's data is retained and remains accessible to authorized users (AC-3).
-- [ ] SYSADMIN can reactivate; reactivated account logs in with existing credentials, no new email (AC-4).
-- [ ] Deactivation and reactivation audited with admin, affected email + type, op, ts (AC-8).
+- [x] SYSADMIN can deactivate any account type except their own (AC-1).
+- [x] Deactivated account cannot authenticate; active sessions invalidated within 30 s (AC-2).
+- [x] Deactivated account's data is retained and remains accessible to authorized users (AC-3).
+- [x] SYSADMIN can reactivate; reactivated account logs in with existing credentials, no new email (AC-4).
+- [x] Deactivation and reactivation audited with admin, affected email + type, op, ts (AC-8).
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass (`ruff`/`mypy`)
-- [ ] Unit (and required integration) tests pass; coverage target met
-- [ ] OpenAPI regenerated and re-linted (lifecycle endpoints in TASK-062)
-- [ ] Audit events emitted for security-relevant actions (ACCOUNT_DEACTIVATED / _REACTIVATED — SR-034.8)
-- [ ] Traceability matrix row updated (SR-034.1–4 → TASK-033 → tests)
-- [ ] Security review completed (auth/session/authz task — SR-031.6)
+- [x] Lint + type-check pass (`ruff`/`mypy`)
+- [x] Unit (and required integration) tests pass; coverage target met
+- [x] OpenAPI regenerated and re-linted (lifecycle endpoints in TASK-062)
+- [x] Audit events emitted for security-relevant actions (ACCOUNT_DEACTIVATED / _REACTIVATED — SR-034.8)
+- [x] Traceability matrix row updated (SR-034.1–4 → TASK-033 → tests)
+- [x] Security review completed (auth/session/authz task — SR-031.6)
+
+## Audit verdict (2026-06-29)
+
+- **Verdict:** PASS
+- Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
+- Acceptance criteria verified met; boxes checked.

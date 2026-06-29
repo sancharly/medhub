@@ -7,7 +7,7 @@
 - **Depends on:** TASK-030 (AccountService read), TASK-043 (ModuleAccessGuard / module enablement
   resolution) — must be merged first
 - **Branch:** `feature/me-endpoints`
-- **Status:** COMMITTED on `feature/phase-4` (commit ae0f5ff)
+- **Status:** Completed (audit-verified 2026-06-29)
 
 ## Objective
 
@@ -80,18 +80,24 @@ SR-003, SR-009 spirit); list modules merely installed but not enabled for the us
 
 ## Acceptance criteria
 
-- [ ] An authenticated user can view their own profile (SR-003.2).
-- [ ] A user cannot view another user's profile via `/me`; no id parameter is honored (SR-003.3).
-- [ ] The profile projection is data-minimized (no clinical fields).
-- [ ] `GET /me/modules` returns the modules enabled for the user's groups (SR-015.3, SR-016.2).
-- [ ] A module disabled for all of the user's groups is absent from the list (SR-015.4).
-- [ ] Both endpoints require an authenticated session (SR-002.3, deny-by-default SR-005).
+- [x] An authenticated user can view their own profile (SR-003.2).
+- [x] A user cannot view another user's profile via `/me`; no id parameter is honored (SR-003.3).
+- [x] The profile projection is data-minimized (no clinical fields).
+- [x] `GET /me/modules` returns the modules enabled for the user's groups (SR-015.3, SR-016.2).
+- [x] A module disabled for all of the user's groups is absent from the list (SR-015.4).
+- [x] Both endpoints require an authenticated session (SR-002.3, deny-by-default SR-005).
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass (`ruff`/`mypy`)
-- [ ] Unit + integration tests pass; coverage target met
-- [ ] OpenAPI regenerated and re-linted (two endpoints + DTOs)
-- [ ] Audit events emitted for security-relevant actions (N/A — own-profile read; clinical reads audited elsewhere)
-- [ ] Traceability matrix row updated (SR-003, SR-015 → TASK-067 → tests)
-- [ ] Security review N/A (authz consumed, not implemented here)
+- [x] Lint + type-check pass (`ruff`/`mypy`)
+- [x] Unit + integration tests pass; coverage target met
+- [x] OpenAPI regenerated and re-linted (two endpoints + DTOs)
+- [x] Audit events emitted for security-relevant actions (N/A — own-profile read; clinical reads audited elsewhere)
+- [x] Traceability matrix row updated (SR-003, SR-015 → TASK-067 → tests)
+- [x] Security review N/A (authz consumed, not implemented here)
+
+## Audit verdict (2026-06-29)
+
+- **Verdict:** PASS
+- Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
+- Acceptance criteria verified met; boxes checked.

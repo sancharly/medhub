@@ -5,7 +5,7 @@
 - **Implements:** SR-020 (AC-1 adapts at phone/tablet/desktop breakpoints with no horizontal scroll of primary content; AC-3 adequate touch targets, no clipped controls); NFR-003 (responsive across desktop/tablet/phone)
 - **Depends on:** TASK-001 (monorepo structure, frontend toolchain, Vite) — must be merged first
 - **Branch:** `feature/fe-layout-theme`
-- **Status:** COMPLETED (2026-06-23, commit 9d3b68b)
+- **Status:** Completed (audit-verified 2026-06-29)
 
 ## Objective
 
@@ -53,14 +53,20 @@ interface AppLayoutProps {
 
 ## Acceptance criteria
 
-- [ ] The layout adapts at defined phone, tablet, and desktop breakpoints (SR-020 AC-1, NFR-003 AC-1).
-- [ ] Primary content never requires horizontal scrolling at any supported breakpoint (SR-020 AC-1, NFR-003 AC-1).
-- [ ] Interactive controls meet a minimum touch-target size and are not clipped on small screens (SR-020 AC-3, NFR-003 AC-3).
-- [ ] A single MUI theme is the source of truth for typography, color, spacing, and target sizing (ADR-0003).
-- [ ] Header / navigation / main-content slots are exposed for TASK-082/083/084 to fill.
+- [x] The layout adapts at defined phone, tablet, and desktop breakpoints (SR-020 AC-1, NFR-003 AC-1).
+- [x] Primary content never requires horizontal scrolling at any supported breakpoint (SR-020 AC-1, NFR-003 AC-1).
+- [x] Interactive controls meet a minimum touch-target size and are not clipped on small screens (SR-020 AC-3, NFR-003 AC-3).
+- [x] A single MUI theme is the source of truth for typography, color, spacing, and target sizing (ADR-0003).
+- [x] Header / navigation / main-content slots are exposed for TASK-082/083/084 to fill.
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass (`eslint`/`tsc`)
-- [ ] Unit/component tests pass; coverage target met
-- [ ] Traceability matrix row updated (SR-020, NFR-003 → TASK-081 → tests)
+- [x] Lint + type-check pass (`eslint`/`tsc`)
+- [x] Unit/component tests pass; coverage target met
+- [x] Traceability matrix row updated (SR-020, NFR-003 → TASK-081 → tests)
+
+## Audit verdict (2026-06-29)
+
+- **Verdict:** PASS
+- Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
+- Acceptance criteria verified met; boxes checked.

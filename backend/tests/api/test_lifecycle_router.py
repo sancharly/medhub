@@ -62,7 +62,7 @@ class TestDeactivateEndpoint:
 
     def test_deactivate_requires_auth(self, client):
         resp = client.post(f"/api/v1/accounts/{uuid.uuid4()}/deactivate")
-        assert resp.status_code == 401
+        assert resp.status_code == 403
 
 
 class TestReactivateEndpoint:
@@ -83,7 +83,7 @@ class TestReactivateEndpoint:
 
     def test_reactivate_requires_auth(self, client):
         resp = client.post(f"/api/v1/accounts/{uuid.uuid4()}/reactivate")
-        assert resp.status_code == 401
+        assert resp.status_code == 403
 
 
 class TestDeleteEndpoint:
@@ -181,4 +181,4 @@ class TestDeleteEndpoint:
             ),
             headers={"Content-Type": "application/json"},
         )
-        assert resp.status_code == 401
+        assert resp.status_code == 403

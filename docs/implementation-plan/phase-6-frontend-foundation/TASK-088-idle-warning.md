@@ -5,7 +5,7 @@
 - **Implements:** SR-030 (AC-4 a visible countdown 2 minutes before an inactivity timeout, with the option to extend the session); ADR-0012
 - **Depends on:** TASK-080 (typed `ApiClient` + cookie/CSRF + Query) — must be merged first
 - **Branch:** `feature/fe-idle-warning`
-- **Status:** COMPLETED (2026-06-23, commit 9d3b68b)
+- **Status:** Completed (audit-verified 2026-06-29)
 
 ## Objective
 
@@ -51,14 +51,20 @@ await apiClient.extendSession();   // POST /auth/session/extend -> { expiresAt }
 
 ## Acceptance criteria
 
-- [ ] A visible countdown appears 2 minutes before the role-dependent inactivity timeout (15 min clinical / 30 min admin) (SR-030 AC-1/2/4).
-- [ ] "Stay signed in" calls `POST /auth/session/extend`, resetting the inactivity timer from the server-returned expiry (SR-030 AC-4, ADR-0012).
-- [ ] User activity before the warning resets the local deadline (SR-030 AC-4).
-- [ ] The client never overrides a server expiry: reaching zero or an extend `401` (absolute cap / revocation) routes to login (SR-030 AC-3, SR-031.5).
-- [ ] The extend call is CSRF-protected via the API client (SR-031.3).
+- [x] A visible countdown appears 2 minutes before the role-dependent inactivity timeout (15 min clinical / 30 min admin) (SR-030 AC-1/2/4).
+- [x] "Stay signed in" calls `POST /auth/session/extend`, resetting the inactivity timer from the server-returned expiry (SR-030 AC-4, ADR-0012).
+- [x] User activity before the warning resets the local deadline (SR-030 AC-4).
+- [x] The client never overrides a server expiry: reaching zero or an extend `401` (absolute cap / revocation) routes to login (SR-030 AC-3, SR-031.5).
+- [x] The extend call is CSRF-protected via the API client (SR-031.3).
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass (`eslint`/`tsc`)
-- [ ] Unit/component tests pass; coverage target met
-- [ ] Traceability matrix row updated (SR-030 → TASK-088 → tests)
+- [x] Lint + type-check pass (`eslint`/`tsc`)
+- [x] Unit/component tests pass; coverage target met
+- [x] Traceability matrix row updated (SR-030 → TASK-088 → tests)
+
+## Audit verdict (2026-06-29)
+
+- **Verdict:** PASS
+- Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
+- Acceptance criteria verified met; boxes checked.

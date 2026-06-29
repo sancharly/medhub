@@ -5,7 +5,7 @@
 - **Implements:** SR-006 (AC-1 list of authorized patients; AC-3 no unauthorized patients exposed); ADR-0003
 - **Depends on:** TASK-080 (typed `ApiClient`), TASK-081 (app shell + routing), TASK-082 (navigation) — must be merged first
 - **Branch:** `feature/fe-patients`
-- **Status:** Not started
+- **Status:** In Progress (audit 2026-06-29)
 
 ## Objective
 
@@ -61,3 +61,9 @@ shell.navigate(`/patients/${patientId}/clinical-entries`);
 - [ ] Lint + type-check pass (`eslint`/`tsc`)
 - [ ] Unit/component tests pass; coverage target met
 - [ ] Traceability matrix row updated (SR-006 → TASK-091 → tests)
+
+## Audit verdict (2026-06-29)
+
+- **Verdict:** FAIL
+- Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
+- **Remediation:** TASK-044a. Unchecked acceptance-criteria / DoD items above reflect the gaps the audit found; this task stays **In Progress** until they are addressed.

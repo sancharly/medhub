@@ -7,7 +7,7 @@
   retention, user-held never-stored code)
 - **Depends on:** TASK-033 (account lifecycle), TASK-035 (erasure/anonymize) — must be merged first
 - **Branch:** `feature/lifecycle-retrieval-endpoints`
-- **Status:** COMMITTED on `feature/phase-4` (commit ae0f5ff)
+- **Status:** In Progress (audit 2026-06-29)
 
 ## Objective
 
@@ -133,3 +133,9 @@ SR-023); expose a recovery/reset path for a lost code (no back-channel by design
 - [ ] Audit events emitted for security-relevant actions (deactivate/reactivate/delete/retrieve — SR-023, SR-024.3)
 - [ ] Traceability matrix row updated (SR-034, SR-024, ADR-0013 → TASK-062 → tests)
 - [ ] Security review N/A for the router shell, but **verify no code leakage** in body/logs/audit and that retrieval cannot be brute-forced (ADR-0013) — flag to the auth/session reviewer
+
+## Audit verdict (2026-06-29)
+
+- **Verdict:** PARTIAL
+- Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
+- **Remediation:** TASK-069a. Unchecked acceptance-criteria / DoD items above reflect the gaps the audit found; this task stays **In Progress** until they are addressed.

@@ -5,7 +5,7 @@
 - **Implements:** NFR-006, SR-028
 - **Depends on:** none
 - **Branch:** `enabler-story/monorepo-tooling`
-- **Status:** Completed
+- **Status:** Completed (audit-verified 2026-06-29)
 
 ## Objective
 
@@ -42,19 +42,25 @@ This task provides no runtime interface. It must materialize the **repo layout**
 
 Distilled from NFR-006 (controlled lifecycle outputs under version control) and SR-028 (uniquely identified, version-controlled, traceable records):
 
-- [ ] The repo layout matches the template exactly; all listed packages/directories exist and are committed.
-- [ ] `uv sync` resolves from a committed `uv.lock`; backend uses Python 3.12.
-- [ ] `ruff`, `black`, `mypy` (strict), `pytest` run from the backend with zero config errors.
-- [ ] `eslint`, `prettier`, `tsc --noEmit`, `vitest` run from the frontend with zero config errors.
-- [ ] `pre-commit run --all-files` passes and includes a hook that prevents committing `.env`/secret files.
-- [ ] `README.md` documents the build/run quickstart (NFR-006 build/deploy instructions, version-controlled).
-- [ ] Tool versions are pinned so CI and local runs are identical.
+- [x] The repo layout matches the template exactly; all listed packages/directories exist and are committed.
+- [x] `uv sync` resolves from a committed `uv.lock`; backend uses Python 3.12.
+- [x] `ruff`, `black`, `mypy` (strict), `pytest` run from the backend with zero config errors.
+- [x] `eslint`, `prettier`, `tsc --noEmit`, `vitest` run from the frontend with zero config errors.
+- [x] `pre-commit run --all-files` passes and includes a hook that prevents committing `.env`/secret files.
+- [x] `README.md` documents the build/run quickstart (NFR-006 build/deploy instructions, version-controlled).
+- [x] Tool versions are pinned so CI and local runs are identical.
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass (`ruff`/`mypy` and `eslint`/`tsc`)
-- [ ] Unit tests pass; coverage gate (`fail_under = 85`) wired even if trivially met here
-- [ ] OpenAPI regenerated and re-linted (N/A — no API)
-- [ ] Audit events emitted for security-relevant actions (N/A — no runtime)
-- [ ] Traceability matrix row updated (NFR-006, SR-028 → TASK-001 → toolchain tests)
-- [ ] Security review completed (N/A — no auth/session code)
+- [x] Lint + type-check pass (`ruff`/`mypy` and `eslint`/`tsc`)
+- [x] Unit tests pass; coverage gate (`fail_under = 85`) wired even if trivially met here
+- [x] OpenAPI regenerated and re-linted (N/A — no API)
+- [x] Audit events emitted for security-relevant actions (N/A — no runtime)
+- [x] Traceability matrix row updated (NFR-006, SR-028 → TASK-001 → toolchain tests)
+- [x] Security review completed (N/A — no auth/session code)
+
+## Audit verdict (2026-06-29)
+
+- **Verdict:** PASS
+- Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
+- Acceptance criteria verified met; boxes checked.

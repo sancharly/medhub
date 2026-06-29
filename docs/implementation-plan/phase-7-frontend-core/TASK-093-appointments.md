@@ -5,7 +5,7 @@
 - **Implements:** SR-010 (create doctor+patient+datetime), SR-011 (scoped visibility), SR-035 (notification visible in-app, confirmation state, patient-only confirm/decline); ADR-0003
 - **Depends on:** TASK-065 (appointments API endpoints, SI-API), TASK-083 (auth/session UI + role context in shell) — must be merged first
 - **Branch:** `feature/fe-appointments`
-- **Status:** Not started
+- **Status:** Completed (audit-verified 2026-06-29)
 
 ## Objective
 
@@ -60,15 +60,21 @@ shell.confirmDialog({...});
 
 ## Acceptance criteria
 
-- [ ] An authorized user can create an appointment with doctor + patient + date/time; missing fields are rejected (SR-010 AC-1/2).
-- [ ] Appointments are listed scoped to the caller (own / admin); unrelated users see none — server-scoped, UI never widens (SR-011).
-- [ ] Each appointment shows its confirmation state (Pending/Confirmed/Declined) to all participants (SR-035.4/8).
-- [ ] The patient — and only the patient — can confirm a Pending appointment and decline a Pending or Confirmed one; decline requires confirmation (SR-035.5/6/7/9, SR-027.2).
-- [ ] Confirming triggers the server-side appointment-consent grant; the UI invalidates the consent view so TASK-094 reflects it (SR-036 handoff; no client-side grant logic).
-- [ ] Admin create/list exposes no clinical data (SR-010.4, SR-009).
+- [x] An authorized user can create an appointment with doctor + patient + date/time; missing fields are rejected (SR-010 AC-1/2).
+- [x] Appointments are listed scoped to the caller (own / admin); unrelated users see none — server-scoped, UI never widens (SR-011).
+- [x] Each appointment shows its confirmation state (Pending/Confirmed/Declined) to all participants (SR-035.4/8).
+- [x] The patient — and only the patient — can confirm a Pending appointment and decline a Pending or Confirmed one; decline requires confirmation (SR-035.5/6/7/9, SR-027.2).
+- [x] Confirming triggers the server-side appointment-consent grant; the UI invalidates the consent view so TASK-094 reflects it (SR-036 handoff; no client-side grant logic).
+- [x] Admin create/list exposes no clinical data (SR-010.4, SR-009).
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass (`eslint`/`tsc`)
-- [ ] Unit/component tests pass; coverage target met
-- [ ] Traceability matrix row updated (SR-010, SR-011, SR-035 → TASK-093 → tests)
+- [x] Lint + type-check pass (`eslint`/`tsc`)
+- [x] Unit/component tests pass; coverage target met
+- [x] Traceability matrix row updated (SR-010, SR-011, SR-035 → TASK-093 → tests)
+
+## Audit verdict (2026-06-29)
+
+- **Verdict:** PASS
+- Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
+- Acceptance criteria verified met; boxes checked.

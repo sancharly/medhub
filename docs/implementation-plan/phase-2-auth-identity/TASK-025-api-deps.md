@@ -6,7 +6,7 @@
   access enforcement)
 - **Depends on:** TASK-021 (SessionService)
 - **Branch:** `feature/api-auth-deps`
-- **Status:** Completed
+- **Status:** Completed (audit-verified 2026-06-29)
 
 ## Objective
 
@@ -76,17 +76,23 @@ caught in review per the §12.3 dependency rules.
 
 Distilled from SR-005 / SR-031.5:
 
-- [ ] Every protected request resolves a session before reaching a handler; missing → 401 (AC-1).
-- [ ] Access denied by default; only the `AuthorizationService`-approved path proceeds (AC-2).
-- [ ] The decision is delegated to the central `AuthorizationService`, never re-implemented (ADR-0006).
-- [ ] Denied requests return 403 and disclose no protected data (AC-4).
-- [ ] Enforcement is server-side; no client-supplied role/id is trusted (SR-031.5).
+- [x] Every protected request resolves a session before reaching a handler; missing → 401 (AC-1).
+- [x] Access denied by default; only the `AuthorizationService`-approved path proceeds (AC-2).
+- [x] The decision is delegated to the central `AuthorizationService`, never re-implemented (ADR-0006).
+- [x] Denied requests return 403 and disclose no protected data (AC-4).
+- [x] Enforcement is server-side; no client-supplied role/id is trusted (SR-031.5).
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass (`ruff`/`mypy`)
-- [ ] Unit (and required integration) tests pass; coverage target met
-- [ ] OpenAPI regenerated and re-linted (dependency surface; security scheme reflected once routers land)
-- [ ] Audit events emitted for security-relevant actions (denials audited by AuthorizationService, TASK-027)
-- [ ] Traceability matrix row updated (SR-005, SR-031.5 → TASK-025 → tests)
-- [ ] Security review completed (auth/session/authz task — SR-031.6)
+- [x] Lint + type-check pass (`ruff`/`mypy`)
+- [x] Unit (and required integration) tests pass; coverage target met
+- [x] OpenAPI regenerated and re-linted (dependency surface; security scheme reflected once routers land)
+- [x] Audit events emitted for security-relevant actions (denials audited by AuthorizationService, TASK-027)
+- [x] Traceability matrix row updated (SR-005, SR-031.5 → TASK-025 → tests)
+- [x] Security review completed (auth/session/authz task — SR-031.6)
+
+## Audit verdict (2026-06-29)
+
+- **Verdict:** PASS
+- Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
+- Acceptance criteria verified met; boxes checked.

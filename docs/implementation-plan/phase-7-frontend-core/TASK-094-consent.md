@@ -5,7 +5,7 @@
 - **Implements:** SR-008 (AC-1/3 patient grants/revokes a doctor; revoke immediate + confirmation), SR-036.7 (unified view of manual + appointment-derived grants); SR-027.2 (confirm destructive action); ADR-0003
 - **Depends on:** TASK-064 (consent API endpoints, SI-API), TASK-083 (auth/session UI + role context) — must be merged first
 - **Branch:** `feature/fe-consent`
-- **Status:** Not started
+- **Status:** Completed (audit-verified 2026-06-29)
 
 ## Objective
 
@@ -56,14 +56,20 @@ shell.confirmDialog({...});                 // required confirmation before revo
 
 ## Acceptance criteria
 
-- [ ] The patient sees one unified list of all active grants, manual and appointment-derived, with the source labeled (SR-036.7).
-- [ ] The patient can grant a named doctor manual access; it appears in the list (SR-008 AC-1).
-- [ ] The patient can revoke any grant; revoke requires explicit confirmation and removes only the selected grant (SR-008 AC-3, SR-027.2, SR-036.4).
-- [ ] Revocation reflects immediately in the UI; the server enforces immediate denial (SR-008.4) — the UI adds no masking cache.
-- [ ] Cancelling the confirmation performs no state change (SR-027.2).
+- [x] The patient sees one unified list of all active grants, manual and appointment-derived, with the source labeled (SR-036.7).
+- [x] The patient can grant a named doctor manual access; it appears in the list (SR-008 AC-1).
+- [x] The patient can revoke any grant; revoke requires explicit confirmation and removes only the selected grant (SR-008 AC-3, SR-027.2, SR-036.4).
+- [x] Revocation reflects immediately in the UI; the server enforces immediate denial (SR-008.4) — the UI adds no masking cache.
+- [x] Cancelling the confirmation performs no state change (SR-027.2).
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass (`eslint`/`tsc`)
-- [ ] Unit/component tests pass; coverage target met
-- [ ] Traceability matrix row updated (SR-008, SR-036.7 → TASK-094 → tests)
+- [x] Lint + type-check pass (`eslint`/`tsc`)
+- [x] Unit/component tests pass; coverage target met
+- [x] Traceability matrix row updated (SR-008, SR-036.7 → TASK-094 → tests)
+
+## Audit verdict (2026-06-29)
+
+- **Verdict:** PASS
+- Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
+- Acceptance criteria verified met; boxes checked.

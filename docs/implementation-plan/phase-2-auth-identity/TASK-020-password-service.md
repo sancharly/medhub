@@ -5,7 +5,7 @@
 - **Implements:** SR-025 (password complexity & lifecycle), SR-002.4 (salted hashing, never clear text)
 - **Depends on:** TASK-012 (typed repositories — password-history persistence)
 - **Branch:** `feature/password-service`
-- **Status:** Completed
+- **Status:** Completed (audit-verified 2026-06-29)
 
 ## Objective
 
@@ -92,20 +92,26 @@ structured rule violations to the caller, which the API maps to a field-level RF
 
 Distilled from SR-025 (and SR-002.4):
 
-- [ ] Passwords < 12 chars rejected (AC-1).
-- [ ] All four character classes required (AC-2).
-- [ ] Email/username substring rejected, case-insensitive (AC-3).
-- [ ] New password matching any of last 12 rejected (AC-4).
-- [ ] Violation error identifies the violated rule(s) to the user setting the password (AC-5).
-- [ ] Predicate available to force-change a system-assigned password on first login (AC-6).
-- [ ] 180-day max age and 14-day pre-expiry warning predicates available (AC-7).
-- [ ] Passwords stored only as Argon2id salted hashes; never logged in clear text (SR-002.4).
+- [x] Passwords < 12 chars rejected (AC-1).
+- [x] All four character classes required (AC-2).
+- [x] Email/username substring rejected, case-insensitive (AC-3).
+- [x] New password matching any of last 12 rejected (AC-4).
+- [x] Violation error identifies the violated rule(s) to the user setting the password (AC-5).
+- [x] Predicate available to force-change a system-assigned password on first login (AC-6).
+- [x] 180-day max age and 14-day pre-expiry warning predicates available (AC-7).
+- [x] Passwords stored only as Argon2id salted hashes; never logged in clear text (SR-002.4).
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass (`ruff`/`mypy`)
-- [ ] Unit (and required integration) tests pass; coverage target met
-- [ ] OpenAPI regenerated and re-linted (N/A — no endpoint in this task)
-- [ ] Audit events emitted for security-relevant actions (N/A — caller audits credential changes)
-- [ ] Traceability matrix row updated (SR-025, SR-002.4 → TASK-020 → tests)
-- [ ] Security review completed (auth/session/authz task — SR-031.6)
+- [x] Lint + type-check pass (`ruff`/`mypy`)
+- [x] Unit (and required integration) tests pass; coverage target met
+- [x] OpenAPI regenerated and re-linted (N/A — no endpoint in this task)
+- [x] Audit events emitted for security-relevant actions (N/A — caller audits credential changes)
+- [x] Traceability matrix row updated (SR-025, SR-002.4 → TASK-020 → tests)
+- [x] Security review completed (auth/session/authz task — SR-031.6)
+
+## Audit verdict (2026-06-29)
+
+- **Verdict:** PASS
+- Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
+- Acceptance criteria verified met; boxes checked.

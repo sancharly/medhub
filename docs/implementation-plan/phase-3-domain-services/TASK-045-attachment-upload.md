@@ -5,7 +5,7 @@
 - **Implements:** SR-013 (AC-1 attach incl. DICOM, AC-2 bound to entry/patient, AC-4 encrypted at rest), SR-022 (AC-2 AES-256 at rest); ADR-0009, ADR-0008
 - **Depends on:** TASK-044 (clinical entry), TASK-013 (object-storage / MinIO client + bucket config) — must be merged first
 - **Branch:** `feature/attachment-upload`
-- **Status:** Completed
+- **Status:** In Progress (audit 2026-06-29)
 
 ## Objective
 
@@ -73,3 +73,9 @@ class AttachmentService:
 - [ ] Audit events emitted for security-relevant actions (SR-023)
 - [ ] Traceability matrix row updated (SR-013, SR-022 → TASK-045 → tests)
 - [ ] Security review N/A (authz consumed, not implemented here; storage-encryption config covered in TASK-045 review notes)
+
+## Audit verdict (2026-06-29)
+
+- **Verdict:** PARTIAL
+- Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
+- **Remediation:** TASK-066a / AUDIT-FINDINGS.md. Unchecked acceptance-criteria / DoD items above reflect the gaps the audit found; this task stays **In Progress** until they are addressed.

@@ -8,7 +8,7 @@
 - **Depends on:** TASK-025 (API auth/session deps — the auth pipeline the middleware composes with),
   TASK-026 (RFC 7807 error handlers — CSRF/denial rendering) — must be merged first
 - **Branch:** `feature/security-middleware`
-- **Status:** COMMITTED on `feature/phase-4` (commit ae0f5ff)
+- **Status:** In Progress (audit 2026-06-29)
 
 ## Objective
 
@@ -101,3 +101,9 @@ weaken `SameSite`/cookie attributes (owned by TASK-022).
 - [ ] Audit events emitted for security-relevant actions (CSRF denials need not be audited; auth denials audited by TASK-027)
 - [ ] Traceability matrix row updated (SR-031 → TASK-069 → tests)
 - [ ] **Security review completed (security/CSRF middleware — SR-031.6)**
+
+## Audit verdict (2026-06-29)
+
+- **Verdict:** FAIL
+- Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
+- **Remediation:** TASK-069a. Unchecked acceptance-criteria / DoD items above reflect the gaps the audit found; this task stays **In Progress** until they are addressed.

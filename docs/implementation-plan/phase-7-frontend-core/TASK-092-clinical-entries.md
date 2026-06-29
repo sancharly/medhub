@@ -5,7 +5,7 @@
 - **Implements:** SR-012 (AC-1/2/3 create entry, required fields, author from session), SR-013 (AC-1/3 attach files incl. DICOM, retrieve attachments); SR-006/SR-007 (read scope, inherited from server); ADR-0003, ADR-0008
 - **Depends on:** TASK-091 (doctor patient list — entry point), TASK-066 (clinical-entries + attachments API endpoints, SI-API) — must be merged first
 - **Branch:** `feature/fe-clinical-entries`
-- **Status:** Not started
+- **Status:** In Progress (audit 2026-06-29)
 
 ## Objective
 
@@ -73,3 +73,9 @@ apiClient.getAttachmentUrl(attachmentId);                 // GET /attachments/{i
 - [ ] Lint + type-check pass (`eslint`/`tsc`)
 - [ ] Unit/component tests pass; coverage target met
 - [ ] Traceability matrix row updated (SR-012, SR-013 → TASK-092 → tests)
+
+## Audit verdict (2026-06-29)
+
+- **Verdict:** PARTIAL
+- Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
+- **Remediation:** TASK-044a (patient-roster nav), TASK-066a (multipart), **TASK-092a** (FE: multi-file upload, attachment listing, module-gated viewer link, date+time in create). Unchecked items reflect the gaps the audit found; stays **In Progress** until addressed.

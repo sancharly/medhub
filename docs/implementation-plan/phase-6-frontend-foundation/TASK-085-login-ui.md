@@ -5,7 +5,7 @@
 - **Implements:** SR-002 (AC-1 authenticate with email/password and obtain a session; AC-2 generic failure with no field disclosure; AC-3 unauthenticated requests routed to the login flow); ADR-0003, ADR-0012
 - **Depends on:** TASK-080 (typed `ApiClient` + cookie/CSRF + Query), TASK-082 (role-based navigation, post-login destination) — must be merged first
 - **Branch:** `feature/fe-login-ui`
-- **Status:** COMPLETED (2026-06-23, commit 9d3b68b)
+- **Status:** In Progress (audit 2026-06-29)
 
 ## Objective
 
@@ -64,3 +64,9 @@ const me = await apiClient.getMe();           // GET  /me  (establishes the cach
 - [ ] Lint + type-check pass (`eslint`/`tsc`)
 - [ ] Unit/component tests pass; coverage target met
 - [ ] Traceability matrix row updated (SR-002 → TASK-085 → tests)
+
+## Audit verdict (2026-06-29)
+
+- **Verdict:** PARTIAL
+- Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
+- **Remediation:** AUDIT-FINDINGS.md (evictedSession surfacing). Unchecked acceptance-criteria / DoD items above reflect the gaps the audit found; this task stays **In Progress** until they are addressed.

@@ -5,7 +5,7 @@
 - **Implements:** NFR-006, SR-028
 - **Depends on:** TASK-001 (must be merged first)
 - **Branch:** `enabler-story/ci-pipeline`
-- **Status:** Completed
+- **Status:** In Progress (audit 2026-06-29)
 
 ## Objective
 
@@ -60,3 +60,9 @@ Distilled from NFR-006 and SR-028:
 - [ ] Audit events emitted for security-relevant actions (N/A — process)
 - [ ] Traceability matrix row updated (NFR-006, SR-028 → TASK-005 → CI gate)
 - [ ] Security review completed (N/A — no auth/session code)
+
+## Audit verdict (2026-06-29)
+
+- **Verdict:** PARTIAL
+- Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
+- **Remediation:** TASK-004a. Unchecked acceptance-criteria / DoD items above reflect the gaps the audit found; this task stays **In Progress** until they are addressed.

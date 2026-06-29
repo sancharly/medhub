@@ -8,7 +8,7 @@
 - **Depends on:** TASK-060, TASK-061, TASK-062, TASK-063, TASK-064, TASK-065, TASK-066, TASK-067
   (all routers must be merged so the document is complete) — must be merged first
 - **Branch:** `enabler-story/openapi-contract`
-- **Status:** COMMITTED on `feature/phase-4` (commit ae0f5ff)
+- **Status:** In Progress (audit 2026-06-29)
 
 ## Objective
 
@@ -93,3 +93,9 @@ any operation (uniform error contract, §8.6).
 - [ ] Audit events emitted for security-relevant actions (N/A — contract artifact, no runtime behavior)
 - [ ] Traceability matrix row updated (NFR-006, SR-031 → TASK-068 → contract + lint tests)
 - [ ] Security review N/A (no auth/session logic; but the documented public-route set is reviewed for deny-by-default correctness)
+
+## Audit verdict (2026-06-29)
+
+- **Verdict:** PARTIAL
+- Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
+- **Remediation:** TASK-068a. Unchecked acceptance-criteria / DoD items above reflect the gaps the audit found; this task stays **In Progress** until they are addressed.

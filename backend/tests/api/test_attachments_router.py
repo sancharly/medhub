@@ -89,7 +89,7 @@ class TestUploadAttachment:
             f"/api/v1/clinical-entries/{uuid.uuid4()}/attachments",
             content=b"data",
         )
-        assert resp.status_code == 401
+        assert resp.status_code == 403
 
 
 class TestFetchAttachment:

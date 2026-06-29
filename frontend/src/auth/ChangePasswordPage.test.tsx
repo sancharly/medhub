@@ -31,7 +31,7 @@ describe("ChangePasswordPage", () => {
   it("live hints update when typing in new password field", async () => {
     server.use(
       http.get(`${BASE}/me`, () =>
-        HttpResponse.json({ id: "1", email: "a@b.com", userType: "patient", mustChangePassword: true })
+        HttpResponse.json({ id: "1", email: "a@b.com", userType: "PATIENT", mustChangePassword: true })
       )
     );
 
@@ -48,7 +48,7 @@ describe("ChangePasswordPage", () => {
   it("server 400 for reused password shows history message", async () => {
     server.use(
       http.get(`${BASE}/me`, () =>
-        HttpResponse.json({ id: "1", email: "a@b.com", userType: "patient", mustChangePassword: true })
+        HttpResponse.json({ id: "1", email: "a@b.com", userType: "PATIENT", mustChangePassword: true })
       ),
       http.post(`${BASE}/auth/password`, () =>
         HttpResponse.json(
@@ -78,7 +78,7 @@ describe("ChangePasswordPage", () => {
   it("new/confirm mismatch shows non-disclosing message and no submit", async () => {
     server.use(
       http.get(`${BASE}/me`, () =>
-        HttpResponse.json({ id: "1", email: "a@b.com", userType: "patient", mustChangePassword: true })
+        HttpResponse.json({ id: "1", email: "a@b.com", userType: "PATIENT", mustChangePassword: true })
       )
     );
 
@@ -94,7 +94,7 @@ describe("ChangePasswordPage", () => {
   it("successful change navigates to profile", async () => {
     server.use(
       http.get(`${BASE}/me`, () =>
-        HttpResponse.json({ id: "1", email: "a@b.com", userType: "patient", mustChangePassword: false })
+        HttpResponse.json({ id: "1", email: "a@b.com", userType: "PATIENT", mustChangePassword: false })
       ),
       http.post(`${BASE}/auth/password`, () => new HttpResponse(null, { status: 204 }))
     );

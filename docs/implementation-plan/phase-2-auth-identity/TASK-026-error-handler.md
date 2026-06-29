@@ -5,7 +5,7 @@
 - **Implements:** SR-027.3 (clear, actionable error messaging); api-design.md error catalog
 - **Depends on:** TASK-002 (backend FastAPI app skeleton)
 - **Branch:** `feature/rfc7807-error-handlers`
-- **Status:** Completed
+- **Status:** In Progress (audit 2026-06-29)
 
 ## Objective
 
@@ -94,3 +94,9 @@ Distilled from SR-027.3 and the api-design.md error catalog:
 - [ ] Audit events emitted for security-relevant actions (N/A — handlers are presentation; callers audit)
 - [ ] Traceability matrix row updated (SR-027.3, api-design.md → TASK-026 → tests)
 - [ ] Security review completed (N/A — not auth/session/authz logic; but verify no disclosure in 401/403)
+
+## Audit verdict (2026-06-29)
+
+- **Verdict:** PARTIAL
+- Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
+- **Remediation:** TASK-026a. Unchecked acceptance-criteria / DoD items above reflect the gaps the audit found; this task stays **In Progress** until they are addressed.

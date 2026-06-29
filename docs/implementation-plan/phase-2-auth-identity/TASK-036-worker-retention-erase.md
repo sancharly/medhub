@@ -5,7 +5,7 @@
 - **Implements:** SR-024.4 (records past retention handled per policy → permanent erasure); ADR-0013
 - **Depends on:** TASK-035 (erasure → anonymized dataset with a retention deadline)
 - **Branch:** `feature/worker-retention-erase`
-- **Status:** Completed
+- **Status:** Completed (audit-verified 2026-06-29)
 
 ## Objective
 
@@ -72,18 +72,24 @@ Run eager (`task_always_eager`) with a frozen clock and a fake object store.
 
 Distilled from SR-024.4 / ADR-0013:
 
-- [ ] Datasets past their 5-year deadline are permanently and irreversibly erased (row + binaries)
+- [x] Datasets past their 5-year deadline are permanently and irreversibly erased (row + binaries)
       (SR-024.4, ADR-0013).
-- [ ] Datasets within the window are untouched (ADR-0013).
-- [ ] Erased datasets are no longer retrievable (404) (runtime §6.7).
-- [ ] The sweep is scheduled (Celery Beat), idempotent, and isolates per-dataset failures.
-- [ ] Each erasure is audited with dataset id + ts; no identifying data or code (SR-023, ADR-0013).
+- [x] Datasets within the window are untouched (ADR-0013).
+- [x] Erased datasets are no longer retrievable (404) (runtime §6.7).
+- [x] The sweep is scheduled (Celery Beat), idempotent, and isolates per-dataset failures.
+- [x] Each erasure is audited with dataset id + ts; no identifying data or code (SR-023, ADR-0013).
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass (`ruff`/`mypy`)
-- [ ] Unit (and required integration) tests pass; coverage target met
-- [ ] OpenAPI regenerated and re-linted (N/A — scheduled job, no HTTP endpoint)
-- [ ] Audit events emitted for security-relevant actions (ANONYMIZED_DATASET_ERASED — SR-023)
-- [ ] Traceability matrix row updated (SR-024.4, ADR-0013 → TASK-036 → tests)
-- [ ] Security review completed (N/A — not auth/session/authz; verify irreversibility & no-orphans)
+- [x] Lint + type-check pass (`ruff`/`mypy`)
+- [x] Unit (and required integration) tests pass; coverage target met
+- [x] OpenAPI regenerated and re-linted (N/A — scheduled job, no HTTP endpoint)
+- [x] Audit events emitted for security-relevant actions (ANONYMIZED_DATASET_ERASED — SR-023)
+- [x] Traceability matrix row updated (SR-024.4, ADR-0013 → TASK-036 → tests)
+- [x] Security review completed (N/A — not auth/session/authz; verify irreversibility & no-orphans)
+
+## Audit verdict (2026-06-29)
+
+- **Verdict:** PASS
+- Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
+- Acceptance criteria verified met; boxes checked.

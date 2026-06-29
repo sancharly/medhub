@@ -5,7 +5,7 @@
 - **Implements:** SR-016 (AC-2 enabled module presented to authorized users, mounted under module path), SR-015 (AC-3/AC-4 access only when enabled)
 - **Depends on:** TASK-071 (PlatformServices), TASK-043 (ModuleAccessGuard) — must be merged first
 - **Branch:** `feature/router-mount`
-- **Status:** COMPLETED (feature/phase-5)
+- **Status:** Completed (audit-verified 2026-06-29)
 
 ## Objective
 
@@ -50,18 +50,24 @@ class RouterRegistry:
 
 ## Acceptance criteria
 
-- [ ] Each module's router is mounted under `/api/v1/modules/{module_key}` via `RouterRegistry.mount` (SR-016 AC-2, ADR-0005).
-- [ ] Every mounted route is gated by `ModuleAccessGuard` (enablement) before authorization (SR-015 AC-3, runtime view 6.4).
-- [ ] A request to a module not enabled for any of the caller's groups returns 403 and never enters the handler (SR-015 AC-3/AC-4).
-- [ ] Disabling a module at runtime blocks access on the next request without restart (SR-015 AC-4).
-- [ ] A module cannot mount outside its prefix or duplicate a key (boundary, SR-016 AC-3).
-- [ ] Denied module access is audited (SR-023).
+- [x] Each module's router is mounted under `/api/v1/modules/{module_key}` via `RouterRegistry.mount` (SR-016 AC-2, ADR-0005).
+- [x] Every mounted route is gated by `ModuleAccessGuard` (enablement) before authorization (SR-015 AC-3, runtime view 6.4).
+- [x] A request to a module not enabled for any of the caller's groups returns 403 and never enters the handler (SR-015 AC-3/AC-4).
+- [x] Disabling a module at runtime blocks access on the next request without restart (SR-015 AC-4).
+- [x] A module cannot mount outside its prefix or duplicate a key (boundary, SR-016 AC-3).
+- [x] Denied module access is audited (SR-023).
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass (`ruff`/`mypy`)
-- [ ] Unit + integration tests pass; coverage target met
-- [ ] OpenAPI regenerated and re-linted (module routes appear under the module prefix)
-- [ ] Audit events emitted for security-relevant actions (denied module access, SR-023)
-- [ ] Traceability matrix row updated (SR-016 AC-2, SR-015 → TASK-072 → tests)
-- [ ] Security review completed (module access gating / authorization ordering — SR-031.6)
+- [x] Lint + type-check pass (`ruff`/`mypy`)
+- [x] Unit + integration tests pass; coverage target met
+- [x] OpenAPI regenerated and re-linted (module routes appear under the module prefix)
+- [x] Audit events emitted for security-relevant actions (denied module access, SR-023)
+- [x] Traceability matrix row updated (SR-016 AC-2, SR-015 → TASK-072 → tests)
+- [x] Security review completed (module access gating / authorization ordering — SR-031.6)
+
+## Audit verdict (2026-06-29)
+
+- **Verdict:** PASS
+- Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
+- Acceptance criteria verified met; boxes checked.

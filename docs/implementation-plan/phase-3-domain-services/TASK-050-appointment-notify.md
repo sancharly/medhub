@@ -5,7 +5,7 @@
 - **Implements:** SR-035 (AC-2 notify immediately on create, AC-3 dual-channel in-app + email)
 - **Depends on:** TASK-047 (appointment create), TASK-031 (Celery worker / `SI-WORKER` task interface + SMTP email task) — must be merged first
 - **Branch:** `feature/appointment-notify`
-- **Status:** Completed
+- **Status:** In Progress (audit 2026-06-29)
 
 ## Objective
 
@@ -64,3 +64,9 @@ def send_appointment_notification(appointment_id: UUID) -> None: ...   # Celery 
 - [ ] Audit events emitted for security-relevant actions (N/A — notification dispatch is operational; create audit in TASK-047)
 - [ ] Traceability matrix row updated (SR-035 AC-2/AC-3 → TASK-050 → tests)
 - [ ] Security review N/A (no auth/session/authz code)
+
+## Audit verdict (2026-06-29)
+
+- **Verdict:** PARTIAL
+- Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
+- **Remediation:** TASK-050a. Unchecked acceptance-criteria / DoD items above reflect the gaps the audit found; this task stays **In Progress** until they are addressed.

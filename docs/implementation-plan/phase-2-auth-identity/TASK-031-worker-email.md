@@ -6,7 +6,7 @@
   (best-effort `Notification` abstraction with `status` + post-send hook)
 - **Depends on:** TASK-003 (config & secrets — SMTP/Redis), TASK-012 (repositories)
 - **Branch:** `feature/worker-email`
-- **Status:** Completed
+- **Status:** Completed (audit-verified 2026-06-29)
 
 ## Objective
 
@@ -90,20 +90,26 @@ Run tasks eagerly (`task_always_eager`) with a mocked SMTP transport.
 
 Distilled from SR-033 / SR-035 / §8.12:
 
-- [ ] Celery worker runs against the Redis broker; tasks are autodiscovered and enqueueable (ADR-0002).
-- [ ] `send_activation_email` sends the single-use 72 h activation link; audited as link-sent without
+- [x] Celery worker runs against the Redis broker; tasks are autodiscovered and enqueueable (ADR-0002).
+- [x] `send_activation_email` sends the single-use 72 h activation link; audited as link-sent without
       the token (SR-033.1, SR-033.9).
-- [ ] `send_appointment_notification` email carries doctor name, date/time, appointment link (SR-035.2/3).
-- [ ] Sends are best-effort with bounded retries; the request path is never blocked (§8.12).
-- [ ] All sends flow through the `Notification` abstraction with `status ∈ {QUEUED, SENT, FAILED}` and
+- [x] `send_appointment_notification` email carries doctor name, date/time, appointment link (SR-035.2/3).
+- [x] Sends are best-effort with bounded retries; the request path is never blocked (§8.12).
+- [x] All sends flow through the `Notification` abstraction with `status ∈ {QUEUED, SENT, FAILED}` and
       a post-send hook (extension point) (§8.12).
-- [ ] SMTP credentials and base URL come from env config, never committed (NFR-007, TASK-003).
+- [x] SMTP credentials and base URL come from env config, never committed (NFR-007, TASK-003).
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass (`ruff`/`mypy`)
-- [ ] Unit (and required integration) tests pass; coverage target met
-- [ ] OpenAPI regenerated and re-linted (N/A — no HTTP endpoint)
-- [ ] Audit events emitted for security-relevant actions (ACTIVATION_LINK_SENT — SR-033.9; no token)
-- [ ] Traceability matrix row updated (SR-033, SR-035, §8.12 → TASK-031 → tests)
-- [ ] Security review completed (N/A — not auth/session/authz; verify no token/secret leakage)
+- [x] Lint + type-check pass (`ruff`/`mypy`)
+- [x] Unit (and required integration) tests pass; coverage target met
+- [x] OpenAPI regenerated and re-linted (N/A — no HTTP endpoint)
+- [x] Audit events emitted for security-relevant actions (ACTIVATION_LINK_SENT — SR-033.9; no token)
+- [x] Traceability matrix row updated (SR-033, SR-035, §8.12 → TASK-031 → tests)
+- [x] Security review completed (N/A — not auth/session/authz; verify no token/secret leakage)
+
+## Audit verdict (2026-06-29)
+
+- **Verdict:** PASS
+- Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
+- Acceptance criteria verified met; boxes checked.

@@ -9,7 +9,7 @@
 - **Depends on:** TASK-044 (clinical entry), TASK-045 (attachment upload), TASK-046 (attachment
   fetch) — must be merged first
 - **Branch:** `feature/clinical-attachment-endpoints`
-- **Status:** COMMITTED on `feature/phase-4` (commit ae0f5ff)
+- **Status:** In Progress (audit 2026-06-29)
 
 ## Objective
 
@@ -125,3 +125,9 @@ SI-ATTACH only, §8.9).
 - [ ] Audit events emitted for security-relevant actions (clinical read/create, attachment read/store — SR-023)
 - [ ] Traceability matrix row updated (SR-012, SR-013, SR-005 → TASK-066 → tests)
 - [ ] Security review N/A (authz consumed, not implemented here; but verify no bytes precede the authz guard)
+
+## Audit verdict (2026-06-29)
+
+- **Verdict:** FAIL
+- Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
+- **Remediation:** TASK-044a / TASK-066a / TASK-069a. Unchecked acceptance-criteria / DoD items above reflect the gaps the audit found; this task stays **In Progress** until they are addressed.

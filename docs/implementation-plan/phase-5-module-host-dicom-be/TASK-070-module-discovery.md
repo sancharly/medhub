@@ -5,7 +5,7 @@
 - **Implements:** SR-016 (AC-1 add without modifying existing modules, AC-3 defined contract); ADR-0005
 - **Depends on:** TASK-042 (per-group module enablement — `ModuleRegistry` is the soft-ref target for enablement) — must be merged first
 - **Branch:** `feature/module-discovery`
-- **Status:** COMPLETED (feature/phase-5)
+- **Status:** In Progress (audit 2026-06-29)
 
 ## Objective
 
@@ -72,3 +72,9 @@ class ModuleManifest:
 - [ ] Audit events emitted for security-relevant actions (registry sync, SR-023 AC-4)
 - [ ] Traceability matrix row updated (SR-016 → TASK-070 → tests)
 - [ ] Security review N/A (no auth/session/authz code; module isolation covered by tests)
+
+## Audit verdict (2026-06-29)
+
+- **Verdict:** PARTIAL
+- Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
+- **Remediation:** TASK-070a. Unchecked acceptance-criteria / DoD items above reflect the gaps the audit found; this task stays **In Progress** until they are addressed.

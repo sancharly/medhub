@@ -5,7 +5,7 @@
 - **Implements:** SR-027 (AC-2 destructive or safety-relevant actions require an explicit confirmation step before execution); NFR-009 (AC-3 explicit confirmation of destructive/safety-relevant actions)
 - **Depends on:** TASK-081 (AppLayout + MUI theme) — must be merged first
 - **Branch:** `feature/fe-confirm-dialog`
-- **Status:** COMPLETED (2026-06-23, commit 9d3b68b)
+- **Status:** In Progress (audit 2026-06-29)
 
 ## Objective
 
@@ -67,3 +67,9 @@ function confirm(options: ConfirmOptions): Promise<boolean>;
 - [ ] Lint + type-check pass (`eslint`/`tsc`)
 - [ ] Unit/component tests pass; coverage target met
 - [ ] Traceability matrix row updated (SR-027, NFR-009 → TASK-083 → tests)
+
+## Audit verdict (2026-06-29)
+
+- **Verdict:** PARTIAL
+- Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
+- **Remediation:** AUDIT-FINDINGS.md (destructive autofocus). Unchecked acceptance-criteria / DoD items above reflect the gaps the audit found; this task stays **In Progress** until they are addressed.

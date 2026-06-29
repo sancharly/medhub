@@ -5,7 +5,7 @@
 - **Implements:** SR-003, SR-032, SR-010
 - **Depends on:** TASK-010 (must be merged first)
 - **Branch:** `feature/persist-migrations`
-- **Status:** Completed
+- **Status:** Completed (audit-verified 2026-06-29)
 
 ## Objective
 
@@ -48,19 +48,25 @@ Configure Alembic and author the initial migration that creates the schema from 
 
 Distilled from SR-003, SR-032, SR-010:
 
-- [ ] A single initial migration creates the full schema and is reversible (`upgrade`/`downgrade`).
-- [ ] Migration and ORM models are in sync (no pending autogenerate diff).
-- [ ] `account.email` is unique across all account states; duplicate rejected at the DB even for deleted accounts (SR-003.1, SR-032.3).
-- [ ] Foreign keys enforce valid doctor/patient/entry references (SR-010.1).
-- [ ] NOT NULL/CHECK constraints reject appointments missing doctor, patient, or date/time (SR-010.2).
-- [ ] Enum-constrained columns reject out-of-set values (SR-004 user_type, statuses, states).
-- [ ] Constraint names are deterministic; migration is version-controlled (NFR-006).
+- [x] A single initial migration creates the full schema and is reversible (`upgrade`/`downgrade`).
+- [x] Migration and ORM models are in sync (no pending autogenerate diff).
+- [x] `account.email` is unique across all account states; duplicate rejected at the DB even for deleted accounts (SR-003.1, SR-032.3).
+- [x] Foreign keys enforce valid doctor/patient/entry references (SR-010.1).
+- [x] NOT NULL/CHECK constraints reject appointments missing doctor, patient, or date/time (SR-010.2).
+- [x] Enum-constrained columns reject out-of-set values (SR-004 user_type, statuses, states).
+- [x] Constraint names are deterministic; migration is version-controlled (NFR-006).
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass (`ruff`/`mypy`)
-- [ ] Unit/integration tests pass against ephemeral PostgreSQL; coverage target met
-- [ ] OpenAPI regenerated and re-linted (N/A)
-- [ ] Audit events emitted for security-relevant actions (N/A — schema)
-- [ ] Traceability matrix row updated (SR-003, SR-032, SR-010 → TASK-011 → constraint/migration tests)
-- [ ] Security review completed (N/A — no auth/session code)
+- [x] Lint + type-check pass (`ruff`/`mypy`)
+- [x] Unit/integration tests pass against ephemeral PostgreSQL; coverage target met
+- [x] OpenAPI regenerated and re-linted (N/A)
+- [x] Audit events emitted for security-relevant actions (N/A — schema)
+- [x] Traceability matrix row updated (SR-003, SR-032, SR-010 → TASK-011 → constraint/migration tests)
+- [x] Security review completed (N/A — no auth/session code)
+
+## Audit verdict (2026-06-29)
+
+- **Verdict:** PASS
+- Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
+- Acceptance criteria verified met; boxes checked.

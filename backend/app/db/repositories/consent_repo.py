@@ -5,6 +5,7 @@ import uuid
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.db.models.account import Account
 from app.db.models.consent import ConsentGrant
 from app.db.repositories.base import Repository
 
@@ -28,5 +29,18 @@ class ConsentRepository(Repository[ConsentGrant]):
                 ConsentGrant.doctor_id == doctor_id,
                 ConsentGrant.active.is_(True),
             )
+        )
+        return list(result.scalars().all())
+
+    def list_patients_for_doctor(self, doctor_id: uuid.UUID) -> list[Account]:
+        """Return distinct patient Account rows with an active consent for this doctor."""
+        result = self._session.execute(
+            select(Account)
+            .join(ConsentGrant, ConsentGrant.patient_id == Account.id)
+            .where(
+                ConsentGrant.doctor_id == doctor_id,
+                ConsentGrant.active.is_(True),
+            )
+            .distinct()
         )
         return list(result.scalars().all())

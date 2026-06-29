@@ -16,7 +16,7 @@ describe("ApiClient GET", () => {
     server.use(
       http.get(`${BASE}/me`, ({ request }) => {
         capturedRequest = request;
-        return HttpResponse.json({ id: "1", email: "a@b.com", userType: "patient", mustChangePassword: false });
+        return HttpResponse.json({ id: "1", email: "a@b.com", userType: "PATIENT", mustChangePassword: false });
       })
     );
 
@@ -31,7 +31,7 @@ describe("ApiClient POST", () => {
   beforeEach(() => {
     Object.defineProperty(document, "cookie", {
       writable: true,
-      value: "csrftoken=test-csrf-value",
+      value: "medhub_csrf=test-csrf-value",
     });
   });
 
@@ -41,7 +41,7 @@ describe("ApiClient POST", () => {
       http.post(`${BASE}/auth/login`, async ({ request }) => {
         capturedRequest = request;
         return HttpResponse.json({
-          user: { id: "1", email: "a@b.com", userType: "patient", mustChangePassword: false },
+          user: { id: "1", email: "a@b.com", userType: "PATIENT", mustChangePassword: false },
           mustChangePassword: false,
           evictedSession: false,
         });

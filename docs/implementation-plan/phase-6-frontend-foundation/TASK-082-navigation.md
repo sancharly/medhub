@@ -5,7 +5,7 @@
 - **Implements:** SR-027 (AC-1 consistent navigation structure and terminology across screens and modules)
 - **Depends on:** TASK-081 (AppLayout + MUI theme + breakpoints) — must be merged first
 - **Branch:** `feature/fe-navigation`
-- **Status:** COMPLETED (2026-06-23, commit 9d3b68b)
+- **Status:** Completed (audit-verified 2026-06-29)
 
 ## Objective
 
@@ -55,13 +55,19 @@ function AppNavigation(props: { userType: UserType }): React.ReactNode;
 
 ## Acceptance criteria
 
-- [ ] Navigation structure and terminology are consistent across screens (single `navConfig`) and ready for modules to compose consistently (SR-027 AC-1).
-- [ ] Visible entries are filtered by the current user's role; the nav hides, but never authorizes (SR-031.5).
-- [ ] The nav renders responsively into the layout slot (drawer on phone, persistent on desktop) (SR-020 inherited).
-- [ ] Module nav entries can be appended later via the same `NavItem` shape without changing the nav (SR-016.2 / TASK-101 hook).
+- [x] Navigation structure and terminology are consistent across screens (single `navConfig`) and ready for modules to compose consistently (SR-027 AC-1).
+- [x] Visible entries are filtered by the current user's role; the nav hides, but never authorizes (SR-031.5).
+- [x] The nav renders responsively into the layout slot (drawer on phone, persistent on desktop) (SR-020 inherited).
+- [x] Module nav entries can be appended later via the same `NavItem` shape without changing the nav (SR-016.2 / TASK-101 hook).
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass (`eslint`/`tsc`)
-- [ ] Unit/component tests pass; coverage target met
-- [ ] Traceability matrix row updated (SR-027 → TASK-082 → tests)
+- [x] Lint + type-check pass (`eslint`/`tsc`)
+- [x] Unit/component tests pass; coverage target met
+- [x] Traceability matrix row updated (SR-027 → TASK-082 → tests)
+
+## Audit verdict (2026-06-29)
+
+- **Verdict:** PASS
+- Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
+- Acceptance criteria verified met; boxes checked.

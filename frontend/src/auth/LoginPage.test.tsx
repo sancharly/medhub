@@ -30,7 +30,7 @@ function renderLogin() {
   );
 }
 
-const patientUser = { id: "1", firstName: null, surname: null, accountType: "PATIENT" };
+const patientUser = { id: "1", firstName: null, surname: null, userType: "PATIENT" };
 
 describe("LoginPage", () => {
   beforeEach(() => {

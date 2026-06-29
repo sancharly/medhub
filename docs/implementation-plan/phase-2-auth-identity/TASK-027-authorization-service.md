@@ -6,7 +6,7 @@
   self-access); ADR-0006
 - **Depends on:** TASK-014 (AuditService), TASK-025 (API deps that invoke the guard)
 - **Branch:** `feature/authorization-service`
-- **Status:** Completed
+- **Status:** Completed (audit-verified 2026-06-29)
 
 ## Objective
 
@@ -94,19 +94,25 @@ Negative cases are first-class (ADR-0006, SR-005 control measure "cover with neg
 
 Distilled from SR-005 / SR-006 / SR-007:
 
-- [ ] Every protected decision passes through this service; default is deny (SR-005 AC-1/AC-2).
-- [ ] Decision accounts for user type, ownership/relationship, consent, and module enablement
+- [x] Every protected decision passes through this service; default is deny (SR-005 AC-1/AC-2).
+- [x] Decision accounts for user type, ownership/relationship, consent, and module enablement
       (module via `ModuleAccessGuard`, SR-005 AC-3).
-- [ ] Doctor sees only patients with an active grant; others denied (SR-006 AC-1/AC-3).
-- [ ] Patient sees only their own data; cross-patient denied (SR-007 AC-3).
-- [ ] Admin clinical access denied; SYSADMIN not a clinical backdoor (SR-009).
-- [ ] Denials return 403 with no protected data; basis/denial audited (SR-005 AC-4, SR-006 AC-4).
+- [x] Doctor sees only patients with an active grant; others denied (SR-006 AC-1/AC-3).
+- [x] Patient sees only their own data; cross-patient denied (SR-007 AC-3).
+- [x] Admin clinical access denied; SYSADMIN not a clinical backdoor (SR-009).
+- [x] Denials return 403 with no protected data; basis/denial audited (SR-005 AC-4, SR-006 AC-4).
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass (`ruff`/`mypy`)
-- [ ] Unit (and required integration) tests pass; coverage target met (high — critical component)
-- [ ] OpenAPI regenerated and re-linted (N/A — internal service)
-- [ ] Audit events emitted for security-relevant actions (authorization basis & denials — SR-023)
-- [ ] Traceability matrix row updated (SR-005, SR-006, SR-007, ADR-0006 → TASK-027 → tests)
-- [ ] Security review completed (auth/session/authz task — SR-031.6)
+- [x] Lint + type-check pass (`ruff`/`mypy`)
+- [x] Unit (and required integration) tests pass; coverage target met (high — critical component)
+- [x] OpenAPI regenerated and re-linted (N/A — internal service)
+- [x] Audit events emitted for security-relevant actions (authorization basis & denials — SR-023)
+- [x] Traceability matrix row updated (SR-005, SR-006, SR-007, ADR-0006 → TASK-027 → tests)
+- [x] Security review completed (auth/session/authz task — SR-031.6)
+
+## Audit verdict (2026-06-29)
+
+- **Verdict:** PASS
+- Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
+- Acceptance criteria verified met; boxes checked.

@@ -8,7 +8,7 @@
 - **Depends on:** TASK-047 (AppointmentService.create), TASK-048 (state machine), TASK-049
   (consent link), TASK-051 (visibility / list_for) — must be merged first
 - **Branch:** `feature/appointment-endpoints`
-- **Status:** COMMITTED on `feature/phase-4` (commit ae0f5ff)
+- **Status:** In Progress (audit 2026-06-29)
 
 ## Objective
 
@@ -128,3 +128,9 @@ the state machine or the grant linkage (those are TASK-048/049).
 - [ ] Audit events emitted for security-relevant actions (create/confirm/decline — SR-023)
 - [ ] Traceability matrix row updated (SR-010, SR-011, SR-035 → TASK-065 → tests)
 - [ ] Security review N/A (authz/appointment services consumed, not implemented here)
+
+## Audit verdict (2026-06-29)
+
+- **Verdict:** FAIL
+- Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
+- **Remediation:** TASK-069a. Unchecked acceptance-criteria / DoD items above reflect the gaps the audit found; this task stays **In Progress** until they are addressed.

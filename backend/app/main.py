@@ -10,7 +10,7 @@ from app.api.errors import register_error_handlers
 from app.api.health import router as health_router
 from app.api.router import api_router
 from app.core.logging import configure_logging
-from app.core.security_middleware import SecurityHeadersMiddleware
+from app.core.security_middleware import CsrfEnforcementMiddleware, SecurityHeadersMiddleware
 
 logger = logging.getLogger(__name__)
 
@@ -58,6 +58,7 @@ def create_app() -> FastAPI:
 
     # Security middleware (TASK-069)
     app.add_middleware(SecurityHeadersMiddleware)
+    app.add_middleware(CsrfEnforcementMiddleware)
 
     # OpenAPI customization (TASK-068)
     from app.api.openapi import customize_openapi  # noqa: PLC0415

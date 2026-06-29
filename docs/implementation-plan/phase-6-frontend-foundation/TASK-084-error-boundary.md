@@ -5,7 +5,7 @@
 - **Implements:** SR-027 (AC-3 clear, actionable message identifying the problem when an operation fails or input is invalid)
 - **Depends on:** TASK-081 (AppLayout + MUI theme) — must be merged first
 - **Branch:** `feature/fe-error-boundary`
-- **Status:** COMPLETED (2026-06-23, commit 9d3b68b)
+- **Status:** Completed (audit-verified 2026-06-29)
 
 ## Objective
 
@@ -58,14 +58,20 @@ function AppErrorBoundary(props: { children: React.ReactNode }): React.ReactNode
 
 ## Acceptance criteria
 
-- [ ] Backend RFC 7807 `application/problem+json` errors are rendered as clear, actionable messages using `detail`/`title` and field-level `errors[]` (SR-027 AC-3).
-- [ ] A render-time error is caught by the boundary; the shell stays usable with a recoverable fallback (SR-027 AC-3).
-- [ ] No stack traces, internal text, or PHI appear in any error UI.
-- [ ] `401 /errors/unauthenticated` is delegated to the auth boundary (TASK-085), not toasted.
-- [ ] Message derivation is centralized so wording is consistent (SR-027 AC-1).
+- [x] Backend RFC 7807 `application/problem+json` errors are rendered as clear, actionable messages using `detail`/`title` and field-level `errors[]` (SR-027 AC-3).
+- [x] A render-time error is caught by the boundary; the shell stays usable with a recoverable fallback (SR-027 AC-3).
+- [x] No stack traces, internal text, or PHI appear in any error UI.
+- [x] `401 /errors/unauthenticated` is delegated to the auth boundary (TASK-085), not toasted.
+- [x] Message derivation is centralized so wording is consistent (SR-027 AC-1).
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass (`eslint`/`tsc`)
-- [ ] Unit/component tests pass; coverage target met
-- [ ] Traceability matrix row updated (SR-027 → TASK-084 → tests)
+- [x] Lint + type-check pass (`eslint`/`tsc`)
+- [x] Unit/component tests pass; coverage target met
+- [x] Traceability matrix row updated (SR-027 → TASK-084 → tests)
+
+## Audit verdict (2026-06-29)
+
+- **Verdict:** PASS
+- Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
+- Acceptance criteria verified met; boxes checked.

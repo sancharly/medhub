@@ -5,7 +5,7 @@
 - **Implements:** SR-011 (AC-1 doctor sees own, AC-2 patient sees own, AC-3 admin sees for scheduling, AC-4 unrelated cannot see); SR-035 AC-8 (participants see confirmation state)
 - **Depends on:** TASK-047 (appointment create / model), TASK-027 (API deps / authz guard) — must be merged first
 - **Branch:** `feature/appointment-visibility`
-- **Status:** Completed
+- **Status:** Completed (audit-verified 2026-06-29)
 
 ## Objective
 
@@ -51,18 +51,24 @@ class AppointmentService:
 
 ## Acceptance criteria
 
-- [ ] The associated doctor can view the appointment (SR-011 AC-1).
-- [ ] The associated patient can view the appointment (SR-011 AC-2).
-- [ ] Administrative personnel can view appointments for scheduling (SR-011 AC-3).
-- [ ] An unrelated, non-admin user cannot view the appointment; `GET /appointments` excludes it and `GET /appointments/{id}` returns 404 (SR-011 AC-4).
-- [ ] Doctor/patient/admin see the confirmation state; no clinical data is exposed on appointment DTOs (SR-035 AC-8, SR-010 AC-4).
-- [ ] List scoping is enforced in the repository query (not post-filtered) (SR-026).
+- [x] The associated doctor can view the appointment (SR-011 AC-1).
+- [x] The associated patient can view the appointment (SR-011 AC-2).
+- [x] Administrative personnel can view appointments for scheduling (SR-011 AC-3).
+- [x] An unrelated, non-admin user cannot view the appointment; `GET /appointments` excludes it and `GET /appointments/{id}` returns 404 (SR-011 AC-4).
+- [x] Doctor/patient/admin see the confirmation state; no clinical data is exposed on appointment DTOs (SR-035 AC-8, SR-010 AC-4).
+- [x] List scoping is enforced in the repository query (not post-filtered) (SR-026).
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass (`ruff`/`mypy`)
-- [ ] Unit + integration tests pass; coverage target met
-- [ ] OpenAPI regenerated and re-linted (list endpoint, scoped/paginated)
-- [ ] Audit events emitted for security-relevant actions (denied specific-appointment access)
-- [ ] Traceability matrix row updated (SR-011, SR-035 AC-8 → TASK-051 → tests)
-- [ ] Security review completed (authorization/visibility code — SR-031.6)
+- [x] Lint + type-check pass (`ruff`/`mypy`)
+- [x] Unit + integration tests pass; coverage target met
+- [x] OpenAPI regenerated and re-linted (list endpoint, scoped/paginated)
+- [x] Audit events emitted for security-relevant actions (denied specific-appointment access)
+- [x] Traceability matrix row updated (SR-011, SR-035 AC-8 → TASK-051 → tests)
+- [x] Security review completed (authorization/visibility code — SR-031.6)
+
+## Audit verdict (2026-06-29)
+
+- **Verdict:** PASS
+- Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
+- Acceptance criteria verified met; boxes checked.

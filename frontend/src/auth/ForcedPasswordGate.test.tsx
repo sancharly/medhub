@@ -37,7 +37,7 @@ describe("ForcedPasswordGate", () => {
         HttpResponse.json({
           id: "1",
           email: "a@b.com",
-          userType: "patient",
+          userType: "PATIENT",
           mustChangePassword: true,
         })
       )
@@ -56,7 +56,7 @@ describe("ForcedPasswordGate", () => {
         HttpResponse.json({
           id: "1",
           email: "a@b.com",
-          userType: "patient",
+          userType: "PATIENT",
           mustChangePassword: false,
         })
       )

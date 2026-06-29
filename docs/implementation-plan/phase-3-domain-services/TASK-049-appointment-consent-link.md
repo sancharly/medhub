@@ -5,7 +5,7 @@
 - **Implements:** SR-036 (AC-1 grant on confirm, AC-3 no grant while pending/declined, AC-4 Cases A/B/C scoped revoke, AC-5 grant persists, AC-6 audited, AC-7 unified view)
 - **Depends on:** TASK-048 (appointment state machine), TASK-028 (`ConsentService` / `ConsentGrant` per-source model) — must be merged first
 - **Branch:** `feature/appointment-consent-link`
-- **Status:** Completed
+- **Status:** In Progress (audit 2026-06-29)
 
 ## Objective
 
@@ -75,3 +75,9 @@ class ConsentService:
 - [ ] Audit events emitted for security-relevant actions (SR-036 AC-6, SR-023)
 - [ ] Traceability matrix row updated (SR-036 → TASK-049 → tests)
 - [ ] Security review completed (consent / authorization-affecting code — SR-031.6)
+
+## Audit verdict (2026-06-29)
+
+- **Verdict:** PARTIAL
+- Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
+- **Remediation:** AUDIT-FINDINGS.md (mock-only evidence). Unchecked acceptance-criteria / DoD items above reflect the gaps the audit found; this task stays **In Progress** until they are addressed.

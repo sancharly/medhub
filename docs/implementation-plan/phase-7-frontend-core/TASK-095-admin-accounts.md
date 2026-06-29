@@ -5,7 +5,7 @@
 - **Implements:** SR-009 (non-clinical projection only), SR-032 (role-constrained create), SR-034 (deactivate/reactivate/delete with confirmation); ADR-0013 (delete = anonymized retention + lost-code warning)
 - **Depends on:** TASK-061 (account-create API, SI-API), TASK-062 (account lifecycle API: deactivate/reactivate/delete, SI-API), TASK-083 (auth/session UI + role context) — must be merged first
 - **Branch:** `feature/fe-admin-accounts`
-- **Status:** Not started
+- **Status:** In Progress (audit 2026-06-29)
 
 ## Objective
 
@@ -74,3 +74,9 @@ shell.confirmDialog({...});                        // delete + deactivate confir
 - [ ] Lint + type-check pass (`eslint`/`tsc`)
 - [ ] Unit/component tests pass; coverage target met
 - [ ] Traceability matrix row updated (SR-009, SR-032, SR-034 → TASK-095 → tests)
+
+## Audit verdict (2026-06-29)
+
+- **Verdict:** PARTIAL
+- Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
+- **Remediation:** TASK-029a (backend admin projection), **TASK-095a** (FE: ADR-0013 delete warning, resend-activation control). Unchecked items reflect the gaps the audit found; stays **In Progress** until addressed.

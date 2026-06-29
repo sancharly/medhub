@@ -33,5 +33,4 @@ export type CreateAccountRequest = components["schemas"]["AccountCreateRequest"]
 export type Group = components["schemas"]["GroupResponse"];
 export type InstalledModule = components["schemas"]["ModuleResponse"];
 export type GroupMember = components["schemas"]["GroupMemberResponse"];
-// PatientSummary shares the same shape as AccountResponse (patients are accounts)
-export type PatientSummary = components["schemas"]["AccountResponse"];
+export type PatientSummary = components["schemas"]["PatientSummaryResponse"];
