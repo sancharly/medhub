@@ -5,7 +5,7 @@
   TASK-044, TASK-066, and unblocks frontend TASK-091/092
 - **Depends on:** TASK-044, TASK-028 (consent)
 - **Branch:** `feature/doctor-patient-roster`
-- **Status:** Not started
+- **Status:** In Progress
 - **Source:** `AUDIT-LEDGER.md` — TASK-044/091 verdict **FAIL**; `SMOKE-RESULTS.md` F2
 
 ## Objective
@@ -26,16 +26,16 @@ clinical entries. Implement the missing roster: the distinct patients a doctor c
 
 ## Acceptance criteria
 
-- [ ] A doctor receives exactly the patients they have active consent for; no others (SR-006 AC-2).
-- [ ] A doctor with no consents receives an empty list (not 404/500).
-- [ ] Non-doctor roles are denied (problem+json).
-- [ ] The frontend `listPatients()` path resolves (no 404) and the patient list renders end-to-end.
-- [ ] Access is audited with the authorization basis (SR-006 AC-4).
+- [x] A doctor receives exactly the patients they have active consent for; no others (SR-006 AC-2).
+- [x] A doctor with no consents receives an empty list (not 404/500).
+- [x] Non-doctor roles are denied (problem+json).
+- [x] The frontend `listPatients()` path resolves (no 404) and the patient list renders end-to-end.
+- [x] Access is audited with the authorization basis (SR-006 AC-4).
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass
-- [ ] Unit + integration tests pass (consent/no-consent/denied)
-- [ ] OpenAPI regenerated + frontend types regenerated; the frontend view loads against the real backend
+- [x] Lint + type-check pass
+- [x] Unit + integration tests pass (consent/no-consent/denied)
+- [x] OpenAPI regenerated + frontend types regenerated; the frontend view loads against the real backend
 - [ ] Traceability row updated (SR-006 → TASK-044a → tests)
 - [ ] Security review completed

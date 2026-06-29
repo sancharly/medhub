@@ -14,6 +14,7 @@ from app.db.models.audit import AuditOutcome
 from app.db.models.clinical import ClinicalEntry
 from app.db.repositories.account_repo import AccountRepository
 from app.db.repositories.clinical_repo import ClinicalRepository
+from app.db.repositories.consent_repo import ConsentRepository
 
 
 class ClinicalDataService:
@@ -23,11 +24,13 @@ class ClinicalDataService:
         account_repo: AccountRepository,
         audit_svc: AuditService,
         authz_svc: AuthorizationService,
+        consent_repo: ConsentRepository | None = None,
     ) -> None:
         self._repo = clinical_repo
         self._account_repo = account_repo
         self._audit_svc = audit_svc
         self._authz_svc = authz_svc
+        self._consent_repo = consent_repo
 
     def create_entry(
         self,
@@ -95,3 +98,18 @@ class ClinicalDataService:
             ip=None,
         )
         return self._repo.list_for_patient_ordered(patient_id)
+
+    def list_accessible_patients(self, doctor_id: uuid.UUID) -> list[Account]:
+        """Return distinct patients the doctor has active consent for (TASK-044a)."""
+        if self._consent_repo is None:
+            return []
+        patients = self._consent_repo.list_patients_for_doctor(doctor_id)
+        self._audit_svc.record(
+            actor=doctor_id,
+            action=AuditAction.CLINICAL_ACCESS,
+            target_type="patient_roster",
+            target_id=str(doctor_id),
+            outcome=AuditOutcome.SUCCESS,
+            ip=None,
+        )
+        return patients

@@ -1243,6 +1243,32 @@
         }
       }
     },
+    "/api/v1/clinical-entries/patients": {
+      "get": {
+        "tags": [
+          "clinical"
+        ],
+        "summary": "List Accessible Patients",
+        "description": "List patients the authenticated doctor has active consent for (TASK-044a).",
+        "operationId": "list_accessible_patients_api_v1_clinical_entries_patients_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PatientSummaryResponse"
+                  },
+                  "type": "array",
+                  "title": "Response List Accessible Patients Api V1 Clinical Entries Patients Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/patients/{patient_id}/clinical-entries": {
       "post": {
         "tags": [
@@ -2920,6 +2946,57 @@
           "confirmNewPassword"
         ],
         "title": "PasswordChangeRequest"
+      },
+      "PatientSummaryResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "firstName": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Firstname"
+          },
+          "surname": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Surname"
+          },
+          "dateOfBirth": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dateofbirth"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "firstName",
+          "surname",
+          "dateOfBirth"
+        ],
+        "title": "PatientSummaryResponse"
       },
       "SessionExtendResponse": {
         "properties": {
