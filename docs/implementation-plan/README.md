@@ -177,6 +177,31 @@ All 56 software units map to a task (Phases 1–8); all 36 SRs and 9 NFRs are co
 per-SR/NFR mapping in the approved plan and [traceability-matrix.md](../design/traceability-matrix.md),
 which TASK-114 completes with the TASK → test column).
 
+## Audit remediation tasks (2026-06-29)
+
+A full audit of phases 0–7 (see [AUDIT-LEDGER.md](AUDIT-LEDGER.md), [SMOKE-RESULTS.md](SMOKE-RESULTS.md),
+[AUDIT-FINDINGS.md](AUDIT-FINDINGS.md)) found gaps where tasks were marked Completed without their
+acceptance criteria actually met — several units are implemented but never wired into the request path.
+The contract showstoppers (CSRF cookie name, login field name) were fixed in-branch; the rest are tracked
+as remediation tasks (suffix `-a`, in their owning phase):
+
+| Task | Phase | Remediates | Gap |
+|------|-------|-----------|-----|
+| [TASK-004a](phase-0-foundation/TASK-004a-migrate-on-bringup.md) | 0 | 004, 005 | No DB migration on bring-up (fresh deploy = empty DB) |
+| [TASK-024a](phase-2-auth-identity/TASK-024a-lockout-wiring.md) | 2 | 024, 023 | Lockout service never wired into login |
+| [TASK-026a](phase-2-auth-identity/TASK-026a-password-policy-problem.md) | 2 | 026, 032 | Password-policy error → 500 not 400; activation confirm-match |
+| [TASK-029a](phase-2-auth-identity/TASK-029a-admin-projection-wiring.md) | 2 | 029 | Admin PII projection never applied to account endpoints |
+| [TASK-035a](phase-2-auth-identity/TASK-035a-erasure-retrieval-delivery.md) | 2 | 035 | Erasure retrieval code never emailed; deadline/re-key gaps |
+| [TASK-040a](phase-3-domain-services/TASK-040a-group-name-unique.md) | 3 | 040, 041 | Group name unique constraint; auto-membership tests |
+| [TASK-044a](phase-3-domain-services/TASK-044a-doctor-patient-roster.md) | 3 | 044, 066, 091 | Missing doctor patient-roster endpoint (404) |
+| [TASK-050a](phase-3-domain-services/TASK-050a-notification-resilience.md) | 3 | 050 | Email failure suppresses the in-app notification |
+| [TASK-066a](phase-4-api-layer/TASK-066a-multipart-upload.md) | 4 | 066, 045 | Attachment upload not multipart; DICOM metadata discarded |
+| [TASK-068a](phase-4-api-layer/TASK-068a-openapi-security.md) | 4 | 068 | OpenAPI cookieAuth/CSRF defined but never applied |
+| [TASK-069a](phase-4-api-layer/TASK-069a-csrf-enforcement.md) | 4 | 022, 061, 063, 065, 066, 069 | CSRF not enforced app-wide; 401-not-403 |
+| [TASK-070a](phase-5-module-host-dicom-be/TASK-070a-module-registry-sync.md) | 5 | 070, 073 | Module registry never synced at startup (`/modules` empty) |
+| [TASK-086a](phase-6-frontend-foundation/TASK-086a-activation-contract.md) | 6 | 086 | Activation UI omits `accountId`; treats invalid token as valid |
+| [TASK-087a](phase-6-frontend-foundation/TASK-087a-forced-password-gate.md) | 6 | 087 | Forced-password gate keys on a field `/me` never returns |
+
 ## Out of scope (deferred)
 
 Full FHIR REST API / bulk export; terminology bindings (LOINC/SNOMED/ICD); notification

@@ -87,3 +87,24 @@ Verifies that the architecture implements **all** requirements (NFR-006, SR-028)
 - 9/9 non-functional requirements → addressed.
 - 13/13 user needs → covered.
 - **No requirement is left unaddressed by the architecture.**
+
+## Audit remediation note (2026-06-29)
+
+The architecture covers every requirement, but a phase 0–7 implementation audit
+([../implementation-plan/AUDIT-LEDGER.md](../implementation-plan/AUDIT-LEDGER.md)) found requirements
+whose **implementation** was incomplete despite the owning task being marked Completed. The
+requirement→test column (TASK-114) must reflect these remediation tasks:
+
+| Requirement | Gap found | Remediation task |
+|-------------|-----------|------------------|
+| SR-006 | Doctor patient-roster endpoint missing (404) | TASK-044a |
+| SR-009 | Admin non-clinical projection never applied to endpoints | TASK-029a |
+| SR-029 | Account lockout never wired into login | TASK-024a |
+| SR-031.3 | CSRF not enforced app-wide (most mutating routes unprotected) | TASK-069a, TASK-068a |
+| SR-024 / ADR-0013 | Erasure retrieval code never delivered; deadline/re-key gaps | TASK-035a |
+| SR-016 | Module registry never synced at startup (`/modules` empty) | TASK-070a |
+| SR-013 | Attachment upload not multipart; DICOM metadata discarded | TASK-066a |
+| SR-001.1 / SR-003 | No DB migration on bring-up (fresh deploy = empty schema) | TASK-004a |
+| SR-025 / SR-033 | Forced-password gate inert; activation contract + policy-400 | TASK-087a, TASK-086a, TASK-026a |
+| SR-014 | Group-name uniqueness not DB-enforced | TASK-040a |
+| SR-035 | Email failure suppresses in-app notification | TASK-050a |
