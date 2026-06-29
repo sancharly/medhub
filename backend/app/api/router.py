@@ -8,6 +8,7 @@ from app.api.routers.anonymized_data import router as anonymized_data_router
 from app.api.routers.appointments import router as appointments_router
 from app.api.routers.attachments import router as attachments_router
 from app.api.routers.auth import router as auth_router
+from app.api.routers.clinical import roster_router as clinical_roster_router
 from app.api.routers.clinical import router as clinical_router
 from app.api.routers.consents import router as consents_router
 from app.api.routers.groups import router as groups_router
@@ -30,6 +31,7 @@ api_router.include_router(anonymized_data_router)
 api_router.include_router(groups_router)
 
 # Clinical & attachments
+api_router.include_router(clinical_roster_router)
 api_router.include_router(clinical_router)
 api_router.include_router(attachments_router)
 

@@ -8,11 +8,16 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user
-from app.api.schemas.clinical import ClinicalEntryCreate, ClinicalEntryResponse
+from app.api.errors import AuthorizationError
+from app.api.schemas.clinical import (
+    ClinicalEntryCreate,
+    ClinicalEntryResponse,
+    PatientSummaryResponse,
+)
 from app.audit.service import AuditService
 from app.authz.service import AuthorizationService
 from app.clinical.service import ClinicalDataService
-from app.db.models.account import Account
+from app.db.models.account import Account, UserType
 from app.db.repositories.account_repo import AccountRepository
 from app.db.repositories.audit_repo import AuditRepository
 from app.db.repositories.clinical_repo import ClinicalRepository
@@ -20,19 +25,22 @@ from app.db.repositories.consent_repo import ConsentRepository
 from app.db.repositories.session import get_db
 
 router = APIRouter(prefix="/patients", tags=["clinical"])
+roster_router = APIRouter(prefix="/clinical-entries", tags=["clinical"])
 
 
 def _get_clinical_service(db: Session = Depends(get_db)) -> ClinicalDataService:
     from app.authz.consent import ConsentService  # noqa: PLC0415
 
     audit_svc = AuditService(AuditRepository(db))
-    consent_svc = ConsentService(ConsentRepository(db), audit_svc)
+    consent_repo = ConsentRepository(db)
+    consent_svc = ConsentService(consent_repo, audit_svc)
     authz_svc = AuthorizationService(consent_svc, audit_svc)
     return ClinicalDataService(
         ClinicalRepository(db),
         AccountRepository(db),
         audit_svc,
         authz_svc,
+        consent_repo,
     )
 
 
@@ -75,4 +83,24 @@ def list_clinical_entries(
             created_at=e.created_at,
         )
         for e in entries
+    ]
+
+
+@roster_router.get("/patients", response_model=list[PatientSummaryResponse])
+def list_accessible_patients(
+    actor: Account = Depends(get_current_user),
+    svc: ClinicalDataService = Depends(_get_clinical_service),
+) -> list[PatientSummaryResponse]:
+    """List patients the authenticated doctor has active consent for (TASK-044a)."""
+    if actor.user_type != UserType.DOCTOR:
+        raise AuthorizationError("Only doctors can access the patient roster.")
+    patients = svc.list_accessible_patients(actor.id)
+    return [
+        PatientSummaryResponse(
+            id=p.id,
+            first_name=p.first_name,
+            surname=p.surname,
+            date_of_birth=p.date_of_birth,
+        )
+        for p in patients
     ]

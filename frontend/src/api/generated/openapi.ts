@@ -284,6 +284,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/clinical-entries/patients": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Accessible Patients
+         * @description List patients the authenticated doctor has active consent for (TASK-044a).
+         */
+        get: operations["list_accessible_patients_api_v1_clinical_entries_patients_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/patients/{patient_id}/clinical-entries": {
         parameters: {
             query?: never;
@@ -949,6 +969,20 @@ export interface components {
             newPassword: string;
             /** Confirmnewpassword */
             confirmNewPassword: string;
+        };
+        /** PatientSummaryResponse */
+        PatientSummaryResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Firstname */
+            firstName: string | null;
+            /** Surname */
+            surname: string | null;
+            /** Dateofbirth */
+            dateOfBirth: string | null;
         };
         /** SessionExtendResponse */
         SessionExtendResponse: {
@@ -1989,6 +2023,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_accessible_patients_api_v1_clinical_entries_patients_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PatientSummaryResponse"][];
                 };
             };
         };
