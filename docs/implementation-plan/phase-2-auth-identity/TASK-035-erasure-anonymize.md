@@ -6,7 +6,7 @@
   confirm); ADR-0013
 - **Depends on:** TASK-030 (AccountService), TASK-014 (AuditService), TASK-031 (email task)
 - **Branch:** `feature/erasure-anonymize`
-- **Status:** Completed
+- **Status:** In Progress (audit 2026-06-29)
 
 ## Objective
 
@@ -130,3 +130,9 @@ Distilled from SR-024 / SR-034.5–7 / ADR-0013:
       ANONYMIZED_RETRIEVAL — SR-024 AC-3; never the code)
 - [ ] Traceability matrix row updated (SR-024, SR-034.5–7, ADR-0013 → TASK-035 → tests)
 - [ ] Security review completed (auth/session/authz task — SR-031.6; verify no-stored-code invariant)
+
+## Audit verdict (2026-06-29)
+
+- **Verdict:** FAIL
+- Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
+- **Remediation:** TASK-035a. Unchecked acceptance-criteria / DoD items above reflect the gaps the audit found; this task stays **In Progress** until they are addressed.

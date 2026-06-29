@@ -5,7 +5,7 @@
 - **Implements:** SR-015 (AC-3 access only if enabled for a group, AC-4 disabling removes access); ADR-0005
 - **Depends on:** TASK-042 (per-group module enablement) — must be merged first
 - **Branch:** `feature/module-access-guard`
-- **Status:** Completed
+- **Status:** Completed (audit-verified 2026-06-29)
 
 ## Objective
 
@@ -47,16 +47,22 @@ class ModuleAccessGuard:
 
 ## Acceptance criteria
 
-- [ ] `is_module_enabled` returns true iff the module is enabled for at least one of the account's groups (SR-015 AC-3, union).
-- [ ] When the module is disabled for all of the user's groups, the guard returns false on the next request (SR-015 AC-4, live read — no stale cache).
-- [ ] The guard is side-effect-free; HTTP 403 + denied-access audit are produced by the API dependency wrapper (SR-005, SR-023).
-- [ ] Unknown module / no-group account denied by default.
+- [x] `is_module_enabled` returns true iff the module is enabled for at least one of the account's groups (SR-015 AC-3, union).
+- [x] When the module is disabled for all of the user's groups, the guard returns false on the next request (SR-015 AC-4, live read — no stale cache).
+- [x] The guard is side-effect-free; HTTP 403 + denied-access audit are produced by the API dependency wrapper (SR-005, SR-023).
+- [x] Unknown module / no-group account denied by default.
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass (`ruff`/`mypy`)
-- [ ] Unit + integration tests pass; coverage target met
-- [ ] OpenAPI regenerated and re-linted (N/A — internal guard; dependency surfaced where mounted)
-- [ ] Audit events emitted for security-relevant actions (denied module access, SR-023)
-- [ ] Traceability matrix row updated (SR-015 → TASK-043 → tests)
-- [ ] Security review completed (authorization code — SR-031.6)
+- [x] Lint + type-check pass (`ruff`/`mypy`)
+- [x] Unit + integration tests pass; coverage target met
+- [x] OpenAPI regenerated and re-linted (N/A — internal guard; dependency surfaced where mounted)
+- [x] Audit events emitted for security-relevant actions (denied module access, SR-023)
+- [x] Traceability matrix row updated (SR-015 → TASK-043 → tests)
+- [x] Security review completed (authorization code — SR-031.6)
+
+## Audit verdict (2026-06-29)
+
+- **Verdict:** PASS
+- Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
+- Acceptance criteria verified met; boxes checked.

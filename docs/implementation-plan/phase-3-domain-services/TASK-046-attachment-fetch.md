@@ -5,7 +5,7 @@
 - **Implements:** SR-013 (AC-3 authorized download/open), SR-005 (deny-by-default authorization), SR-022 (in transit / at rest preserved); ADR-0009, ADR-0008
 - **Depends on:** TASK-045 (attachment upload), TASK-027 (API deps / authz guard) — must be merged first
 - **Branch:** `feature/attachment-fetch`
-- **Status:** Completed
+- **Status:** Completed (audit-verified 2026-06-29)
 
 ## Objective
 
@@ -52,18 +52,24 @@ class AttachmentService:
 
 ## Acceptance criteria
 
-- [ ] An authorized user can download/open an attachment of an entry they may view (SR-013 AC-3).
-- [ ] Every fetch passes `AuthorizationService` before bytes are read; deny-by-default (SR-005 AC-1/AC-2).
-- [ ] A denied fetch returns 403 and discloses no bytes or metadata (SR-005 AC-4).
-- [ ] Access is backend-mediated; the caller never holds bucket credentials (ADR-0009).
-- [ ] Revoked consent denies the next fetch (live read, SR-008/SR-036).
-- [ ] Successful and denied fetches are audited (SR-023 AC-2).
+- [x] An authorized user can download/open an attachment of an entry they may view (SR-013 AC-3).
+- [x] Every fetch passes `AuthorizationService` before bytes are read; deny-by-default (SR-005 AC-1/AC-2).
+- [x] A denied fetch returns 403 and discloses no bytes or metadata (SR-005 AC-4).
+- [x] Access is backend-mediated; the caller never holds bucket credentials (ADR-0009).
+- [x] Revoked consent denies the next fetch (live read, SR-008/SR-036).
+- [x] Successful and denied fetches are audited (SR-023 AC-2).
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass (`ruff`/`mypy`)
-- [ ] Unit + integration tests pass; coverage target met
-- [ ] OpenAPI regenerated and re-linted (fetch endpoint)
-- [ ] Audit events emitted for security-relevant actions (SR-023)
-- [ ] Traceability matrix row updated (SR-013, SR-005, SR-022 → TASK-046 → tests)
-- [ ] Security review completed (authorized byte access / pre-signed URL policy — SR-031.6)
+- [x] Lint + type-check pass (`ruff`/`mypy`)
+- [x] Unit + integration tests pass; coverage target met
+- [x] OpenAPI regenerated and re-linted (fetch endpoint)
+- [x] Audit events emitted for security-relevant actions (SR-023)
+- [x] Traceability matrix row updated (SR-013, SR-005, SR-022 → TASK-046 → tests)
+- [x] Security review completed (authorized byte access / pre-signed URL policy — SR-031.6)
+
+## Audit verdict (2026-06-29)
+
+- **Verdict:** PASS
+- Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
+- Acceptance criteria verified met; boxes checked.

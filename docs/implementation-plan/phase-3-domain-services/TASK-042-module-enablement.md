@@ -5,7 +5,7 @@
 - **Implements:** SR-015 (AC-1 enable, AC-2 disable); ADR-0005
 - **Depends on:** TASK-040 (Group CRUD) — must be merged first
 - **Branch:** `feature/module-enablement`
-- **Status:** Completed
+- **Status:** Completed (audit-verified 2026-06-29)
 
 ## Objective
 
@@ -55,17 +55,23 @@ class GroupService:
 
 ## Acceptance criteria
 
-- [ ] A sysadmin can enable a module for one or more groups (SR-015 AC-1).
-- [ ] A sysadmin can disable a previously enabled module for a group (SR-015 AC-2).
-- [ ] Enablement is stored as pure data in `GroupModuleEnablement`; no code edit enables a module (ADR-0005).
-- [ ] Only installed (registered) modules can be enabled.
-- [ ] Enable/disable restricted to sysadmin and audited (SR-005, SR-023).
+- [x] A sysadmin can enable a module for one or more groups (SR-015 AC-1).
+- [x] A sysadmin can disable a previously enabled module for a group (SR-015 AC-2).
+- [x] Enablement is stored as pure data in `GroupModuleEnablement`; no code edit enables a module (ADR-0005).
+- [x] Only installed (registered) modules can be enabled.
+- [x] Enable/disable restricted to sysadmin and audited (SR-005, SR-023).
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass (`ruff`/`mypy`)
-- [ ] Unit + integration tests pass; coverage target met
-- [ ] OpenAPI regenerated and re-linted (enablement endpoint)
-- [ ] Audit events emitted for security-relevant actions (SR-023)
-- [ ] Traceability matrix row updated (SR-015 → TASK-042 → tests)
-- [ ] Security review N/A (authz consumed, not implemented here)
+- [x] Lint + type-check pass (`ruff`/`mypy`)
+- [x] Unit + integration tests pass; coverage target met
+- [x] OpenAPI regenerated and re-linted (enablement endpoint)
+- [x] Audit events emitted for security-relevant actions (SR-023)
+- [x] Traceability matrix row updated (SR-015 → TASK-042 → tests)
+- [x] Security review N/A (authz consumed, not implemented here)
+
+## Audit verdict (2026-06-29)
+
+- **Verdict:** PASS
+- Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
+- Acceptance criteria verified met; boxes checked.

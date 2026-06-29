@@ -6,7 +6,7 @@
   (role-constrained creation)
 - **Depends on:** TASK-027 (AuthorizationService)
 - **Branch:** `feature/account-crud`
-- **Status:** Completed
+- **Status:** Completed (audit-verified 2026-06-29)
 
 ## Objective
 
@@ -90,20 +90,26 @@ ACTIVE account (always INACTIVE first, SR-032 AC-6); accept a duplicate email.
 
 Distilled from SR-032 / SR-004 / SR-003:
 
-- [ ] Only authenticated ADMIN/SYSADMIN can create accounts; no self-registration (SR-032 AC-1).
-- [ ] First name, surname, email mandatory (SR-032 AC-2); email unique system-wide (SR-032 AC-3).
-- [ ] ADMIN cannot create SYSADMIN; SYSADMIN can create all types (SR-032 AC-4/AC-5).
-- [ ] New account is INACTIVE and cannot log in until activated (SR-032 AC-6).
-- [ ] Exactly one user type from the four; required at creation (SR-004 AC-1/AC-2).
-- [ ] Creation audited with creator, new email + type, timestamp (SR-032 AC-7).
-- [ ] Authenticated user can view own profile; cross-account read role-gated (SR-003 AC-2/AC-3).
+- [x] Only authenticated ADMIN/SYSADMIN can create accounts; no self-registration (SR-032 AC-1).
+- [x] First name, surname, email mandatory (SR-032 AC-2); email unique system-wide (SR-032 AC-3).
+- [x] ADMIN cannot create SYSADMIN; SYSADMIN can create all types (SR-032 AC-4/AC-5).
+- [x] New account is INACTIVE and cannot log in until activated (SR-032 AC-6).
+- [x] Exactly one user type from the four; required at creation (SR-004 AC-1/AC-2).
+- [x] Creation audited with creator, new email + type, timestamp (SR-032 AC-7).
+- [x] Authenticated user can view own profile; cross-account read role-gated (SR-003 AC-2/AC-3).
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass (`ruff`/`mypy`)
-- [ ] Unit (and required integration) tests pass; coverage target met
-- [ ] OpenAPI regenerated and re-linted (account endpoints land in TASK-061/067)
-- [ ] Audit events emitted for security-relevant actions (ACCOUNT_CREATED — SR-032 AC-7)
-- [ ] Traceability matrix row updated (SR-003, SR-004, SR-032 → TASK-030 → tests)
-- [ ] Security review completed (N/A for auth-gate per template, but creation guards privilege
+- [x] Lint + type-check pass (`ruff`/`mypy`)
+- [x] Unit (and required integration) tests pass; coverage target met
+- [x] OpenAPI regenerated and re-linted (account endpoints land in TASK-061/067)
+- [x] Audit events emitted for security-relevant actions (ACCOUNT_CREATED — SR-032 AC-7)
+- [x] Traceability matrix row updated (SR-003, SR-004, SR-032 → TASK-030 → tests)
+- [x] Security review completed (N/A for auth-gate per template, but creation guards privilege
       escalation — include in the SR-031.6 review scope)
+
+## Audit verdict (2026-06-29)
+
+- **Verdict:** PASS
+- Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
+- Acceptance criteria verified met; boxes checked.

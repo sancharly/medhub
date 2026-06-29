@@ -5,7 +5,7 @@
 - **Implements:** SR-001, SR-022, §07 (Deployment View)
 - **Depends on:** TASK-002 (must be merged first)
 - **Branch:** `enabler-story/docker-compose-topology`
-- **Status:** Completed
+- **Status:** In Progress (audit 2026-06-29)
 
 ## Objective
 
@@ -64,3 +64,9 @@ Distilled from SR-001, SR-022, and 07-deployment-view:
 - [ ] Audit events emitted for security-relevant actions (N/A — infra)
 - [ ] Traceability matrix row updated (SR-001, SR-022, §07 → TASK-004 → bring-up smoke checks)
 - [ ] Security review completed (N/A — no auth/session code; TLS/at-rest config noted for the system-test security review)
+
+## Audit verdict (2026-06-29)
+
+- **Verdict:** FAIL
+- Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
+- **Remediation:** TASK-004a. Unchecked acceptance-criteria / DoD items above reflect the gaps the audit found; this task stays **In Progress** until they are addressed.

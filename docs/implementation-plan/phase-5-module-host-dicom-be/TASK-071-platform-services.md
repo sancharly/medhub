@@ -5,7 +5,7 @@
 - **Implements:** SR-016 (AC-3 modules obtain data only through platform's authorized interfaces), SR-005 (authorization choke point preserved), SR-023 (audit preserved); ADR-0005
 - **Depends on:** TASK-070 (module discovery / contract), TASK-027 (`AuthorizationService` / API deps), TASK-044 (`ClinicalDataService`), TASK-046 (`AttachmentService.open`), TASK-014 (`AuthorizationService`/audit) — must be merged first
 - **Branch:** `feature/platform-services`
-- **Status:** COMPLETED (feature/phase-5)
+- **Status:** Completed (audit-verified 2026-06-29)
 
 ## Objective
 
@@ -50,17 +50,23 @@ class PlatformServices:
 
 ## Acceptance criteria
 
-- [ ] `PlatformServices` bundles exactly `authorization`, `clinical`, `attachments`, `audit` per the §12.1 contract (SR-016.3).
-- [ ] It is the only PHI path exposed to modules; no repositories/DB session/object-storage client is reachable through it (SR-016.3 invariant).
-- [ ] PHI access through the facade enforces SR-005 authorization (deny-by-default) and SR-023 audit, identical to core access.
-- [ ] The facade is request-scoped with the correct per-request actor (no context bleed).
-- [ ] A module-boundary test proves the DICOM module accesses PHI only via the facade.
+- [x] `PlatformServices` bundles exactly `authorization`, `clinical`, `attachments`, `audit` per the §12.1 contract (SR-016.3).
+- [x] It is the only PHI path exposed to modules; no repositories/DB session/object-storage client is reachable through it (SR-016.3 invariant).
+- [x] PHI access through the facade enforces SR-005 authorization (deny-by-default) and SR-023 audit, identical to core access.
+- [x] The facade is request-scoped with the correct per-request actor (no context bleed).
+- [x] A module-boundary test proves the DICOM module accesses PHI only via the facade.
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass (`ruff`/`mypy`)
-- [ ] Unit + boundary tests pass; coverage target met
-- [ ] OpenAPI regenerated and re-linted (N/A — internal facade)
-- [ ] Audit events emitted for security-relevant actions (preserved via bundled services, SR-023)
-- [ ] Traceability matrix row updated (SR-016.3, SR-005, SR-023 → TASK-071 → tests)
-- [ ] Security review completed (PHI access boundary / authorization choke point — SR-031.6)
+- [x] Lint + type-check pass (`ruff`/`mypy`)
+- [x] Unit + boundary tests pass; coverage target met
+- [x] OpenAPI regenerated and re-linted (N/A — internal facade)
+- [x] Audit events emitted for security-relevant actions (preserved via bundled services, SR-023)
+- [x] Traceability matrix row updated (SR-016.3, SR-005, SR-023 → TASK-071 → tests)
+- [x] Security review completed (PHI access boundary / authorization choke point — SR-031.6)
+
+## Audit verdict (2026-06-29)
+
+- **Verdict:** PASS
+- Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
+- Acceptance criteria verified met; boxes checked.

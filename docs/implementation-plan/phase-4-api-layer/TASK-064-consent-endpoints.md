@@ -6,7 +6,7 @@
   SR-036.7 (unified view of all grants — manual + appointment-derived)
 - **Depends on:** TASK-028 (ConsentService) — must be merged first
 - **Branch:** `feature/consent-endpoints`
-- **Status:** COMMITTED on `feature/phase-4` (commit ae0f5ff)
+- **Status:** In Progress (audit 2026-06-29)
 
 ## Objective
 
@@ -112,3 +112,9 @@ access (that is `AuthorizationService.effective_access`, TASK-027).
 - [ ] Audit events emitted for security-relevant actions (consent grant/revoke — SR-008.5, SR-023)
 - [ ] Traceability matrix row updated (SR-008, SR-036.7 → TASK-064 → tests)
 - [ ] Security review N/A (authz/consent service consumed, not implemented here)
+
+## Audit verdict (2026-06-29)
+
+- **Verdict:** PARTIAL
+- Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
+- **Remediation:** TASK-069a. Unchecked acceptance-criteria / DoD items above reflect the gaps the audit found; this task stays **In Progress** until they are addressed.

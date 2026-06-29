@@ -5,7 +5,7 @@
 - **Implements:** SR-023
 - **Depends on:** TASK-012 (must be merged first)
 - **Branch:** `feature/audit-writer`
-- **Status:** Completed
+- **Status:** In Progress (audit 2026-06-29)
 
 ## Objective
 
@@ -71,3 +71,9 @@ Distilled from SR-023:
 - [ ] Audit events emitted for security-relevant actions — this task **is** the writer; later items wire calls to it (SR-023)
 - [ ] Traceability matrix row updated (SR-023 → TASK-014 → audit-writer tests)
 - [ ] Security review completed (N/A — no auth/session code here; the writer is consumed by auth tasks under SR-031.6)
+
+## Audit verdict (2026-06-29)
+
+- **Verdict:** PARTIAL
+- Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
+- **Remediation:** AUDIT-FINDINGS.md (record() signature; DB append-only). Unchecked acceptance-criteria / DoD items above reflect the gaps the audit found; this task stays **In Progress** until they are addressed.

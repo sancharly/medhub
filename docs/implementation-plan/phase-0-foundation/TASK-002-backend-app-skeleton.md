@@ -5,7 +5,7 @@
 - **Implements:** SR-001
 - **Depends on:** TASK-001 (must be merged first)
 - **Branch:** `enabler-story/backend-app-skeleton`
-- **Status:** Completed
+- **Status:** Completed (audit-verified 2026-06-29)
 
 ## Objective
 
@@ -43,17 +43,23 @@ Stand up the FastAPI application factory that all backend items mount into: a si
 
 Distilled from SR-001:
 
-- [ ] The app is reachable and serves a 200 liveness response without installation (SR-001.1).
-- [ ] A versioned `/api/v1` mount point and `/api/v1/openapi.json` exist (interface baseline for SR-001.3).
-- [ ] Logging is structured JSON to stdout and contains no credentials or PHI.
-- [ ] `/healthz` is unauthenticated and exposes no environment or PHI detail.
-- [ ] No business endpoint, auth, authz, or DB access is present.
+- [x] The app is reachable and serves a 200 liveness response without installation (SR-001.1).
+- [x] A versioned `/api/v1` mount point and `/api/v1/openapi.json` exist (interface baseline for SR-001.3).
+- [x] Logging is structured JSON to stdout and contains no credentials or PHI.
+- [x] `/healthz` is unauthenticated and exposes no environment or PHI detail.
+- [x] No business endpoint, auth, authz, or DB access is present.
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass (`ruff`/`mypy`)
-- [ ] Unit tests pass; coverage target met
-- [ ] OpenAPI regenerated and re-linted — `/api/v1/openapi.json` renders and passes `npx @redocly/cli lint`
-- [ ] Audit events emitted for security-relevant actions (N/A — no security-relevant action yet)
-- [ ] Traceability matrix row updated (SR-001 → TASK-002 → health/app-factory tests)
-- [ ] Security review completed (N/A — no auth/session code)
+- [x] Lint + type-check pass (`ruff`/`mypy`)
+- [x] Unit tests pass; coverage target met
+- [x] OpenAPI regenerated and re-linted — `/api/v1/openapi.json` renders and passes `npx @redocly/cli lint`
+- [x] Audit events emitted for security-relevant actions (N/A — no security-relevant action yet)
+- [x] Traceability matrix row updated (SR-001 → TASK-002 → health/app-factory tests)
+- [x] Security review completed (N/A — no auth/session code)
+
+## Audit verdict (2026-06-29)
+
+- **Verdict:** PASS
+- Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
+- Acceptance criteria verified met; boxes checked.

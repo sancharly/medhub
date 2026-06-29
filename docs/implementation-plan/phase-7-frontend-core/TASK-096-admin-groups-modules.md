@@ -5,7 +5,7 @@
 - **Implements:** SR-014 (group create/list, manual membership), SR-015 (per-group module enable/disable); ADR-0003, ADR-0005
 - **Depends on:** TASK-063 (groups + module-enablement API, SI-GROUPS endpoints) — must be merged first
 - **Branch:** `feature/fe-admin-groups-modules`
-- **Status:** Not started
+- **Status:** In Progress (audit 2026-06-29)
 
 ## Objective
 
@@ -68,3 +68,9 @@ apiClient.setGroupModuleEnabled(groupId, moduleKey, enabled);  // PUT /groups/{i
 - [ ] Lint + type-check pass (`eslint`/`tsc`)
 - [ ] Unit/component tests pass; coverage target met
 - [ ] Traceability matrix row updated (SR-014, SR-015 → TASK-096 → tests)
+
+## Audit verdict (2026-06-29)
+
+- **Verdict:** PARTIAL
+- Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
+- **Remediation:** TASK-070a. Unchecked acceptance-criteria / DoD items above reflect the gaps the audit found; this task stays **In Progress** until they are addressed.

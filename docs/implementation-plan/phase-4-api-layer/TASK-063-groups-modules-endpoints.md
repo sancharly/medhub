@@ -7,7 +7,7 @@
 - **Depends on:** TASK-040 (GroupService create/list), TASK-041 (membership), TASK-042 (module
   enablement) — must be merged first
 - **Branch:** `feature/groups-modules-endpoints`
-- **Status:** COMMITTED on `feature/phase-4` (commit ae0f5ff)
+- **Status:** In Progress (audit 2026-06-29)
 
 ## Objective
 
@@ -113,3 +113,9 @@ access decision itself (SR-005, SR-015).
 - [ ] Audit events emitted for security-relevant actions (group create, membership, enablement — SR-023)
 - [ ] Traceability matrix row updated (SR-014, SR-015, SR-016 → TASK-063 → tests)
 - [ ] Security review N/A (authz consumed, not implemented here)
+
+## Audit verdict (2026-06-29)
+
+- **Verdict:** FAIL
+- Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
+- **Remediation:** TASK-069a. Unchecked acceptance-criteria / DoD items above reflect the gaps the audit found; this task stays **In Progress** until they are addressed.

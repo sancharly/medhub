@@ -6,7 +6,7 @@
   effective access); ADR-0006
 - **Depends on:** TASK-027 (AuthorizationService — the consumer of the union)
 - **Branch:** `feature/consent-service`
-- **Status:** Completed
+- **Status:** Completed (audit-verified 2026-06-29)
 
 ## Objective
 
@@ -90,18 +90,24 @@ control measure / ADR-0006 alternatives); let a decline revoke any row other tha
 
 Distilled from SR-008 / SR-036:
 
-- [ ] Patient can grant a named doctor (MANUAL) and the doctor then has access (SR-008 AC-1/AC-2).
-- [ ] Revoke takes effect immediately on the next request (SR-008 AC-3/AC-4).
-- [ ] Grants are per-source; effective access = union of active grants (SR-036 AC-3).
-- [ ] Decline revokes only that appointment's grant — Cases A/B/C correct (SR-036 AC-4).
-- [ ] Each grant/revoke audited with patient, doctor, source/appointment id, ts (SR-008 AC-5, SR-036 AC-6).
-- [ ] Unified manual + appointment grant view available to the patient (SR-036 AC-7).
+- [x] Patient can grant a named doctor (MANUAL) and the doctor then has access (SR-008 AC-1/AC-2).
+- [x] Revoke takes effect immediately on the next request (SR-008 AC-3/AC-4).
+- [x] Grants are per-source; effective access = union of active grants (SR-036 AC-3).
+- [x] Decline revokes only that appointment's grant — Cases A/B/C correct (SR-036 AC-4).
+- [x] Each grant/revoke audited with patient, doctor, source/appointment id, ts (SR-008 AC-5, SR-036 AC-6).
+- [x] Unified manual + appointment grant view available to the patient (SR-036 AC-7).
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass (`ruff`/`mypy`)
-- [ ] Unit (and required integration) tests pass; coverage target met
-- [ ] OpenAPI regenerated and re-linted (consent endpoints land in TASK-064)
-- [ ] Audit events emitted for security-relevant actions (CONSENT_GRANTED / CONSENT_REVOKED — SR-023)
-- [ ] Traceability matrix row updated (SR-008, SR-036, ADR-0006 → TASK-028 → tests)
-- [ ] Security review completed (auth/session/authz task — SR-031.6)
+- [x] Lint + type-check pass (`ruff`/`mypy`)
+- [x] Unit (and required integration) tests pass; coverage target met
+- [x] OpenAPI regenerated and re-linted (consent endpoints land in TASK-064)
+- [x] Audit events emitted for security-relevant actions (CONSENT_GRANTED / CONSENT_REVOKED — SR-023)
+- [x] Traceability matrix row updated (SR-008, SR-036, ADR-0006 → TASK-028 → tests)
+- [x] Security review completed (auth/session/authz task — SR-031.6)
+
+## Audit verdict (2026-06-29)
+
+- **Verdict:** PASS
+- Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
+- Acceptance criteria verified met; boxes checked.

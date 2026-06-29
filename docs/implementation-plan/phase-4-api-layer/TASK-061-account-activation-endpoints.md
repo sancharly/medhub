@@ -7,7 +7,7 @@
 - **Depends on:** TASK-030 (AccountService.create / read), TASK-032 (activation) — must be merged
   first
 - **Branch:** `feature/account-activation-endpoints`
-- **Status:** COMMITTED on `feature/phase-4` (commit ae0f5ff)
+- **Status:** In Progress (audit 2026-06-29)
 
 ## Objective
 
@@ -129,3 +129,9 @@ email exists other than via the documented 409 on create (SR-032.3).
 - [ ] Audit events emitted for security-relevant actions (account create, activation, resend — SR-023)
 - [ ] Traceability matrix row updated (SR-032, SR-033 → TASK-061 → tests)
 - [ ] Security review N/A (authz/identity services consumed, not implemented here; password policy in TASK-020/060)
+
+## Audit verdict (2026-06-29)
+
+- **Verdict:** FAIL
+- Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
+- **Remediation:** TASK-069a. Unchecked acceptance-criteria / DoD items above reflect the gaps the audit found; this task stays **In Progress** until they are addressed.

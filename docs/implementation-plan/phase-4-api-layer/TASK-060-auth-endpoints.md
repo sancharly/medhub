@@ -7,7 +7,7 @@
 - **Depends on:** TASK-023 (LoginService), TASK-024 (lockout), TASK-022 (cookie/CSRF), TASK-020
   (PasswordService) — must be merged first
 - **Branch:** `feature/auth-endpoints`
-- **Status:** COMMITTED on `feature/phase-4` (commit ae0f5ff)
+- **Status:** In Progress (audit 2026-06-29)
 
 ## Objective
 
@@ -125,3 +125,9 @@ source (SR-031.5).
 - [ ] Audit events emitted for security-relevant actions (LOGIN/LOGOUT/PASSWORD_CHANGE — SR-023)
 - [ ] Traceability matrix row updated (SR-002, SR-029, SR-030, SR-025 → TASK-060 → tests)
 - [ ] **Security review completed (auth/session task — SR-031.6)**
+
+## Audit verdict (2026-06-29)
+
+- **Verdict:** PARTIAL
+- Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
+- **Remediation:** TASK-069a / TASK-068a. Unchecked acceptance-criteria / DoD items above reflect the gaps the audit found; this task stays **In Progress** until they are addressed.

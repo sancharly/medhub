@@ -5,7 +5,7 @@
 - **Implements:** SR-010 (AC-1 create with doctor+patient+datetime, AC-2 reject missing, AC-3 persisted/retrievable, AC-4 admin without clinical data)
 - **Depends on:** TASK-027 (API deps / authz guard, current-user DI) — must be merged first
 - **Branch:** `feature/appointment-create`
-- **Status:** Completed
+- **Status:** Completed (audit-verified 2026-06-29)
 
 ## Objective
 
@@ -53,18 +53,24 @@ class AppointmentService:
 
 ## Acceptance criteria
 
-- [ ] An authorized user can create an appointment with a doctor, a patient, and a date/time (SR-010 AC-1).
-- [ ] Missing doctor, patient, or datetime is rejected (SR-010 AC-2).
-- [ ] Doctor/patient references are validated to exist and be of the correct type (SR-010 AC-1).
-- [ ] A created appointment is persisted, starts PENDING, and is retrievable (SR-010 AC-3).
-- [ ] Administrative personnel create appointments without accessing clinical data (SR-010 AC-4).
-- [ ] Creation is authorized and audited (SR-005, SR-023).
+- [x] An authorized user can create an appointment with a doctor, a patient, and a date/time (SR-010 AC-1).
+- [x] Missing doctor, patient, or datetime is rejected (SR-010 AC-2).
+- [x] Doctor/patient references are validated to exist and be of the correct type (SR-010 AC-1).
+- [x] A created appointment is persisted, starts PENDING, and is retrievable (SR-010 AC-3).
+- [x] Administrative personnel create appointments without accessing clinical data (SR-010 AC-4).
+- [x] Creation is authorized and audited (SR-005, SR-023).
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass (`ruff`/`mypy`)
-- [ ] Unit + integration tests pass; coverage target met
-- [ ] OpenAPI regenerated and re-linted (create endpoint)
-- [ ] Audit events emitted for security-relevant actions (SR-023)
-- [ ] Traceability matrix row updated (SR-010 → TASK-047 → tests)
-- [ ] Security review N/A (authz consumed, not implemented here)
+- [x] Lint + type-check pass (`ruff`/`mypy`)
+- [x] Unit + integration tests pass; coverage target met
+- [x] OpenAPI regenerated and re-linted (create endpoint)
+- [x] Audit events emitted for security-relevant actions (SR-023)
+- [x] Traceability matrix row updated (SR-010 → TASK-047 → tests)
+- [x] Security review N/A (authz consumed, not implemented here)
+
+## Audit verdict (2026-06-29)
+
+- **Verdict:** PASS
+- Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
+- Acceptance criteria verified met; boxes checked.

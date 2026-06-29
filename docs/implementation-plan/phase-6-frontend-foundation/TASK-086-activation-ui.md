@@ -5,7 +5,7 @@
 - **Implements:** SR-033 (AC-2 the activation link validates the token; AC-3 password set must satisfy SR-025; AC-4 password entered twice and mismatch rejected with a non-disclosing message; AC-5 on success the account becomes active)
 - **Depends on:** TASK-080 (typed `ApiClient` + cookie/CSRF + Query) — must be merged first
 - **Branch:** `feature/fe-activation-ui`
-- **Status:** COMPLETED (2026-06-23, commit 9d3b68b)
+- **Status:** In Progress (audit 2026-06-29)
 
 ## Objective
 
@@ -61,3 +61,9 @@ await apiClient.activate(token, { password, confirmPassword });  // POST /activa
 - [ ] Lint + type-check pass (`eslint`/`tsc`)
 - [ ] Unit/component tests pass; coverage target met
 - [ ] Traceability matrix row updated (SR-033 → TASK-086 → tests)
+
+## Audit verdict (2026-06-29)
+
+- **Verdict:** FAIL
+- Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
+- **Remediation:** TASK-086a. Unchecked acceptance-criteria / DoD items above reflect the gaps the audit found; this task stays **In Progress** until they are addressed.

@@ -5,7 +5,7 @@
 - **Implements:** SR-031 (AC-3 CSRF token on state-changing requests; AC-5 server-side authz is authoritative, client never the sole gate); NFR-006 (typed interface generated from the OpenAPI contract); ADR-0003, ADR-0012
 - **Depends on:** TASK-068 (OpenAPI 3.1 contract + typed-client generation artifact) — must be merged first
 - **Branch:** `enabler-story/fe-api-client`
-- **Status:** COMPLETED (2026-06-23, commit 9d3b68b)
+- **Status:** In Progress (audit 2026-06-29)
 
 ## Objective
 
@@ -68,3 +68,9 @@ await apiClient.logout();                            // POST /auth/logout (state
 - [ ] Unit/component tests pass; coverage target met
 - [ ] Client regenerated from the current OpenAPI contract (TASK-068) and committed
 - [ ] Traceability matrix row updated (SR-031, NFR-006 → TASK-080 → tests)
+
+## Audit verdict (2026-06-29)
+
+- **Verdict:** PARTIAL
+- Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
+- **Remediation:** AUDIT-FINDINGS.md (CSRF fixed; generated-client gap). Unchecked acceptance-criteria / DoD items above reflect the gaps the audit found; this task stays **In Progress** until they are addressed.

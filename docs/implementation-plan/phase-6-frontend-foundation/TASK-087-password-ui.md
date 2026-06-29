@@ -5,7 +5,7 @@
 - **Implements:** SR-025 (AC-1 min 12 chars; AC-2 four character classes; AC-3 no username/email substring; AC-4 not one of the last 12; AC-5 violated-rule message; AC-6 forced change on first login before any other action)
 - **Depends on:** TASK-080 (typed `ApiClient` + cookie/CSRF + Query) — must be merged first
 - **Branch:** `feature/fe-password-ui`
-- **Status:** COMPLETED (2026-06-23, commit 9d3b68b)
+- **Status:** In Progress (audit 2026-06-29)
 
 ## Objective
 
@@ -62,3 +62,9 @@ await apiClient.changePassword({ currentPassword, newPassword, confirmNewPasswor
 - [ ] Lint + type-check pass (`eslint`/`tsc`)
 - [ ] Unit/component tests pass; coverage target met
 - [ ] Traceability matrix row updated (SR-025 → TASK-087 → tests)
+
+## Audit verdict (2026-06-29)
+
+- **Verdict:** FAIL
+- Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
+- **Remediation:** TASK-087a. Unchecked acceptance-criteria / DoD items above reflect the gaps the audit found; this task stays **In Progress** until they are addressed.

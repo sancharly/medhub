@@ -5,7 +5,7 @@
 - **Implements:** SR-021, SR-003, SR-004
 - **Depends on:** TASK-002 (must be merged first)
 - **Branch:** `feature/persist-domain-models`
-- **Status:** Completed
+- **Status:** Completed (audit-verified 2026-06-29)
 
 ## Objective
 
@@ -49,20 +49,26 @@ Define the SQLAlchemy 2.x ORM models for MedHub's core domain, aligned field-by-
 
 Distilled from SR-021, SR-003, SR-004:
 
-- [ ] Account, Practitioner/Patient distinction (via `user_type`), Appointment, ClinicalEntry, Attachment, ConsentGrant map to their FHIR R4 resources per fhir-mapping.md (SR-021.1).
-- [ ] Every model field in the FHIR mapping table is present on the ORM model; mapping doc and schema are in sync (SR-021.2).
-- [ ] Each Account has exactly one `user_type` from {DOCTOR, PATIENT, ADMIN, SYSADMIN}; `user_type` is NOT NULL (SR-004.1/2).
-- [ ] `user_type` is exposed for access-control reads (available on the model for SR-004.4 consumers).
-- [ ] `email` is modeled unique across all account states (SR-003.1; DB constraint in TASK-011).
-- [ ] AuditLog has no update path; AnonymizedDataset stores only a salted code hash (ADR-0013).
-- [ ] FHIR extension data uses JSONB columns (§8.1).
+- [x] Account, Practitioner/Patient distinction (via `user_type`), Appointment, ClinicalEntry, Attachment, ConsentGrant map to their FHIR R4 resources per fhir-mapping.md (SR-021.1).
+- [x] Every model field in the FHIR mapping table is present on the ORM model; mapping doc and schema are in sync (SR-021.2).
+- [x] Each Account has exactly one `user_type` from {DOCTOR, PATIENT, ADMIN, SYSADMIN}; `user_type` is NOT NULL (SR-004.1/2).
+- [x] `user_type` is exposed for access-control reads (available on the model for SR-004.4 consumers).
+- [x] `email` is modeled unique across all account states (SR-003.1; DB constraint in TASK-011).
+- [x] AuditLog has no update path; AnonymizedDataset stores only a salted code hash (ADR-0013).
+- [x] FHIR extension data uses JSONB columns (§8.1).
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass (`ruff`/`mypy`)
-- [ ] Unit tests pass; coverage target met
-- [ ] OpenAPI regenerated and re-linted (N/A — no API surface)
-- [ ] Audit events emitted for security-relevant actions (N/A — model layer)
-- [ ] Traceability matrix row updated (SR-021, SR-003, SR-004 → TASK-010 → model/fhir tests)
-- [ ] FHIR mapping reviewed against R4 definitions and review recorded (SR-021.3)
-- [ ] Security review completed (N/A — no auth/session code)
+- [x] Lint + type-check pass (`ruff`/`mypy`)
+- [x] Unit tests pass; coverage target met
+- [x] OpenAPI regenerated and re-linted (N/A — no API surface)
+- [x] Audit events emitted for security-relevant actions (N/A — model layer)
+- [x] Traceability matrix row updated (SR-021, SR-003, SR-004 → TASK-010 → model/fhir tests)
+- [x] FHIR mapping reviewed against R4 definitions and review recorded (SR-021.3)
+- [x] Security review completed (N/A — no auth/session code)
+
+## Audit verdict (2026-06-29)
+
+- **Verdict:** PASS
+- Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
+- Acceptance criteria verified met; boxes checked.

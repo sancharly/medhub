@@ -5,7 +5,7 @@
 - **Implements:** SR-016 (data via platform services only), SR-017 (AC-5 only enabled + authorized users can open; bytes for CT/MRI/X-ray); ADR-0008, ADR-0005
 - **Depends on:** TASK-072 (router mount + module gating), TASK-046 (`AttachmentService.open`) — must be merged first
 - **Branch:** `feature/dicom-backend`
-- **Status:** COMPLETED (feature/phase-5)
+- **Status:** In Progress (audit 2026-06-29)
 
 ## Objective
 
@@ -74,3 +74,9 @@ class ModuleManifest:  # the module provides an instance
 - [ ] Audit events emitted for security-relevant actions (SR-023)
 - [ ] Traceability matrix row updated (SR-016, SR-017 → TASK-073 → tests)
 - [ ] Security review completed (authorized PHI byte access via module boundary — SR-031.6)
+
+## Audit verdict (2026-06-29)
+
+- **Verdict:** PARTIAL
+- Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
+- **Remediation:** TASK-070a / AUDIT-FINDINGS.md. Unchecked acceptance-criteria / DoD items above reflect the gaps the audit found; this task stays **In Progress** until they are addressed.

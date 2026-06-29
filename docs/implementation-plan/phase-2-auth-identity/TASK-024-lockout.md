@@ -5,7 +5,7 @@
 - **Implements:** SR-029 (account lockout after failed login attempts)
 - **Depends on:** TASK-023 (login flow — the counter is incremented/reset there)
 - **Branch:** `feature/account-lockout`
-- **Status:** Completed
+- **Status:** In Progress (audit 2026-06-29)
 
 ## Objective
 
@@ -88,3 +88,9 @@ Distilled from SR-029:
 - [ ] Audit events emitted for security-relevant actions (ACCOUNT_LOCKOUT / ACCOUNT_UNLOCK — SR-029.5)
 - [ ] Traceability matrix row updated (SR-029 → TASK-024 → tests)
 - [ ] Security review completed (auth/session/authz task — SR-031.6)
+
+## Audit verdict (2026-06-29)
+
+- **Verdict:** FAIL
+- Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
+- **Remediation:** TASK-024a. Unchecked acceptance-criteria / DoD items above reflect the gaps the audit found; this task stays **In Progress** until they are addressed.

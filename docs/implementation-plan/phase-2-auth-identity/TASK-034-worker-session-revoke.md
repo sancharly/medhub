@@ -6,7 +6,7 @@
   SR-030.5 (server-side session invalidation)
 - **Depends on:** TASK-033 (lifecycle deactivate), TASK-031 (Celery base)
 - **Branch:** `feature/worker-session-revoke`
-- **Status:** Completed
+- **Status:** Completed (audit-verified 2026-06-29)
 
 ## Objective
 
@@ -68,17 +68,23 @@ Run eager (`task_always_eager`) with fakeredis.
 
 Distilled from SR-034.2 / SR-030.5:
 
-- [ ] `propagate_session_kill` invalidates every active session of the account (SR-030.5).
-- [ ] Combined with the inline synchronous kill, sessions are gone within 30 s of deactivation/deletion
+- [x] `propagate_session_kill` invalidates every active session of the account (SR-030.5).
+- [x] Combined with the inline synchronous kill, sessions are gone within 30 s of deactivation/deletion
       (SR-034.2).
-- [ ] The task is idempotent and resilient to transient Redis errors.
-- [ ] Propagation is audited; no session token values are logged (§8.4).
+- [x] The task is idempotent and resilient to transient Redis errors.
+- [x] Propagation is audited; no session token values are logged (§8.4).
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass (`ruff`/`mypy`)
-- [ ] Unit (and required integration) tests pass; coverage target met
-- [ ] OpenAPI regenerated and re-linted (N/A — no HTTP endpoint)
-- [ ] Audit events emitted for security-relevant actions (SESSION_KILL_PROPAGATED — SR-023)
-- [ ] Traceability matrix row updated (SR-034.2, SR-030.5 → TASK-034 → tests)
-- [ ] Security review completed (auth/session/authz task — SR-031.6)
+- [x] Lint + type-check pass (`ruff`/`mypy`)
+- [x] Unit (and required integration) tests pass; coverage target met
+- [x] OpenAPI regenerated and re-linted (N/A — no HTTP endpoint)
+- [x] Audit events emitted for security-relevant actions (SESSION_KILL_PROPAGATED — SR-023)
+- [x] Traceability matrix row updated (SR-034.2, SR-030.5 → TASK-034 → tests)
+- [x] Security review completed (auth/session/authz task — SR-031.6)
+
+## Audit verdict (2026-06-29)
+
+- **Verdict:** PASS
+- Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
+- Acceptance criteria verified met; boxes checked.

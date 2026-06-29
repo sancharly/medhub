@@ -6,7 +6,7 @@
   lockout counter implemented in TASK-024)
 - **Depends on:** TASK-020 (PasswordService), TASK-021 (SessionService), TASK-014 (AuditService)
 - **Branch:** `feature/login-flow`
-- **Status:** Completed
+- **Status:** In Progress (audit 2026-06-29)
 
 ## Objective
 
@@ -95,3 +95,9 @@ Distilled from SR-002 (and SR-029 interplay):
 - [ ] Audit events emitted for security-relevant actions (LOGIN_SUCCESS / LOGIN_FAILURE — SR-023)
 - [ ] Traceability matrix row updated (SR-002, SR-029 → TASK-023 → tests)
 - [ ] Security review completed (auth/session/authz task — SR-031.6)
+
+## Audit verdict (2026-06-29)
+
+- **Verdict:** PARTIAL
+- Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
+- **Remediation:** TASK-024a. Unchecked acceptance-criteria / DoD items above reflect the gaps the audit found; this task stays **In Progress** until they are addressed.

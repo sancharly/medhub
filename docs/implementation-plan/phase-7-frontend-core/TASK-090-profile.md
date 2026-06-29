@@ -5,7 +5,7 @@
 - **Implements:** SR-003 (AC-2/3 own-profile self-service, data-minimization), SR-007 (AC-1 patient views own personal data); ADR-0003
 - **Depends on:** TASK-080 (typed `ApiClient` from OpenAPI), TASK-081 (app shell + routing + `ShellServices`), TASK-082 (navigation) — must be merged first
 - **Branch:** `feature/fe-profile`
-- **Status:** Not started
+- **Status:** Completed (audit-verified 2026-06-29)
 
 ## Objective
 
@@ -49,14 +49,20 @@ shell.errorToast(message); shell.layoutSlot(...)
 
 ## Acceptance criteria
 
-- [ ] An authenticated user of any type sees a profile page with their own personal information from `GET /me` (SR-003 AC-2, SR-007 AC-1).
-- [ ] The view requests only `/me`; it does not fetch another user's profile (SR-003 AC-3).
-- [ ] No clinical data is shown on the profile view (data-minimization, SR-009 boundary respected).
-- [ ] Errors render a clear, actionable message via `ShellServices` (SR-027.3).
-- [ ] Layout is responsive with no horizontal scroll of primary content (SR-020, inherited from shell).
+- [x] An authenticated user of any type sees a profile page with their own personal information from `GET /me` (SR-003 AC-2, SR-007 AC-1).
+- [x] The view requests only `/me`; it does not fetch another user's profile (SR-003 AC-3).
+- [x] No clinical data is shown on the profile view (data-minimization, SR-009 boundary respected).
+- [x] Errors render a clear, actionable message via `ShellServices` (SR-027.3).
+- [x] Layout is responsive with no horizontal scroll of primary content (SR-020, inherited from shell).
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass (`eslint`/`tsc`)
-- [ ] Unit/component tests pass; coverage target met
-- [ ] Traceability matrix row updated (SR-003, SR-007 → TASK-090 → tests)
+- [x] Lint + type-check pass (`eslint`/`tsc`)
+- [x] Unit/component tests pass; coverage target met
+- [x] Traceability matrix row updated (SR-003, SR-007 → TASK-090 → tests)
+
+## Audit verdict (2026-06-29)
+
+- **Verdict:** PASS
+- Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
+- Acceptance criteria verified met; boxes checked.

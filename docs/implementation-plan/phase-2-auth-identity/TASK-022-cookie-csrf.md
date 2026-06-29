@@ -5,7 +5,7 @@
 - **Implements:** SR-030.6 (hardened cookie attributes); SR-031.3 (CSRF protection on state-changing requests)
 - **Depends on:** TASK-021 (SessionService — the opaque id carried by the cookie)
 - **Branch:** `feature/cookie-csrf`
-- **Status:** Completed
+- **Status:** In Progress (audit 2026-06-29)
 
 ## Objective
 
@@ -80,3 +80,9 @@ the centralized middleware in TASK-069 (SR-031.2/4).
 - [ ] Audit events emitted for security-relevant actions (N/A — login audit in TASK-023)
 - [ ] Traceability matrix row updated (SR-030.6, SR-031.3 → TASK-022 → tests)
 - [ ] Security review completed (auth/session/authz task — SR-031.6)
+
+## Audit verdict (2026-06-29)
+
+- **Verdict:** FAIL
+- Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
+- **Remediation:** TASK-069a. Unchecked acceptance-criteria / DoD items above reflect the gaps the audit found; this task stays **In Progress** until they are addressed.

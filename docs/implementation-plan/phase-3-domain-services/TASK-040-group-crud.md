@@ -5,7 +5,7 @@
 - **Implements:** SR-014 (AC-1, AC-4); ADR-0005
 - **Depends on:** TASK-027 (API deps / `AuthorizationService` guard, current-user DI) — must be merged first
 - **Branch:** `feature/group-crud`
-- **Status:** Completed
+- **Status:** In Progress (audit 2026-06-29)
 
 ## Objective
 
@@ -69,3 +69,9 @@ class GroupService:
 - [ ] Audit events emitted for security-relevant actions (SR-023)
 - [ ] Traceability matrix row updated (SR-014 → TASK-040 → tests)
 - [ ] Security review N/A (no auth/session code; authz is consumed, not implemented here)
+
+## Audit verdict (2026-06-29)
+
+- **Verdict:** PARTIAL
+- Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
+- **Remediation:** TASK-040a. Unchecked acceptance-criteria / DoD items above reflect the gaps the audit found; this task stays **In Progress** until they are addressed.

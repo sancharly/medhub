@@ -89,7 +89,7 @@ cross-cutting findings + the static inventory, and should be re-confirmed by a d
 
 ## Summary
 
-- **67 tasks audited.** Verdicts: **PASS** ~32, **PARTIAL** ~24, **FAIL** 11.
+- **69 tasks audited.** Verdicts: **PASS** 32, **PARTIAL** 26, **FAIL** 11.
 - **FAIL (11):** TASK-004 (no migrations), TASK-022/024/069 + 061/063/065/066 (CSRF cluster + lockout),
   TASK-035 (erasure delivery), TASK-044/091 (patient roster), TASK-086/087 (activation + forced-pw gate).
 - **Recurring root cause:** false-confidence tests — unit suites assert against mocks that don't match

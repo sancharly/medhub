@@ -5,7 +5,7 @@
 - **Implements:** SR-009 (administrative personnel non-clinical scope)
 - **Depends on:** TASK-027 (AuthorizationService)
 - **Branch:** `feature/admin-projection`
-- **Status:** Completed
+- **Status:** In Progress (audit 2026-06-29)
 
 ## Objective
 
@@ -79,3 +79,9 @@ Distilled from SR-009:
 - [ ] Audit events emitted for security-relevant actions (admin reads + clinical denials via TASK-027)
 - [ ] Traceability matrix row updated (SR-009 → TASK-029 → tests)
 - [ ] Security review completed (auth/session/authz task — SR-031.6)
+
+## Audit verdict (2026-06-29)
+
+- **Verdict:** PARTIAL
+- Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
+- **Remediation:** TASK-029a. Unchecked acceptance-criteria / DoD items above reflect the gaps the audit found; this task stays **In Progress** until they are addressed.

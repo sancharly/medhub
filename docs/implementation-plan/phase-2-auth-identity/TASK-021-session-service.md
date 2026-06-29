@@ -5,7 +5,7 @@
 - **Implements:** SR-030 (session management); ADR-0012 (server-side opaque tokens in Redis)
 - **Depends on:** TASK-012 (repositories; Redis client wiring established in TASK-003)
 - **Branch:** `feature/session-service`
-- **Status:** Completed
+- **Status:** Completed (audit-verified 2026-06-29)
 
 ## Objective
 
@@ -99,19 +99,25 @@ Use `fakeredis` (or a dockerized Redis in integration) and a frozen clock.
 
 Distilled from SR-030:
 
-- [ ] Clinical-role inactivity timeout 15 min (AC-1); admin-role 30 min (AC-2).
-- [ ] Absolute lifetime 8 h enforced on every resolve regardless of activity (AC-3).
-- [ ] Sliding refresh on activity, capped by the absolute lifetime (AC-3/AC-4).
-- [ ] `invalidate` immediately and permanently revokes a session (AC-5).
-- [ ] ≤3 concurrent sessions; a 4th evicts the oldest and signals a notification (AC-7).
-- [ ] Tokens are opaque, server-side, contain no user data (ADR-0012).
-- [ ] `invalidate_all` enumerates and revokes all of an account's sessions (basis for SR-034 AC-2).
+- [x] Clinical-role inactivity timeout 15 min (AC-1); admin-role 30 min (AC-2).
+- [x] Absolute lifetime 8 h enforced on every resolve regardless of activity (AC-3).
+- [x] Sliding refresh on activity, capped by the absolute lifetime (AC-3/AC-4).
+- [x] `invalidate` immediately and permanently revokes a session (AC-5).
+- [x] ≤3 concurrent sessions; a 4th evicts the oldest and signals a notification (AC-7).
+- [x] Tokens are opaque, server-side, contain no user data (ADR-0012).
+- [x] `invalidate_all` enumerates and revokes all of an account's sessions (basis for SR-034 AC-2).
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass (`ruff`/`mypy`)
-- [ ] Unit (and required integration) tests pass; coverage target met
-- [ ] OpenAPI regenerated and re-linted (N/A — no endpoint here)
-- [ ] Audit events emitted for security-relevant actions (login/logout audit is in TASK-023; N/A here)
-- [ ] Traceability matrix row updated (SR-030, ADR-0012 → TASK-021 → tests)
-- [ ] Security review completed (auth/session/authz task — SR-031.6)
+- [x] Lint + type-check pass (`ruff`/`mypy`)
+- [x] Unit (and required integration) tests pass; coverage target met
+- [x] OpenAPI regenerated and re-linted (N/A — no endpoint here)
+- [x] Audit events emitted for security-relevant actions (login/logout audit is in TASK-023; N/A here)
+- [x] Traceability matrix row updated (SR-030, ADR-0012 → TASK-021 → tests)
+- [x] Security review completed (auth/session/authz task — SR-031.6)
+
+## Audit verdict (2026-06-29)
+
+- **Verdict:** PASS
+- Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
+- Acceptance criteria verified met; boxes checked.

@@ -5,7 +5,7 @@
 - **Implements:** SR-022
 - **Depends on:** TASK-011 (must be merged first)
 - **Branch:** `feature/persist-crypto-at-rest`
-- **Status:** Completed
+- **Status:** In Progress (audit 2026-06-29)
 
 ## Objective
 
@@ -55,3 +55,9 @@ Distilled from SR-022 (at-rest portions; transit covered by TASK-004):
 - [ ] Audit events emitted for security-relevant actions (N/A — config/hook layer)
 - [ ] Traceability matrix row updated (SR-022 → TASK-013 → crypto tests + TASK-004 infra checks)
 - [ ] Security review completed (crypto config noted for the system-test security review; algorithm/key handling reviewed)
+
+## Audit verdict (2026-06-29)
+
+- **Verdict:** PARTIAL
+- Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
+- **Remediation:** AUDIT-FINDINGS.md (field-level PHI / key versioning). Unchecked acceptance-criteria / DoD items above reflect the gaps the audit found; this task stays **In Progress** until they are addressed.
