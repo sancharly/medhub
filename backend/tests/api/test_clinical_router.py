@@ -100,4 +100,4 @@ class TestCreateClinicalEntry:
             f"/api/v1/patients/{uuid.uuid4()}/clinical-entries",
             json={"occurredAt": datetime.now(UTC).isoformat(), "description": "Test"},
         )
-        assert resp.status_code == 401
+        assert resp.status_code == 403

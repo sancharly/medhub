@@ -157,7 +157,7 @@ class TestLogoutEndpoint:
 
     def test_logout_requires_auth(self, client):
         resp = client.post("/api/v1/auth/logout")
-        assert resp.status_code == 401
+        assert resp.status_code == 403
 
     def test_logout_requires_csrf(self, client):
         account = _make_account()
@@ -169,7 +169,7 @@ class TestLogoutEndpoint:
         )
 
         client.app.dependency_overrides = {}
-        assert resp.status_code == 401
+        assert resp.status_code == 403
 
 
 class TestSessionExtendEndpoint:
@@ -190,4 +190,4 @@ class TestSessionExtendEndpoint:
 
     def test_extend_requires_auth(self, client):
         resp = client.post("/api/v1/auth/session/extend")
-        assert resp.status_code == 401
+        assert resp.status_code == 403

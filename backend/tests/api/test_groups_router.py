@@ -62,6 +62,8 @@ class TestCreateGroup:
             resp = client.post(
                 "/api/v1/groups",
                 json={"name": "Cardiology"},
+                cookies={"medhub_csrf": "tok"},
+                headers={"X-CSRF-Token": "tok"},
             )
 
         client.app.dependency_overrides = {}
@@ -70,7 +72,7 @@ class TestCreateGroup:
 
     def test_create_group_requires_auth(self, client):
         resp = client.post("/api/v1/groups", json={"name": "Test"})
-        assert resp.status_code == 401
+        assert resp.status_code == 403
 
 
 class TestListGroups:

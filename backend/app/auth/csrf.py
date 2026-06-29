@@ -12,7 +12,7 @@ import secrets
 
 from fastapi import Request, Response
 
-from app.api.errors import UnauthenticatedError
+from app.api.errors import AuthorizationError
 from app.core.config import get_settings
 
 _CSRF_COOKIE = "medhub_csrf"
@@ -20,7 +20,7 @@ _CSRF_HEADER = "X-CSRF-Token"
 _SAFE_METHODS = frozenset({"GET", "HEAD", "OPTIONS"})
 
 
-class CsrfError(UnauthenticatedError):
+class CsrfError(AuthorizationError):
     def __init__(self, detail: str = "CSRF token missing or invalid.") -> None:
         super().__init__(detail)
 

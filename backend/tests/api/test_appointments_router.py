@@ -85,7 +85,7 @@ class TestCreateAppointment:
                 "scheduledAt": datetime.now(UTC).isoformat(),
             },
         )
-        assert resp.status_code == 401
+        assert resp.status_code == 403
 
 
 class TestListAppointments:

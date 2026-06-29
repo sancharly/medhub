@@ -96,7 +96,7 @@ class TestGrantConsent:
             "/api/v1/consents",
             json={"doctorId": str(uuid.uuid4())},
         )
-        assert resp.status_code == 401
+        assert resp.status_code == 403
 
 
 class TestRevokeConsent:
@@ -144,7 +144,7 @@ class TestRevokeConsent:
 
     def test_revoke_consent_requires_auth(self, client):
         resp = client.delete(f"/api/v1/consents/{uuid.uuid4()}")
-        assert resp.status_code == 401
+        assert resp.status_code == 403
 
 
 class TestListMyConsents:

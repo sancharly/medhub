@@ -103,7 +103,7 @@ def test_csrf_post_without_token_raises() -> None:
 
     client = TestClient(app, raise_server_exceptions=False)
     resp = client.post("/protected", json={})
-    assert resp.status_code == 401
+    assert resp.status_code == 403
 
 
 def test_csrf_post_with_mismatched_token_raises() -> None:
@@ -122,7 +122,7 @@ def test_csrf_post_with_mismatched_token_raises() -> None:
     # Cookie and header differ
     client.cookies.set(_CSRF_COOKIE, "token-a")
     resp = client.post("/protected", json={}, headers={_CSRF_HEADER: "token-b"})
-    assert resp.status_code == 401
+    assert resp.status_code == 403
 
 
 def test_csrf_post_with_matching_token_succeeds() -> None:
