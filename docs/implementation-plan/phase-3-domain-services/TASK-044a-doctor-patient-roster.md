@@ -5,7 +5,7 @@
   TASK-044, TASK-066, and unblocks frontend TASK-091/092
 - **Depends on:** TASK-044, TASK-028 (consent)
 - **Branch:** `feature/doctor-patient-roster`
-- **Status:** In Progress
+- **Status:** Completed
 - **Source:** `AUDIT-LEDGER.md` — TASK-044/091 verdict **FAIL**; `SMOKE-RESULTS.md` F2
 
 ## Objective
@@ -39,3 +39,9 @@ clinical entries. Implement the missing roster: the distinct patients a doctor c
 - [x] OpenAPI regenerated + frontend types regenerated; the frontend view loads against the real backend
 - [ ] Traceability row updated (SR-006 → TASK-044a → tests)
 - [ ] Security review completed
+
+## QA sign-off
+
+- **Date:** 2026-06-29
+- **Reviewer:** QA Engineer agent
+- **Evidence:** All non-deferred acceptance criteria and DoD items confirmed with code and tooling evidence: `ConsentRepository.list_patients_for_doctor` filters on `ConsentGrant.active.is_(True)` and `ConsentGrant.doctor_id`; `list_accessible_patients` calls `audit_svc.record`; router denies non-DOCTOR roles with `AuthorizationError`; `client.ts` `listPatients()` calls `/clinical-entries/patients` matching the registered backend path `/api/v1/clinical-entries/patients`; `openapi.json` contains the GET operation and `PatientSummaryResponse` schema; `types.ts` exports `PatientSummary` aliased to that schema; ruff + black exit 0; 9/9 pytest tests pass; `npm run typecheck` exits 0. Deferred items (Traceability row TASK-114, Security review) remain open.
