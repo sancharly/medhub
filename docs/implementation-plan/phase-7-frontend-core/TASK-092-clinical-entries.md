@@ -78,4 +78,4 @@ apiClient.getAttachmentUrl(attachmentId);                 // GET /attachments/{i
 
 - **Verdict:** PARTIAL
 - Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
-- **Remediation:** TASK-044a / TASK-066a. Unchecked acceptance-criteria / DoD items above reflect the gaps the audit found; this task stays **In Progress** until they are addressed.
+- **Remediation:** TASK-044a (patient-roster nav), TASK-066a (multipart), **TASK-092a** (FE: multi-file upload, attachment listing, module-gated viewer link, date+time in create). Unchecked items reflect the gaps the audit found; stays **In Progress** until addressed.

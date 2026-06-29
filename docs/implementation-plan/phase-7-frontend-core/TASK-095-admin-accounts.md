@@ -79,4 +79,4 @@ shell.confirmDialog({...});                        // delete + deactivate confir
 
 - **Verdict:** PARTIAL
 - Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
-- **Remediation:** TASK-029a. Unchecked acceptance-criteria / DoD items above reflect the gaps the audit found; this task stays **In Progress** until they are addressed.
+- **Remediation:** TASK-029a (backend admin projection), **TASK-095a** (FE: ADR-0013 delete warning, resend-activation control). Unchecked items reflect the gaps the audit found; stays **In Progress** until addressed.

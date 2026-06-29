@@ -77,15 +77,16 @@ unchecked, status → In Progress. **FAIL** = core AC unmet, status → In Progr
 | TASK-088 idle warning | COMPLETED | PASS | no | — | Role timeouts, real extend endpoint, AuthError→login (listener debounce — minor perf) |
 | TASK-090 profile (P7) | Not started¹ | PASS | no | — | Reads `/me`, displays `userType` (mock now uppercase). should_be **Completed** |
 | TASK-091 patients (P7) | Not started¹ | **FAIL** | **yes** | **T-044a** | Calls `GET /clinical-entries/patients` → **404** (backend endpoint missing). should_be **In Progress** |
-| TASK-092 clinical entries (P7) | Not started¹ | PARTIAL | no | T-044a; T-066a | View/create present but unreachable until patient roster exists; upload uses raw-body+`X-Filename` contract. should_be **In Progress** |
+| TASK-092 clinical entries (P7) | Not started¹ | PARTIAL | no | T-044a; T-066a; T-092a | Unreachable until patient roster exists; **single-file-only upload**, **AttachmentItem never mounted** (attachments not listed), viewer link not module-gated, create form discards time. should_be **In Progress** |
 | TASK-093 appointments (P7) | Not started¹ | PASS | no | — | Create/list/confirm/decline verified at runtime (raw-ID entry — UX note). should_be **Completed** |
 | TASK-094 consent (P7) | Not started¹ | PASS | no | — | Grant/revoke; **was broken pre-fix by CSRF cookie bug, now works (F1)**. should_be **Completed** |
-| TASK-095 admin accounts (P7) | Not started¹ | PARTIAL | no | T-029a | Lifecycle writes need CSRF (now fixed); inherits admin-PII over-exposure (029); not fully runtime-tested. should_be **In Progress** |
-| TASK-096 admin groups/modules (P7) | Not started¹ | PARTIAL | no | T-070a | Enablement PUT needs CSRF (now fixed); **module list empty** (registry never synced). should_be **In Progress** |
+| TASK-095 admin accounts (P7) | Not started¹ | PARTIAL | no | T-029a; T-095a | `{items}` unwrap correct; lifecycle/create good; **delete dialog lacks ADR-0013 lost-code warning**; **no resend-activation control**. should_be **In Progress** |
+| TASK-096 admin groups/modules (P7) | Not started¹ | PARTIAL | no | T-070a; T-096a | `{items}` unwrap correct; remove-member good; **manual add-member UI missing** (SR-014.3); module list empty until registry synced. should_be **In Progress** |
 
-¹ Phase-7 status line wrongly says "Not started" though code is committed (cd25243). Phase-7 QA pass was
-cut short by a session limit; these verdicts derive from the runtime smoke test + the phase-6 QA
-cross-cutting findings + the static inventory, and should be re-confirmed by a dedicated QA pass.
+¹ Phase-7 status line wrongly says "Not started" though code is committed (cd25243) — corrected by this
+audit. A dedicated phase-7 QA pass (re-run 2026-06-29) **confirmed all seven verdicts** with code
+evidence (090 PASS, 091 FAIL, 092/095/096 PARTIAL, 093/094 PASS) and added the AC-level frontend gaps
+above, now tracked as TASK-092a/095a/096a.
 
 ## Summary
 
@@ -96,6 +97,6 @@ cross-cutting findings + the static inventory, and should be re-confirmed by a d
   the real backend contract (lowercase enums, wrong cookie/field names, nonexistent endpoints,
   optional deps left unwired). Several units are *defined and unit-tested but never wired* into the
   request path (lockout, admin projection, module-registry sync, erasure email).
-- **New remediation tasks created** (suffix scheme, in owning phase): T-004a, T-024a, T-026a, T-029a,
-  T-035a, T-040a, T-044a, T-050a, T-066a, T-068a, T-069a, T-070a, T-086a, T-087a. Smaller items →
-  `AUDIT-FINDINGS.md`.
+- **17 new remediation tasks created** (suffix scheme, in owning phase): TASK-004a, 024a, 026a, 029a,
+  035a, 040a, 044a, 050a, 066a, 068a, 069a, 070a, 086a, 087a, and the phase-7 frontend tasks 092a,
+  095a, 096a. Smaller items → `AUDIT-FINDINGS.md`.

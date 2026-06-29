@@ -201,6 +201,9 @@ as remediation tasks (suffix `-a`, in their owning phase):
 | [TASK-070a](phase-5-module-host-dicom-be/TASK-070a-module-registry-sync.md) | 5 | 070, 073 | Module registry never synced at startup (`/modules` empty) |
 | [TASK-086a](phase-6-frontend-foundation/TASK-086a-activation-contract.md) | 6 | 086 | Activation UI omits `accountId`; treats invalid token as valid |
 | [TASK-087a](phase-6-frontend-foundation/TASK-087a-forced-password-gate.md) | 6 | 087 | Forced-password gate keys on a field `/me` never returns |
+| [TASK-092a](phase-7-frontend-core/TASK-092a-clinical-entries-completeness.md) | 7 | 092 | Single-file upload; attachments not listed; viewer link not module-gated; create drops time |
+| [TASK-095a](phase-7-frontend-core/TASK-095a-admin-accounts-completeness.md) | 7 | 095 | Delete dialog lacks ADR-0013 lost-code warning; no resend-activation control |
+| [TASK-096a](phase-7-frontend-core/TASK-096a-group-add-member.md) | 7 | 096 | Manual add-member UI missing (SR-014.3) |
 
 ## Out of scope (deferred)
 

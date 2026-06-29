@@ -73,4 +73,4 @@ apiClient.setGroupModuleEnabled(groupId, moduleKey, enabled);  // PUT /groups/{i
 
 - **Verdict:** PARTIAL
 - Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
-- **Remediation:** TASK-070a. Unchecked acceptance-criteria / DoD items above reflect the gaps the audit found; this task stays **In Progress** until they are addressed.
+- **Remediation:** TASK-070a (module registry sync), **TASK-096a** (FE: manual add-member UI, SR-014.3). Unchecked items reflect the gaps the audit found; stays **In Progress** until addressed.
