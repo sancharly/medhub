@@ -63,6 +63,8 @@ class TestCreateAccount:
             resp = client.post(
                 "/api/v1/accounts",
                 json={"email": "doctor@example.com", "userType": "DOCTOR"},
+                cookies={"medhub_csrf": "tok"},
+                headers={"X-CSRF-Token": "tok"},
             )
 
         client.app.dependency_overrides = {}
@@ -74,13 +76,18 @@ class TestCreateAccount:
             "/api/v1/accounts",
             json={"email": "doctor@example.com", "userType": "DOCTOR"},
         )
-        assert resp.status_code == 401
+        assert resp.status_code == 403
 
     def test_create_account_missing_email_returns_error(self, client):
         actor = _make_account(UserType.SYSADMIN)
         _auth_as(client, actor)
 
-        resp = client.post("/api/v1/accounts", json={"userType": "DOCTOR"})
+        resp = client.post(
+            "/api/v1/accounts",
+            json={"userType": "DOCTOR"},
+            cookies={"medhub_csrf": "tok"},
+            headers={"X-CSRF-Token": "tok"},
+        )
 
         client.app.dependency_overrides = {}
         assert resp.status_code in (400, 422)

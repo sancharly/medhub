@@ -4,7 +4,7 @@
 - **Implements / restores:** SR-031.3; remediates TASK-022, TASK-069 (and the CSRF gap in TASK-061/063/065/066)
 - **Depends on:** TASK-069 (merged)
 - **Branch:** `feature/csrf-enforcement`
-- **Status:** Not started
+- **Status:** In Progress
 - **Source:** `AUDIT-LEDGER.md` — TASK-069/022 verdict **FAIL**; `SMOKE-RESULTS.md` F3
 
 ## Objective
@@ -29,16 +29,28 @@ cannot be forgotten, and return the spec-mandated 403.
 
 ## Acceptance criteria
 
-- [ ] Every state-changing request without a valid CSRF token is rejected with **403 problem+json**, on
+- [x] Every state-changing request without a valid CSRF token is rejected with **403 problem+json**, on
   core routes **and** mounted module routes (structural/route-introspection test).
-- [ ] `POST /appointments`, `POST /accounts`, group/clinical/attachment mutations all require CSRF.
-- [ ] Public no-session flows (login, activation) are exempt and still work.
+- [x] `POST /appointments`, `POST /accounts`, group/clinical/attachment mutations all require CSRF.
+- [x] Public no-session flows (login, activation) are exempt and still work.
 - [ ] A new router added without extra wiring inherits CSRF protection (regression test).
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass
-- [ ] Unit + integration tests pass (incl. negative missing-token → 403 for each router and a module route)
-- [ ] OpenAPI regenerated; `X-CSRF-Token` header documented on state-changing ops (see TASK-068a)
+- [x] Lint + type-check pass
+- [x] Unit + integration tests pass (incl. negative missing-token → 403 for each router and a module route)
+- [x] OpenAPI regenerated; `X-CSRF-Token` header documented on state-changing ops (see TASK-068a)
 - [ ] Traceability row updated (SR-031.3 → TASK-069a → tests)
 - [ ] Security review completed (SR-031.6)
+
+## Implementation notes (2026-06-29)
+
+- `CsrfEnforcementMiddleware` added to `backend/app/core/security_middleware.py`
+- Registered in `create_app()` after `SecurityHeadersMiddleware`
+- `CsrfError` changed to extend `AuthorizationError` (403) instead of `UnauthenticatedError` (401)
+- Exempt paths: `/api/v1/auth/login`, `/api/v1/auth/password-reset`, `/api/v1/activation`,
+  `/api/v1/anonymized-data/` (ADR-0013 no-session retrieval), `/api/v1/healthz`, `/api/v1/openapi.json`, `/healthz`
+- `require_csrf` dependency kept on individual routers as defense-in-depth
+- All 447 tests pass; pre-existing "requires_auth" tests on POST/PUT/PATCH/DELETE routes updated to
+  expect 403 (middleware now enforces before auth) or given CSRF tokens where the test exercises
+  successful auth
