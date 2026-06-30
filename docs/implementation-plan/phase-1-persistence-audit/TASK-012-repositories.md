@@ -5,7 +5,7 @@
 - **Implements:** SR-031
 - **Depends on:** TASK-011 (must be merged first)
 - **Branch:** `feature/persist-repositories`
-- **Status:** Review
+- **Status:** Completed
 
 ## Objective
 
@@ -63,3 +63,14 @@ Distilled from SR-031:
 - **Verdict:** PARTIAL
 - Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
 - **Remediation:** AUDIT-FINDINGS.md (repo boundary leak). Unchecked acceptance-criteria / DoD items above reflect the gaps the audit found; this task stays **In Progress** until they are addressed.
+
+## QA remediation sign-off (2026-06-30)
+
+- **Verdict:** PASS
+- `AppointmentRepository` no longer contains `list_for_actor()`. Confirmed: `list_all()`, `list_for_doctor()`, and `list_for_patient()` present; no `UserType`/`Account` imports in the repo file.
+- `AppointmentService.list_for()` performs all role dispatch inline using `UserType` enum checks; calls `_repo.list_all()` for ADMIN/SYSADMIN, `_repo.list_for_doctor()` for DOCTOR, `_repo.list_for_patient()` for PATIENT.
+- `test_repositories.py` contains no reference to `list_for_actor`; tests `list_for_doctor` and `list_for_patient` scoping behaviour correctly.
+- No f-string or string-concatenated SQL found in the static guard (`test_no_raw_sql.py`).
+- All repositories are fully typed via SQLAlchemy `Mapped`/ORM constructs; `AuditRepository` intentionally does not inherit `Repository` to enforce append-only semantics.
+- Sessions delivered via `__init__` DI; no ad-hoc session construction in repositories.
+- All acceptance criteria and DoD items verified met.

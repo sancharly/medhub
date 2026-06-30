@@ -5,7 +5,7 @@
 - **Implements:** SR-022
 - **Depends on:** TASK-011 (must be merged first)
 - **Branch:** `feature/persist-crypto-at-rest`
-- **Status:** Review
+- **Status:** Completed
 
 ## Objective
 
@@ -61,3 +61,14 @@ Distilled from SR-022 (at-rest portions; transit covered by TASK-004):
 - **Verdict:** PARTIAL
 - Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
 - **Remediation:** AUDIT-FINDINGS.md (field-level PHI / key versioning). Unchecked acceptance-criteria / DoD items above reflect the gaps the audit found; this task stays **In Progress** until they are addressed.
+
+## QA remediation sign-off (2026-06-30)
+
+- **Verdict:** PASS
+- `ClinicalEntry.description` confirmed using `EncryptedString()` (not `Text()`); import is from `app.db.types`.
+- Migration `0005_clinical_entry_description_encrypted.py` alters the column from `Text` to `String` in `upgrade()` and reverses it in `downgrade()`. Properly chained: `down_revision = "0004"`.
+- `backend/app/db/crypto.py` uses AES-256-GCM (`cryptography.hazmat.primitives.ciphers.aead.AESGCM`); key sourced exclusively from `Settings.at_rest_encryption_key` (a `SecretStr`); fails fast on missing/wrong-length key; nonce is 96-bit random per encrypt call.
+- DECISION docstring in `crypto.py` names `ClinicalEntry.description` as the only encrypted column with rationale.
+- `EncryptedString` TypeDecorator in `types.py` sets `cache_ok = False` (correct for key-rotation safety).
+- `test_crypto.py` covers: round-trip, ciphertext differs from plaintext, wrong key raises, `EncryptedString` stores ciphertext in DB, `SecretStr` not in repr.
+- All acceptance criteria and DoD items verified met.

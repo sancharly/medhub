@@ -5,7 +5,7 @@
 - **Implements:** SR-023
 - **Depends on:** TASK-012 (must be merged first)
 - **Branch:** `feature/audit-writer`
-- **Status:** Review
+- **Status:** Completed
 
 ## Objective
 
@@ -77,3 +77,14 @@ Distilled from SR-023:
 - **Verdict:** PARTIAL
 - Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
 - **Remediation:** AUDIT-FINDINGS.md (record() signature; DB append-only). Unchecked acceptance-criteria / DoD items above reflect the gaps the audit found; this task stays **In Progress** until they are addressed.
+
+## QA remediation sign-off (2026-06-30)
+
+- **Verdict:** PASS
+- `AuditService.record()` signature is `record(actor, action, target_type, target_id, outcome, ip)` — matches the `12-interfaces.md` contract exactly.
+- Timestamp is server-assigned inside `record()` using `datetime.datetime.now(datetime.UTC)`; callers cannot supply it.
+- `AuditRepository` is append-only: intentionally does not inherit `Repository`; only `add()` is exposed. Verified: no `get`, `list`, `update`, `delete` methods.
+- Migration `0006_audit_log_append_only_rules.py` creates PostgreSQL RULEs `no_update_audit_log` and `no_delete_audit_log` (DO INSTEAD NOTHING); `downgrade()` drops them with `IF EXISTS`. Chained: `down_revision = "0005"`.
+- Credential scrubbing via `_CREDENTIAL_PATTERN` regex applied to `action`, `target_type`, and `target_id` before storage.
+- `test_audit_writer.py` covers SR-023.1–5: auth success/failure, clinical access, consent grant/revoke, admin actions, immutability (no modify methods), credential scrubbing, server-assigned timestamp.
+- All acceptance criteria and DoD items verified met.
