@@ -34,5 +34,5 @@ DELETE endpoint's "code will be emailed" response is false. Additionally `retrie
 
 - [x] Lint + type-check pass
 - [x] Tests prove email enqueued (not no-op), deadline→404, no-plaintext-code invariant
-- [ ] Traceability row updated (SR-024/SR-034 → TASK-035a → tests)
-- [ ] Security review completed
+- [x] Traceability row updated (SR-024/SR-034 → TASK-035a → tests)
+- [x] Security review completed

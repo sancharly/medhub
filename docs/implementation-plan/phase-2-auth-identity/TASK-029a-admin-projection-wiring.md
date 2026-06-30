@@ -32,5 +32,5 @@ non-clinical whitelist server-side where it matters.
 - [x] Lint + type-check pass
 - [x] Tests assert the projected shape per role (admin vs sysadmin vs doctor)
 - [x] OpenAPI regenerated if the admin response schema changes
-- [ ] Traceability row updated (SR-009 → TASK-029a → tests)
-- [ ] Security review completed
+- [x] Traceability row updated (SR-009 → TASK-029a → tests)
+- [x] Security review completed

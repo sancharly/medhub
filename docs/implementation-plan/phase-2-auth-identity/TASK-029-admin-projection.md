@@ -66,22 +66,22 @@ roles (doctors/patients use their own authorized views).
 
 Distilled from SR-009:
 
-- [ ] Admin can view at least name, family name, DOB of patients and doctors (AC-1).
-- [ ] Admin cannot retrieve clinical entries, attachments, or any clinical data (AC-2).
-- [ ] Every admin request for clinical data is denied server-side by the authorization mechanism (AC-3).
-- [ ] The projection is a server-side whitelist; new fields excluded by default.
+- [x] Admin can view at least name, family name, DOB of patients and doctors (AC-1).
+- [x] Admin cannot retrieve clinical entries, attachments, or any clinical data (AC-2).
+- [x] Every admin request for clinical data is denied server-side by the authorization mechanism (AC-3).
+- [x] The projection is a server-side whitelist; new fields excluded by default.
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass (`ruff`/`mypy`)
-- [ ] Unit (and required integration) tests pass; coverage target met
-- [ ] OpenAPI regenerated and re-linted (admin account views reflect the projected schema)
-- [ ] Audit events emitted for security-relevant actions (admin reads + clinical denials via TASK-027)
-- [ ] Traceability matrix row updated (SR-009 → TASK-029 → tests)
-- [ ] Security review completed (auth/session/authz task — SR-031.6)
+- [x] Lint + type-check pass (`ruff`/`mypy`)
+- [x] Unit (and required integration) tests pass; coverage target met
+- [x] OpenAPI regenerated and re-linted (admin account views reflect the projected schema)
+- [x] Audit events emitted for security-relevant actions (admin reads + clinical denials via TASK-027)
+- [x] Traceability matrix row updated (SR-009 → TASK-029 → tests)
+- [x] Security review completed (auth/session/authz task — SR-031.6)
 
 ## Audit verdict (2026-06-29)
 
-- **Verdict:** PARTIAL
+- **Verdict:** PARTIAL → PASS (remediated 2026-06-30)
 - Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
-- **Remediation:** TASK-029a. Unchecked acceptance-criteria / DoD items above reflect the gaps the audit found; this task stays **In Progress** until they are addressed.
+- **Remediation:** TASK-029a completed. `project_for_admin` is now called in `backend/app/api/routers/accounts.py` for both `list_accounts` and `get_account` when `actor.user_type == UserType.ADMIN`. `AdminAccountResponse`/`AdminAccountListResponse` schemas carry only the SR-009 whitelist fields. DOCTOR scope confirmed as `account:read` own only (not `account:list`). All AC and DoD items verified by QA 2026-06-30.

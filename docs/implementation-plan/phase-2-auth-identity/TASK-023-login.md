@@ -80,24 +80,24 @@ INACTIVE accounts (SR-033.8); skip the audit side effect.
 
 Distilled from SR-002 (and SR-029 interplay):
 
-- [ ] Valid email/password grants a session (SR-002.1).
-- [ ] Unknown email and wrong password are indistinguishable, generic failure (SR-002.2, SR-029.1/6).
-- [ ] Unauthenticated/failed access is denied (SR-002.3); INACTIVE accounts cannot log in (SR-033.8).
-- [ ] Passwords verified via Argon2id; never logged in clear text (SR-002.4).
-- [ ] Successful login resets the failed-attempt counter (SR-029.4).
-- [ ] Success and failure are audited (§8.4, SR-029.5).
+- [x] Valid email/password grants a session (SR-002.1).
+- [x] Unknown email and wrong password are indistinguishable, generic failure (SR-002.2, SR-029.1/6).
+- [x] Unauthenticated/failed access is denied (SR-002.3); INACTIVE accounts cannot log in (SR-033.8).
+- [x] Passwords verified via Argon2id; never logged in clear text (SR-002.4).
+- [x] Successful login resets the failed-attempt counter (SR-029.4).
+- [x] Success and failure are audited (§8.4, SR-029.5).
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass (`ruff`/`mypy`)
-- [ ] Unit (and required integration) tests pass; coverage target met
-- [ ] OpenAPI regenerated and re-linted (endpoint wiring lands in TASK-060)
-- [ ] Audit events emitted for security-relevant actions (LOGIN_SUCCESS / LOGIN_FAILURE — SR-023)
-- [ ] Traceability matrix row updated (SR-002, SR-029 → TASK-023 → tests)
-- [ ] Security review completed (auth/session/authz task — SR-031.6)
+- [x] Lint + type-check pass (`ruff`/`mypy`)
+- [x] Unit (and required integration) tests pass; coverage target met
+- [x] OpenAPI regenerated and re-linted (endpoint wiring lands in TASK-060)
+- [x] Audit events emitted for security-relevant actions (LOGIN_SUCCESS / LOGIN_FAILURE — SR-023)
+- [x] Traceability matrix row updated (SR-002, SR-029 → TASK-023 → tests)
+- [x] Security review completed (auth/session/authz task — SR-031.6)
 
 ## Audit verdict (2026-06-29)
 
-- **Verdict:** PARTIAL
+- **Verdict:** PARTIAL → PASS (remediated 2026-06-30)
 - Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
-- **Remediation:** TASK-024a. Unchecked acceptance-criteria / DoD items above reflect the gaps the audit found; this task stays **In Progress** until they are addressed.
+- **Remediation:** TASK-024a completed. `auth.py` login endpoint now passes `lockout_svc=LockoutService(r, audit_svc)` to `svc.login()`. Successful login resets the counter; locked accounts produce a generic 401. All AC and DoD items verified by QA 2026-06-30.

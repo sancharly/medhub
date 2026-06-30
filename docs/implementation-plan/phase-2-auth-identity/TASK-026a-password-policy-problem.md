@@ -32,5 +32,5 @@ password/confirm-password match the AC requires.
 - [x] Lint + type-check pass
 - [x] Tests cover activation policy-violation → 400 and mismatch → 400
 - [x] OpenAPI regenerated if the activation request schema changes
-- [ ] Traceability row updated (SR-025/SR-033 → TASK-026a → tests)
-- [ ] Security review completed
+- [x] Traceability row updated (SR-025/SR-033 → TASK-026a → tests)
+- [x] Security review completed

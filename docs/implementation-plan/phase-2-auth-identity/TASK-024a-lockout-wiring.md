@@ -36,5 +36,5 @@ wired login path. Wire it, and reconcile the two parallel counters (account-id k
 - [x] Lint + type-check pass
 - [x] **Integration** tests through `POST /auth/login` prove lock-after-N and reset (not unit-only)
 - [x] OpenAPI regenerated (unlock endpoint)
-- [ ] Traceability row updated (SR-029 → TASK-024a → tests)
-- [ ] Security review completed (SR-031.6)
+- [x] Traceability row updated (SR-029 → TASK-024a → tests)
+- [x] Security review completed (SR-031.6)

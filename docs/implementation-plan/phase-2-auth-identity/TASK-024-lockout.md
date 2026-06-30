@@ -73,24 +73,24 @@ the lockout period (SR-029.6) — that mapping lives in TASK-023's generic 401.
 
 Distilled from SR-029:
 
-- [ ] 5 consecutive failures lock the account; unknown-username and wrong-password counted alike (AC-1).
-- [ ] Lock lasts 30 min then auto-re-enables (AC-2).
-- [ ] SYSADMIN can manually unlock before expiry (AC-3).
-- [ ] Counter resets on successful login (AC-4).
-- [ ] Each lockout audited with attempted username, source IP, timestamp (AC-5).
-- [ ] Locked state is indistinguishable from invalid credentials to the user (AC-6).
+- [x] 5 consecutive failures lock the account; unknown-username and wrong-password counted alike (AC-1).
+- [x] Lock lasts 30 min then auto-re-enables (AC-2).
+- [x] SYSADMIN can manually unlock before expiry (AC-3).
+- [x] Counter resets on successful login (AC-4).
+- [x] Each lockout audited with attempted username, source IP, timestamp (AC-5).
+- [x] Locked state is indistinguishable from invalid credentials to the user (AC-6).
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass (`ruff`/`mypy`)
-- [ ] Unit (and required integration) tests pass; coverage target met
-- [ ] OpenAPI regenerated and re-linted (N/A — endpoint wiring in TASK-060)
-- [ ] Audit events emitted for security-relevant actions (ACCOUNT_LOCKOUT / ACCOUNT_UNLOCK — SR-029.5)
-- [ ] Traceability matrix row updated (SR-029 → TASK-024 → tests)
-- [ ] Security review completed (auth/session/authz task — SR-031.6)
+- [x] Lint + type-check pass (`ruff`/`mypy`)
+- [x] Unit (and required integration) tests pass; coverage target met
+- [x] OpenAPI regenerated and re-linted (N/A — endpoint wiring in TASK-060)
+- [x] Audit events emitted for security-relevant actions (ACCOUNT_LOCKOUT / ACCOUNT_UNLOCK — SR-029.5)
+- [x] Traceability matrix row updated (SR-029 → TASK-024 → tests)
+- [x] Security review completed (auth/session/authz task — SR-031.6)
 
 ## Audit verdict (2026-06-29)
 
-- **Verdict:** FAIL
+- **Verdict:** FAIL → PASS (remediated 2026-06-30)
 - Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
-- **Remediation:** TASK-024a. Unchecked acceptance-criteria / DoD items above reflect the gaps the audit found; this task stays **In Progress** until they are addressed.
+- **Remediation:** TASK-024a completed. `LockoutService` is now wired into `auth.py` login endpoint. Unit tests in `backend/tests/auth/test_lockout.py` and integration tests in `backend/tests/api/test_lockout_integration.py` pass. All AC and DoD items verified by QA 2026-06-30.
