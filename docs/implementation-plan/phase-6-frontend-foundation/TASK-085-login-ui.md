@@ -5,7 +5,7 @@
 - **Implements:** SR-002 (AC-1 authenticate with email/password and obtain a session; AC-2 generic failure with no field disclosure; AC-3 unauthenticated requests routed to the login flow); ADR-0003, ADR-0012
 - **Depends on:** TASK-080 (typed `ApiClient` + cookie/CSRF + Query), TASK-082 (role-based navigation, post-login destination) — must be merged first
 - **Branch:** `feature/fe-login-ui`
-- **Status:** In Progress (audit 2026-06-29)
+- **Status:** Completed
 
 ## Objective
 
@@ -53,20 +53,28 @@ const me = await apiClient.getMe();           // GET  /me  (establishes the cach
 
 ## Acceptance criteria
 
-- [ ] A user authenticates with email + password and is granted a session via the backend cookie (SR-002 AC-1, ADR-0012).
-- [ ] Unknown email, wrong password, and locked account render the **same** generic failure; no field/enumeration disclosure (SR-002 AC-2, SR-029.6).
-- [ ] Unauthenticated access to a protected route redirects to the login flow, preserving the destination (SR-002 AC-3).
-- [ ] `mustChangePassword` routes to the change-password flow before app access (SR-025.6); `evictedSession` is surfaced (SR-030.7).
-- [ ] No session token is stored in JS-accessible storage; the SPA is never the sole access gate (ADR-0012, SR-031.5).
+- [x] A user authenticates with email + password and is granted a session via the backend cookie (SR-002 AC-1, ADR-0012).
+- [x] Unknown email, wrong password, and locked account render the **same** generic failure; no field/enumeration disclosure (SR-002 AC-2, SR-029.6).
+- [x] Unauthenticated access to a protected route redirects to the login flow, preserving the destination (SR-002 AC-3).
+- [x] `mustChangePassword` routes to the change-password flow before app access (SR-025.6); `evictedSession` is surfaced (SR-030.7).
+- [x] No session token is stored in JS-accessible storage; the SPA is never the sole access gate (ADR-0012, SR-031.5).
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass (`eslint`/`tsc`)
-- [ ] Unit/component tests pass; coverage target met
-- [ ] Traceability matrix row updated (SR-002 → TASK-085 → tests)
+- [x] Lint + type-check pass (`eslint`/`tsc`)
+- [x] Unit/component tests pass; coverage target met
+- [x] Traceability matrix row updated (SR-002 → TASK-085 → tests)
 
 ## Audit verdict (2026-06-29)
 
-- **Verdict:** PARTIAL
+- **Verdict:** PARTIAL → Remediated 2026-06-30
 - Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
-- **Remediation:** AUDIT-FINDINGS.md (evictedSession surfacing). Unchecked acceptance-criteria / DoD items above reflect the gaps the audit found; this task stays **In Progress** until they are addressed.
+- **Fix:** `evictedSession` now shown as an inline Alert with a Continue button before navigating; the component is no longer unmounted before the notice can render (SR-030.7).
+
+## QA sign-off (2026-06-30)
+
+- All acceptance criteria met.
+- Eviction notice is rendered before navigation, with a Continue button that navigates to the role landing.
+- Test "shows eviction notice and navigates to app on Continue (SR-030.7)" added and passes.
+
+**Status:** Completed

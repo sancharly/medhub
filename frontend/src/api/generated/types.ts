@@ -34,3 +34,4 @@ export type Group = components["schemas"]["GroupResponse"];
 export type InstalledModule = components["schemas"]["ModuleResponse"];
 export type GroupMember = components["schemas"]["GroupMemberResponse"];
 export type PatientSummary = components["schemas"]["PatientSummaryResponse"];
+export type ActivationTokenStatus = components["schemas"]["ActivationTokenStatus"];

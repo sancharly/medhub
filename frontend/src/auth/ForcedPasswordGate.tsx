@@ -11,7 +11,7 @@ export function ForcedPasswordGate() {
     queryFn: () => apiClient.me(),
   });
 
-  const mustChangePassword = (me as Record<string, unknown> | undefined)?.mustChangePassword as boolean | undefined;
+  const mustChangePassword = me?.mustChangePassword ?? false;
 
   useEffect(() => {
     if (mustChangePassword && location.pathname !== "/password") {

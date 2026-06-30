@@ -12,6 +12,7 @@ import { theme } from "../core/theme/theme";
 const BASE = "http://localhost/api/v1";
 const TOKEN = "valid-token-abc";
 const EXPIRED = "expired-token-xyz";
+const ACCOUNT_ID = "00000000-0000-0000-0000-000000000001";
 
 function renderActivation(token: string) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } });
@@ -30,9 +31,11 @@ function renderActivation(token: string) {
 }
 
 describe("ActivationPage", () => {
-  it("valid token shows password form", async () => {
+  it("valid token shows password form (SR-033.2)", async () => {
     server.use(
-      http.get(`${BASE}/activation/${TOKEN}`, () => new HttpResponse(null, { status: 200 }))
+      http.get(`${BASE}/activation/${TOKEN}`, () =>
+        HttpResponse.json({ valid: true, accountId: ACCOUNT_ID })
+      )
     );
 
     renderActivation(TOKEN);
@@ -43,13 +46,10 @@ describe("ActivationPage", () => {
     expect(screen.getByLabelText(/confirm password/i)).toBeInTheDocument();
   });
 
-  it("expired/invalid token shows no-form message", async () => {
+  it("expired/invalid token shows no-form message (SR-033.2/7)", async () => {
     server.use(
       http.get(`${BASE}/activation/${EXPIRED}`, () =>
-        HttpResponse.json(
-          { type: "/errors/not-found", title: "Not Found", status: 404 },
-          { status: 404, headers: { "Content-Type": "application/problem+json" } }
-        )
+        HttpResponse.json({ valid: false })
       )
     );
 
@@ -61,9 +61,11 @@ describe("ActivationPage", () => {
     expect(screen.queryByLabelText(/password/i)).not.toBeInTheDocument();
   });
 
-  it("mismatched passwords shows non-disclosing message and disables submit", async () => {
+  it("mismatched passwords shows non-disclosing message and disables submit (SR-033.4)", async () => {
     server.use(
-      http.get(`${BASE}/activation/${TOKEN}`, () => new HttpResponse(null, { status: 200 }))
+      http.get(`${BASE}/activation/${TOKEN}`, () =>
+        HttpResponse.json({ valid: true, accountId: ACCOUNT_ID })
+      )
     );
 
     renderActivation(TOKEN);
@@ -80,9 +82,11 @@ describe("ActivationPage", () => {
     expect(screen.getByTestId("mismatch-error").textContent).not.toMatch(/password.*(too|weak|rule)/i);
   });
 
-  it("server 400 validation-error shows field-level message", async () => {
+  it("server 400 validation-error shows field-level message (SR-033.3)", async () => {
     server.use(
-      http.get(`${BASE}/activation/${TOKEN}`, () => new HttpResponse(null, { status: 200 })),
+      http.get(`${BASE}/activation/${TOKEN}`, () =>
+        HttpResponse.json({ valid: true, accountId: ACCOUNT_ID })
+      ),
       http.post(`${BASE}/activation/${TOKEN}`, () =>
         HttpResponse.json(
           {
@@ -109,9 +113,11 @@ describe("ActivationPage", () => {
     expect(screen.getByTestId("field-error").textContent).toMatch(/special/i);
   });
 
-  it("successful activation routes to /login without session", async () => {
+  it("successful activation routes to /login without session (SR-033.5/6)", async () => {
     server.use(
-      http.get(`${BASE}/activation/${TOKEN}`, () => new HttpResponse(null, { status: 200 })),
+      http.get(`${BASE}/activation/${TOKEN}`, () =>
+        HttpResponse.json({ valid: true, accountId: ACCOUNT_ID })
+      ),
       http.post(`${BASE}/activation/${TOKEN}`, () => new HttpResponse(null, { status: 204 }))
     );
 

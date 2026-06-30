@@ -22,6 +22,7 @@ function renderLogin() {
             <Route path="/appointments" element={<div>Appointments</div>} />
             <Route path="/patients" element={<div>Patients</div>} />
             <Route path="/admin/users" element={<div>Admin Users</div>} />
+            <Route path="/admin/accounts" element={<div>Admin Accounts</div>} />
             <Route path="/password" element={<div>Change Password</div>} />
           </Routes>
         </MemoryRouter>
@@ -118,6 +119,34 @@ describe("LoginPage", () => {
     await waitFor(() => {
       expect(screen.getByText("Change Password")).toBeInTheDocument();
     });
+  });
+
+  it("shows eviction notice and navigates to app on Continue (SR-030.7)", async () => {
+    server.use(
+      http.post(`${BASE}/auth/login`, () =>
+        HttpResponse.json({
+          user: patientUser,
+          mustChangePassword: false,
+          evictedSession: true,
+        })
+      )
+    );
+
+    renderLogin();
+    await userEvent.type(screen.getByLabelText(/email/i), "p@test.com");
+    await userEvent.type(screen.getByLabelText(/password/i), "pass");
+    await userEvent.click(screen.getByRole("button", { name: /sign in/i }));
+
+    await waitFor(() =>
+      expect(screen.getByText(/previous session was ended/i)).toBeInTheDocument()
+    );
+    expect(screen.queryByText("Appointments")).not.toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole("button", { name: /continue/i }));
+
+    await waitFor(() =>
+      expect(screen.getByText("Appointments")).toBeInTheDocument()
+    );
   });
 
   it("does not write tokens to localStorage or sessionStorage", async () => {

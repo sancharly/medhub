@@ -3230,6 +3230,11 @@
             "type": "string",
             "format": "date-time",
             "title": "Createdat"
+          },
+          "mustChangePassword": {
+            "type": "boolean",
+            "title": "Mustchangepassword",
+            "default": false
           }
         },
         "type": "object",

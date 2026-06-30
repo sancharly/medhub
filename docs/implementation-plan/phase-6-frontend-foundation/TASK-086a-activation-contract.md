@@ -4,7 +4,7 @@
 - **Implements / restores:** SR-033; remediates TASK-086
 - **Depends on:** TASK-086, TASK-061 (activation endpoints)
 - **Branch:** `feature/activation-contract`
-- **Status:** Not started
+- **Status:** Completed
 - **Source:** `AUDIT-LEDGER.md` — TASK-086 verdict **FAIL**
 
 ## Objective
@@ -22,13 +22,23 @@ password form is shown for invalid tokens; (2) the POST sends only `{password}` 
 
 ## Acceptance criteria
 
-- [ ] An invalid/expired token shows an error, not the password form.
-- [ ] A valid activation submits `accountId` + password and succeeds against the real backend.
-- [ ] Tests mock the real contract shapes (no fabricated 404).
+- [x] An invalid/expired token shows an error, not the password form.
+- [x] A valid activation submits `accountId` + password and succeeds against the real backend.
+- [x] Tests mock the real contract shapes (no fabricated 404).
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass; types regenerated/aligned
-- [ ] Component tests pass against contract-accurate mocks; verified end-to-end against the running backend
-- [ ] Traceability row updated (SR-033 → TASK-086a → tests)
-- [ ] Security review N/A
+- [x] Lint + type-check pass; types regenerated/aligned
+- [x] Component tests pass against contract-accurate mocks; verified end-to-end against the running backend
+- [x] Traceability row updated (SR-033 → TASK-086a → tests)
+- [x] Security review N/A
+
+## QA sign-off (2026-06-30)
+
+- `getActivation()` now returns `ActivationTokenStatus` (typed); form is gated on `status.valid === true`.
+- `activate()` now sends `{ accountId, password, confirmPassword }` per real backend contract.
+- `SetPasswordForm.onSubmit` signature updated to pass `confirmPassword`.
+- MSW mocks updated: valid token → `{ valid: true, accountId: "..." }`; invalid token → `{ valid: false }` (200, not 404).
+- All 5 activation tests pass.
+
+**Status:** Completed

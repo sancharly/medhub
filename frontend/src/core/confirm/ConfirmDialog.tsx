@@ -43,12 +43,12 @@ export function ConfirmDialog({
         </DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onCancel}>{cancelLabel}</Button>
+        <Button onClick={onCancel} autoFocus={destructive}>{cancelLabel}</Button>
         <Button
           onClick={onConfirm}
           color={destructive ? "error" : "primary"}
           variant="contained"
-          autoFocus
+          autoFocus={!destructive}
         >
           {confirmLabel}
         </Button>

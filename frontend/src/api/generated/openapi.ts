@@ -947,6 +947,11 @@ export interface components {
              * Format: date-time
              */
             createdAt: string;
+            /**
+             * Mustchangepassword
+             * @default false
+             */
+            mustChangePassword: boolean;
         };
         /** MeSummary */
         MeSummary: {

@@ -133,3 +133,12 @@ requirement→test column (TASK-114) must reflect these remediation tasks:
 | SR-031 | TASK-068a | `tests/api/test_openapi_contract.py` (TestOpenAPISecurityRequirements) |
 | SR-031 | TASK-069 | `tests/api/test_security_headers.py`, `tests/api/test_csrf_enforcement.py` |
 | SR-031.3 | TASK-069a | `tests/api/test_csrf_enforcement.py` |
+
+## Phase-6 frontend foundation task → test traceability (2026-06-30)
+
+| Requirement | Task | Key test file(s) |
+|-------------|------|------------------|
+| SR-027 | TASK-083 | `frontend/src/core/confirm/ConfirmDialog.test.tsx` |
+| SR-030.7 | TASK-085 | `frontend/src/auth/LoginPage.test.tsx` |
+| SR-033 | TASK-086a | `frontend/src/auth/ActivationPage.test.tsx` |
+| SR-025 | TASK-087a | `frontend/src/auth/ForcedPasswordGate.test.tsx` |

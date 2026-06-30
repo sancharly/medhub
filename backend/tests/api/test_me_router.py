@@ -25,6 +25,7 @@ def _make_account(user_type: UserType = UserType.DOCTOR) -> Account:
     acct.surname = "Doe"
     acct.date_of_birth = None
     acct.created_at = datetime.now(UTC)
+    acct.password_changed_at = None  # not expired; needed by PasswordService.is_expired
     return acct
 
 
