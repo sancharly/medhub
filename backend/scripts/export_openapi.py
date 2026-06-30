@@ -1,27 +1,26 @@
 #!/usr/bin/env python
-"""Export OpenAPI schema to backend/openapi/openapi.json (TASK-068)."""
+"""Thin shim — delegates to the canonical export module (TASK-068a).
+
+Usage (from backend/):
+    python scripts/export_openapi.py
+
+The canonical command referenced in CLAUDE.md is:
+    uv run python -m app.export_openapi --output openapi/openapi.json
+"""
 
 from __future__ import annotations
 
-import json
 import sys
 from pathlib import Path
 
-# Ensure the backend directory is on the path
-backend_dir = Path(__file__).parent.parent
-sys.path.insert(0, str(backend_dir))
+# Ensure backend/ is on sys.path when run as a script
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from app.main import create_app  # noqa: E402
-
-
-def main() -> None:
-    app = create_app()
-    schema = app.openapi()
-    output_path = backend_dir / "openapi" / "openapi.json"
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text(json.dumps(schema, indent=2))
-    print(f"OpenAPI schema written to {output_path}")
-
+from app.export_openapi import main  # noqa: E402
 
 if __name__ == "__main__":
+    # Default output when called as a script without --output
+    if "--output" not in sys.argv:
+        backend_dir = Path(__file__).parent.parent
+        sys.argv += ["--output", str(backend_dir / "openapi" / "openapi.json")]
     main()

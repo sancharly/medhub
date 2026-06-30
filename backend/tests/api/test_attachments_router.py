@@ -1,4 +1,4 @@
-"""Tests for attachment endpoints (TASK-066)."""
+"""Tests for attachment endpoints (TASK-066, TASK-066a)."""
 
 from __future__ import annotations
 
@@ -72,22 +72,42 @@ class TestUploadAttachment:
 
         resp = client.post(
             f"/api/v1/clinical-entries/{entry_id}/attachments",
-            content=b"PDF content",
-            headers={
-                "Content-Type": "application/pdf",
-                "X-Filename": "test.pdf",
-                "X-CSRF-Token": "tok",
-            },
+            files={"file": ("test.pdf", b"PDF content", "application/pdf")},
+            headers={"X-CSRF-Token": "tok"},
             cookies={"medhub_csrf": "tok"},
         )
 
         client.app.dependency_overrides = {}
         assert resp.status_code == 201
 
+    def test_upload_passes_filename_and_content_type(self, client):
+        """Router reads filename and content_type from the UploadFile."""
+        actor = _make_account(UserType.DOCTOR)
+        entry_id = uuid.uuid4()
+        att = _make_attachment()
+        _auth_as(client, actor)
+
+        mock_att_svc = MagicMock(spec=AttachmentService)
+        mock_att_svc.store.return_value = att
+        client.app.dependency_overrides[_get_attachment_service] = lambda: mock_att_svc
+
+        resp = client.post(
+            f"/api/v1/clinical-entries/{entry_id}/attachments",
+            files={"file": ("report.pdf", b"PDF content", "application/pdf")},
+            headers={"X-CSRF-Token": "tok"},
+            cookies={"medhub_csrf": "tok"},
+        )
+
+        client.app.dependency_overrides = {}
+        assert resp.status_code == 201
+        call_args = mock_att_svc.store.call_args
+        assert call_args[0][2] == "report.pdf"  # filename
+        assert call_args[0][3] == "application/pdf"  # content_type
+
     def test_upload_requires_auth(self, client):
         resp = client.post(
             f"/api/v1/clinical-entries/{uuid.uuid4()}/attachments",
-            content=b"data",
+            files={"file": ("test.pdf", b"data", "application/pdf")},
         )
         assert resp.status_code == 403
 
