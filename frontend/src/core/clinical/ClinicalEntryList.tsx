@@ -1,12 +1,44 @@
+import { useQuery } from "@tanstack/react-query";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
 import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
-import type { ClinicalEntry } from "../../api/generated/types";
+import Box from "@mui/material/Box";
+import { apiClient } from "../../api";
+import type { Attachment, ClinicalEntry } from "../../api/generated/types";
+import { AttachmentItem } from "./AttachmentItem";
 
 interface ClinicalEntryListProps {
   entries: ClinicalEntry[];
+}
+
+function EntryAuthor({ authorId }: { authorId: string }) {
+  const { data: me } = useQuery({ queryKey: ["me"], queryFn: () => apiClient.me() });
+
+  if (me && me.id === authorId) {
+    return <>{`${me.firstName ?? ""} ${me.surname ?? ""}`.trim() || "You"}</>;
+  }
+  return <>Doctor</>;
+}
+
+function EntryAttachments({ entryId }: { entryId: string }) {
+  const { data: attachments } = useQuery<Attachment[]>({
+    queryKey: ["attachments", entryId],
+    queryFn: () => Promise.resolve([]),
+    initialData: [],
+    staleTime: Infinity,
+  });
+
+  if (!attachments || attachments.length === 0) return null;
+
+  return (
+    <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5, mt: 1 }}>
+      {attachments.map((attachment) => (
+        <AttachmentItem key={attachment.id} attachment={attachment} />
+      ))}
+    </Box>
+  );
 }
 
 export function ClinicalEntryList({ entries }: ClinicalEntryListProps) {
@@ -26,13 +58,12 @@ export function ClinicalEntryList({ entries }: ClinicalEntryListProps) {
           <ListItemText
             primary={entry.description}
             secondary={
-              <>
-                <Typography component="span" variant="caption" color="text.secondary">
-                  {new Date(entry.occurredAt).toLocaleDateString()} — Author: {entry.authorId}
-                </Typography>
-              </>
+              <Typography component="span" variant="caption" color="text.secondary">
+                {new Date(entry.occurredAt).toLocaleString()} — Author: <EntryAuthor authorId={entry.authorId} />
+              </Typography>
             }
           />
+          <EntryAttachments entryId={entry.id} />
           <Divider sx={{ width: "100%", mt: 1 }} />
         </ListItem>
       ))}

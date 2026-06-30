@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
+import Alert from "@mui/material/Alert";
 import { apiClient } from "../../../api";
 import type { AccountSummary } from "../../../api/generated/types";
 import { DeleteConfirmDialog } from "./DeleteConfirmDialog";
@@ -33,6 +34,10 @@ export function LifecycleActions({ account, isSelf }: LifecycleActionsProps) {
     },
   });
 
+  const resendActivationMutation = useMutation({
+    mutationFn: () => apiClient.resendActivation(account.id),
+  });
+
   return (
     <Box sx={{ display: "flex", gap: 1 }}>
       {account.state === "ACTIVE" && (
@@ -56,6 +61,16 @@ export function LifecycleActions({ account, isSelf }: LifecycleActionsProps) {
           Reactivate
         </Button>
       )}
+      {account.state === "INACTIVE" && (
+        <Button
+          size="small"
+          variant="outlined"
+          onClick={() => resendActivationMutation.mutate()}
+          disabled={resendActivationMutation.isPending}
+        >
+          Resend activation
+        </Button>
+      )}
       {account.state !== "DELETED" && (
         <Button
           size="small"
@@ -72,6 +87,16 @@ export function LifecycleActions({ account, isSelf }: LifecycleActionsProps) {
           onConfirm={() => deleteMutation.mutate()}
           onCancel={() => setShowDeleteDialog(false)}
         />
+      )}
+      {resendActivationMutation.isSuccess && (
+        <Alert severity="success" sx={{ py: 0 }}>
+          Activation email resent.
+        </Alert>
+      )}
+      {resendActivationMutation.isError && (
+        <Alert severity="error" sx={{ py: 0 }}>
+          Failed to resend activation email.
+        </Alert>
       )}
     </Box>
   );

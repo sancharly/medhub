@@ -209,6 +209,60 @@ describe("AccountsPage", () => {
     expect(within(dialog).getByText(/unrecoverable/i)).toBeInTheDocument();
   });
 
+  it("ADR-0013: delete dialog states anonymization, retrieval-code, and email-release semantics", async () => {
+    server.use(
+      http.get(`${BASE}/accounts`, () => HttpResponse.json(accountsResponse))
+    );
+
+    renderPage(sysadminMe);
+
+    await waitFor(() => {
+      expect(screen.getByText(/Alice/)).toBeInTheDocument();
+    });
+
+    const deleteButtons = screen.getAllByRole("button", { name: /delete/i });
+    await userEvent.click(deleteButtons[0]);
+
+    await waitFor(() => {
+      expect(screen.getByRole("dialog")).toBeInTheDocument();
+    });
+
+    const dialog = screen.getByRole("dialog");
+    expect(within(dialog).getByText(/anonymiz/i)).toBeInTheDocument();
+    expect(within(dialog).getByText(/5 years/i)).toBeInTheDocument();
+    expect(within(dialog).getByText(/retrieval code/i)).toBeInTheDocument();
+    expect(within(dialog).getByText(/never stored/i)).toBeInTheDocument();
+    expect(within(dialog).getByText(/released/i)).toBeInTheDocument();
+  });
+
+  it("an admin can resend an activation email for an inactive account", async () => {
+    const resendSpy = vi.fn();
+
+    server.use(
+      http.get(`${BASE}/accounts`, () => HttpResponse.json(accountsResponse)),
+      http.post(`${BASE}/accounts/u2/resend-activation`, () => {
+        resendSpy();
+        return new HttpResponse(null, { status: 204 });
+      })
+    );
+
+    renderPage(sysadminMe);
+
+    await waitFor(() => {
+      expect(screen.getByText(/Bob/)).toBeInTheDocument();
+    });
+
+    await userEvent.click(screen.getByRole("button", { name: /resend activation/i }));
+
+    await waitFor(() => {
+      expect(resendSpy).toHaveBeenCalled();
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText(/activation email resent/i)).toBeInTheDocument();
+    });
+  });
+
   it("SR-027.2: cancelling delete dialog issues no request", async () => {
     const deleteSpy = vi.fn();
 

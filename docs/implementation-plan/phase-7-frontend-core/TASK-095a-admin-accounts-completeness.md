@@ -4,7 +4,7 @@
 - **Implements / restores:** SR-032, SR-034, ADR-0013; remediates TASK-095
 - **Depends on:** TASK-095, TASK-035a (erasure delivery)
 - **Branch:** `feature/admin-accounts-completeness`
-- **Status:** Not started
+- **Status:** Completed
 - **Source:** `AUDIT-LEDGER.md` — TASK-095 verdict **PARTIAL** (phase-7 QA, confirmed)
 
 ## Objective
@@ -25,11 +25,19 @@ Two acceptance criteria are unmet in the admin accounts view:
 
 ## Acceptance criteria
 
-- [ ] The delete confirmation states the ADR-0013 anonymization + retrieval-code + email-release behavior.
-- [ ] An admin can resend an activation email for an inactive account from the UI.
+- [x] The delete confirmation states the ADR-0013 anonymization + retrieval-code + email-release behavior.
+- [x] An admin can resend an activation email for an inactive account from the UI.
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass
-- [ ] Component tests assert the delete-warning content and the resend-activation call
-- [ ] Traceability row updated (SR-032/SR-034 → TASK-095a → tests)
+- [x] Lint + type-check pass
+- [x] Component tests assert the delete-warning content and the resend-activation call — `AccountsPage.test.tsx`
+- [x] Traceability row updated (SR-032/SR-034 → TASK-095a → tests)
+
+## Implementation notes (2026-06-30)
+
+- `DeleteConfirmDialog.tsx`: replaced the generic "unrecoverable" copy with ADR-0013-specific language —
+  anonymization into a 5-year-retained dataset, a one-time retrieval code emailed to the user that is
+  never stored by the system, and release of the email address for reuse.
+- `LifecycleActions.tsx`: added a "Resend activation" button shown for `INACTIVE` accounts, wired to
+  `apiClient.resendActivation(id)`, with a success/error `Alert` after the mutation settles.

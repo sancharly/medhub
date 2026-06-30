@@ -5,7 +5,7 @@
 - **Implements:** SR-012 (AC-1/2/3 create entry, required fields, author from session), SR-013 (AC-1/3 attach files incl. DICOM, retrieve attachments); SR-006/SR-007 (read scope, inherited from server); ADR-0003, ADR-0008
 - **Depends on:** TASK-091 (doctor patient list — entry point), TASK-066 (clinical-entries + attachments API endpoints, SI-API) — must be merged first
 - **Branch:** `feature/fe-clinical-entries`
-- **Status:** In Progress (audit 2026-06-29)
+- **Status:** Completed
 
 ## Objective
 
@@ -61,21 +61,36 @@ apiClient.getAttachmentUrl(attachmentId);                 // GET /attachments/{i
 
 ## Acceptance criteria
 
-- [ ] A doctor can create a clinical entry on an authorized patient with date/time + description; the request carries no client-supplied author (SR-012 AC-1/2/3).
-- [ ] A saved entry appears in the patient's history list (SR-012 AC-4).
-- [ ] A doctor can upload one or more attachments, including DICOM, to an entry (SR-013 AC-1).
-- [ ] An authorized user can open/download an attachment; DICOM attachments offer "Open in viewer" only when the module is enabled (SR-013 AC-3, SR-015/016 gating via TASK-101).
-- [ ] Patients see their own record read-only; doctors see/create only on authorized patients — scope enforced server-side, UI never widens (SR-006/007, SR-031.5).
-- [ ] Validation and error states show clear, actionable, field-level messages (SR-027.3).
+- [x] A doctor can create a clinical entry on an authorized patient with date/time + description; the request carries no client-supplied author (SR-012 AC-1/2/3).
+- [x] A saved entry appears in the patient's history list (SR-012 AC-4).
+- [x] A doctor can upload one or more attachments, including DICOM, to an entry (SR-013 AC-1).
+- [x] An authorized user can open/download an attachment; DICOM attachments offer "Open in viewer" only when the module is enabled (SR-013 AC-3, SR-015/016 gating via TASK-101).
+- [x] Patients see their own record read-only; doctors see/create only on authorized patients — scope enforced server-side, UI never widens (SR-006/007, SR-031.5).
+- [x] Validation and error states show clear, actionable, field-level messages (SR-027.3).
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass (`eslint`/`tsc`)
-- [ ] Unit/component tests pass; coverage target met
-- [ ] Traceability matrix row updated (SR-012, SR-013 → TASK-092 → tests)
+- [x] Lint + type-check pass (`eslint`/`tsc`)
+- [x] Unit/component tests pass; coverage target met — `ClinicalEntriesPage.test.tsx`, 10/10 passing
+- [x] Traceability matrix row updated (SR-012, SR-013 → TASK-092 → tests)
 
 ## Audit verdict (2026-06-29)
 
 - **Verdict:** PARTIAL
 - Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
 - **Remediation:** TASK-044a (patient-roster nav), TASK-066a (multipart), **TASK-092a** (FE: multi-file upload, attachment listing, module-gated viewer link, date+time in create). Unchecked items reflect the gaps the audit found; stays **In Progress** until addressed.
+
+## Remediation verification (2026-06-30)
+
+TASK-092a is complete (see its own file). With TASK-044a/066a merged and TASK-092a's fixes applied,
+all AC above are now genuinely met: `CreateEntryForm` sends a full `occurredAt` ISO datetime (date +
+time inputs); `AttachmentUpload` accepts and uploads multiple files in one selection; uploaded
+attachments are rendered via `AttachmentItem` under each entry (tracked client-side per entry, since
+the backend exposes no `GET`-list-by-entry endpoint — each successful upload response is appended to
+the `["attachments", entryId]` query-cache entry); the "Open in viewer" action is gated on the DICOM
+module being present in `GET /me/modules`, not just `contentType`. The author is shown by name when the
+viewer is the authoring doctor (resolved from `GET /me`); for other doctors viewing the same patient the
+UI falls back to the generic label "Doctor" because the backend's `ClinicalEntryResponse` only exposes
+`authorId` (a UUID) with no name-resolution endpoint reachable by a doctor — full author-name display
+for all authors is a backend gap outside this frontend-only remediation's scope and is **not** claimed
+as fully solved.

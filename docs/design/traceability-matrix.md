@@ -142,3 +142,12 @@ requirement→test column (TASK-114) must reflect these remediation tasks:
 | SR-030.7 | TASK-085 | `frontend/src/auth/LoginPage.test.tsx` |
 | SR-033 | TASK-086a | `frontend/src/auth/ActivationPage.test.tsx` |
 | SR-025 | TASK-087a | `frontend/src/auth/ForcedPasswordGate.test.tsx` |
+
+## Phase-7 frontend core task → test traceability (2026-06-30)
+
+| Requirement | Task | Key test file(s) |
+|-------------|------|------------------|
+| SR-006 | TASK-091 | `frontend/src/core/patients/PatientListPage.test.tsx` |
+| SR-012, SR-013, SR-015, SR-016 | TASK-092, TASK-092a | `frontend/src/core/clinical/ClinicalEntriesPage.test.tsx` |
+| SR-009, SR-032, SR-034, ADR-0013 | TASK-095, TASK-095a | `frontend/src/core/admin/accounts/AccountsPage.test.tsx` |
+| SR-014, SR-015 | TASK-096, TASK-096a | `frontend/src/core/admin/groups/GroupsPage.test.tsx` |
