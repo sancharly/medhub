@@ -1116,23 +1116,7 @@
               }
             }
           }
-        },
-        "security": [
-          {
-            "cookieAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "X-CSRF-Token",
-            "in": "header",
-            "required": true,
-            "description": "CSRF token \u2014 must match the `medhub_csrf` cookie value.",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ]
+        }
       }
     },
     "/api/v1/groups": {

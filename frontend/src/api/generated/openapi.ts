@@ -1813,10 +1813,7 @@ export interface operations {
     retrieve_anonymized_data_api_v1_anonymized_data_retrieve_post: {
         parameters: {
             query?: never;
-            header: {
-                /** @description CSRF token — must match the `medhub_csrf` cookie value. */
-                "X-CSRF-Token": string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };

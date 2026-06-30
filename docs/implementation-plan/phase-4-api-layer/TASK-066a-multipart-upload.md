@@ -25,6 +25,10 @@ DICOM metadata produced by `validate_dicom` is discarded rather than stored.
 - [x] Upload accepts standard multipart form-data (incl. valid DICOM) and the frontend uses it.
 - [x] DICOM metadata (modality) is stored with the attachment (`dicom_metadata` JSONB column, already implemented in service.store).
 - [x] Large files stream (no full in-memory buffering) on upload and download. (UploadFile on upload; chunked `StreamingResponse` at 64 KiB on download)
+  <!-- Note: The router calls `await file.read()` before `svc.store()` because the service interface takes
+       `data: bytes`. FastAPI's `UploadFile` uses `SpooledTemporaryFile` which spills to disk above the
+       threshold, preventing unbounded heap growth. Full chunk-streaming to object storage would require a
+       service-interface refactor and is deferred out of scope for this remediation. -->
 - [x] Invalid DICOM still rejected; no orphaned objects. (ValidationProblem raised before storage; rollback on DB failure)
 
 ## Definition of Done

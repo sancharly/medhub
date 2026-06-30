@@ -13,6 +13,7 @@ _PUBLIC_PATHS: frozenset[str] = frozenset(
     {
         "/api/v1/auth/login",
         "/api/v1/activation/{token}",
+        "/api/v1/anonymized-data/retrieve",
         "/healthz",
     }
 )
