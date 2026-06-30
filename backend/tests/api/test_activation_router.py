@@ -80,10 +80,35 @@ class TestActivateAccount:
         with patch("app.identity.activation.ActivationService.activate", return_value=MagicMock()):
             resp = client.post(
                 "/api/v1/activation/valid-token",
-                json={"accountId": str(account_id), "password": "NewPassword123!"},
+                json={
+                    "accountId": str(account_id),
+                    "password": "NewPassword123!",
+                    "confirmPassword": "NewPassword123!",
+                },
             )
 
         assert resp.status_code == 204
+
+    def test_activate_password_mismatch_returns_400(self, client):
+        account_id = uuid.uuid4()
+        resp = client.post(
+            "/api/v1/activation/valid-token",
+            json={
+                "accountId": str(account_id),
+                "password": "NewPassword123!",
+                "confirmPassword": "DifferentPassword!",
+            },
+        )
+        assert resp.status_code == 400
+        assert resp.headers["content-type"].startswith("application/problem+json")
+
+    def test_activate_missing_confirm_password_returns_error(self, client):
+        account_id = uuid.uuid4()
+        resp = client.post(
+            "/api/v1/activation/valid-token",
+            json={"accountId": str(account_id), "password": "NewPassword123!"},
+        )
+        assert resp.status_code in (400, 422)
 
     def test_activate_invalid_token_returns_401(self, client):
         from app.api.errors import UnauthenticatedError
@@ -95,7 +120,11 @@ class TestActivateAccount:
         ):
             resp = client.post(
                 "/api/v1/activation/bad-token",
-                json={"accountId": str(account_id), "password": "NewPassword123!"},
+                json={
+                    "accountId": str(account_id),
+                    "password": "NewPassword123!",
+                    "confirmPassword": "NewPassword123!",
+                },
             )
 
         assert resp.status_code == 401

@@ -20,6 +20,7 @@ import uuid
 from argon2 import PasswordHasher
 from argon2.exceptions import InvalidHashError, VerificationError, VerifyMismatchError
 
+from app.api.errors import ProblemDetail, ValidationProblem
 from app.db.models.account import Account
 from app.db.models.password_history import PasswordHistory
 from app.db.repositories.password_history_repo import PasswordHistoryRepository
@@ -49,11 +50,22 @@ class PasswordPolicyViolation(enum.Enum):
     HISTORY_REUSE = "HISTORY_REUSE"
 
 
-class PasswordPolicyError(Exception):
-    """Raised when a password violates one or more policy rules."""
+class PasswordPolicyError(ValidationProblem):
+    """Raised when a password violates one or more policy rules. Returns HTTP 400."""
 
     def __init__(self, violations: list[PasswordPolicyViolation]) -> None:
-        super().__init__(f"Password policy violations: {[v.value for v in violations]}")
+        errors = [
+            ProblemDetail(
+                field="password",
+                rule=v.value,
+                message=v.value.replace("_", " ").capitalize(),
+            )
+            for v in violations
+        ]
+        super().__init__(
+            f"Password policy violations: {[v.value for v in violations]}",
+            errors=errors,
+        )
         self.violations = violations
 
 

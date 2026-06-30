@@ -20,6 +20,7 @@ from app.api.schemas.auth import (
 from app.audit.service import AuditService
 from app.auth.cookies import clear_session_cookie
 from app.auth.csrf import require_csrf
+from app.auth.lockout import LockoutService
 from app.auth.login import LoginFailure, LoginService
 from app.auth.password import PasswordPolicyError, PasswordService
 from app.auth.session import Session as UserSession
@@ -51,10 +52,13 @@ def login(
     response: Response,
     svc: LoginService = Depends(_get_login_service),
     db: Session = Depends(get_db),
+    r: redis_lib.Redis = Depends(get_redis),
 ) -> LoginResponse:
     """Authenticate; set session+CSRF cookies; return user summary."""
     ip = request.client.host if request.client else None
-    result = svc.login(body.email, body.password, ip, response)
+    audit_svc = AuditService(AuditRepository(db))
+    lockout_svc = LockoutService(r, audit_svc)
+    result = svc.login(body.email, body.password, ip, response, lockout_svc=lockout_svc)
 
     if isinstance(result, LoginFailure):
         raise UnauthenticatedError("Invalid credentials.")

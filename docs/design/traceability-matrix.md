@@ -111,3 +111,7 @@ requirement→test column (TASK-114) must reflect these remediation tasks:
 | SR-022            | No column used EncryptedString (PHI readable from DB dump)    | TASK-013 (**remediated** 2026-06-30) |
 | SR-023            | record() signature diverged from 12-interfaces contract; audit_log mutable at DB level | TASK-014 (**remediated** 2026-06-30) |
 | SR-031            | AppointmentRepository.list_for_actor() embedded role-based authorization logic | TASK-012 (**remediated** 2026-06-30) |
+| SR-029            | Lockout wired into login endpoint + admin unlock endpoint     | TASK-024a → `tests/api/test_lockout_integration.py` |
+| SR-025 / SR-033   | PasswordPolicyError→400; activation confirm_password check    | TASK-026a → `tests/api/test_activation_router.py` |
+| SR-009            | Admin non-clinical projection wired into account endpoints    | TASK-029a → `tests/api/test_accounts_router.py` |
+| SR-024 / SR-034   | Erasure code emailed; deadline enforced; ANONYMIZED_RETRIEVAL | TASK-035a → `tests/identity/test_erasure.py` |

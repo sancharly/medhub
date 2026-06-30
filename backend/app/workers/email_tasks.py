@@ -135,6 +135,48 @@ def send_activation_email(self: object, account_id: str, activation_token: str) 
     default_retry_delay=_RETRY_BACKOFF,
     autoretry_for=(Exception,),
     retry_backoff=True,
+    name="workers.send_erasure_code_email",
+)
+def send_erasure_code_email(self: object, recipient_email: str, retrieval_code: str) -> None:
+    """Email the anonymized-data retrieval code to the erased account's pre-erasure email.
+
+    The code is passed in-memory only; it is NEVER logged or stored.
+    """
+    settings = get_settings()
+    subject = "Your MedHub data retrieval code"
+    retrieve_url = settings.public_base_url + "/erasure/retrieve"
+    body = "\n".join(
+        [
+            "Your MedHub account has been erased per your request.",
+            "",
+            "Use the retrieval code below to access your anonymized dataset:",
+            "",
+            "  " + retrieval_code,
+            "",
+            "Go to " + retrieve_url + " to use this code.",
+            "This code is valid for 5 years.",
+        ]
+    )
+    notification = Notification(
+        channel=NotificationChannel.EMAIL,
+        recipient=recipient_email,
+        subject=subject,
+        body=body,
+    )
+    _send_smtp(notification)
+    notification.mark_sent()
+    logger.info(
+        "Erasure retrieval code email sent",
+        extra={"recipient": recipient_email, "ts": datetime.now(UTC).isoformat()},
+    )
+
+
+@shared_task(  # type: ignore[untyped-decorator]
+    bind=True,
+    max_retries=_MAX_RETRIES,
+    default_retry_delay=_RETRY_BACKOFF,
+    autoretry_for=(Exception,),
+    retry_backoff=True,
     name="workers.send_appointment_notification",
 )
 def send_appointment_notification(self: object, appointment_id: str) -> None:

@@ -192,3 +192,93 @@ def test_retrieve_anonymized_wrong_code_raises() -> None:
 
     with pytest.raises(UnauthenticatedError):
         svc.retrieve_anonymized("wrong-code")
+
+
+def test_retrieve_anonymized_expired_deadline_raises() -> None:
+    """retrieve_anonymized with expired retention_deadline raises NotFoundError."""
+    from app.api.errors import NotFoundError  # noqa: PLC0415
+
+    pw_svc = PasswordService()
+    raw_code = "valid-but-expired-code"
+    ds = AnonymizedDataset(
+        id=uuid.uuid4(),
+        code_hash=pw_svc.hash(raw_code),
+        payload={},
+        # Set deadline in the past
+        retention_deadline=datetime.now(UTC) - timedelta(days=1),
+    )
+    mock_dataset_repo = MagicMock()
+    mock_dataset_repo.list.return_value = [ds]
+
+    r = fakeredis.FakeRedis()
+    svc = ErasureService(MagicMock(), mock_dataset_repo, SessionService(r), pw_svc, MagicMock())
+
+    with pytest.raises(NotFoundError):
+        svc.retrieve_anonymized(raw_code)
+
+
+def test_erase_enqueues_email_with_pre_erasure_address() -> None:
+    """_erase enqueues send_erasure_code_email with the original email before severing PII."""
+    from unittest.mock import patch  # noqa: PLC0415
+
+    actor = _make_account(UserType.SYSADMIN)
+    target = _make_account(UserType.PATIENT)
+    target.email = "original@example.com"
+
+    svc = _build_svc(target)
+
+    with patch("app.workers.email_tasks.send_erasure_code_email") as mock_task:
+        result = svc.delete(actor, target.id)
+        mock_task.delay.assert_called_once()
+        recipient, code = mock_task.delay.call_args.args
+        assert recipient == "original@example.com"
+        assert code == result.retrieval_code
+        # The PII was severed — account email is now anonymized
+        assert "deleted.invalid" in target.email
+
+
+def test_erase_email_failure_does_not_raise() -> None:
+    """If enqueuing the email fails, the erasure still succeeds (best-effort)."""
+    from unittest.mock import patch  # noqa: PLC0415
+
+    actor = _make_account(UserType.SYSADMIN)
+    target = _make_account(UserType.PATIENT)
+    svc = _build_svc(target)
+
+    with patch(
+        "app.workers.email_tasks.send_erasure_code_email",
+        side_effect=Exception("Celery unavailable"),
+    ):
+        # Should not raise
+        result = svc.delete(actor, target.id)
+        assert result.retrieval_code is not None
+
+
+def test_retrieval_code_not_in_audit_log() -> None:
+    """The retrieval code must not appear in any audit record."""
+    actor = _make_account(UserType.SYSADMIN)
+    target = _make_account(UserType.PATIENT)
+    mock_repo = MagicMock()
+    mock_repo.get_by_id.return_value = target
+    mock_dataset_repo = MagicMock()
+
+    def fake_add(dataset):
+        dataset.id = uuid.uuid4()
+        return dataset
+
+    mock_dataset_repo.add.side_effect = fake_add
+
+    r = fakeredis.FakeRedis()
+    mock_audit = MagicMock()
+    svc = ErasureService(
+        mock_repo, mock_dataset_repo, SessionService(r), PasswordService(), mock_audit
+    )
+
+    from unittest.mock import patch  # noqa: PLC0415
+
+    with patch("app.workers.email_tasks.send_erasure_code_email"):
+        result = svc.delete(actor, target.id)
+
+    # Confirm the raw retrieval code never appears in any audit call
+    all_audit_calls = str(mock_audit.record.call_args_list)
+    assert result.retrieval_code not in all_audit_calls

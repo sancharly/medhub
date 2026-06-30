@@ -8,6 +8,7 @@ from datetime import UTC, datetime
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
+from app.api.errors import ValidationProblem
 from app.api.schemas.account import ActivationRequest, ActivationTokenStatus
 from app.audit.service import AuditService
 from app.auth.password import PasswordService
@@ -54,4 +55,6 @@ def activate_account(
     svc: ActivationService = Depends(_get_activation_service),
 ) -> None:
     """Activate an account with the provided token and password."""
+    if body.password != body.confirm_password:
+        raise ValidationProblem("Password and confirm password do not match.")
     svc.activate(body.account_id, token, body.password)

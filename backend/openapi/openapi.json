@@ -371,9 +371,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AccountListResponse"
-                }
+                "schema": {}
               }
             }
           },
@@ -414,9 +412,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AccountResponse"
-                }
+                "schema": {}
               }
             }
           },
@@ -547,6 +543,73 @@
                 }
               }
             }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/accounts/{account_id}/unlock": {
+      "post": {
+        "tags": [
+          "accounts"
+        ],
+        "summary": "Unlock Account",
+        "description": "SYSADMIN-only: clear lockout counters for an account.",
+        "operationId": "unlock_account_api_v1_accounts__account_id__unlock_post",
+        "parameters": [
+          {
+            "name": "account_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Account Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
           },
           "422": {
             "description": "Validation Error",
@@ -2095,37 +2158,6 @@
         ],
         "title": "AccountCreateRequest"
       },
-      "AccountListResponse": {
-        "properties": {
-          "items": {
-            "items": {
-              "$ref": "#/components/schemas/AccountResponse"
-            },
-            "type": "array",
-            "title": "Items"
-          },
-          "total": {
-            "type": "integer",
-            "title": "Total"
-          },
-          "page": {
-            "type": "integer",
-            "title": "Page"
-          },
-          "pageSize": {
-            "type": "integer",
-            "title": "Pagesize"
-          }
-        },
-        "type": "object",
-        "required": [
-          "items",
-          "total",
-          "page",
-          "pageSize"
-        ],
-        "title": "AccountListResponse"
-      },
       "AccountResponse": {
         "properties": {
           "id": {
@@ -2216,12 +2248,17 @@
           "password": {
             "type": "string",
             "title": "Password"
+          },
+          "confirmPassword": {
+            "type": "string",
+            "title": "Confirmpassword"
           }
         },
         "type": "object",
         "required": [
           "accountId",
-          "password"
+          "password",
+          "confirmPassword"
         ],
         "title": "ActivationRequest"
       },

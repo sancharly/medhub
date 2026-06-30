@@ -47,6 +47,27 @@ class AccountListResponse(_CamelModel):
     page_size: int
 
 
+class AdminAccountResponse(_CamelModel):
+    id: uuid.UUID
+    account_type: UserType
+    first_name: str | None
+    family_name: str | None
+    date_of_birth: date | None
+
+    model_config = ConfigDict(
+        alias_generator=to_camel,
+        populate_by_name=True,
+        from_attributes=True,
+    )
+
+
+class AdminAccountListResponse(_CamelModel):
+    items: list[AdminAccountResponse]
+    total: int
+    page: int
+    page_size: int
+
+
 class ActivationTokenStatus(_CamelModel):
     valid: bool
     account_id: uuid.UUID | None = None
@@ -55,3 +76,4 @@ class ActivationTokenStatus(_CamelModel):
 class ActivationRequest(_CamelModel):
     account_id: uuid.UUID
     password: str
+    confirm_password: str

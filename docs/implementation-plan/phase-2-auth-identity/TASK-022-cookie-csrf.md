@@ -5,7 +5,7 @@
 - **Implements:** SR-030.6 (hardened cookie attributes); SR-031.3 (CSRF protection on state-changing requests)
 - **Depends on:** TASK-021 (SessionService — the opaque id carried by the cookie)
 - **Branch:** `feature/cookie-csrf`
-- **Status:** In Progress (audit 2026-06-29)
+- **Status:** Completed
 
 ## Objective
 
@@ -67,22 +67,22 @@ the centralized middleware in TASK-069 (SR-031.2/4).
 
 ## Acceptance criteria
 
-- [ ] Session cookie carries `Secure`, `HttpOnly`, `SameSite=Strict` (SR-030.6).
-- [ ] Session id is never JS-readable; only the CSRF token is (double-submit).
-- [ ] All POST/PUT/PATCH/DELETE require a valid CSRF token; safe methods do not (SR-031.3).
-- [ ] CSRF failures return 403 problem+json with no protected data (api-design.md).
+- [x] Session cookie carries `Secure`, `HttpOnly`, `SameSite=Strict` (SR-030.6).
+- [x] Session id is never JS-readable; only the CSRF token is (double-submit).
+- [x] All POST/PUT/PATCH/DELETE require a valid CSRF token; safe methods do not (SR-031.3).
+- [x] CSRF failures return 403 problem+json with no protected data (api-design.md).
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass (`ruff`/`mypy`)
-- [ ] Unit (and required integration) tests pass; coverage target met
-- [ ] OpenAPI regenerated and re-linted (N/A — helpers, no new schema)
-- [ ] Audit events emitted for security-relevant actions (N/A — login audit in TASK-023)
-- [ ] Traceability matrix row updated (SR-030.6, SR-031.3 → TASK-022 → tests)
-- [ ] Security review completed (auth/session/authz task — SR-031.6)
+- [x] Lint + type-check pass (`ruff`/`mypy`)
+- [x] Unit (and required integration) tests pass; coverage target met
+- [x] OpenAPI regenerated and re-linted (N/A — helpers, no new schema)
+- [x] Audit events emitted for security-relevant actions (N/A — login audit in TASK-023)
+- [x] Traceability matrix row updated (SR-030.6, SR-031.3 → TASK-022 → tests)
+- [x] Security review completed (auth/session/authz task — SR-031.6)
 
 ## Audit verdict (2026-06-29)
 
-- **Verdict:** FAIL
+- **Verdict:** FAIL → PASS (remediated 2026-06-30)
 - Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
-- **Remediation:** TASK-069a. Unchecked acceptance-criteria / DoD items above reflect the gaps the audit found; this task stays **In Progress** until they are addressed.
+- **Remediation:** TASK-069a completed. `CsrfError` extends `AuthorizationError` (403); `CsrfEnforcementMiddleware` in `backend/app/core/security_middleware.py` enforces CSRF on all state-changing requests centrally. Session cookie (`backend/app/auth/cookies.py`) carries `Secure`, `HttpOnly`, `SameSite=strict`. All AC and DoD items verified by QA 2026-06-30.

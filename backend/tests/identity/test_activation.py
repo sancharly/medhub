@@ -186,6 +186,18 @@ def test_resend_activation_enqueues_email() -> None:
         assert token_arg  # raw token must be non-empty
 
 
+def test_password_policy_error_is_400() -> None:
+    """PasswordPolicyError extends ValidationProblem so it produces HTTP 400."""
+    from app.api.errors import ValidationProblem  # noqa: PLC0415
+    from app.auth.password import PasswordPolicyError, PasswordPolicyViolation  # noqa: PLC0415
+
+    err = PasswordPolicyError([PasswordPolicyViolation.TOO_SHORT])
+    assert isinstance(err, ValidationProblem)
+    assert err.status == 400
+    assert len(err.errors) == 1
+    assert err.errors[0].field == "password"
+
+
 def test_resend_activation_invalidates_old_token() -> None:
     acct = _make_inactive_account()
     first_raw = issue_activation_token(acct)

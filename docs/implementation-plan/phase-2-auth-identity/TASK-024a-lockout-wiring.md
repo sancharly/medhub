@@ -4,7 +4,7 @@
 - **Implements / restores:** SR-029; remediates TASK-024, TASK-023
 - **Depends on:** TASK-024 (LockoutService), TASK-023 (LoginService)
 - **Branch:** `feature/lockout-wiring`
-- **Status:** Not started
+- **Status:** Completed
 - **Source:** `AUDIT-LEDGER.md` — TASK-024 verdict **FAIL**
 
 ## Objective
@@ -25,16 +25,16 @@ wired login path. Wire it, and reconcile the two parallel counters (account-id k
 
 ## Acceptance criteria
 
-- [ ] After N failed attempts the account is locked and subsequent correct credentials are rejected
+- [x] After N failed attempts the account is locked and subsequent correct credentials are rejected
   until the window elapses / admin unlock (SR-029) — verified through the **wired login endpoint**.
-- [ ] A successful login resets the counter.
-- [ ] Admin unlock endpoint exists, is SYSADMIN-only, and is audited.
-- [ ] Lockout events are audited; responses are generic (no enumeration).
+- [x] A successful login resets the counter.
+- [x] Admin unlock endpoint exists, is SYSADMIN-only, and is audited.
+- [x] Lockout events are audited; responses are generic (no enumeration).
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass
-- [ ] **Integration** tests through `POST /auth/login` prove lock-after-N and reset (not unit-only)
-- [ ] OpenAPI regenerated (unlock endpoint)
-- [ ] Traceability row updated (SR-029 → TASK-024a → tests)
-- [ ] Security review completed (SR-031.6)
+- [x] Lint + type-check pass
+- [x] **Integration** tests through `POST /auth/login` prove lock-after-N and reset (not unit-only)
+- [x] OpenAPI regenerated (unlock endpoint)
+- [x] Traceability row updated (SR-029 → TASK-024a → tests)
+- [x] Security review completed (SR-031.6)
