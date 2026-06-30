@@ -156,13 +156,19 @@ class AppointmentService:
         return appointment
 
     def list_for(self, actor: Account) -> list[Appointment]:
-        """List appointments visible to the actor (scoped at repo level)."""
+        """List appointments visible to the actor."""
         self._authz_svc.authorize(
             actor,
             "appointment:list",
             Resource(resource_type="appointment", owner_id=None, patient_id=None),
         )
-        return self._repo.list_for_actor(actor)
+        if actor.user_type in (UserType.ADMIN, UserType.SYSADMIN):
+            return self._repo.list_all()
+        if actor.user_type == UserType.DOCTOR:
+            return self._repo.list_for_doctor(actor.id)
+        if actor.user_type == UserType.PATIENT:
+            return self._repo.list_for_patient(actor.id)
+        return []
 
     def get(self, actor: Account, appointment_id: uuid.UUID) -> Appointment:
         """Get a single appointment. Returns NotFoundError if not visible (SR-011 AC-4)."""

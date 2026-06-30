@@ -108,3 +108,6 @@ requirement→test column (TASK-114) must reflect these remediation tasks:
 | SR-025 / SR-033   | Forced-password gate inert; activation contract + policy-400  | TASK-087a, TASK-086a, TASK-026a |
 | SR-014            | Group-name uniqueness not DB-enforced                         | TASK-040a                       |
 | SR-035            | Email failure suppresses in-app notification                  | TASK-050a                       |
+| SR-022            | No column used EncryptedString (PHI readable from DB dump)    | TASK-013 (**remediated** 2026-06-30) |
+| SR-023            | record() signature diverged from 12-interfaces contract; audit_log mutable at DB level | TASK-014 (**remediated** 2026-06-30) |
+| SR-031            | AppointmentRepository.list_for_actor() embedded role-based authorization logic | TASK-012 (**remediated** 2026-06-30) |

@@ -5,7 +5,7 @@
 - **Implements:** SR-031
 - **Depends on:** TASK-011 (must be merged first)
 - **Branch:** `feature/persist-repositories`
-- **Status:** In Progress (audit 2026-06-29)
+- **Status:** Completed
 
 ## Objective
 
@@ -43,23 +43,34 @@ Provide typed repository classes that are the **only** way other items read/writ
 
 Distilled from SR-031:
 
-- [ ] All entity persistence goes through typed repositories using SQLAlchemy ORM/parameterized queries; no string-concatenated SQL anywhere in the codebase (SR-031.1).
-- [ ] Repository methods are fully typed and pass `mypy --strict`.
-- [ ] Adversarial input to lookup methods cannot alter query logic (parameterization verified by test).
-- [ ] Repositories contain no authorization, business, or audit logic (clean persistence boundary).
-- [ ] Sessions/transactions are request-scoped via a DI provider; only SI-PERSIST opens DB sessions for core entities (rule 12.3.3).
+- [x] All entity persistence goes through typed repositories using SQLAlchemy ORM/parameterized queries; no string-concatenated SQL anywhere in the codebase (SR-031.1).
+- [x] Repository methods are fully typed and pass `mypy --strict`.
+- [x] Adversarial input to lookup methods cannot alter query logic (parameterization verified by test).
+- [x] Repositories contain no authorization, business, or audit logic (clean persistence boundary).
+- [x] Sessions/transactions are request-scoped via a DI provider; only SI-PERSIST opens DB sessions for core entities (rule 12.3.3).
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass (`ruff`/`mypy --strict`)
-- [ ] Unit/integration tests pass; coverage target met; no-raw-SQL guard green
-- [ ] OpenAPI regenerated and re-linted (N/A)
-- [ ] Audit events emitted for security-relevant actions (N/A — persistence layer; audit writer is TASK-014)
-- [ ] Traceability matrix row updated (SR-031 → TASK-012 → repository/no-raw-SQL tests)
-- [ ] Security review completed (N/A here; the auth/session SR-031.6 review gate applies to later auth tasks)
+- [x] Lint + type-check pass (`ruff`/`mypy --strict`)
+- [x] Unit/integration tests pass; coverage target met; no-raw-SQL guard green
+- [x] OpenAPI regenerated and re-linted (N/A)
+- [x] Audit events emitted for security-relevant actions (N/A — persistence layer; audit writer is TASK-014)
+- [x] Traceability matrix row updated (SR-031 → TASK-012 → repository/no-raw-SQL tests)
+- [x] Security review completed (N/A here; the auth/session SR-031.6 review gate applies to later auth tasks)
 
 ## Audit verdict (2026-06-29)
 
 - **Verdict:** PARTIAL
 - Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
 - **Remediation:** AUDIT-FINDINGS.md (repo boundary leak). Unchecked acceptance-criteria / DoD items above reflect the gaps the audit found; this task stays **In Progress** until they are addressed.
+
+## QA remediation sign-off (2026-06-30)
+
+- **Verdict:** PASS
+- `AppointmentRepository` no longer contains `list_for_actor()`. Confirmed: `list_all()`, `list_for_doctor()`, and `list_for_patient()` present; no `UserType`/`Account` imports in the repo file.
+- `AppointmentService.list_for()` performs all role dispatch inline using `UserType` enum checks; calls `_repo.list_all()` for ADMIN/SYSADMIN, `_repo.list_for_doctor()` for DOCTOR, `_repo.list_for_patient()` for PATIENT.
+- `test_repositories.py` contains no reference to `list_for_actor`; tests `list_for_doctor` and `list_for_patient` scoping behaviour correctly.
+- No f-string or string-concatenated SQL found in the static guard (`test_no_raw_sql.py`).
+- All repositories are fully typed via SQLAlchemy `Mapped`/ORM constructs; `AuditRepository` intentionally does not inherit `Repository` to enforce append-only semantics.
+- Sessions delivered via `__init__` DI; no ad-hoc session construction in repositories.
+- All acceptance criteria and DoD items verified met.

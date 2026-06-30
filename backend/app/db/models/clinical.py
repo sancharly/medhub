@@ -3,10 +3,11 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import DateTime, ForeignKey, Text
+from sqlalchemy import DateTime, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.models.base import Base, TimestampMixin, UUIDMixin
+from app.db.types import EncryptedString
 
 
 class ClinicalEntry(UUIDMixin, TimestampMixin, Base):
@@ -19,4 +20,4 @@ class ClinicalEntry(UUIDMixin, TimestampMixin, Base):
         ForeignKey("account.id", name="fk_clinical_entry_author_doctor_id"), nullable=False
     )
     occurred_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
-    description: Mapped[str] = mapped_column(Text(), nullable=False)
+    description: Mapped[str] = mapped_column(EncryptedString(), nullable=False)
