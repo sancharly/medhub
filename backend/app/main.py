@@ -30,12 +30,33 @@ async def _lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         },
     )
 
-    # Module discovery and registration
+    # Module discovery, registry sync, and registration
+    from app.audit.service import AuditService  # noqa: PLC0415
+    from app.db.repositories.audit_repo import AuditRepository  # noqa: PLC0415
+    from app.db.repositories.module_repo import ModuleRepository  # noqa: PLC0415
+    from app.db.repositories.session import get_engine, get_session_factory  # noqa: PLC0415
     from app.modules.discovery import discover_modules  # noqa: PLC0415
     from app.modules.host import register_all_modules  # noqa: PLC0415
+    from app.modules.registry_service import ModuleRegistryService  # noqa: PLC0415
 
     manifests = discover_modules()
     if manifests:
+        _engine = get_engine()
+        _SessionLocal = get_session_factory(_engine)
+        _db = _SessionLocal()
+        try:
+            _registry_svc = ModuleRegistryService(
+                ModuleRepository(_db),
+                AuditService(AuditRepository(_db)),
+            )
+            _registry_svc.sync_installed(manifests, _db)
+            _db.commit()
+        except Exception:
+            _db.rollback()
+            logger.exception("Module registry sync failed at startup — modules unreachable")
+            raise
+        finally:
+            _db.close()
         register_all_modules(app, manifests)
 
     yield

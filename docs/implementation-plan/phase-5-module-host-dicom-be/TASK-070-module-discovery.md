@@ -5,7 +5,7 @@
 - **Implements:** SR-016 (AC-1 add without modifying existing modules, AC-3 defined contract); ADR-0005
 - **Depends on:** TASK-042 (per-group module enablement — `ModuleRegistry` is the soft-ref target for enablement) — must be merged first
 - **Branch:** `feature/module-discovery`
-- **Status:** In Progress (audit 2026-06-29)
+- **Status:** Completed (fix/phase-5-audit 2026-06-30)
 
 ## Objective
 
@@ -57,24 +57,29 @@ class ModuleManifest:
 
 ## Acceptance criteria
 
-- [ ] Modules are discovered via `medhub.modules` Python entry points (ADR-0005).
-- [ ] Each module's `ModuleManifest` is loaded and validated against the §12.1 contract (SR-016 AC-3).
-- [ ] The installed set is persisted to `ModuleRegistry`; sync is idempotent (SR-016).
-- [ ] Adding a module requires only a new package + entry point — no edits to existing modules or core (SR-016 AC-1).
-- [ ] A malformed or failing module is isolated and not registered; the host stays up (ADR-0005).
-- [ ] Enablement (TASK-042) is pure data over the registry — no code change enables a module.
+- [x] Modules are discovered via `medhub.modules` Python entry points (ADR-0005).
+- [x] Each module's `ModuleManifest` is loaded and validated against the §12.1 contract (SR-016 AC-3).
+- [x] The installed set is persisted to `ModuleRegistry`; sync is idempotent (SR-016).
+- [x] Adding a module requires only a new package + entry point — no edits to existing modules or core (SR-016 AC-1).
+- [x] A malformed or failing module is isolated and not registered; the host stays up (ADR-0005).
+- [x] Enablement (TASK-042) is pure data over the registry — no code change enables a module.
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass (`ruff`/`mypy`)
-- [ ] Unit + integration tests pass; coverage target met
-- [ ] OpenAPI regenerated and re-linted (`GET /modules`)
-- [ ] Audit events emitted for security-relevant actions (registry sync, SR-023 AC-4)
-- [ ] Traceability matrix row updated (SR-016 → TASK-070 → tests)
-- [ ] Security review N/A (no auth/session/authz code; module isolation covered by tests)
+- [x] Lint + type-check pass (`ruff`/`mypy`)
+- [x] Unit + integration tests pass; coverage target met
+- [x] OpenAPI regenerated and re-linted (`GET /modules`)
+- [x] Audit events emitted for security-relevant actions (registry sync, SR-023 AC-4)
+- [x] Traceability matrix row updated (SR-016 → TASK-070 → tests)
+- [x] Security review N/A (no auth/session/authz code; module isolation covered by tests)
 
 ## Audit verdict (2026-06-29)
 
 - **Verdict:** PARTIAL
 - Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
-- **Remediation:** TASK-070a. Unchecked acceptance-criteria / DoD items above reflect the gaps the audit found; this task stays **In Progress** until they are addressed.
+- **Remediation:** TASK-070a. Unchecked acceptance-criteria / DoD items above reflect the gaps the audit found.
+
+## Fix verdict (2026-06-30)
+
+- **Verdict:** PASS
+- Remediation implemented in `fix/phase-5-audit`. `sync_installed` wired into lifespan (TASK-070a); `MODULE_DISCOVERED` audit event emitted per module; startup integration test added in `test_discovery.py::TestStartupSync`.

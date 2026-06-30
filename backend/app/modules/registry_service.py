@@ -33,6 +33,14 @@ class ModuleRegistryService:
                 discovered_at=now,
             )
             present_keys.append(manifest.module_key)
+            self._audit_svc.record(
+                actor=None,
+                action=AuditAction.MODULE_DISCOVERED,
+                target_type="module",
+                target_id=manifest.module_key,
+                outcome=AuditOutcome.SUCCESS,
+                ip=None,
+            )
 
         self._repo.remove_absent(present_keys)
 

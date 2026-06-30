@@ -124,9 +124,10 @@ class TestModuleRegistrySync:
 
         svc.sync_installed([_fake_manifest("m1")], db)
 
-        mock_audit.record.assert_called_once()
-        call_kwargs = mock_audit.record.call_args.kwargs
-        assert "MODULE_REGISTRY_SYNC" in call_kwargs.get("action", "")
+        # One MODULE_DISCOVERED per module + one MODULE_REGISTRY_SYNC at the end
+        assert mock_audit.record.call_count == 2
+        last_call_kwargs = mock_audit.record.call_args_list[-1].kwargs
+        assert "MODULE_REGISTRY_SYNC" in last_call_kwargs.get("action", "")
 
     def test_absent_module_is_removed(self) -> None:
         from app.modules.registry_service import ModuleRegistryService
@@ -180,3 +181,41 @@ class TestModulesEndpoint:
         assert "items" in data
         assert "total" in data
         client.app.dependency_overrides.clear()
+
+
+class TestStartupSync:
+    def test_lifespan_wires_sync_installed(self) -> None:
+        """sync_installed is called with discovered manifests during startup (TASK-070a)."""
+        from unittest.mock import MagicMock, patch
+
+        from fastapi.testclient import TestClient
+
+        from app.main import create_app
+
+        fake_manifest = _fake_manifest("dicom-viewer", "DICOM Viewer", "0.1.0", ["clinical:read"])
+        mock_session = MagicMock()
+        mock_session_factory = MagicMock(return_value=mock_session)
+
+        with (
+            patch(
+                "app.modules.discovery.importlib.metadata.entry_points",
+                return_value=[_fake_ep(fake_manifest)],
+            ),
+            patch(
+                "app.modules.registry_service.ModuleRegistryService.sync_installed"
+            ) as mock_sync,
+            patch("app.modules.host.register_all_modules"),
+            patch("app.db.repositories.session.get_engine", return_value=MagicMock()),
+            patch(
+                "app.db.repositories.session.get_session_factory",
+                return_value=mock_session_factory,
+            ),
+        ):
+            app = create_app()
+            with TestClient(app, raise_server_exceptions=True):
+                pass  # startup lifespan runs on context-manager enter
+
+        mock_sync.assert_called_once()
+        synced_manifests = mock_sync.call_args[0][0]
+        assert len(synced_manifests) == 1
+        assert synced_manifests[0].module_key == "dicom-viewer"
