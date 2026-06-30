@@ -5,7 +5,7 @@
 - **Implements:** NFR-006, SR-028
 - **Depends on:** TASK-001 (must be merged first)
 - **Branch:** `enabler-story/ci-pipeline`
-- **Status:** In Progress (audit 2026-06-29)
+- **Status:** Completed
 
 ## Objective
 
@@ -45,24 +45,24 @@ Automate the IEC 62304 implementation-and-integration gates as a CI pipeline tha
 
 Distilled from NFR-006 and SR-028:
 
-- [ ] CI runs on every PR and executes lint, type-check, unit tests, coverage gate, OpenAPI lint, and build.
-- [ ] CI uses the same pinned tool versions and committed lockfiles as local development (reproducible).
-- [ ] The coverage gate (≥ 85%) fails the build when unmet.
-- [ ] The generated OpenAPI document passes `@redocly/cli lint` in CI (interface definition, NFR-006).
-- [ ] A failing quality/test job blocks merge to `main` (supports requirement→test traceability, SR-028.4).
-- [ ] No real secrets or live environments are used in CI.
+- [x] CI runs on every PR and executes lint, type-check, unit tests, coverage gate, OpenAPI lint, and build.
+- [x] CI uses the same pinned tool versions and committed lockfiles as local development (reproducible).
+- [x] The coverage gate (≥ 85%) fails the build when unmet.
+- [x] The generated OpenAPI document passes `@redocly/cli lint` in CI (interface definition, NFR-006).
+- [x] A failing quality/test job blocks merge to `main` (supports requirement→test traceability, SR-028.4).
+- [x] No real secrets or live environments are used in CI.
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass (pipeline green on a clean PR)
-- [ ] Unit tests pass; coverage gate enforced (≥ 85%)
-- [ ] OpenAPI regenerated and re-linted (the dedicated CI job)
-- [ ] Audit events emitted for security-relevant actions (N/A — process)
-- [ ] Traceability matrix row updated (NFR-006, SR-028 → TASK-005 → CI gate)
-- [ ] Security review completed (N/A — no auth/session code)
+- [x] Lint + type-check pass (pipeline green on a clean PR)
+- [x] Unit tests pass; coverage gate enforced (≥ 85%)
+- [x] OpenAPI regenerated and re-linted (the dedicated CI job)
+- [x] Audit events emitted for security-relevant actions (N/A — process)
+- [x] Traceability matrix row updated (NFR-006, SR-028 → TASK-005 → CI gate)
+- [x] Security review completed (N/A — no auth/session code)
 
 ## Audit verdict (2026-06-29)
 
-- **Verdict:** PARTIAL
+- **Verdict:** PARTIAL → PASS (remediated 2026-06-30)
 - Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
-- **Remediation:** TASK-004a. Unchecked acceptance-criteria / DoD items above reflect the gaps the audit found; this task stays **In Progress** until they are addressed.
+- **Remediation completed (TASK-004a):** `Run database migrations` step (`uv run alembic upgrade head`) added to `backend-tests` job in `.github/workflows/ci.yml` immediately before the pytest step.

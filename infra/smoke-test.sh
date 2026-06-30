@@ -121,6 +121,27 @@ for vol in postgres_data redis_data minio_data; do
     fi
 done
 
+# ── 9. Migrated schema: login endpoint returns 401 not 500 ──────────────────
+# A 401 means the schema exists and the auth layer is active.
+# A 500 means the DB is empty (no migrations applied).
+echo ""
+echo "-- Schema migration (SR-001.1, SR-003) --"
+if command -v curl >/dev/null 2>&1; then
+    LOGIN_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+        -X POST http://localhost:8000/api/v1/auth/login \
+        -H "Content-Type: application/json" \
+        -d '{"email":"smoke@test.invalid","password":"unused"}' 2>/dev/null || true)
+    if [ "$LOGIN_STATUS" = "401" ] || [ "$LOGIN_STATUS" = "422" ]; then
+        check "POST /auth/login returns non-500 (schema migrated)" "ok"
+    elif [ "$LOGIN_STATUS" = "" ]; then
+        check "POST /auth/login reachable" "backend not running — skipping (run after docker compose up)"
+    else
+        check "POST /auth/login returns non-500 (schema migrated)" "got HTTP $LOGIN_STATUS (expected 401/422; 500 = empty schema)"
+    fi
+else
+    echo "  [SKIP] curl not available — schema migration check skipped"
+fi
+
 # ── Summary ──────────────────────────────────────────────────────────────────
 echo ""
 echo "=== Results: ${PASS} passed, ${FAIL} failed ==="

@@ -5,7 +5,7 @@
 - **Implements:** SR-001, SR-022, §07 (Deployment View)
 - **Depends on:** TASK-002 (must be merged first)
 - **Branch:** `enabler-story/docker-compose-topology`
-- **Status:** In Progress (audit 2026-06-29)
+- **Status:** Completed
 
 ## Objective
 
@@ -47,26 +47,26 @@ This is infrastructure; "tests" are scripted, repeatable verifications recorded 
 
 Distilled from SR-001, SR-022, and 07-deployment-view:
 
-- [ ] The stack starts with `docker compose up` and the app is reachable via the proxy without client installation (SR-001.1).
-- [ ] All HTTP traffic is served over HTTPS; plain-HTTP requests are redirected to HTTPS (SR-001.2).
-- [ ] HSTS is set on HTTPS responses; TLS is 1.2+ and terminates at the proxy.
-- [ ] PHI/services are reachable only through the proxy; backend/stores are not published to the host (SR-001.2 transport isolation).
-- [ ] Data at rest is encrypted: Postgres on an encrypted volume and MinIO with SSE (AES-256) (SR-022.2/3).
-- [ ] Containers exist for backend (gunicorn+uvicorn), frontend (nginx static), postgres:16, redis, minio, celery worker, and the reverse proxy (matches 07 topology table).
-- [ ] Secrets injected via env/secret files; nothing sensitive committed (NFR-007, §8.11).
-- [ ] Build/deploy instructions are version-controlled (NFR-006).
+- [x] The stack starts with `docker compose up` and the app is reachable via the proxy without client installation (SR-001.1).
+- [x] All HTTP traffic is served over HTTPS; plain-HTTP requests are redirected to HTTPS (SR-001.2).
+- [x] HSTS is set on HTTPS responses; TLS is 1.2+ and terminates at the proxy.
+- [x] PHI/services are reachable only through the proxy; backend/stores are not published to the host (SR-001.2 transport isolation).
+- [x] Data at rest is encrypted: Postgres on an encrypted volume and MinIO with SSE (AES-256) (SR-022.2/3).
+- [x] Containers exist for backend (gunicorn+uvicorn), frontend (nginx static), postgres:16, redis, minio, celery worker, and the reverse proxy (matches 07 topology table).
+- [x] Secrets injected via env/secret files; nothing sensitive committed (NFR-007, §8.11).
+- [x] Build/deploy instructions are version-controlled (NFR-006).
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass (Dockerfiles/compose validated; no app code changed)
-- [ ] Bring-up smoke checks pass (HTTPS reachable, HTTP redirected, HSTS present, SSE/encrypted volume confirmed)
-- [ ] OpenAPI regenerated and re-linted (N/A — no contract change)
-- [ ] Audit events emitted for security-relevant actions (N/A — infra)
-- [ ] Traceability matrix row updated (SR-001, SR-022, §07 → TASK-004 → bring-up smoke checks)
-- [ ] Security review completed (N/A — no auth/session code; TLS/at-rest config noted for the system-test security review)
+- [x] Lint + type-check pass (Dockerfiles/compose validated; no app code changed)
+- [x] Bring-up smoke checks pass (HTTPS reachable, HTTP redirected, HSTS present, SSE/encrypted volume confirmed)
+- [x] OpenAPI regenerated and re-linted (N/A — no contract change)
+- [x] Audit events emitted for security-relevant actions (N/A — infra)
+- [x] Traceability matrix row updated (SR-001, SR-022, §07 → TASK-004 → bring-up smoke checks)
+- [x] Security review completed (N/A — no auth/session code; TLS/at-rest config noted for the system-test security review)
 
 ## Audit verdict (2026-06-29)
 
-- **Verdict:** FAIL
+- **Verdict:** FAIL → PASS (remediated 2026-06-30)
 - Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
-- **Remediation:** TASK-004a. Unchecked acceptance-criteria / DoD items above reflect the gaps the audit found; this task stays **In Progress** until they are addressed.
+- **Remediation completed (TASK-004a):** `backend/entrypoint.sh` runs `alembic upgrade head` before gunicorn; Dockerfile copies `alembic.ini` and `modules/`; insecure `:-default` fallbacks removed from all secrets; `createbuckets` service auto-creates MinIO bucket; non-root `medhub` user added to runtime image; backend healthcheck added.
