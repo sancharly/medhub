@@ -5,7 +5,7 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 
 interface SetPasswordFormProps {
-  onSubmit: (password: string) => void;
+  onSubmit: (password: string, confirmPassword: string) => void;
   isPending?: boolean;
   fieldError?: string;
 }
@@ -26,7 +26,7 @@ export function SetPasswordForm({
       return;
     }
     setMismatch(false);
-    onSubmit(password);
+    onSubmit(password, confirm);
   }
 
   return (

@@ -6,7 +6,8 @@ export function useActivate(token: string) {
   const navigate = useNavigate();
 
   return useMutation({
-    mutationFn: (password: string) => apiClient.activate(token, password),
+    mutationFn: ({ accountId, password, confirmPassword }: { accountId: string; password: string; confirmPassword: string }) =>
+      apiClient.activate(token, accountId, password, confirmPassword),
     onSuccess: () => {
       navigate("/login?activated=1");
     },

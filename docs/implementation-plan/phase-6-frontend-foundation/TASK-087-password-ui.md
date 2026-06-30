@@ -5,7 +5,7 @@
 - **Implements:** SR-025 (AC-1 min 12 chars; AC-2 four character classes; AC-3 no username/email substring; AC-4 not one of the last 12; AC-5 violated-rule message; AC-6 forced change on first login before any other action)
 - **Depends on:** TASK-080 (typed `ApiClient` + cookie/CSRF + Query) — must be merged first
 - **Branch:** `feature/fe-password-ui`
-- **Status:** In Progress (audit 2026-06-29)
+- **Status:** Completed (remediated by TASK-087a)
 
 ## Objective
 
@@ -52,19 +52,19 @@ await apiClient.changePassword({ currentPassword, newPassword, confirmNewPasswor
 
 ## Acceptance criteria
 
-- [ ] Live client hints reflect length, four character classes, and email/username-substring rules as the user types, clearly marked non-authoritative (SR-025 AC-1/2/3, SR-031.5).
-- [ ] The server is the authoritative validator; history-of-12 and max-age are surfaced from the response, not pre-checked client-side (SR-025 AC-4/5/7, SR-031.5).
-- [ ] A violated-rule message identifies the specific rule; a new/confirm mismatch is non-disclosing (SR-025.5).
-- [ ] On first login a forced change blocks all other actions until it succeeds (SR-025.6 / AC-6).
+- [x] Live client hints reflect length, four character classes, and email/username-substring rules as the user types, clearly marked non-authoritative (SR-025 AC-1/2/3, SR-031.5).
+- [x] The server is the authoritative validator; history-of-12 and max-age are surfaced from the response, not pre-checked client-side (SR-025 AC-4/5/7, SR-031.5).
+- [x] A violated-rule message identifies the specific rule; a new/confirm mismatch is non-disclosing (SR-025.5).
+- [x] On first login a forced change blocks all other actions until it succeeds (SR-025.6 / AC-6).
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass (`eslint`/`tsc`)
-- [ ] Unit/component tests pass; coverage target met
-- [ ] Traceability matrix row updated (SR-025 → TASK-087 → tests)
+- [x] Lint + type-check pass (`eslint`/`tsc`)
+- [x] Unit/component tests pass; coverage target met
+- [x] Traceability matrix row updated (SR-025 → TASK-087 → tests)
 
 ## Audit verdict (2026-06-29)
 
-- **Verdict:** FAIL
+- **Verdict:** FAIL → Remediated by TASK-087a (2026-06-30)
 - Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
-- **Remediation:** TASK-087a. Unchecked acceptance-criteria / DoD items above reflect the gaps the audit found; this task stays **In Progress** until they are addressed.
+- **Remediation:** TASK-087a added `mustChangePassword` to `MeResponse`; gate now reads real backend field. All AC pass.

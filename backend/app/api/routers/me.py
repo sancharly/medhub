@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user
 from app.api.schemas.me import MeModulesResponse, MeResponse
+from app.auth.password import PasswordService
 from app.db.models.account import Account
 from app.db.repositories.group_repo import GroupRepository
 from app.db.repositories.module_repo import ModuleRepository
@@ -17,7 +18,10 @@ router = APIRouter(prefix="/me", tags=["me"])
 
 @router.get("", response_model=MeResponse)
 def get_me(actor: Account = Depends(get_current_user)) -> MeResponse:
-    return MeResponse.model_validate(actor)
+    must_change = PasswordService().is_expired(actor)
+    data = MeResponse.model_validate(actor)
+    data.must_change_password = must_change
+    return data
 
 
 @router.get("/modules", response_model=MeModulesResponse)

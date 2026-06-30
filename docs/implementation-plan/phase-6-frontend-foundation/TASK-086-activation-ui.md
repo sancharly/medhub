@@ -5,7 +5,7 @@
 - **Implements:** SR-033 (AC-2 the activation link validates the token; AC-3 password set must satisfy SR-025; AC-4 password entered twice and mismatch rejected with a non-disclosing message; AC-5 on success the account becomes active)
 - **Depends on:** TASK-080 (typed `ApiClient` + cookie/CSRF + Query) — must be merged first
 - **Branch:** `feature/fe-activation-ui`
-- **Status:** In Progress (audit 2026-06-29)
+- **Status:** Completed (remediated by TASK-086a)
 
 ## Objective
 
@@ -51,19 +51,19 @@ await apiClient.activate(token, { password, confirmPassword });  // POST /activa
 
 ## Acceptance criteria
 
-- [ ] Following the activation link validates the token before showing the form; invalid/expired tokens are rejected with a clear resend hint (SR-033.2/7).
-- [ ] The form requires the password twice; a mismatch is rejected with a message that does not disclose which field is wrong (SR-033.4).
-- [ ] Password complexity is enforced server-side; the UI surfaces the violated-rule message and treats client hints as non-authoritative (SR-033.3 → SR-025, SR-031.5).
-- [ ] A valid, confirmed submission activates the account and directs the user to log in without auto-creating a session (SR-033.5/6).
+- [x] Following the activation link validates the token before showing the form; invalid/expired tokens are rejected with a clear resend hint (SR-033.2/7).
+- [x] The form requires the password twice; a mismatch is rejected with a message that does not disclose which field is wrong (SR-033.4).
+- [x] Password complexity is enforced server-side; the UI surfaces the violated-rule message and treats client hints as non-authoritative (SR-033.3 → SR-025, SR-031.5).
+- [x] A valid, confirmed submission activates the account and directs the user to log in without auto-creating a session (SR-033.5/6).
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass (`eslint`/`tsc`)
-- [ ] Unit/component tests pass; coverage target met
-- [ ] Traceability matrix row updated (SR-033 → TASK-086 → tests)
+- [x] Lint + type-check pass (`eslint`/`tsc`)
+- [x] Unit/component tests pass; coverage target met
+- [x] Traceability matrix row updated (SR-033 → TASK-086 → tests)
 
 ## Audit verdict (2026-06-29)
 
-- **Verdict:** FAIL
+- **Verdict:** FAIL → Remediated by TASK-086a (2026-06-30)
 - Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
-- **Remediation:** TASK-086a. Unchecked acceptance-criteria / DoD items above reflect the gaps the audit found; this task stays **In Progress** until they are addressed.
+- **Remediation:** TASK-086a fixed the contract alignment. All AC now pass.

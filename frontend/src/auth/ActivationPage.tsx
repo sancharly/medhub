@@ -8,26 +8,32 @@ import { SetPasswordForm } from "./SetPasswordForm";
 import { useActivate } from "./useActivate";
 import { apiClient } from "../api";
 import { ApiError } from "../api/client";
-
-type TokenState = "loading" | "valid" | "invalid";
+import type { ActivationTokenStatus } from "../api/generated/types";
 
 export function ActivationPage() {
   const { token } = useParams<{ token: string }>();
-  const [tokenState, setTokenState] = useState<TokenState>("loading");
+  const [tokenStatus, setTokenStatus] = useState<ActivationTokenStatus | null>(null);
+  const [tokenLoading, setTokenLoading] = useState(true);
   const [fieldError, setFieldError] = useState<string | undefined>();
   const activate = useActivate(token!);
 
   useEffect(() => {
     apiClient
       .getActivation(token!)
-      .then(() => setTokenState("valid"))
-      .catch(() => setTokenState("invalid"));
+      .then((status) => {
+        setTokenStatus(status);
+        setTokenLoading(false);
+      })
+      .catch(() => {
+        setTokenStatus({ valid: false });
+        setTokenLoading(false);
+      });
   }, [token]);
 
-  async function handleSubmit(password: string) {
+  async function handleSubmit(password: string, confirmPassword: string) {
     setFieldError(undefined);
     try {
-      await activate.mutateAsync(password);
+      await activate.mutateAsync({ accountId: tokenStatus!.accountId!, password, confirmPassword });
     } catch (err) {
       if (err instanceof ApiError && err.problem.errors?.length) {
         setFieldError(err.problem.errors[0].message);
@@ -52,15 +58,15 @@ export function ActivationPage() {
           Activate account
         </Typography>
 
-        {tokenState === "loading" && <CircularProgress />}
+        {tokenLoading && <CircularProgress />}
 
-        {tokenState === "invalid" && (
+        {!tokenLoading && !tokenStatus?.valid && (
           <Typography data-testid="invalid-token-message">
             This activation link is no longer valid. Please request a new one.
           </Typography>
         )}
 
-        {tokenState === "valid" && (
+        {!tokenLoading && tokenStatus?.valid && (
           <SetPasswordForm
             onSubmit={handleSubmit}
             isPending={activate.isPending}

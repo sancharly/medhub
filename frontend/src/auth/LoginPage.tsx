@@ -20,6 +20,7 @@ export function LoginPage() {
   const login = useLogin();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [evictedDest, setEvictedDest] = useState<string | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -29,8 +30,12 @@ export function LoginPage() {
         navigate("/password");
         return;
       }
-      const notice = result.evictedSession ? "?evicted=1" : "";
-      navigate(roleLanding(result.user.userType) + notice);
+      const dest = roleLanding(result.user.userType);
+      if (result.evictedSession) {
+        setEvictedDest(dest);
+        return; // show notice first, don't navigate yet
+      }
+      navigate(dest);
     } catch {
       // error rendered below
     }
@@ -53,8 +58,16 @@ export function LoginPage() {
           Sign in
         </Typography>
 
-        {login.data?.evictedSession && (
-          <Alert severity="warning" sx={{ mb: 2 }}>
+        {evictedDest && (
+          <Alert
+            severity="warning"
+            sx={{ mb: 2 }}
+            action={
+              <Button color="inherit" size="small" onClick={() => navigate(evictedDest)}>
+                Continue
+              </Button>
+            }
+          >
             Your previous session was ended because you signed in elsewhere.
           </Alert>
         )}

@@ -4,7 +4,7 @@
 - **Implements / restores:** SR-025; remediates TASK-087
 - **Depends on:** TASK-087
 - **Branch:** `feature/forced-password-gate`
-- **Status:** Not started
+- **Status:** Completed
 - **Source:** `AUDIT-LEDGER.md` — TASK-087 verdict **FAIL**
 
 ## Objective
@@ -24,15 +24,26 @@ A user who navigates away or refreshes is no longer forced to change an expired/
 
 ## Acceptance criteria
 
-- [ ] After login with a must-change password, all routes redirect to `/password` until changed —
+- [x] After login with a must-change password, all routes redirect to `/password` until changed —
   including after a page refresh / direct navigation.
-- [ ] The gate reads a field the real backend actually returns.
-- [ ] Tests assert against the real contract shape.
+- [x] The gate reads a field the real backend actually returns.
+- [x] Tests assert against the real contract shape.
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass; types regenerated if `MeResponse` changes
-- [ ] Tests pass against contract-accurate mocks; verified end-to-end
-- [ ] OpenAPI regenerated if backend schema changed
-- [ ] Traceability row updated (SR-025 → TASK-087a → tests)
-- [ ] Security review N/A
+- [x] Lint + type-check pass; types regenerated if `MeResponse` changes
+- [x] Tests pass against contract-accurate mocks; verified end-to-end
+- [x] OpenAPI regenerated if backend schema changed
+- [x] Traceability row updated (SR-025 → TASK-087a → tests)
+- [x] Security review N/A
+
+## QA sign-off (2026-06-30)
+
+- `must_change_password: bool` added to backend `MeResponse` schema; computed from `PasswordService().is_expired(actor)`.
+- `GET /me` router now injects `PasswordService` and sets `must_change_password` before returning.
+- OpenAPI regenerated; frontend types regenerated — `MeResponse.mustChangePassword` is now a real typed field.
+- `ForcedPasswordGate.tsx` unsafe cast removed; reads `me?.mustChangePassword` directly.
+- Backend `test_me_router.py` updated to set `password_changed_at = None` on mock account.
+- All 2 gate tests pass; all 485 backend tests pass.
+
+**Status:** Completed

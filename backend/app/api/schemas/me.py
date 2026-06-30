@@ -24,6 +24,7 @@ class MeResponse(_CamelModel):
     surname: str | None
     date_of_birth: date | None
     created_at: datetime
+    must_change_password: bool = False  # computed, not from Account attributes
 
     model_config = ConfigDict(
         alias_generator=to_camel,

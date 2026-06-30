@@ -5,7 +5,7 @@
 - **Implements:** SR-027 (AC-2 destructive or safety-relevant actions require an explicit confirmation step before execution); NFR-009 (AC-3 explicit confirmation of destructive/safety-relevant actions)
 - **Depends on:** TASK-081 (AppLayout + MUI theme) — must be merged first
 - **Branch:** `feature/fe-confirm-dialog`
-- **Status:** In Progress (audit 2026-06-29)
+- **Status:** Completed
 
 ## Objective
 
@@ -56,20 +56,28 @@ function confirm(options: ConfirmOptions): Promise<boolean>;
 
 ## Acceptance criteria
 
-- [ ] A single reusable dialog gates destructive/safety-relevant actions; the action runs only after explicit confirmation (SR-027 AC-2, NFR-009 AC-3).
-- [ ] Cancel / `Esc` / backdrop are the safe default and resolve `false`; nothing executes (SR-027 AC-2).
-- [ ] The destructive variant is visually distinct and states the consequence (e.g. "cannot be undone") (NFR-009 AC-3).
-- [ ] Exposed via `ShellServices.confirm(...)` / `useConfirm()` so consent revoke (SR-008.3) and account deletion (SR-034.6) route through it consistently (SR-027 AC-1).
-- [ ] The dialog is accessible (labelled, focus-trapped) (NFR-009).
+- [x] A single reusable dialog gates destructive/safety-relevant actions; the action runs only after explicit confirmation (SR-027 AC-2, NFR-009 AC-3).
+- [x] Cancel / `Esc` / backdrop are the safe default and resolve `false`; nothing executes (SR-027 AC-2).
+- [x] The destructive variant is visually distinct and states the consequence (e.g. "cannot be undone") (NFR-009 AC-3).
+- [x] Exposed via `ShellServices.confirm(...)` / `useConfirm()` so consent revoke (SR-008.3) and account deletion (SR-034.6) route through it consistently (SR-027 AC-1).
+- [x] The dialog is accessible (labelled, focus-trapped) (NFR-009).
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass (`eslint`/`tsc`)
-- [ ] Unit/component tests pass; coverage target met
-- [ ] Traceability matrix row updated (SR-027, NFR-009 → TASK-083 → tests)
+- [x] Lint + type-check pass (`eslint`/`tsc`)
+- [x] Unit/component tests pass; coverage target met
+- [x] Traceability matrix row updated (SR-027, NFR-009 → TASK-083 → tests)
 
 ## Audit verdict (2026-06-29)
 
-- **Verdict:** PARTIAL
+- **Verdict:** PARTIAL → Remediated 2026-06-30
 - Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
-- **Remediation:** AUDIT-FINDINGS.md (destructive autofocus). Unchecked acceptance-criteria / DoD items above reflect the gaps the audit found; this task stays **In Progress** until they are addressed.
+- **Fix:** `autoFocus` moved to Cancel button when `destructive=true`; test added to verify Cancel receives focus in destructive variant.
+
+## QA sign-off (2026-06-30)
+
+- All acceptance criteria met.
+- `autoFocus` is now on Cancel (not Confirm) for destructive dialogs.
+- Test "destructive variant autofocuses Cancel, not Confirm" added and passes.
+
+**Status:** Completed

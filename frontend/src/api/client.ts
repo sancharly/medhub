@@ -17,6 +17,7 @@ import type {
   CreateAccountRequest,
   Group,
   InstalledModule,
+  ActivationTokenStatus,
 } from "./generated/types";
 
 export type { ProblemError };
@@ -110,12 +111,12 @@ export class ApiClient {
     return this.request<void>("POST", "/auth/logout");
   }
 
-  getActivation(token: string): Promise<void> {
-    return this.request<void>("GET", `/activation/${token}`);
+  getActivation(token: string): Promise<ActivationTokenStatus> {
+    return this.request<ActivationTokenStatus>("GET", `/activation/${token}`);
   }
 
-  activate(token: string, password: string): Promise<void> {
-    return this.request<void>("POST", `/activation/${token}`, { password });
+  activate(token: string, accountId: string, password: string, confirmPassword: string): Promise<void> {
+    return this.request<void>("POST", `/activation/${token}`, { accountId, password, confirmPassword });
   }
 
   // Patients

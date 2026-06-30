@@ -117,6 +117,25 @@ describe("ConfirmDialog", () => {
     expect(confirmBtn.closest("button")).toHaveClass("MuiButton-colorError");
   });
 
+  it("destructive variant autofocuses Cancel, not Confirm", async () => {
+    render(
+      <Wrapper>
+        <TestButton
+          options={{ title: "Delete", description: "Sure?", destructive: true }}
+          onResult={vi.fn()}
+        />
+      </Wrapper>
+    );
+
+    await userEvent.click(screen.getByText("open"));
+    // After dialog opens, the Cancel button should receive focus (not Confirm)
+    // MUI Dialog moves focus to the autoFocus element; verify via document.activeElement
+    const cancelBtn = screen.getByText("Cancel").closest("button");
+    const confirmBtn = screen.getByText("Confirm").closest("button");
+    expect(document.activeElement).toBe(cancelBtn);
+    expect(document.activeElement).not.toBe(confirmBtn);
+  });
+
   it("has accessible labelling", async () => {
     render(
       <Wrapper>
