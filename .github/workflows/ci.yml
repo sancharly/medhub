@@ -94,7 +94,7 @@ jobs:
 
       - name: Run database migrations
         working-directory: backend
-        run: uv run alembic upgrade head
+        run: PYTHONPATH=. uv run alembic upgrade head
 
       - name: Run tests with coverage
         working-directory: backend
