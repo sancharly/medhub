@@ -353,8 +353,10 @@ export interface paths {
         put?: never;
         /**
          * Upload Attachment
-         * @description Upload an attachment. Reads raw body; caller must set Content-Type and
-         *     X-Filename headers for filename and content_type respectively.
+         * @description Upload an attachment via multipart/form-data.
+         *
+         *     The form field must be named ``file``. DICOM files (.dcm) are validated
+         *     and their modality metadata is persisted with the record.
          */
         post: operations["upload_attachment_api_v1_clinical_entries__entry_id__attachments_post"];
         delete?: never;
@@ -748,6 +750,11 @@ export interface components {
              */
             createdAt: string;
         };
+        /** Body_upload_attachment_api_v1_clinical_entries__entry_id__attachments_post */
+        Body_upload_attachment_api_v1_clinical_entries__entry_id__attachments_post: {
+            /** File */
+            file: string;
+        };
         /** ClinicalEntryCreate */
         ClinicalEntryCreate: {
             /**
@@ -1107,7 +1114,10 @@ export interface operations {
     logout_api_v1_auth_logout_post: {
         parameters: {
             query?: never;
-            header?: never;
+            header: {
+                /** @description CSRF token — must match the `medhub_csrf` cookie value. */
+                "X-CSRF-Token": string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -1161,7 +1171,10 @@ export interface operations {
     extend_session_api_v1_auth_session_extend_post: {
         parameters: {
             query?: never;
-            header?: never;
+            header: {
+                /** @description CSRF token — must match the `medhub_csrf` cookie value. */
+                "X-CSRF-Token": string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -1217,7 +1230,10 @@ export interface operations {
     change_password_api_v1_auth_password_post: {
         parameters: {
             query?: never;
-            header?: never;
+            header: {
+                /** @description CSRF token — must match the `medhub_csrf` cookie value. */
+                "X-CSRF-Token": string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -1307,7 +1323,10 @@ export interface operations {
     create_account_api_v1_accounts_post: {
         parameters: {
             query?: never;
-            header?: never;
+            header: {
+                /** @description CSRF token — must match the `medhub_csrf` cookie value. */
+                "X-CSRF-Token": string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -1398,7 +1417,10 @@ export interface operations {
     delete_account_api_v1_accounts__account_id__delete: {
         parameters: {
             query?: never;
-            header?: never;
+            header: {
+                /** @description CSRF token — must match the `medhub_csrf` cookie value. */
+                "X-CSRF-Token": string;
+            };
             path: {
                 account_id: string;
             };
@@ -1460,7 +1482,10 @@ export interface operations {
     resend_activation_api_v1_accounts__account_id__resend_activation_post: {
         parameters: {
             query?: never;
-            header?: never;
+            header: {
+                /** @description CSRF token — must match the `medhub_csrf` cookie value. */
+                "X-CSRF-Token": string;
+            };
             path: {
                 account_id: string;
             };
@@ -1520,7 +1545,10 @@ export interface operations {
     unlock_account_api_v1_accounts__account_id__unlock_post: {
         parameters: {
             query?: never;
-            header?: never;
+            header: {
+                /** @description CSRF token — must match the `medhub_csrf` cookie value. */
+                "X-CSRF-Token": string;
+            };
             path: {
                 account_id: string;
             };
@@ -1667,7 +1695,10 @@ export interface operations {
     deactivate_account_api_v1_accounts__account_id__deactivate_post: {
         parameters: {
             query?: never;
-            header?: never;
+            header: {
+                /** @description CSRF token — must match the `medhub_csrf` cookie value. */
+                "X-CSRF-Token": string;
+            };
             path: {
                 account_id: string;
             };
@@ -1723,7 +1754,10 @@ export interface operations {
     reactivate_account_api_v1_accounts__account_id__reactivate_post: {
         parameters: {
             query?: never;
-            header?: never;
+            header: {
+                /** @description CSRF token — must match the `medhub_csrf` cookie value. */
+                "X-CSRF-Token": string;
+            };
             path: {
                 account_id: string;
             };
@@ -1859,7 +1893,10 @@ export interface operations {
     create_group_api_v1_groups_post: {
         parameters: {
             query?: never;
-            header?: never;
+            header: {
+                /** @description CSRF token — must match the `medhub_csrf` cookie value. */
+                "X-CSRF-Token": string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -1919,7 +1956,10 @@ export interface operations {
     add_member_api_v1_groups__group_id__members_post: {
         parameters: {
             query?: never;
-            header?: never;
+            header: {
+                /** @description CSRF token — must match the `medhub_csrf` cookie value. */
+                "X-CSRF-Token": string;
+            };
             path: {
                 group_id: string;
             };
@@ -1979,7 +2019,10 @@ export interface operations {
     remove_member_api_v1_groups__group_id__members__account_id__delete: {
         parameters: {
             query?: never;
-            header?: never;
+            header: {
+                /** @description CSRF token — must match the `medhub_csrf` cookie value. */
+                "X-CSRF-Token": string;
+            };
             path: {
                 group_id: string;
                 account_id: string;
@@ -2036,7 +2079,10 @@ export interface operations {
     set_module_enabled_api_v1_groups__group_id__modules__module_key__put: {
         parameters: {
             query?: never;
-            header?: never;
+            header: {
+                /** @description CSRF token — must match the `medhub_csrf` cookie value. */
+                "X-CSRF-Token": string;
+            };
             path: {
                 group_id: string;
                 module_key: string;
@@ -2148,7 +2194,10 @@ export interface operations {
     create_clinical_entry_api_v1_patients__patient_id__clinical_entries_post: {
         parameters: {
             query?: never;
-            header?: never;
+            header: {
+                /** @description CSRF token — must match the `medhub_csrf` cookie value. */
+                "X-CSRF-Token": string;
+            };
             path: {
                 patient_id: string;
             };
@@ -2210,13 +2259,20 @@ export interface operations {
     upload_attachment_api_v1_clinical_entries__entry_id__attachments_post: {
         parameters: {
             query?: never;
-            header?: never;
+            header: {
+                /** @description CSRF token — must match the `medhub_csrf` cookie value. */
+                "X-CSRF-Token": string;
+            };
             path: {
                 entry_id: string;
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_upload_attachment_api_v1_clinical_entries__entry_id__attachments_post"];
+            };
+        };
         responses: {
             /** @description Successful Response */
             201: {
@@ -2319,7 +2375,10 @@ export interface operations {
     create_appointment_api_v1_appointments_post: {
         parameters: {
             query?: never;
-            header?: never;
+            header: {
+                /** @description CSRF token — must match the `medhub_csrf` cookie value. */
+                "X-CSRF-Token": string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -2410,7 +2469,10 @@ export interface operations {
     confirm_appointment_api_v1_appointments__appointment_id__confirm_post: {
         parameters: {
             query?: never;
-            header?: never;
+            header: {
+                /** @description CSRF token — must match the `medhub_csrf` cookie value. */
+                "X-CSRF-Token": string;
+            };
             path: {
                 appointment_id: string;
             };
@@ -2468,7 +2530,10 @@ export interface operations {
     decline_appointment_api_v1_appointments__appointment_id__decline_post: {
         parameters: {
             query?: never;
-            header?: never;
+            header: {
+                /** @description CSRF token — must match the `medhub_csrf` cookie value. */
+                "X-CSRF-Token": string;
+            };
             path: {
                 appointment_id: string;
             };
@@ -2526,7 +2591,10 @@ export interface operations {
     grant_consent_api_v1_consents_post: {
         parameters: {
             query?: never;
-            header?: never;
+            header: {
+                /** @description CSRF token — must match the `medhub_csrf` cookie value. */
+                "X-CSRF-Token": string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -2586,7 +2654,10 @@ export interface operations {
     revoke_consent_api_v1_consents__grant_id__delete: {
         parameters: {
             query?: never;
-            header?: never;
+            header: {
+                /** @description CSRF token — must match the `medhub_csrf` cookie value. */
+                "X-CSRF-Token": string;
+            };
             path: {
                 grant_id: string;
             };

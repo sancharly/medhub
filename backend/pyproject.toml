@@ -19,6 +19,7 @@ dependencies = [
     "cryptography>=42.0.0",
     "psycopg2-binary>=2.9.0",
     "fakeredis>=2.36.2",
+    "python-multipart>=0.0.32",
 ]
 
 [dependency-groups]

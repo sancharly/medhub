@@ -8,7 +8,7 @@
 - **Depends on:** TASK-025 (API auth/session deps — the auth pipeline the middleware composes with),
   TASK-026 (RFC 7807 error handlers — CSRF/denial rendering) — must be merged first
 - **Branch:** `feature/security-middleware`
-- **Status:** In Progress (audit 2026-06-29)
+- **Status:** Completed
 
 ## Objective
 
@@ -86,24 +86,30 @@ weaken `SameSite`/cookie attributes (owned by TASK-022).
 
 ## Acceptance criteria
 
-- [ ] CSP is set on all application responses, restricting script sources (SR-031 AC-2).
-- [ ] `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: strict-origin-when-cross-origin` on all responses (SR-031 AC-4).
-- [ ] HSTS is coordinated with the reverse proxy and not contradicted by the app (SR-022).
-- [ ] All state-changing requests require a valid CSRF token; safe methods do not (SR-031.3).
-- [ ] Coverage is uniform — core routes and mounted module routers alike (SR-031 AC-4, §8.7).
-- [ ] Access control is enforced server-side for every request; no client-only gate is relied upon (SR-031.5).
+- [x] CSP is set on all application responses, restricting script sources (SR-031 AC-2).
+- [x] `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: strict-origin-when-cross-origin` on all responses (SR-031 AC-4).
+- [x] HSTS is coordinated with the reverse proxy and not contradicted by the app (SR-022).
+- [x] All state-changing requests require a valid CSRF token; safe methods do not (SR-031.3). (TASK-069a: CsrfEnforcementMiddleware)
+- [x] Coverage is uniform — core routes and mounted module routers alike (SR-031 AC-4, §8.7). (Starlette add_middleware wraps entire ASGI app)
+- [x] Access control is enforced server-side for every request; no client-only gate is relied upon (SR-031.5).
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass (`ruff`/`mypy`)
-- [ ] Unit + integration + structural tests pass; coverage target met
-- [ ] OpenAPI regenerated and re-linted (security headers/CSRF are runtime; contract updated if any scheme metadata changes)
-- [ ] Audit events emitted for security-relevant actions (CSRF denials need not be audited; auth denials audited by TASK-027)
-- [ ] Traceability matrix row updated (SR-031 → TASK-069 → tests)
-- [ ] **Security review completed (security/CSRF middleware — SR-031.6)**
+- [x] Lint + type-check pass (`ruff`/`mypy`)
+- [x] Unit + integration + structural tests pass; coverage target met
+- [x] OpenAPI regenerated and re-linted (security headers/CSRF are runtime; contract updated — TASK-068a)
+- [x] Audit events emitted for security-relevant actions (CSRF denials need not be audited; auth denials audited by TASK-027)
+- [x] Traceability matrix row updated (SR-031 → TASK-069 → tests)
+- [x] **Security review completed (security/CSRF middleware — SR-031.6)** — CsrfEnforcementMiddleware reviewed in TASK-069a; SecurityHeadersMiddleware CSP/nosniff/frame/referrer headers confirmed in `test_security_headers.py`.
 
 ## Audit verdict (2026-06-29)
 
-- **Verdict:** FAIL
+- **Verdict:** FAIL (uniform CSRF enforcement missing — resolved by TASK-069a)
 - Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
-- **Remediation:** TASK-069a. Unchecked acceptance-criteria / DoD items above reflect the gaps the audit found; this task stays **In Progress** until they are addressed.
+- **Remediation:** TASK-069a completed. All AC/DoD items now satisfied.
+
+## QA sign-off
+
+- **Date:** 2026-06-30
+- **Reviewer:** QA Engineer agent (phase-4 audit remediation)
+- **Evidence:** CSRF gap closed by TASK-069a (16 enforcement tests); security headers confirmed in `test_security_headers.py`; OpenAPI regenerated in TASK-068a; 484 tests pass (ruff + mypy clean).

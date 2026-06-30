@@ -115,3 +115,21 @@ requirement→test column (TASK-114) must reflect these remediation tasks:
 | SR-025 / SR-033   | PasswordPolicyError→400; activation confirm_password check    | TASK-026a → `tests/api/test_activation_router.py` |
 | SR-009            | Admin non-clinical projection wired into account endpoints    | TASK-029a → `tests/api/test_accounts_router.py` |
 | SR-024 / SR-034   | Erasure code emailed; deadline enforced; ANONYMIZED_RETRIEVAL | TASK-035a → `tests/identity/test_erasure.py` |
+
+## Phase-4 API layer task → test traceability (2026-06-30)
+
+| Requirement  | Task      | Key test file(s)                                                         |
+|--------------|-----------|--------------------------------------------------------------------------|
+| SR-002, SR-025, SR-029, SR-030 | TASK-060 | `tests/api/test_auth_router.py`, `tests/api/test_lockout_integration.py` |
+| SR-032, SR-033 | TASK-061 | `tests/api/test_accounts_router.py`, `tests/api/test_activation_router.py` |
+| SR-034, SR-024, ADR-0013 | TASK-062 | `tests/api/test_lifecycle_router.py`, `tests/api/test_anonymized_retrieve.py` |
+| SR-014, SR-015, SR-016 | TASK-063 | `tests/api/test_groups_router.py` |
+| SR-008, SR-036.7 | TASK-064 | `tests/api/test_consents_router.py` |
+| SR-010, SR-011, SR-035 | TASK-065 | `tests/api/test_appointments_router.py` |
+| SR-012, SR-013, SR-005 | TASK-066 | `tests/api/test_clinical_router.py`, `tests/api/test_attachments_router.py` |
+| SR-013 | TASK-066a | `tests/api/test_attachments_router.py`, `tests/attachments/test_attachment_upload.py` |
+| SR-003, SR-015 | TASK-067 | `tests/api/test_me_router.py` |
+| NFR-006, SR-031 | TASK-068 | `tests/api/test_openapi_contract.py` |
+| SR-031 | TASK-068a | `tests/api/test_openapi_contract.py` (TestOpenAPISecurityRequirements) |
+| SR-031 | TASK-069 | `tests/api/test_security_headers.py`, `tests/api/test_csrf_enforcement.py` |
+| SR-031.3 | TASK-069a | `tests/api/test_csrf_enforcement.py` |

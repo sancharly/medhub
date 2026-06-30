@@ -1,10 +1,11 @@
-"""Attachments API router (TASK-045/046)."""
+"""Attachments API router (TASK-045/046, TASK-066a)."""
 
 from __future__ import annotations
 
 import uuid
+from collections.abc import Iterator
 
-from fastapi import APIRouter, Depends, Request, status
+from fastapi import APIRouter, Depends, UploadFile, status
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 
@@ -46,18 +47,23 @@ def _get_attachment_service(db: Session = Depends(get_db)) -> AttachmentService:
 )
 async def upload_attachment(
     entry_id: uuid.UUID,
-    request: Request,
+    file: UploadFile,
     actor: Account = Depends(get_current_user),
     svc: AttachmentService = Depends(_get_attachment_service),
 ) -> AttachmentResponse:
-    """Upload an attachment. Reads raw body; caller must set Content-Type and
-    X-Filename headers for filename and content_type respectively.
+    """Upload an attachment via multipart/form-data.
+
+    The form field must be named ``file``. DICOM files (.dcm) are validated
+    and their modality metadata is persisted with the record.
     """
-    filename = request.headers.get("X-Filename", "unknown")
-    content_type = request.headers.get("Content-Type", "application/octet-stream")
-    data = await request.body()
+    filename = file.filename or "unknown"
+    content_type = file.content_type or "application/octet-stream"
+    data = await file.read()
     attachment = svc.store(actor, entry_id, filename, content_type, data)
     return AttachmentResponse.model_validate(attachment)
+
+
+_CHUNK_SIZE = 65536  # 64 KiB
 
 
 @router.get("/attachments/{attachment_id}")
@@ -67,8 +73,13 @@ def fetch_attachment(
     svc: AttachmentService = Depends(_get_attachment_service),
 ) -> StreamingResponse:
     data, content_type, filename = svc.open(actor, attachment_id)
+
+    def _chunks(b: bytes, size: int) -> Iterator[bytes]:
+        for i in range(0, len(b), size):
+            yield b[i : i + size]
+
     return StreamingResponse(
-        iter([data]),
+        _chunks(data, _CHUNK_SIZE),
         media_type=content_type,
         headers={"Content-Disposition": f'attachment; filename="{filename}"'},
     )

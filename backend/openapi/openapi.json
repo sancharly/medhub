@@ -135,7 +135,23 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "description": "CSRF token \u2014 must match the `medhub_csrf` cookie value.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
       }
     },
     "/api/v1/auth/session/extend": {
@@ -197,7 +213,23 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "description": "CSRF token \u2014 must match the `medhub_csrf` cookie value.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
       }
     },
     "/api/v1/auth/password": {
@@ -262,7 +294,23 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "description": "CSRF token \u2014 must match the `medhub_csrf` cookie value.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
       }
     },
     "/api/v1/accounts": {
@@ -333,7 +381,23 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "description": "CSRF token \u2014 must match the `medhub_csrf` cookie value.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
       },
       "get": {
         "tags": [
@@ -385,7 +449,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ]
       }
     },
     "/api/v1/accounts/{account_id}": {
@@ -426,7 +495,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ]
       },
       "delete": {
         "tags": [
@@ -443,6 +517,15 @@
               "type": "string",
               "format": "uuid",
               "title": "Account Id"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "description": "CSRF token \u2014 must match the `medhub_csrf` cookie value.",
+            "schema": {
+              "type": "string"
             }
           }
         ],
@@ -507,7 +590,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ]
       }
     },
     "/api/v1/accounts/{account_id}/resend-activation": {
@@ -526,6 +614,15 @@
               "type": "string",
               "format": "uuid",
               "title": "Account Id"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "description": "CSRF token \u2014 must match the `medhub_csrf` cookie value.",
+            "schema": {
+              "type": "string"
             }
           }
         ],
@@ -584,7 +681,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ]
       }
     },
     "/api/v1/accounts/{account_id}/unlock": {
@@ -604,6 +706,15 @@
               "type": "string",
               "format": "uuid",
               "title": "Account Id"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "description": "CSRF token \u2014 must match the `medhub_csrf` cookie value.",
+            "schema": {
+              "type": "string"
             }
           }
         ],
@@ -651,7 +762,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ]
       }
     },
     "/api/v1/activation/{token}": {
@@ -788,6 +904,15 @@
               "format": "uuid",
               "title": "Account Id"
             }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "description": "CSRF token \u2014 must match the `medhub_csrf` cookie value.",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -834,7 +959,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ]
       }
     },
     "/api/v1/accounts/{account_id}/reactivate": {
@@ -854,6 +984,15 @@
               "format": "uuid",
               "title": "Account Id"
             }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "description": "CSRF token \u2014 must match the `medhub_csrf` cookie value.",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -900,7 +1039,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ]
       }
     },
     "/api/v1/anonymized-data/retrieve": {
@@ -997,7 +1141,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ]
       },
       "post": {
         "tags": [
@@ -1066,7 +1215,23 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "description": "CSRF token \u2014 must match the `medhub_csrf` cookie value.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
       }
     },
     "/api/v1/groups/{group_id}/members": {
@@ -1085,6 +1250,15 @@
               "type": "string",
               "format": "uuid",
               "title": "Group Id"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "description": "CSRF token \u2014 must match the `medhub_csrf` cookie value.",
+            "schema": {
+              "type": "string"
             }
           }
         ],
@@ -1142,7 +1316,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ]
       }
     },
     "/api/v1/groups/{group_id}/members/{account_id}": {
@@ -1171,6 +1350,15 @@
               "type": "string",
               "format": "uuid",
               "title": "Account Id"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "description": "CSRF token \u2014 must match the `medhub_csrf` cookie value.",
+            "schema": {
+              "type": "string"
             }
           }
         ],
@@ -1218,7 +1406,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ]
       }
     },
     "/api/v1/groups/{group_id}/modules/{module_key}": {
@@ -1246,6 +1439,15 @@
             "schema": {
               "type": "string",
               "title": "Module Key"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "description": "CSRF token \u2014 must match the `medhub_csrf` cookie value.",
+            "schema": {
+              "type": "string"
             }
           }
         ],
@@ -1303,7 +1505,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ]
       }
     },
     "/api/v1/clinical-entries/patients": {
@@ -1329,7 +1536,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ]
       }
     },
     "/api/v1/patients/{patient_id}/clinical-entries": {
@@ -1348,6 +1560,15 @@
               "type": "string",
               "format": "uuid",
               "title": "Patient Id"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "description": "CSRF token \u2014 must match the `medhub_csrf` cookie value.",
+            "schema": {
+              "type": "string"
             }
           }
         ],
@@ -1412,7 +1633,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ]
       },
       "get": {
         "tags": [
@@ -1457,7 +1683,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ]
       }
     },
     "/api/v1/clinical-entries/{entry_id}/attachments": {
@@ -1466,7 +1697,7 @@
           "attachments"
         ],
         "summary": "Upload Attachment",
-        "description": "Upload an attachment. Reads raw body; caller must set Content-Type and\nX-Filename headers for filename and content_type respectively.",
+        "description": "Upload an attachment via multipart/form-data.\n\nThe form field must be named ``file``. DICOM files (.dcm) are validated\nand their modality metadata is persisted with the record.",
         "operationId": "upload_attachment_api_v1_clinical_entries__entry_id__attachments_post",
         "parameters": [
           {
@@ -1478,8 +1709,27 @@
               "format": "uuid",
               "title": "Entry Id"
             }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "description": "CSRF token \u2014 must match the `medhub_csrf` cookie value.",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_upload_attachment_api_v1_clinical_entries__entry_id__attachments_post"
+              }
+            }
+          }
+        },
         "responses": {
           "201": {
             "description": "Successful Response",
@@ -1531,7 +1781,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ]
       }
     },
     "/api/v1/attachments/{attachment_id}": {
@@ -1572,7 +1827,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ]
       }
     },
     "/api/v1/appointments": {
@@ -1597,7 +1857,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ]
       },
       "post": {
         "tags": [
@@ -1666,7 +1931,23 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "description": "CSRF token \u2014 must match the `medhub_csrf` cookie value.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
       }
     },
     "/api/v1/appointments/{appointment_id}": {
@@ -1709,7 +1990,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ]
       }
     },
     "/api/v1/appointments/{appointment_id}/confirm": {
@@ -1729,6 +2015,15 @@
               "format": "uuid",
               "title": "Appointment Id"
             }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "description": "CSRF token \u2014 must match the `medhub_csrf` cookie value.",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -1782,7 +2077,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ]
       }
     },
     "/api/v1/appointments/{appointment_id}/decline": {
@@ -1802,6 +2102,15 @@
               "format": "uuid",
               "title": "Appointment Id"
             }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "description": "CSRF token \u2014 must match the `medhub_csrf` cookie value.",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -1855,7 +2164,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ]
       }
     },
     "/api/v1/consents": {
@@ -1927,7 +2241,23 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "description": "CSRF token \u2014 must match the `medhub_csrf` cookie value.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
       }
     },
     "/api/v1/consents/{grant_id}": {
@@ -1947,6 +2277,15 @@
               "type": "string",
               "format": "uuid",
               "title": "Grant Id"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "description": "CSRF token \u2014 must match the `medhub_csrf` cookie value.",
+            "schema": {
+              "type": "string"
             }
           }
         ],
@@ -1994,7 +2333,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ]
       }
     },
     "/api/v1/me/consents": {
@@ -2020,7 +2364,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ]
       }
     },
     "/api/v1/me": {
@@ -2041,7 +2390,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ]
       }
     },
     "/api/v1/me/modules": {
@@ -2062,7 +2416,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ]
       }
     },
     "/api/v1/modules": {
@@ -2083,7 +2442,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ]
       }
     },
     "/healthz": {
@@ -2462,6 +2826,20 @@
           "createdAt"
         ],
         "title": "AttachmentResponse"
+      },
+      "Body_upload_attachment_api_v1_clinical_entries__entry_id__attachments_post": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "File"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file"
+        ],
+        "title": "Body_upload_attachment_api_v1_clinical_entries__entry_id__attachments_post"
       },
       "ClinicalEntryCreate": {
         "properties": {

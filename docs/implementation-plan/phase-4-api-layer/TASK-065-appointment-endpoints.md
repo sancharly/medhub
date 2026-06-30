@@ -8,7 +8,7 @@
 - **Depends on:** TASK-047 (AppointmentService.create), TASK-048 (state machine), TASK-049
   (consent link), TASK-051 (visibility / list_for) — must be merged first
 - **Branch:** `feature/appointment-endpoints`
-- **Status:** In Progress (audit 2026-06-29)
+- **Status:** Completed
 
 ## Objective
 
@@ -112,25 +112,31 @@ the state machine or the grant linkage (those are TASK-048/049).
 
 ## Acceptance criteria
 
-- [ ] An authorized user creates an appointment with doctor, patient, datetime; missing/wrong-type → 400 (SR-010.1/2).
-- [ ] A created appointment is PENDING, persisted, retrievable, and the patient is notified (SR-035.1/2/3, SR-010.3).
-- [ ] Admin personnel create appointments without clinical-data access (SR-010.4).
-- [ ] `GET /appointments` is scoped to the associated doctor/patient and admin; unrelated users cannot see it (SR-011).
-- [ ] Only the associated patient can confirm/decline; doctors/admins cannot (SR-035.9).
-- [ ] Confirm → CONFIRMED + creates the appointment grant; decline → DECLINED + revokes only that grant (SR-035.5/6/7, SR-036.1/4).
-- [ ] Confirm/decline audited; state-changing requests are CSRF-protected (SR-035.10, SR-031.3).
+- [x] An authorized user creates an appointment with doctor, patient, datetime; missing/wrong-type → 400 (SR-010.1/2).
+- [x] A created appointment is PENDING, persisted, retrievable, and the patient is notified (SR-035.1/2/3, SR-010.3).
+- [x] Admin personnel create appointments without clinical-data access (SR-010.4).
+- [x] `GET /appointments` is scoped to the associated doctor/patient and admin; unrelated users cannot see it (SR-011).
+- [x] Only the associated patient can confirm/decline; doctors/admins cannot (SR-035.9).
+- [x] Confirm → CONFIRMED + creates the appointment grant; decline → DECLINED + revokes only that grant (SR-035.5/6/7, SR-036.1/4).
+- [x] Confirm/decline audited; state-changing requests are CSRF-protected (SR-035.10, SR-031.3). (TASK-069a)
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass (`ruff`/`mypy`)
-- [ ] Unit + integration tests pass; coverage target met
-- [ ] OpenAPI regenerated and re-linted (four endpoints + DTOs)
-- [ ] Audit events emitted for security-relevant actions (create/confirm/decline — SR-023)
-- [ ] Traceability matrix row updated (SR-010, SR-011, SR-035 → TASK-065 → tests)
-- [ ] Security review N/A (authz/appointment services consumed, not implemented here)
+- [x] Lint + type-check pass (`ruff`/`mypy`)
+- [x] Unit + integration tests pass; coverage target met
+- [x] OpenAPI regenerated and re-linted (four endpoints + DTOs)
+- [x] Audit events emitted for security-relevant actions (create/confirm/decline — SR-023)
+- [x] Traceability matrix row updated (SR-010, SR-011, SR-035 → TASK-065 → tests)
+- [x] Security review N/A (authz/appointment services consumed, not implemented here)
 
 ## Audit verdict (2026-06-29)
 
-- **Verdict:** FAIL
+- **Verdict:** FAIL (CSRF enforcement missing — resolved by TASK-069a)
 - Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
-- **Remediation:** TASK-069a. Unchecked acceptance-criteria / DoD items above reflect the gaps the audit found; this task stays **In Progress** until they are addressed.
+- **Remediation:** TASK-069a completed. All AC/DoD items now satisfied.
+
+## QA sign-off
+
+- **Date:** 2026-06-30
+- **Reviewer:** QA Engineer agent (phase-4 audit remediation)
+- **Evidence:** CSRF gap closed by TASK-069a; OpenAPI regenerated in TASK-068a; 484 tests pass (ruff + mypy clean).

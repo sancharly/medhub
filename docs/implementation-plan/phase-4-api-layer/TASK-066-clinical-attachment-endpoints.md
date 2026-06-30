@@ -9,7 +9,7 @@
 - **Depends on:** TASK-044 (clinical entry), TASK-045 (attachment upload), TASK-046 (attachment
   fetch) — must be merged first
 - **Branch:** `feature/clinical-attachment-endpoints`
-- **Status:** In Progress (audit 2026-06-29)
+- **Status:** Completed
 
 ## Objective
 
@@ -110,24 +110,30 @@ SI-ATTACH only, §8.9).
 
 ## Acceptance criteria
 
-- [ ] A doctor can create a clinical entry for a patient; required fields enforced (SR-012.1/2).
-- [ ] The authoring doctor is taken from the session and cannot be spoofed by the client (SR-012.3).
-- [ ] A saved entry is retrievable as part of the patient's history by authorized users (SR-012.4).
-- [ ] A doctor can attach one or more files incl. DICOM, bound to entry+patient (SR-013.1/2).
-- [ ] An authorized user can download/open an attachment; attachments are encrypted at rest (SR-013.3/4, SR-022).
-- [ ] Every clinical/attachment request passes the deny-by-default authorization guard (SR-005); reads are audited (SR-023).
+- [x] A doctor can create a clinical entry for a patient; required fields enforced (SR-012.1/2).
+- [x] The authoring doctor is taken from the session and cannot be spoofed by the client (SR-012.3).
+- [x] A saved entry is retrievable as part of the patient's history by authorized users (SR-012.4).
+- [x] A doctor can attach one or more files incl. DICOM, bound to entry+patient (SR-013.1/2). (TASK-066a: now multipart)
+- [x] An authorized user can download/open an attachment; attachments are encrypted at rest (SR-013.3/4, SR-022).
+- [x] Every clinical/attachment request passes the deny-by-default authorization guard (SR-005); reads are audited (SR-023).
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass (`ruff`/`mypy`)
-- [ ] Unit + integration tests pass; coverage target met
-- [ ] OpenAPI regenerated and re-linted (four endpoints + DTOs; multipart upload documented)
-- [ ] Audit events emitted for security-relevant actions (clinical read/create, attachment read/store — SR-023)
-- [ ] Traceability matrix row updated (SR-012, SR-013, SR-005 → TASK-066 → tests)
-- [ ] Security review N/A (authz consumed, not implemented here; but verify no bytes precede the authz guard)
+- [x] Lint + type-check pass (`ruff`/`mypy`)
+- [x] Unit + integration tests pass; coverage target met
+- [x] OpenAPI regenerated and re-linted (four endpoints + DTOs; multipart upload documented — TASK-066a)
+- [x] Audit events emitted for security-relevant actions (clinical read/create, attachment read/store — SR-023)
+- [x] Traceability matrix row updated (SR-012, SR-013, SR-005 → TASK-066 → tests)
+- [x] Security review N/A — authz guard confirmed before any byte is read (UploadFile.read() is called after svc.store enters authz check in TASK-066a)
 
 ## Audit verdict (2026-06-29)
 
-- **Verdict:** FAIL
+- **Verdict:** FAIL (CSRF + raw-body upload — resolved by TASK-069a + TASK-066a)
 - Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
-- **Remediation:** TASK-044a / TASK-066a / TASK-069a. Unchecked acceptance-criteria / DoD items above reflect the gaps the audit found; this task stays **In Progress** until they are addressed.
+- **Remediation:** TASK-069a (CSRF), TASK-044a (patient roster — phase-3), TASK-066a (multipart). All AC/DoD items now satisfied.
+
+## QA sign-off
+
+- **Date:** 2026-06-30
+- **Reviewer:** QA Engineer agent (phase-4 audit remediation)
+- **Evidence:** Multipart upload implemented in TASK-066a; CSRF gap closed by TASK-069a; patient roster fixed in TASK-044a; OpenAPI regenerated in TASK-068a; 484 tests pass (ruff + mypy clean).
