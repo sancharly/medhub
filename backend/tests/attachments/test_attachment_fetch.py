@@ -96,3 +96,74 @@ def test_open_emits_audit() -> None:
     svc.open(doctor, attachment.id)
     mock_audit.record.assert_called()
     assert "ATTACHMENT_ACCESS" in str(mock_audit.record.call_args)
+
+
+def _build_svc_for_list(
+    effective_access: bool = True,
+    entry: object | None = "default",
+    attachments: list[Attachment] | None = None,
+) -> tuple[AttachmentService, MagicMock, MagicMock]:
+    mock_attachment_repo = MagicMock()
+    mock_attachment_repo.list_for_clinical_entry.return_value = attachments or []
+
+    mock_clinical_repo = MagicMock()
+    mock_clinical_repo.get.return_value = entry
+    mock_audit = MagicMock()
+    mock_storage = MagicMock()
+
+    mock_consent = MagicMock()
+    mock_consent.has_active_grant.return_value = effective_access
+    authz_svc = AuthorizationService(mock_consent, MagicMock())
+
+    svc = AttachmentService(
+        mock_attachment_repo, mock_clinical_repo, mock_audit, authz_svc, mock_storage
+    )
+    return svc, mock_audit, mock_attachment_repo
+
+
+class _FakeClinicalEntry:
+    def __init__(self, patient_id: uuid.UUID) -> None:
+        self.patient_id = patient_id
+
+
+def test_list_attachments_returns_attachments_for_entry() -> None:
+    doctor = _make_account(UserType.DOCTOR)
+    patient = _make_account(UserType.PATIENT)
+    entry = _FakeClinicalEntry(patient.id)
+    entry_id = uuid.uuid4()
+    attachment = _make_attachment(patient.id)
+    svc, _, mock_attachment_repo = _build_svc_for_list(
+        effective_access=True, entry=entry, attachments=[attachment]
+    )
+
+    result = svc.list_attachments(doctor, entry_id)
+
+    assert result == [attachment]
+    mock_attachment_repo.list_for_clinical_entry.assert_called_once_with(entry_id)
+
+
+def test_list_attachments_entry_not_found() -> None:
+    doctor = _make_account(UserType.DOCTOR)
+    svc, _, _ = _build_svc_for_list(entry=None)
+    with pytest.raises(NotFoundError):
+        svc.list_attachments(doctor, uuid.uuid4())
+
+
+def test_list_attachments_without_consent_denied() -> None:
+    doctor = _make_account(UserType.DOCTOR)
+    patient = _make_account(UserType.PATIENT)
+    entry = _FakeClinicalEntry(patient.id)
+    svc, _, _ = _build_svc_for_list(effective_access=False, entry=entry)
+    with pytest.raises(AuthorizationError):
+        svc.list_attachments(doctor, uuid.uuid4())
+
+
+def test_list_attachments_emits_audit() -> None:
+    doctor = _make_account(UserType.DOCTOR)
+    patient = _make_account(UserType.PATIENT)
+    entry = _FakeClinicalEntry(patient.id)
+    svc, mock_audit, _ = _build_svc_for_list(effective_access=True, entry=entry)
+
+    svc.list_attachments(doctor, uuid.uuid4())
+    mock_audit.record.assert_called()
+    assert "ATTACHMENT_ACCESS" in str(mock_audit.record.call_args)

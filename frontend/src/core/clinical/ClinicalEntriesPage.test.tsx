@@ -29,6 +29,7 @@ const olderEntry = {
   id: "e1",
   patientId: PATIENT_ID,
   authorId: DOCTOR_ID,
+  authorName: "Greg House",
   occurredAt: "2024-01-10T10:00:00Z",
   description: "Older entry",
   createdAt: "2024-01-10T10:00:00Z",
@@ -38,6 +39,7 @@ const newerEntry = {
   id: "e2",
   patientId: PATIENT_ID,
   authorId: DOCTOR_ID,
+  authorName: "Greg House",
   occurredAt: "2024-06-15T10:00:00Z",
   description: "Newer entry",
   createdAt: "2024-06-15T10:00:00Z",
@@ -47,6 +49,12 @@ function mockMeAndModules(modules: string[] = []) {
   server.use(
     http.get(`${BASE}/me`, () => HttpResponse.json(doctorMe)),
     http.get(`${BASE}/me/modules`, () => HttpResponse.json({ modules }))
+  );
+}
+
+function mockEmptyAttachments(entryId = "e2") {
+  server.use(
+    http.get(`${BASE}/clinical-entries/${entryId}/attachments`, () => HttpResponse.json([]))
   );
 }
 
@@ -73,6 +81,8 @@ function renderPage(userType = "DOCTOR") {
 describe("ClinicalEntriesPage", () => {
   it("SR-012 AC-4 / SR-006-007: renders list in reverse-chronological order", async () => {
     mockMeAndModules();
+    mockEmptyAttachments("e1");
+    mockEmptyAttachments("e2");
     server.use(
       http.get(`${BASE}/patients/${PATIENT_ID}/clinical-entries`, () =>
         HttpResponse.json([olderEntry, newerEntry])
@@ -93,11 +103,14 @@ describe("ClinicalEntriesPage", () => {
 
   it("SR-012 AC-1: create form submit POSTs to /patients/{id}/clinical-entries and list refetches", async () => {
     mockMeAndModules();
+    mockEmptyAttachments("e2");
+    mockEmptyAttachments("e3");
     const postSpy = vi.fn();
     const newEntry = {
       id: "e3",
       patientId: PATIENT_ID,
       authorId: DOCTOR_ID,
+      authorName: "Greg House",
       occurredAt: "2024-07-01T09:00:00Z",
       description: "Created entry",
       createdAt: "2024-07-01T09:00:00Z",
@@ -210,17 +223,19 @@ describe("ClinicalEntriesPage", () => {
   it("SR-013 AC-1: uploads multiple files including DICOM in one selection", async () => {
     mockMeAndModules();
     const postSpy = vi.fn();
+    const uploaded: Record<string, unknown>[] = [];
 
     server.use(
       http.get(`${BASE}/patients/${PATIENT_ID}/clinical-entries`, () =>
         HttpResponse.json([newerEntry])
       ),
+      http.get(`${BASE}/clinical-entries/e2/attachments`, () => HttpResponse.json(uploaded)),
       http.post(`${BASE}/clinical-entries/e2/attachments`, () => {
         postSpy();
         const callNum = postSpy.mock.calls.length;
         const [filename, contentType] =
           callNum === 1 ? ["scan.dcm", "application/dicom"] : ["note.txt", "text/plain"];
-        return HttpResponse.json({
+        const attachment = {
           id: `att-${callNum}`,
           clinicalEntryId: "e2",
           patientId: PATIENT_ID,
@@ -229,7 +244,9 @@ describe("ClinicalEntriesPage", () => {
           size: 10,
           checksum: "abc",
           createdAt: "2024-06-15T10:00:00Z",
-        });
+        };
+        uploaded.push(attachment);
+        return HttpResponse.json(attachment);
       })
     );
 
@@ -259,14 +276,16 @@ describe("ClinicalEntriesPage", () => {
 
   it("SR-013 AC-3 / SR-015/016: DICOM attachment offers 'Open in viewer' only when module is enabled", async () => {
     const postSpy = vi.fn();
+    const uploaded: Record<string, unknown>[] = [];
 
     server.use(
       http.get(`${BASE}/patients/${PATIENT_ID}/clinical-entries`, () =>
         HttpResponse.json([newerEntry])
       ),
+      http.get(`${BASE}/clinical-entries/e2/attachments`, () => HttpResponse.json(uploaded)),
       http.post(`${BASE}/clinical-entries/e2/attachments`, () => {
         postSpy();
-        return HttpResponse.json({
+        const attachment = {
           id: "att-dicom",
           clinicalEntryId: "e2",
           patientId: PATIENT_ID,
@@ -275,7 +294,9 @@ describe("ClinicalEntriesPage", () => {
           size: 10,
           checksum: "abc",
           createdAt: "2024-06-15T10:00:00Z",
-        });
+        };
+        uploaded.push(attachment);
+        return HttpResponse.json(attachment);
       })
     );
 
@@ -298,14 +319,16 @@ describe("ClinicalEntriesPage", () => {
 
   it("SR-013 AC-3 / SR-015/016: viewer link appears when DICOM module is enabled", async () => {
     const postSpy = vi.fn();
+    const uploaded: Record<string, unknown>[] = [];
 
     server.use(
       http.get(`${BASE}/patients/${PATIENT_ID}/clinical-entries`, () =>
         HttpResponse.json([newerEntry])
       ),
+      http.get(`${BASE}/clinical-entries/e2/attachments`, () => HttpResponse.json(uploaded)),
       http.post(`${BASE}/clinical-entries/e2/attachments`, () => {
         postSpy();
-        return HttpResponse.json({
+        const attachment = {
           id: "att-dicom",
           clinicalEntryId: "e2",
           patientId: PATIENT_ID,
@@ -314,7 +337,9 @@ describe("ClinicalEntriesPage", () => {
           size: 10,
           checksum: "abc",
           createdAt: "2024-06-15T10:00:00Z",
-        });
+        };
+        uploaded.push(attachment);
+        return HttpResponse.json(attachment);
       })
     );
 
@@ -335,6 +360,7 @@ describe("ClinicalEntriesPage", () => {
 
   it("SR-012 AC-4: shows the authoring doctor's name, not the raw authorId", async () => {
     mockMeAndModules();
+    mockEmptyAttachments("e2");
     server.use(
       http.get(`${BASE}/patients/${PATIENT_ID}/clinical-entries`, () =>
         HttpResponse.json([newerEntry])
@@ -355,6 +381,7 @@ describe("ClinicalEntriesPage", () => {
 
   it("SR-007 read-only: patient role sees no create form", async () => {
     mockMeAndModules();
+    mockEmptyAttachments("e2");
     server.use(
       http.get(`${BASE}/patients/${PATIENT_ID}/clinical-entries`, () =>
         HttpResponse.json([newerEntry])

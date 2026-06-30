@@ -85,12 +85,12 @@ apiClient.getAttachmentUrl(attachmentId);                 // GET /attachments/{i
 TASK-092a is complete (see its own file). With TASK-044a/066a merged and TASK-092a's fixes applied,
 all AC above are now genuinely met: `CreateEntryForm` sends a full `occurredAt` ISO datetime (date +
 time inputs); `AttachmentUpload` accepts and uploads multiple files in one selection; uploaded
-attachments are rendered via `AttachmentItem` under each entry (tracked client-side per entry, since
-the backend exposes no `GET`-list-by-entry endpoint — each successful upload response is appended to
-the `["attachments", entryId]` query-cache entry); the "Open in viewer" action is gated on the DICOM
-module being present in `GET /me/modules`, not just `contentType`. The author is shown by name when the
-viewer is the authoring doctor (resolved from `GET /me`); for other doctors viewing the same patient the
-UI falls back to the generic label "Doctor" because the backend's `ClinicalEntryResponse` only exposes
-`authorId` (a UUID) with no name-resolution endpoint reachable by a doctor — full author-name display
-for all authors is a backend gap outside this frontend-only remediation's scope and is **not** claimed
-as fully solved.
+attachments are rendered via `AttachmentItem` under each entry; the "Open in viewer" action is gated
+on the DICOM module being present in `GET /me/modules`, not just `contentType`. The author is shown by
+name for every entry, resolved server-side and returned as `authorName` on `ClinicalEntryResponse`
+(TASK-066b).
+
+TASK-066b (2026-06-30) closed the two backend gaps TASK-092a had documented as out of its frontend-only
+scope: attachments are now listed via `GET /clinical-entries/{entry_id}/attachments` (so they persist
+across reloads instead of living only in the TanStack Query cache), and `authorName` is populated for
+every author, not just the viewer. See `docs/implementation-plan/phase-4-api-layer/TASK-066b-attachment-listing-author-name.md`.

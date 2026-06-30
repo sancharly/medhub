@@ -32,7 +32,7 @@ The clinical-entries view has several unmet acceptance criteria found in the pha
 - [x] Clinical entry create captures date **and** time.
 - [x] A doctor can attach **one or more** files in a single upload.
 - [x] Attachments are listed under their entry; DICOM "open in viewer" appears **only** when the module is enabled.
-- [x] Author is shown by name when the viewer is the authoring doctor (resolved client-side from `GET /me`, since the backend `ClinicalEntryResponse` exposes only `authorId` with no name-resolution endpoint reachable by a doctor for other authors — see caveat below).
+- [x] Author is shown by name for every entry, using the `authorName` field returned by the server (TASK-066b).
 
 ## Definition of Done
 
@@ -48,14 +48,10 @@ The clinical-entries view has several unmet acceptance criteria found in the pha
 - `AttachmentUpload.tsx`: `<input>` now has `multiple`; `handleChange` iterates `Array.from(files)` and
   uploads each via `Promise.all`.
 - `AttachmentItem.tsx` is now mounted per-entry via `ClinicalEntryList.tsx`'s new `EntryAttachments`
-  component. Because the backend exposes no `GET`-list-by-entry endpoint for attachments (only
-  `POST /clinical-entries/{id}/attachments` and `GET /attachments/{id}`), attachments are tracked in the
-  TanStack Query cache under `["attachments", entryId]`, populated by each upload's success response.
-  This means attachments uploaded in the current session are listed; this is the maximum achievable
-  without a backend change, which is out of scope for this frontend-only remediation.
+  component, backed by `useQuery(['attachments', entryId], () => apiClient.listAttachments(entryId))`
+  against the new `GET /clinical-entries/{entry_id}/attachments` endpoint (TASK-066b), so attachments
+  persist across page reloads.
 - `AttachmentItem.tsx` now fetches `GET /me/modules` (`apiClient.listMyModules()`) and only shows
   "Open in viewer" when `"dicom-viewer"` is present, in addition to the existing content-type check.
-- Author name: added an `EntryAuthor` component that compares `entry.authorId` to the signed-in user's
-  id (`GET /me`) and shows their name when they match; otherwise shows the generic label "Doctor". Full
-  name resolution for *any* author would require a backend doctor-name-lookup endpoint, which does not
-  exist and is outside this task's frontend-only scope.
+- Author name: the entry list renders the server-provided `entry.authorName` field directly
+  (TASK-066b), resolved for every author, not just the viewer.

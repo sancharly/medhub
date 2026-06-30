@@ -128,6 +128,7 @@ requirement→test column (TASK-114) must reflect these remediation tasks:
 | SR-010, SR-011, SR-035 | TASK-065 | `tests/api/test_appointments_router.py` |
 | SR-012, SR-013, SR-005 | TASK-066 | `tests/api/test_clinical_router.py`, `tests/api/test_attachments_router.py` |
 | SR-013 | TASK-066a | `tests/api/test_attachments_router.py`, `tests/attachments/test_attachment_upload.py` |
+| SR-012, SR-013 | TASK-066b | `tests/api/test_clinical_router.py`, `tests/api/test_attachments_router.py`, `tests/attachments/test_attachment_fetch.py` |
 | SR-003, SR-015 | TASK-067 | `tests/api/test_me_router.py` |
 | NFR-006, SR-031 | TASK-068 | `tests/api/test_openapi_contract.py` |
 | SR-031 | TASK-068a | `tests/api/test_openapi_contract.py` (TestOpenAPISecurityRequirements) |
@@ -148,6 +149,6 @@ requirement→test column (TASK-114) must reflect these remediation tasks:
 | Requirement | Task | Key test file(s) |
 |-------------|------|------------------|
 | SR-006 | TASK-091 | `frontend/src/core/patients/PatientListPage.test.tsx` |
-| SR-012, SR-013, SR-015, SR-016 | TASK-092, TASK-092a | `frontend/src/core/clinical/ClinicalEntriesPage.test.tsx` |
+| SR-012, SR-013, SR-015, SR-016 | TASK-092, TASK-092a, TASK-066b | `frontend/src/core/clinical/ClinicalEntriesPage.test.tsx` |
 | SR-009, SR-032, SR-034, ADR-0013 | TASK-095, TASK-095a | `frontend/src/core/admin/accounts/AccountsPage.test.tsx` |
 | SR-014, SR-015 | TASK-096, TASK-096a | `frontend/src/core/admin/groups/GroupsPage.test.tsx` |

@@ -28,6 +28,10 @@ router = APIRouter(prefix="/patients", tags=["clinical"])
 roster_router = APIRouter(prefix="/clinical-entries", tags=["clinical"])
 
 
+def _get_account_repo(db: Session = Depends(get_db)) -> AccountRepository:
+    return AccountRepository(db)
+
+
 def _get_clinical_service(db: Session = Depends(get_db)) -> ClinicalDataService:
     from app.authz.consent import ConsentService  # noqa: PLC0415
 
@@ -44,6 +48,14 @@ def _get_clinical_service(db: Session = Depends(get_db)) -> ClinicalDataService:
     )
 
 
+def _author_name(account: Account | None) -> str:
+    if account is None:
+        return "Unknown"
+    if account.surname:
+        return f"{account.first_name} {account.surname}"
+    return account.first_name or "Unknown"
+
+
 @router.post(
     "/{patient_id}/clinical-entries",
     status_code=status.HTTP_201_CREATED,
@@ -54,12 +66,15 @@ def create_clinical_entry(
     body: ClinicalEntryCreate,
     actor: Account = Depends(get_current_user),
     svc: ClinicalDataService = Depends(_get_clinical_service),
+    account_repo: AccountRepository = Depends(_get_account_repo),
 ) -> ClinicalEntryResponse:
     entry = svc.create_entry(actor, patient_id, body.occurred_at, body.description)
+    author = account_repo.get_by_id(entry.author_doctor_id)
     return ClinicalEntryResponse(
         id=entry.id,
         patient_id=entry.patient_id,
         author_id=entry.author_doctor_id,
+        author_name=_author_name(author),
         occurred_at=entry.occurred_at,
         description=entry.description,
         created_at=entry.created_at,
@@ -71,13 +86,17 @@ def list_clinical_entries(
     patient_id: uuid.UUID,
     actor: Account = Depends(get_current_user),
     svc: ClinicalDataService = Depends(_get_clinical_service),
+    account_repo: AccountRepository = Depends(_get_account_repo),
 ) -> list[ClinicalEntryResponse]:
     entries = svc.list_entries(actor, patient_id)
+    author_ids = {e.author_doctor_id for e in entries}
+    authors = {a_id: account_repo.get_by_id(a_id) for a_id in author_ids}
     return [
         ClinicalEntryResponse(
             id=e.id,
             patient_id=e.patient_id,
             author_id=e.author_doctor_id,
+            author_name=_author_name(authors.get(e.author_doctor_id)),
             occurred_at=e.occurred_at,
             description=e.description,
             created_at=e.created_at,

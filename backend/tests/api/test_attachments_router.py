@@ -131,3 +131,43 @@ class TestFetchAttachment:
     def test_fetch_requires_auth(self, client):
         resp = client.get(f"/api/v1/attachments/{uuid.uuid4()}")
         assert resp.status_code == 401
+
+
+class TestListAttachments:
+    def test_list_attachments_returns_200(self, client):
+        actor = _make_account(UserType.DOCTOR)
+        entry_id = uuid.uuid4()
+        att = _make_attachment()
+        _auth_as(client, actor)
+
+        mock_att_svc = MagicMock(spec=AttachmentService)
+        mock_att_svc.list_attachments.return_value = [att]
+        client.app.dependency_overrides[_get_attachment_service] = lambda: mock_att_svc
+
+        resp = client.get(f"/api/v1/clinical-entries/{entry_id}/attachments")
+
+        client.app.dependency_overrides = {}
+        assert resp.status_code == 200
+        data = resp.json()
+        assert isinstance(data, list)
+        assert len(data) == 1
+        assert data[0]["id"] == str(att.id)
+
+    def test_list_attachments_empty(self, client):
+        actor = _make_account(UserType.DOCTOR)
+        entry_id = uuid.uuid4()
+        _auth_as(client, actor)
+
+        mock_att_svc = MagicMock(spec=AttachmentService)
+        mock_att_svc.list_attachments.return_value = []
+        client.app.dependency_overrides[_get_attachment_service] = lambda: mock_att_svc
+
+        resp = client.get(f"/api/v1/clinical-entries/{entry_id}/attachments")
+
+        client.app.dependency_overrides = {}
+        assert resp.status_code == 200
+        assert resp.json() == []
+
+    def test_list_attachments_requires_auth(self, client):
+        resp = client.get(f"/api/v1/clinical-entries/{uuid.uuid4()}/attachments")
+        assert resp.status_code == 401

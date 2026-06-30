@@ -349,7 +349,11 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /**
+         * List Attachments
+         * @description List attachments for a clinical entry.
+         */
+        get: operations["list_attachments_api_v1_clinical_entries__entry_id__attachments_get"];
         put?: never;
         /**
          * Upload Attachment
@@ -782,6 +786,8 @@ export interface components {
              * Format: uuid
              */
             authorId: string;
+            /** Authorname */
+            authorName: string;
             /**
              * Occurredat
              * Format: date-time
@@ -2248,6 +2254,37 @@ export interface operations {
                 };
                 content: {
                     "application/problem+json": components["schemas"]["ProblemDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_attachments_api_v1_clinical_entries__entry_id__attachments_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                entry_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AttachmentResponse"][];
                 };
             };
             /** @description Validation Error */

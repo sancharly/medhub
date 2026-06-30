@@ -13,21 +13,10 @@ interface ClinicalEntryListProps {
   entries: ClinicalEntry[];
 }
 
-function EntryAuthor({ authorId }: { authorId: string }) {
-  const { data: me } = useQuery({ queryKey: ["me"], queryFn: () => apiClient.me() });
-
-  if (me && me.id === authorId) {
-    return <>{`${me.firstName ?? ""} ${me.surname ?? ""}`.trim() || "You"}</>;
-  }
-  return <>Doctor</>;
-}
-
 function EntryAttachments({ entryId }: { entryId: string }) {
   const { data: attachments } = useQuery<Attachment[]>({
     queryKey: ["attachments", entryId],
-    queryFn: () => Promise.resolve([]),
-    initialData: [],
-    staleTime: Infinity,
+    queryFn: () => apiClient.listAttachments(entryId),
   });
 
   if (!attachments || attachments.length === 0) return null;
@@ -59,7 +48,7 @@ export function ClinicalEntryList({ entries }: ClinicalEntryListProps) {
             primary={entry.description}
             secondary={
               <Typography component="span" variant="caption" color="text.secondary">
-                {new Date(entry.occurredAt).toLocaleString()} — Author: <EntryAuthor authorId={entry.authorId} />
+                {new Date(entry.occurredAt).toLocaleString()} — Author: {entry.authorName}
               </Typography>
             }
           />

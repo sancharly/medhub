@@ -145,3 +145,33 @@ class AttachmentService:
             ip=None,
         )
         return data, attachment.content_type, attachment.filename
+
+    def list_attachments(self, actor: object, entry_id: uuid.UUID) -> list[Attachment]:
+        """List attachments for a clinical entry."""
+        from app.db.models.account import Account  # noqa: PLC0415
+
+        actor_acct: Account = actor  # type: ignore[assignment]
+
+        entry = self._clinical_repo.get(entry_id)
+        if entry is None:
+            raise NotFoundError(f"Clinical entry {entry_id} not found.")
+
+        self._authz_svc.authorize(
+            actor_acct,
+            "clinical:read",
+            Resource(
+                resource_type="attachment",
+                owner_id=None,
+                patient_id=entry.patient_id,
+            ),
+        )
+
+        self._audit_svc.record(
+            actor=actor_acct.id,
+            action=AuditAction.ATTACHMENT_ACCESS,
+            target_type="attachment",
+            target_id=str(entry_id),
+            outcome=AuditOutcome.SUCCESS,
+            ip=None,
+        )
+        return self._attachment_repo.list_for_clinical_entry(entry_id)

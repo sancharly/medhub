@@ -1787,6 +1787,57 @@
             "cookieAuth": []
           }
         ]
+      },
+      "get": {
+        "tags": [
+          "attachments"
+        ],
+        "summary": "List Attachments",
+        "description": "List attachments for a clinical entry.",
+        "operationId": "list_attachments_api_v1_clinical_entries__entry_id__attachments_get",
+        "parameters": [
+          {
+            "name": "entry_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Entry Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AttachmentResponse"
+                  },
+                  "title": "Response List Attachments Api V1 Clinical Entries  Entry Id  Attachments Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ]
       }
     },
     "/api/v1/attachments/{attachment_id}": {
@@ -2877,6 +2928,10 @@
             "format": "uuid",
             "title": "Authorid"
           },
+          "authorName": {
+            "type": "string",
+            "title": "Authorname"
+          },
           "occurredAt": {
             "type": "string",
             "format": "date-time",
@@ -2897,6 +2952,7 @@
           "id",
           "patientId",
           "authorId",
+          "authorName",
           "occurredAt",
           "description",
           "createdAt"

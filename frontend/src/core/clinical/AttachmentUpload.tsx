@@ -3,7 +3,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import { apiClient } from "../../api";
-import type { Attachment } from "../../api/generated/types";
 
 interface AttachmentUploadProps {
   entryId: string;
@@ -17,11 +16,8 @@ export function AttachmentUpload({ entryId, patientId }: AttachmentUploadProps) 
   const mutation = useMutation({
     mutationFn: (files: File[]) =>
       Promise.all(files.map((file) => apiClient.uploadAttachment(entryId, file))),
-    onSuccess: (uploaded) => {
-      queryClient.setQueryData<Attachment[]>(["attachments", entryId], (existing) => [
-        ...(existing ?? []),
-        ...uploaded,
-      ]);
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["attachments", entryId] });
       queryClient.invalidateQueries({ queryKey: ["clinicalEntries", patientId] });
     },
   });
