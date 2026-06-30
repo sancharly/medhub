@@ -53,3 +53,6 @@ secrets/
 infra/.env
 infra/certs/*.crt
 infra/certs/*.key
+
+# Claude Code agent worktrees
+.claude/worktrees/
