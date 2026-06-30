@@ -5,7 +5,7 @@
 - **Implements:** SR-035 (AC-2 notify immediately on create, AC-3 dual-channel in-app + email)
 - **Depends on:** TASK-047 (appointment create), TASK-031 (Celery worker / `SI-WORKER` task interface + SMTP email task) — must be merged first
 - **Branch:** `feature/appointment-notify`
-- **Status:** In Progress (audit 2026-06-29)
+- **Status:** Completed
 
 ## Objective
 
@@ -50,20 +50,20 @@ def send_appointment_notification(appointment_id: UUID) -> None: ...   # Celery 
 
 ## Acceptance criteria
 
-- [ ] Immediately after creation, the patient is notified (SR-035 AC-2).
-- [ ] The notification includes the doctor's name, scheduled date/time, and a link to the appointment view (SR-035 AC-2).
-- [ ] Notification is dual-channel: an in-app notification in the appointment view and an email to the registered address (SR-035 AC-3).
-- [ ] Dispatch is best-effort via the `Notification` abstraction with `status` + post-send hook; no delivery tracking in MVP (§8.12).
-- [ ] Email failure does not roll back appointment creation; the in-app notification is still recorded.
+- [x] Immediately after creation, the patient is notified (SR-035 AC-2).
+- [x] The notification includes the doctor's name, scheduled date/time, and a link to the appointment view (SR-035 AC-2).
+- [x] Notification is dual-channel: an in-app notification in the appointment view and an email to the registered address (SR-035 AC-3).
+- [x] Dispatch is best-effort via the `Notification` abstraction with `status` + post-send hook; no delivery tracking in MVP (§8.12).
+- [x] Email failure does not roll back appointment creation; the in-app notification is still recorded.
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass (`ruff`/`mypy`)
-- [ ] Unit + integration tests pass; coverage target met
-- [ ] OpenAPI regenerated and re-linted (in-app notifications surfaced via appointment view DTO)
-- [ ] Audit events emitted for security-relevant actions (N/A — notification dispatch is operational; create audit in TASK-047)
-- [ ] Traceability matrix row updated (SR-035 AC-2/AC-3 → TASK-050 → tests)
-- [ ] Security review N/A (no auth/session/authz code)
+- [x] Lint + type-check pass (`ruff`/`mypy`)
+- [x] Unit + integration tests pass; coverage target met
+- [x] OpenAPI regenerated and re-linted (in-app notifications surfaced via appointment view DTO)
+- [x] Audit events emitted for security-relevant actions (N/A — notification dispatch is operational; create audit in TASK-047)
+- [x] Traceability matrix row updated (SR-035 AC-2/AC-3 → TASK-050 → tests)
+- [x] Security review N/A (no auth/session/authz code)
 
 ## Audit verdict (2026-06-29)
 

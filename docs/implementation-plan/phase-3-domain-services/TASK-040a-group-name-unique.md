@@ -4,7 +4,7 @@
 - **Implements / restores:** SR-014; remediates TASK-040 (and the auto-membership test gap in TASK-041)
 - **Depends on:** TASK-040, TASK-041
 - **Branch:** `feature/group-name-unique`
-- **Status:** Not started
+- **Status:** Completed
 - **Source:** `AUDIT-LEDGER.md` — TASK-040/041 verdict **PARTIAL**
 
 ## Objective
@@ -23,12 +23,12 @@ concurrent creates can both insert. The AC requires a DB constraint. Also `sync_
 
 ## Acceptance criteria
 
-- [ ] Duplicate group names are rejected at the DB level (409), race-safe.
-- [ ] Auto-membership sync is covered by tests (assign + type-change re-sync).
+- [x] Duplicate group names are rejected at the DB level (409), race-safe.
+- [x] Auto-membership sync is covered by tests (assign + type-change re-sync).
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass
-- [ ] Migration + tests pass
-- [ ] Traceability row updated (SR-014 → TASK-040a → tests)
-- [ ] Security review N/A
+- [x] Lint + type-check pass
+- [x] Migration + tests pass
+- [x] Traceability row updated (SR-014 → TASK-040a → tests)
+- [x] Security review N/A

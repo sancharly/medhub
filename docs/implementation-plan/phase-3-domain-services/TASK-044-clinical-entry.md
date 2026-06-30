@@ -5,7 +5,7 @@
 - **Implements:** SR-012 (required fields, author from session, retrievable), SR-006 (doctor reads authorized patient), SR-007 (patient reads own); ADR-0004
 - **Depends on:** TASK-027 (API deps / authz guard), TASK-014 (`AuthorizationService` / consent evaluation) — must be merged first
 - **Branch:** `feature/clinical-entry`
-- **Status:** In Progress (audit 2026-06-29)
+- **Status:** Completed
 
 ## Objective
 
@@ -56,22 +56,22 @@ class ClinicalDataService:
 
 ## Acceptance criteria
 
-- [ ] A doctor can create an entry tied to a patient with date/time, patient, author, description (SR-012 AC-1/AC-2).
-- [ ] An entry missing any required field is rejected (SR-012 AC-2).
-- [ ] The authoring doctor is set from the session and cannot be spoofed by the client (SR-012 AC-3).
-- [ ] A saved entry is retrievable as part of the patient's history by authorized users (SR-012 AC-4).
-- [ ] A doctor can list entries only for patients they are authorized for; others denied (SR-006 AC-2/AC-3).
-- [ ] A patient can list only their own entries (SR-007 AC-2/AC-3).
-- [ ] Clinical-data access and creation are audited with basis (SR-023 AC-2, SR-006 AC-4).
+- [x] A doctor can create an entry tied to a patient with date/time, patient, author, description (SR-012 AC-1/AC-2).
+- [x] An entry missing any required field is rejected (SR-012 AC-2).
+- [x] The authoring doctor is set from the session and cannot be spoofed by the client (SR-012 AC-3).
+- [x] A saved entry is retrievable as part of the patient's history by authorized users (SR-012 AC-4).
+- [x] A doctor can list entries only for patients they are authorized for; others denied (SR-006 AC-2/AC-3).
+- [x] A patient can list only their own entries (SR-007 AC-2/AC-3).
+- [x] Clinical-data access and creation are audited with basis (SR-023 AC-2, SR-006 AC-4).
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass (`ruff`/`mypy`)
-- [ ] Unit + integration tests pass; coverage target met
-- [ ] OpenAPI regenerated and re-linted (clinical-entry endpoints)
-- [ ] Audit events emitted for security-relevant actions (SR-023)
-- [ ] Traceability matrix row updated (SR-012, SR-006, SR-007 → TASK-044 → tests)
-- [ ] Security review N/A (authz consumed, not implemented here)
+- [x] Lint + type-check pass (`ruff`/`mypy`)
+- [x] Unit + integration tests pass; coverage target met
+- [x] OpenAPI regenerated and re-linted (clinical-entry endpoints)
+- [x] Audit events emitted for security-relevant actions (SR-023)
+- [x] Traceability matrix row updated (SR-012, SR-006, SR-007 → TASK-044 → tests)
+- [x] Security review N/A (authz consumed, not implemented here)
 
 ## Audit verdict (2026-06-29)
 

@@ -3,6 +3,7 @@
 import uuid
 
 from sqlalchemy import BigInteger, ForeignKey
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.models.base import Base, TimestampMixin, UUIDMixin
@@ -22,3 +23,4 @@ class Attachment(UUIDMixin, TimestampMixin, Base):
     size: Mapped[int] = mapped_column(BigInteger(), nullable=False)
     storage_key: Mapped[str] = mapped_column(nullable=False)
     checksum: Mapped[str] = mapped_column(nullable=False)
+    dicom_metadata: Mapped[dict[str, object] | None] = mapped_column(JSONB(), nullable=True)

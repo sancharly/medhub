@@ -19,7 +19,7 @@ class MembershipSource(enum.Enum):
 class Group(UUIDMixin, TimestampMixin, Base):
     __tablename__ = "group"
 
-    name: Mapped[str] = mapped_column(nullable=False)
+    name: Mapped[str] = mapped_column(nullable=False, unique=True)
     auto_user_type: Mapped[UserType | None] = mapped_column(
         SAEnum(UserType, name="usertype"), nullable=True
     )

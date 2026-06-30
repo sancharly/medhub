@@ -5,7 +5,7 @@
 - **Implements:** SR-014 (AC-2 auto-by-type, AC-3 manual add/remove, AC-4 retrievable), SR-004 (user type as membership input); ADR-0005
 - **Depends on:** TASK-040 (Group CRUD) — must be merged first
 - **Branch:** `feature/group-membership`
-- **Status:** In Progress (audit 2026-06-29)
+- **Status:** Completed
 
 ## Objective
 
@@ -59,20 +59,20 @@ class GroupService:
 
 ## Acceptance criteria
 
-- [ ] Users are auto-assigned to a group by user type on activation and on type change (SR-014 AC-2).
-- [ ] A sysadmin can manually add and remove a user from a group (SR-014 AC-3).
-- [ ] Manual removal affects only manual memberships; automatic ones are managed by the sync (SR-014 AC-3).
-- [ ] `groups_of(account_id)` returns the union of a user's groups for access decisions (SR-014 AC-4).
-- [ ] Membership changes restricted to sysadmin and audited (SR-005, SR-023).
+- [x] Users are auto-assigned to a group by user type on activation and on type change (SR-014 AC-2).
+- [x] A sysadmin can manually add and remove a user from a group (SR-014 AC-3).
+- [x] Manual removal affects only manual memberships; automatic ones are managed by the sync (SR-014 AC-3).
+- [x] `groups_of(account_id)` returns the union of a user's groups for access decisions (SR-014 AC-4).
+- [x] Membership changes restricted to sysadmin and audited (SR-005, SR-023).
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass (`ruff`/`mypy`)
-- [ ] Unit + integration tests pass; coverage target met
-- [ ] OpenAPI regenerated and re-linted (membership endpoints)
-- [ ] Audit events emitted for security-relevant actions (SR-023)
-- [ ] Traceability matrix row updated (SR-014, SR-004 → TASK-041 → tests)
-- [ ] Security review N/A (authz consumed, not implemented here)
+- [x] Lint + type-check pass (`ruff`/`mypy`)
+- [x] Unit + integration tests pass; coverage target met
+- [x] OpenAPI regenerated and re-linted (membership endpoints)
+- [x] Audit events emitted for security-relevant actions (SR-023)
+- [x] Traceability matrix row updated (SR-014, SR-004 → TASK-041 → tests)
+- [x] Security review N/A (authz consumed, not implemented here)
 
 ## Audit verdict (2026-06-29)
 

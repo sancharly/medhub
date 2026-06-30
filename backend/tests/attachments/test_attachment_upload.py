@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import uuid
 from datetime import UTC, datetime
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -123,3 +123,24 @@ def test_store_emits_audit() -> None:
     svc.store(doctor, entry.id, "test.pdf", "application/pdf", b"PDF data content")
     mock_audit.record.assert_called()
     assert "ATTACHMENT_UPLOAD" in str(mock_audit.record.call_args)
+
+
+def test_dicom_upload_stores_metadata() -> None:
+    """Valid DICOM upload stores dicom_metadata in the attachment row."""
+    patient = _make_account(UserType.PATIENT)
+    doctor = _make_account(UserType.DOCTOR)
+    entry = _make_entry(patient.id)
+    svc, mock_repo, _, _ = _build_svc(effective_access=True, entry=entry)
+
+    mock_ds = MagicMock()
+    mock_ds.Modality = "CT"
+    mock_ds.PatientID = None
+    mock_ds.StudyDate = None
+
+    with patch("pydicom.dcmread", return_value=mock_ds):
+        svc.store(doctor, entry.id, "scan.dcm", "application/dicom", b"fake dcm")
+
+    mock_repo.add.assert_called_once()
+    stored: Attachment = mock_repo.add.call_args[0][0]
+    assert stored.dicom_metadata is not None
+    assert stored.dicom_metadata.get("modality") == "CT"

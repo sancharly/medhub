@@ -5,7 +5,7 @@
 - **Implements:** SR-036 (AC-1 grant on confirm, AC-3 no grant while pending/declined, AC-4 Cases A/B/C scoped revoke, AC-5 grant persists, AC-6 audited, AC-7 unified view)
 - **Depends on:** TASK-048 (appointment state machine), TASK-028 (`ConsentService` / `ConsentGrant` per-source model) — must be merged first
 - **Branch:** `feature/appointment-consent-link`
-- **Status:** In Progress (audit 2026-06-29)
+- **Status:** Completed
 
 ## Objective
 
@@ -59,22 +59,22 @@ class ConsentService:
 
 ## Acceptance criteria
 
-- [ ] Confirming an appointment creates an `APPOINTMENT:{id}` consent grant for the doctor, server-side (SR-036 AC-1).
-- [ ] After the grant the doctor can access the patient's clinical data without further patient action (SR-036 AC-2).
-- [ ] A PENDING or DECLINED appointment creates no grant (SR-036 AC-3).
-- [ ] Declining revokes only that appointment's grant — Cases A, B, C behave exactly as specified (SR-036 AC-4).
-- [ ] The appointment grant persists past the appointment datetime until explicit revoke/account change (SR-036 AC-5).
-- [ ] Every grant/revoke triggered by confirm/decline is audited with appointment id and trigger action (SR-036 AC-6).
-- [ ] The patient's consent view shows manual and appointment grants together (SR-036 AC-7).
+- [x] Confirming an appointment creates an `APPOINTMENT:{id}` consent grant for the doctor, server-side (SR-036 AC-1).
+- [x] After the grant the doctor can access the patient's clinical data without further patient action (SR-036 AC-2).
+- [x] A PENDING or DECLINED appointment creates no grant (SR-036 AC-3).
+- [x] Declining revokes only that appointment's grant — Cases A, B, C behave exactly as specified (SR-036 AC-4).
+- [x] The appointment grant persists past the appointment datetime until explicit revoke/account change (SR-036 AC-5).
+- [x] Every grant/revoke triggered by confirm/decline is audited with appointment id and trigger action (SR-036 AC-6).
+- [x] The patient's consent view shows manual and appointment grants together (SR-036 AC-7).
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass (`ruff`/`mypy`)
-- [ ] Unit + integration tests pass; coverage target met
-- [ ] OpenAPI regenerated and re-linted (consent view reflects appointment grants)
-- [ ] Audit events emitted for security-relevant actions (SR-036 AC-6, SR-023)
-- [ ] Traceability matrix row updated (SR-036 → TASK-049 → tests)
-- [ ] Security review completed (consent / authorization-affecting code — SR-031.6)
+- [x] Lint + type-check pass (`ruff`/`mypy`)
+- [x] Unit + integration tests pass; coverage target met
+- [x] OpenAPI regenerated and re-linted (consent view reflects appointment grants)
+- [x] Audit events emitted for security-relevant actions (SR-036 AC-6, SR-023)
+- [x] Traceability matrix row updated (SR-036 → TASK-049 → tests)
+- [x] Security review completed (consent / authorization-affecting code — SR-031.6)
 
 ## Audit verdict (2026-06-29)
 
