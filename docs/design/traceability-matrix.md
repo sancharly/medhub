@@ -6,9 +6,9 @@ Verifies that the architecture implements **all** requirements (NFR-006, SR-028)
 
 | SR     | Title (short)                           | Software item(s)                                                                                                                | ADR(s)           | Artifact(s)                            |
 |--------|-----------------------------------------|---------------------------------------------------------------------------------------------------------------------------------|------------------|----------------------------------------|
-| SR-001 | HTTPS web app                           | SI-API, SI-FE-SHELL, Reverse proxy                                                                                              | 0003, 0010, 0011 | 03, 07, diagram-context/deployment     |
+| SR-001 | HTTPS web app                           | SI-API, SI-FE-SHELL, Reverse proxy                                                                                              | 0003, 0010, 0011 | 03, 07, diagram-context/deployment, TASK-004, TASK-004a |
 | SR-002 | Email/password auth                     | SI-AUTH (`U-AUTH-Login`), SI-FE-AUTH                                                                                            | 0011, 0012       | 06.1, seq-login                        |
-| SR-003 | Unique account + profile                | SI-IDENTITY (`U-ID-AccountCrud`), SI-PERSIST                                                                                    | 0004             | domain-model, 05                       |
+| SR-003 | Unique account + profile                | SI-IDENTITY (`U-ID-AccountCrud`), SI-PERSIST                                                                                    | 0004             | domain-model, 05, TASK-004a            |
 | SR-004 | User type assignment                    | SI-IDENTITY, SI-AUTHZ, SI-PERSIST                                                                                               | 0006             | domain-model                           |
 | SR-005 | RBAC deny-by-default                    | SI-AUTHZ (`U-AUTHZ-Policy`)                                                                                                     | 0006, 0011       | 08.2, 12, seq-doctor-access            |
 | SR-006 | Doctor sees own patients                | SI-AUTHZ (`U-AUTHZ-Consent`), SI-CLINICAL                                                                                       | 0006             | 06.2, seq-doctor-access                |
@@ -33,7 +33,7 @@ Verifies that the architecture implements **all** requirements (NFR-006, SR-028)
 | SR-025 | Password complexity policy              | SI-AUTH (`U-AUTH-PasswordPolicy`)                                                                                               | 0011, 0012       | 08.3                                   |
 | SR-026 | Performance budgets                     | SI-API, SI-ATTACH, SI-MOD-DICOM-FE                                                                                              | 0008, 0009       | 08.9, 10 (normal-load assumption)      |
 | SR-027 | Usability controls                      | SI-FE-SHELL (`U-FE-Confirm`, `U-FE-Error`, `U-FE-Nav`)                                                                          | 0003             | 08.8, 08.6                             |
-| SR-028 | Traceable dev records                   | (process) — this matrix, ADRs, version control                                                                                  | 0011             | this matrix, adr/, 09                  |
+| SR-028 | Traceable dev records                   | (process) — this matrix, ADRs, version control                                                                                  | 0011             | this matrix, adr/, 09, TASK-005        |
 | SR-029 | Account lockout                         | SI-AUTH (`U-AUTH-Lockout`)                                                                                                      | 0011, 0012       | 06.1, seq-login                        |
 | SR-030 | Session management                      | SI-AUTH (`U-AUTH-Session`, `U-AUTH-Cookie`), SI-FE-AUTH (`U-FEA-IdleWarning`)                                                   | 0012             | 08.3, seq-login                        |
 | SR-031 | Web vulnerability mitigations           | SI-API (`U-API-*`), security middleware, SI-PERSIST (`U-PER-Repos`)                                                             | 0011             | 08.3, 08.6                             |
@@ -54,7 +54,7 @@ Verifies that the architecture implements **all** requirements (NFR-006, SR-028)
 | NFR-003 | Device/responsive     | Responsive layout, breakpoints, touch targets                        | SI-FE-SHELL; ADR-0003; SR-020                                                  |
 | NFR-004 | GDPR                  | Consent, minimization, erasure, audit, encryption                    | SI-AUTHZ, SI-IDENTITY, SI-AUDIT; ADR-0006/0011; SR-005/008/022/023/024         |
 | NFR-005 | MDR/FDA               | Traceable docs, verified clinical features (DICOM)                   | This matrix, ADRs; SI-MOD-DICOM-*; SR-017/028                                  |
-| NFR-006 | IEC 62304             | Lifecycle outputs, item/unit decomposition, interfaces, traceability | Arc42 doc, 05, 12, this matrix; SR-028                                         |
+| NFR-006 | IEC 62304             | Lifecycle outputs, item/unit decomposition, interfaces, traceability | Arc42 doc, 05, 12, this matrix; SR-028; TASK-005 (CI gate)                     |
 | NFR-007 | Cybersecurity         | TLS, at-rest crypto, auth/session/lockout, OWASP, audit              | SI-AUTH, SI-AUTHZ, SI-API, SI-AUDIT; ADR-0011/0012; SR-022/023/025/029/030/031 |
 | NFR-008 | Performance           | Budgets, object-store offload, client DICOM, lazy chunks             | SI-API, SI-ATTACH, SI-MOD-DICOM-FE; ADR-0008/0009; SR-026                      |
 | NFR-009 | Usability             | Consistent nav, confirmations, clear errors                          | SI-FE-SHELL; ADR-0003; SR-027                                                  |
@@ -95,16 +95,16 @@ The architecture covers every requirement, but a phase 0–7 implementation audi
 whose **implementation** was incomplete despite the owning task being marked Completed. The
 requirement→test column (TASK-114) must reflect these remediation tasks:
 
-| Requirement | Gap found | Remediation task |
-|-------------|-----------|------------------|
-| SR-006 | Doctor patient-roster endpoint missing (404) | TASK-044a |
-| SR-009 | Admin non-clinical projection never applied to endpoints | TASK-029a |
-| SR-029 | Account lockout never wired into login | TASK-024a |
-| SR-031.3 | CSRF not enforced app-wide (most mutating routes unprotected) | TASK-069a, TASK-068a |
-| SR-024 / ADR-0013 | Erasure retrieval code never delivered; deadline/re-key gaps | TASK-035a |
-| SR-016 | Module registry never synced at startup (`/modules` empty) | TASK-070a |
-| SR-013 | Attachment upload not multipart; DICOM metadata discarded | TASK-066a |
-| SR-001.1 / SR-003 | No DB migration on bring-up (fresh deploy = empty schema) | TASK-004a |
-| SR-025 / SR-033 | Forced-password gate inert; activation contract + policy-400 | TASK-087a, TASK-086a, TASK-026a |
-| SR-014 | Group-name uniqueness not DB-enforced | TASK-040a |
-| SR-035 | Email failure suppresses in-app notification | TASK-050a |
+| Requirement       | Gap found                                                     | Remediation task                |
+|-------------------|---------------------------------------------------------------|---------------------------------|
+| SR-006            | Doctor patient-roster endpoint missing (404)                  | TASK-044a                       |
+| SR-009            | Admin non-clinical projection never applied to endpoints      | TASK-029a                       |
+| SR-029            | Account lockout never wired into login                        | TASK-024a                       |
+| SR-031.3          | CSRF not enforced app-wide (most mutating routes unprotected) | TASK-069a, TASK-068a            |
+| SR-024 / ADR-0013 | Erasure retrieval code never delivered; deadline/re-key gaps  | TASK-035a                       |
+| SR-016            | Module registry never synced at startup (`/modules` empty)    | TASK-070a                       |
+| SR-013            | Attachment upload not multipart; DICOM metadata discarded     | TASK-066a                       |
+| SR-001.1 / SR-003 | No DB migration on bring-up (fresh deploy = empty schema)     | TASK-004a (**completed** 2026-06-30) |
+| SR-025 / SR-033   | Forced-password gate inert; activation contract + policy-400  | TASK-087a, TASK-086a, TASK-026a |
+| SR-014            | Group-name uniqueness not DB-enforced                         | TASK-040a                       |
+| SR-035            | Email failure suppresses in-app notification                  | TASK-050a                       |

@@ -4,7 +4,7 @@
 - **Implements / restores:** SR-001.1, SR-003; remediates TASK-004, TASK-005
 - **Depends on:** TASK-004, TASK-011 (migrations)
 - **Branch:** `feature/migrate-on-bringup`
-- **Status:** Not started
+- **Status:** Completed
 - **Source:** `AUDIT-LEDGER.md` — TASK-004 verdict **FAIL**; `SMOKE-RESULTS.md` F5
 
 ## Objective
@@ -27,14 +27,22 @@ copy `alembic.ini`, so the `DEPLOY.md` manual `uv run alembic upgrade head` fail
 
 ## Acceptance criteria
 
-- [ ] A fresh `docker compose up` on empty volumes yields a fully-migrated schema; `POST /auth/login`
+- [x] A fresh `docker compose up` on empty volumes yields a fully-migrated schema; `POST /auth/login`
   and other DB endpoints work without any manual step.
-- [ ] Migration step is idempotent across restarts.
-- [ ] CI runs migrations before DB-backed tests.
+- [x] Migration step is idempotent across restarts.
+- [x] CI runs migrations before DB-backed tests.
 
 ## Definition of Done
 
-- [ ] Lint/build pass; backend + frontend images build
-- [ ] Bring-up smoke confirms migrated schema + a working login end-to-end (extend `infra/smoke-test.sh`)
-- [ ] Traceability row updated (SR-001 → TASK-004a)
-- [ ] Security review N/A
+- [x] Lint/build pass; backend + frontend images build
+- [x] Bring-up smoke confirms migrated schema + a working login end-to-end (extend `infra/smoke-test.sh`)
+- [x] Traceability row updated (SR-001 → TASK-004a)
+- [x] Security review N/A
+
+## Implementation notes (2026-06-30)
+
+- `backend/entrypoint.sh` — runs `alembic upgrade head` then `exec gunicorn`; idempotent (alembic no-ops when schema is current).
+- `backend/Dockerfile` — builder stage copies `alembic.ini` and `modules/`; runtime stage copies both from builder plus `entrypoint.sh`; non-root `medhub` user; `ENTRYPOINT` replaces `CMD`.
+- `infra/docker-compose.yml` — `createbuckets` (minio/mc) service auto-creates the MinIO bucket; backend `depends_on: createbuckets`; all `:-default` secret fallbacks removed (POSTGRES_PASSWORD, OBJECT_STORE_ACCESS_KEY, OBJECT_STORE_SECRET_KEY, AT_REST_ENCRYPTION_KEY); backend healthcheck added.
+- `.github/workflows/ci.yml` — `Run database migrations` step added before pytest in `backend-tests`.
+- `infra/smoke-test.sh` — section 9 checks `POST /auth/login` returns 401/422 (not 500) to prove schema is migrated.
