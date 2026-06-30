@@ -75,10 +75,9 @@ class TestOpenAPISecurityRequirements:
                 security = operation.get("security")
                 if not security or not any("cookieAuth" in s for s in security):
                     failures.append(f"{method.upper()} {path}")
-        assert not failures, (
-            "Protected operations missing cookieAuth security requirement:\n"
-            + "\n".join(failures)
-        )
+        assert (
+            not failures
+        ), "Protected operations missing cookieAuth security requirement:\n" + "\n".join(failures)
 
     def test_public_operations_do_not_declare_cookie_auth(self, schema):
         """Public operations must not require cookieAuth."""
@@ -92,8 +91,8 @@ class TestOpenAPISecurityRequirements:
                 security = operation.get("security", [])
                 if any("cookieAuth" in s for s in security):
                     failures.append(f"{method.upper()} {path}")
-        assert not failures, (
-            "Public operations incorrectly declare cookieAuth:\n" + "\n".join(failures)
+        assert not failures, "Public operations incorrectly declare cookieAuth:\n" + "\n".join(
+            failures
         )
 
     def test_state_changing_protected_ops_document_csrf_header(self, schema):
@@ -111,9 +110,10 @@ class TestOpenAPISecurityRequirements:
                 param_names = {p.get("name") for p in params if isinstance(p, dict)}
                 if "X-CSRF-Token" not in param_names:
                     failures.append(f"{method.upper()} {path}")
-        assert not failures, (
-            "State-changing protected operations missing X-CSRF-Token header:\n"
-            + "\n".join(failures)
+        assert (
+            not failures
+        ), "State-changing protected operations missing X-CSRF-Token header:\n" + "\n".join(
+            failures
         )
 
 
