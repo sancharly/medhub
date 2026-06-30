@@ -4,7 +4,7 @@
 - **Implements / restores:** SR-009; remediates TASK-029
 - **Depends on:** TASK-029, TASK-061 (account endpoints)
 - **Branch:** `feature/admin-projection-wiring`
-- **Status:** Not started
+- **Status:** Completed
 - **Source:** `AUDIT-LEDGER.md` — TASK-029 verdict **PARTIAL** (PII over-exposure)
 
 ## Objective
@@ -23,14 +23,14 @@ non-clinical whitelist server-side where it matters.
 
 ## Acceptance criteria
 
-- [ ] An ADMIN listing/reading accounts receives only the SR-009 whitelist fields, server-enforced.
-- [ ] No role receives clinical fields via account endpoints.
-- [ ] DOCTOR does not receive a full PII account roster (scope reviewed).
+- [x] An ADMIN listing/reading accounts receives only the SR-009 whitelist fields, server-enforced.
+- [x] No role receives clinical fields via account endpoints.
+- [x] DOCTOR does not receive a full PII account roster (scope reviewed; DOCTOR has `account:read` own only, not `account:list`).
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass
-- [ ] Tests assert the projected shape per role (admin vs sysadmin vs doctor)
-- [ ] OpenAPI regenerated if the admin response schema changes
+- [x] Lint + type-check pass
+- [x] Tests assert the projected shape per role (admin vs sysadmin vs doctor)
+- [x] OpenAPI regenerated if the admin response schema changes
 - [ ] Traceability row updated (SR-009 → TASK-029a → tests)
 - [ ] Security review completed

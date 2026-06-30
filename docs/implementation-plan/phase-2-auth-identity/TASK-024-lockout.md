@@ -5,7 +5,7 @@
 - **Implements:** SR-029 (account lockout after failed login attempts)
 - **Depends on:** TASK-023 (login flow — the counter is incremented/reset there)
 - **Branch:** `feature/account-lockout`
-- **Status:** In Progress (audit 2026-06-29)
+- **Status:** Completed
 
 ## Objective
 

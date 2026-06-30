@@ -6,7 +6,7 @@
   lockout counter implemented in TASK-024)
 - **Depends on:** TASK-020 (PasswordService), TASK-021 (SessionService), TASK-014 (AuditService)
 - **Branch:** `feature/login-flow`
-- **Status:** In Progress (audit 2026-06-29)
+- **Status:** Completed
 
 ## Objective
 

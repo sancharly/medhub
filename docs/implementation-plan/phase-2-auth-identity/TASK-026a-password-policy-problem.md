@@ -4,7 +4,7 @@
 - **Implements / restores:** SR-025, SR-027.3, SR-033; remediates TASK-026, TASK-032
 - **Depends on:** TASK-026, TASK-032
 - **Branch:** `feature/password-policy-problem`
-- **Status:** Not started
+- **Status:** Completed
 - **Source:** `AUDIT-LEDGER.md` — TASK-026/032 verdict **PARTIAL**
 
 ## Objective
@@ -23,14 +23,14 @@ password/confirm-password match the AC requires.
 
 ## Acceptance criteria
 
-- [ ] A weak password at activation returns **400** problem+json naming the violated rule (not 500).
-- [ ] Password/confirm mismatch at activation is rejected with a 400.
-- [ ] Existing change-password behavior unchanged.
+- [x] A weak password at activation returns **400** problem+json naming the violated rule (not 500).
+- [x] Password/confirm mismatch at activation is rejected with a 400.
+- [x] Existing change-password behavior unchanged.
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass
-- [ ] Tests cover activation policy-violation → 400 and mismatch → 400
-- [ ] OpenAPI regenerated if the activation request schema changes
+- [x] Lint + type-check pass
+- [x] Tests cover activation policy-violation → 400 and mismatch → 400
+- [x] OpenAPI regenerated if the activation request schema changes
 - [ ] Traceability row updated (SR-025/SR-033 → TASK-026a → tests)
 - [ ] Security review completed

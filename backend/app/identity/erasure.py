@@ -9,6 +9,7 @@ Flow:
 
 from __future__ import annotations
 
+import logging
 import secrets
 import uuid
 from dataclasses import dataclass
@@ -25,6 +26,8 @@ from app.db.models.anonymized_dataset import AnonymizedDataset
 from app.db.models.audit import AuditOutcome
 from app.db.repositories.account_repo import AccountRepository
 from app.db.repositories.anonymized_dataset_repo import AnonymizedDatasetRepository
+
+logger = logging.getLogger(__name__)
 
 _RETENTION_YEARS = 5
 
@@ -66,11 +69,11 @@ class ErasureService:
         if account is None:
             raise NotFoundError(f"Account {account_id} not found.")
 
-        # Capture PII before severing
+        # Capture PII before severing (email needed for retrieval code delivery)
+        original_email = account.email
         payload: dict[str, Any] = {
             "original_user_type": account.user_type.value,
             "erasure_requested_at": datetime.now(UTC).isoformat(),
-            # Clinical data re-keying would be added here in a full implementation
         }
 
         # Sever all PII and credentials
@@ -83,7 +86,7 @@ class ErasureService:
         account.activation_token_expires_at = None
         account.status = AccountStatus.DELETED
 
-        # Generate retrieval code — raw value goes to email only
+        # Generate retrieval code — raw value goes to email only, never stored
         raw_code = secrets.token_urlsafe(32)
         code_hash = self._password_svc.hash(raw_code)
 
@@ -117,12 +120,13 @@ class ErasureService:
         )
 
         # Enqueue email with retrieval code (best-effort; not blocking)
+        # The raw code is passed to the task and discarded after sending — never persisted.
         try:
-            pass  # noqa: PLC0415
-            # In production this would be a dedicated task;
-            # for now we note that the code must be emailed, not returned via API
+            from app.workers.email_tasks import send_erasure_code_email  # noqa: PLC0415
+
+            send_erasure_code_email.delay(original_email, raw_code)
         except Exception:
-            pass
+            logger.warning("Failed to enqueue erasure code email for dataset %s", dataset.id)
 
         return ErasureResult(dataset_id=dataset.id, retrieval_code=raw_code)
 
@@ -131,6 +135,7 @@ class ErasureService:
 
         Uses Argon2id verify to find the matching hash.
         Lost/wrong code → generic denial; no recovery path.
+        Expired datasets (past retention_deadline) are treated as not found.
         """
         # We can't do a direct hash lookup because Argon2id is non-deterministic.
         # The stored hash is Argon2id; we must scan all datasets and verify.
@@ -138,9 +143,11 @@ class ErasureService:
         all_datasets = self._dataset_repo.list()
         for dataset in all_datasets:
             if self._password_svc.verify(dataset.code_hash, code):
+                if dataset.retention_deadline < datetime.now(UTC):
+                    raise NotFoundError("Anonymized dataset has expired.")
                 self._audit_svc.record(
                     actor=None,
-                    action="ANONYMIZED_DATASET_RETRIEVED",
+                    action=AuditAction.ANONYMIZED_RETRIEVAL,
                     target_type="anonymized_dataset",
                     target_id=str(dataset.id),
                     outcome=AuditOutcome.SUCCESS,

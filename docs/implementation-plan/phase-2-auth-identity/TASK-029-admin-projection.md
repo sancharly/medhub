@@ -5,7 +5,7 @@
 - **Implements:** SR-009 (administrative personnel non-clinical scope)
 - **Depends on:** TASK-027 (AuthorizationService)
 - **Branch:** `feature/admin-projection`
-- **Status:** In Progress (audit 2026-06-29)
+- **Status:** Completed
 
 ## Objective
 
