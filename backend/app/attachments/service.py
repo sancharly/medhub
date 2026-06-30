@@ -68,7 +68,7 @@ class AttachmentService:
 
         # DICOM validation
         is_dicom = content_type == "application/dicom" or filename.lower().endswith(".dcm")
-        dicom_meta: dict | None = None
+        dicom_meta: dict[str, object] | None = None
         if is_dicom:
             from app.attachments.dicom_validation import validate_dicom  # noqa: PLC0415
 

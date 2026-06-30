@@ -23,4 +23,4 @@ class Attachment(UUIDMixin, TimestampMixin, Base):
     size: Mapped[int] = mapped_column(BigInteger(), nullable=False)
     storage_key: Mapped[str] = mapped_column(nullable=False)
     checksum: Mapped[str] = mapped_column(nullable=False)
-    dicom_metadata: Mapped[dict | None] = mapped_column(JSONB(), nullable=True)
+    dicom_metadata: Mapped[dict[str, object] | None] = mapped_column(JSONB(), nullable=True)

@@ -6,7 +6,6 @@ import uuid
 from unittest.mock import MagicMock
 
 import pytest
-
 from sqlalchemy.exc import IntegrityError
 
 from app.api.errors import AuthorizationError, ConflictError, ValidationProblem

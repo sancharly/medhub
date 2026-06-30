@@ -6,8 +6,6 @@ import uuid
 from datetime import UTC, datetime
 from unittest.mock import MagicMock, patch
 
-import pytest
-
 from app.appointments.service import AppointmentService
 from app.authz.service import AuthorizationService
 from app.db.models.account import Account, AccountStatus, UserType
