@@ -201,9 +201,7 @@ class TestStartupSync:
                 "app.modules.discovery.importlib.metadata.entry_points",
                 return_value=[_fake_ep(fake_manifest)],
             ),
-            patch(
-                "app.modules.registry_service.ModuleRegistryService.sync_installed"
-            ) as mock_sync,
+            patch("app.modules.registry_service.ModuleRegistryService.sync_installed") as mock_sync,
             patch("app.modules.host.register_all_modules"),
             patch("app.db.repositories.session.get_engine", return_value=MagicMock()),
             patch(
