@@ -2,6 +2,16 @@
 
 Key material comes exclusively from Settings.at_rest_encryption_key.
 The key must be a 32-byte value encoded as URL-safe base64 (44 chars with padding).
+
+DECISION — columns using EncryptedString (app.db.types):
+  - ClinicalEntry.description  (clinical_entry.description)
+      Rationale: free-text clinical narrative is the highest-sensitivity PHI in the
+      schema. Infrastructure-level volume encryption is the primary control; this
+      column applies defense-in-depth field-level encryption so the row is not
+      readable in plaintext from a DB dump alone (SR-022.2/3).
+
+All other columns rely on the encrypted Postgres volume (TASK-004) for at-rest
+protection. Additional columns may be added here as sensitivity is assessed.
 """
 
 import base64
