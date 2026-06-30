@@ -21,12 +21,8 @@ depends_on = None
 
 
 def upgrade() -> None:
-    op.execute(
-        "CREATE RULE no_update_audit_log AS ON UPDATE TO audit_log DO INSTEAD NOTHING"
-    )
-    op.execute(
-        "CREATE RULE no_delete_audit_log AS ON DELETE TO audit_log DO INSTEAD NOTHING"
-    )
+    op.execute("CREATE RULE no_update_audit_log AS ON UPDATE TO audit_log DO INSTEAD NOTHING")
+    op.execute("CREATE RULE no_delete_audit_log AS ON DELETE TO audit_log DO INSTEAD NOTHING")
 
 
 def downgrade() -> None:
