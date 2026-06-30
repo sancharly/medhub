@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import uuid
 
+from sqlalchemy.exc import IntegrityError
+
 from app.api.errors import ConflictError, NotFoundError, ValidationProblem
 from app.audit.actions import AuditAction
 from app.audit.service import AuditService
@@ -46,11 +48,11 @@ class GroupService:
         if not trimmed:
             raise ValidationProblem("Group name must not be blank.")
 
-        if self._group_repo.get_by_name(trimmed) is not None:
-            raise ConflictError(f"A group named '{trimmed}' already exists.")
-
         group = Group(name=trimmed)
-        self._group_repo.add(group)
+        try:
+            self._group_repo.add(group)
+        except IntegrityError:
+            raise ConflictError(f"A group named '{trimmed}' already exists.")
 
         self._audit_svc.record(
             actor=actor.id,

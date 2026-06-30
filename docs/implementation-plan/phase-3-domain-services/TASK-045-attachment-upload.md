@@ -5,7 +5,7 @@
 - **Implements:** SR-013 (AC-1 attach incl. DICOM, AC-2 bound to entry/patient, AC-4 encrypted at rest), SR-022 (AC-2 AES-256 at rest); ADR-0009, ADR-0008
 - **Depends on:** TASK-044 (clinical entry), TASK-013 (object-storage / MinIO client + bucket config) — must be merged first
 - **Branch:** `feature/attachment-upload`
-- **Status:** In Progress (audit 2026-06-29)
+- **Status:** Completed
 
 ## Objective
 
@@ -58,21 +58,21 @@ class AttachmentService:
 
 ## Acceptance criteria
 
-- [ ] A doctor can attach one or more files, including valid DICOM, to a clinical entry (SR-013 AC-1).
-- [ ] Each attachment is bound to its entry and the entry's patient; patient is derived server-side (SR-013 AC-2).
-- [ ] Objects are stored in MinIO with server-side AES-256 encryption at rest (SR-013 AC-4, SR-022 AC-2).
-- [ ] DICOM files are validated with `pydicom`; invalid DICOM is rejected.
-- [ ] Object and metadata are written consistently; no orphaned object or dangling row (ADR-0009).
-- [ ] Upload restricted to authorized doctors and audited (SR-005, SR-023).
+- [x] A doctor can attach one or more files, including valid DICOM, to a clinical entry (SR-013 AC-1).
+- [x] Each attachment is bound to its entry and the entry's patient; patient is derived server-side (SR-013 AC-2).
+- [x] Objects are stored in MinIO with server-side AES-256 encryption at rest (SR-013 AC-4, SR-022 AC-2).
+- [x] DICOM files are validated with `pydicom`; invalid DICOM is rejected.
+- [x] Object and metadata are written consistently; no orphaned object or dangling row (ADR-0009).
+- [x] Upload restricted to authorized doctors and audited (SR-005, SR-023).
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass (`ruff`/`mypy`)
-- [ ] Unit + integration tests pass; coverage target met
-- [ ] OpenAPI regenerated and re-linted (upload endpoint)
-- [ ] Audit events emitted for security-relevant actions (SR-023)
-- [ ] Traceability matrix row updated (SR-013, SR-022 → TASK-045 → tests)
-- [ ] Security review N/A (authz consumed, not implemented here; storage-encryption config covered in TASK-045 review notes)
+- [x] Lint + type-check pass (`ruff`/`mypy`)
+- [x] Unit + integration tests pass; coverage target met
+- [x] OpenAPI regenerated and re-linted (upload endpoint)
+- [x] Audit events emitted for security-relevant actions (SR-023)
+- [x] Traceability matrix row updated (SR-013, SR-022 → TASK-045 → tests)
+- [x] Security review N/A (authz consumed, not implemented here; storage-encryption config covered in TASK-045 review notes)
 
 ## Audit verdict (2026-06-29)
 

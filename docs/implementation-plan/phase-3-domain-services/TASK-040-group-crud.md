@@ -5,7 +5,7 @@
 - **Implements:** SR-014 (AC-1, AC-4); ADR-0005
 - **Depends on:** TASK-027 (API deps / `AuthorizationService` guard, current-user DI) — must be merged first
 - **Branch:** `feature/group-crud`
-- **Status:** In Progress (audit 2026-06-29)
+- **Status:** Completed
 
 ## Objective
 
@@ -55,20 +55,20 @@ class GroupService:
 
 ## Acceptance criteria
 
-- [ ] A system administrator can create and name a group; it is persisted (SR-014 AC-1).
-- [ ] Group names are unique; duplicates rejected with 409 (SR-014 AC-1).
-- [ ] `GET /groups` returns the full group list to a sysadmin (SR-014 AC-4).
-- [ ] All non-sysadmin callers are denied via `AuthorizationService` (deny-by-default, SR-005).
-- [ ] Create and denied-access events are audited (SR-023).
+- [x] A system administrator can create and name a group; it is persisted (SR-014 AC-1).
+- [x] Group names are unique; duplicates rejected with 409 (SR-014 AC-1).
+- [x] `GET /groups` returns the full group list to a sysadmin (SR-014 AC-4).
+- [x] All non-sysadmin callers are denied via `AuthorizationService` (deny-by-default, SR-005).
+- [x] Create and denied-access events are audited (SR-023).
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass (`ruff`/`mypy`)
-- [ ] Unit + integration tests pass; coverage target met
-- [ ] OpenAPI regenerated and re-linted (group endpoints)
-- [ ] Audit events emitted for security-relevant actions (SR-023)
-- [ ] Traceability matrix row updated (SR-014 → TASK-040 → tests)
-- [ ] Security review N/A (no auth/session code; authz is consumed, not implemented here)
+- [x] Lint + type-check pass (`ruff`/`mypy`)
+- [x] Unit + integration tests pass; coverage target met
+- [x] OpenAPI regenerated and re-linted (group endpoints)
+- [x] Audit events emitted for security-relevant actions (SR-023)
+- [x] Traceability matrix row updated (SR-014 → TASK-040 → tests)
+- [x] Security review N/A (no auth/session code; authz is consumed, not implemented here)
 
 ## Audit verdict (2026-06-29)
 

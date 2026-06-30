@@ -220,23 +220,30 @@ def send_appointment_notification(self: object, appointment_id: str) -> None:
             subject=subject,
             body=body,
         )
-        _send_smtp(notification)
-        notification.mark_sent()
+        # Write in-app notification row FIRST (TASK-050a: resilience)
+        from app.db.models.notification import InAppNotification  # noqa: PLC0415
 
-        # Write in-app notification row (TASK-050)
+        in_app = InAppNotification(
+            recipient_account_id=appt.patient_id,
+            appointment_id=appt.id,
+            message=body,
+            status="QUEUED",
+        )
+        db.add(in_app)
+        db.flush()  # assign id but don't commit yet
+
+        # Attempt SMTP send (best-effort)
         try:
-            from app.db.models.notification import InAppNotification  # noqa: PLC0415
-
-            in_app = InAppNotification(
-                recipient_account_id=appt.patient_id,
-                appointment_id=appt.id,
-                message=body,
-                status="SENT",
-            )
-            db.add(in_app)
+            _send_smtp(notification)
+            notification.mark_sent()
+            in_app.status = "SENT"
         except Exception:
-            # Best-effort — don't fail the whole task if in-app write fails
-            pass
+            notification.mark_failed()
+            in_app.status = "FAILED"
+            logger.warning(
+                "Appointment notification email failed; in-app notification recorded as FAILED",
+                extra={"appointment_id": appointment_id},
+            )
 
         db.commit()
         logger.info("Appointment notification sent", extra={"appointment_id": appointment_id})

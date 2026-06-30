@@ -4,7 +4,7 @@
 - **Implements / restores:** SR-035.1–2; remediates TASK-050
 - **Depends on:** TASK-050
 - **Branch:** `feature/notification-resilience`
-- **Status:** Not started
+- **Status:** Completed
 - **Source:** `AUDIT-LEDGER.md` — TASK-050 verdict **PARTIAL**
 
 ## Objective
@@ -23,13 +23,13 @@ opposite of the dual-channel resilience the AC requires. Email failure also neve
 
 ## Acceptance criteria
 
-- [ ] Email-send failure does not roll back / suppress the in-app notification (it is recorded, marked FAILED).
-- [ ] The in-app notification content (recipient, appointment, datetime) is correct and contains no clinical data.
-- [ ] The notify task is enqueued exactly once after commit (asserted).
+- [x] Email-send failure does not roll back / suppress the in-app notification (it is recorded, marked FAILED).
+- [x] The in-app notification content (recipient, appointment, datetime) is correct and contains no clinical data.
+- [x] The notify task is enqueued exactly once after commit (asserted).
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass
-- [ ] Tests cover email-failure → in-app still recorded (FAILED), and enqueue-once
-- [ ] Traceability row updated (SR-035 → TASK-050a → tests)
-- [ ] Security review N/A
+- [x] Lint + type-check pass
+- [x] Tests cover email-failure → in-app still recorded (FAILED), and enqueue-once
+- [x] Traceability row updated (SR-035 → TASK-050a → tests)
+- [x] Security review N/A

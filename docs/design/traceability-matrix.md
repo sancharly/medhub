@@ -106,8 +106,8 @@ requirement→test column (TASK-114) must reflect these remediation tasks:
 | SR-013            | Attachment upload not multipart; DICOM metadata discarded     | TASK-066a                       |
 | SR-001.1 / SR-003 | No DB migration on bring-up (fresh deploy = empty schema)     | TASK-004a (**completed** 2026-06-30) |
 | SR-025 / SR-033   | Forced-password gate inert; activation contract + policy-400  | TASK-087a, TASK-086a, TASK-026a |
-| SR-014            | Group-name uniqueness not DB-enforced                         | TASK-040a                       |
-| SR-035            | Email failure suppresses in-app notification                  | TASK-050a                       |
+| SR-014            | Group-name uniqueness not DB-enforced                         | TASK-040a → `tests/groups/test_membership.py` |
+| SR-035            | Email failure suppresses in-app notification                  | TASK-050a → `tests/appointments/test_notify.py` |
 | SR-022            | No column used EncryptedString (PHI readable from DB dump)    | TASK-013 (**remediated** 2026-06-30) |
 | SR-023            | record() signature diverged from 12-interfaces contract; audit_log mutable at DB level | TASK-014 (**remediated** 2026-06-30) |
 | SR-031            | AppointmentRepository.list_for_actor() embedded role-based authorization logic | TASK-012 (**remediated** 2026-06-30) |

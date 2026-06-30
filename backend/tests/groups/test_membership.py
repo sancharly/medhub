@@ -11,6 +11,7 @@ from app.api.errors import AuthorizationError, NotFoundError
 from app.authz.service import AuthorizationService
 from app.db.models.account import Account, AccountStatus, UserType
 from app.db.models.group import Group, GroupMembership, MembershipSource
+from app.groups.auto_membership import sync_automatic_membership
 from app.groups.service import GroupService
 
 
@@ -143,3 +144,74 @@ def test_remove_member_emits_audit() -> None:
     svc.remove_member(actor, uuid.uuid4(), uuid.uuid4())
     mock_audit.record.assert_called()
     assert "GROUP_MEMBER_REMOVE" in str(mock_audit.record.call_args)
+
+
+# --- TASK-041: sync_automatic_membership tests ---
+
+
+def _make_auto_group(auto_user_type: UserType | None = None) -> Group:
+    return Group(id=uuid.uuid4(), name="AutoGroup", auto_user_type=auto_user_type)
+
+
+def test_sync_auto_membership_assigns_matching_group() -> None:
+    """Account with matching user_type gets AUTO membership added."""
+    account = _make_account(UserType.DOCTOR)
+    group = _make_auto_group(auto_user_type=UserType.DOCTOR)
+
+    mock_repo = MagicMock()
+    mock_repo.list_auto_groups_for_type.return_value = [group]
+    mock_repo.memberships_for_account.return_value = []  # no existing auto memberships
+
+    sync_automatic_membership(account, mock_repo)
+
+    mock_repo.add_membership.assert_called_once()
+    added = mock_repo.add_membership.call_args[0][0]
+    assert added.group_id == group.id
+    assert added.account_id == account.id
+    assert added.source == MembershipSource.AUTO
+
+
+def test_sync_auto_membership_removes_stale_group() -> None:
+    """When user type changes, old AUTO membership is removed."""
+    account = _make_account(UserType.PATIENT)  # now a patient
+    old_group = _make_auto_group(auto_user_type=UserType.DOCTOR)  # was a doctor group
+
+    old_membership = GroupMembership(
+        group_id=old_group.id, account_id=account.id, source=MembershipSource.AUTO
+    )
+
+    mock_repo = MagicMock()
+    mock_repo.list_auto_groups_for_type.return_value = []  # no groups for PATIENT
+    mock_repo.memberships_for_account.return_value = [old_membership]
+
+    sync_automatic_membership(account, mock_repo)
+
+    # Should remove the stale AUTO membership
+    mock_repo.remove_membership.assert_called_once_with(
+        old_group.id, account.id, MembershipSource.AUTO
+    )
+    # No new memberships added
+    mock_repo.add_membership.assert_not_called()
+
+
+def test_sync_auto_membership_does_not_touch_manual_memberships() -> None:
+    """MANUAL memberships are not affected by sync."""
+    account = _make_account(UserType.DOCTOR)
+    auto_group = _make_auto_group(auto_user_type=UserType.DOCTOR)
+
+    manual_membership = GroupMembership(
+        group_id=uuid.uuid4(), account_id=account.id, source=MembershipSource.MANUAL
+    )
+
+    mock_repo = MagicMock()
+    mock_repo.list_auto_groups_for_type.return_value = [auto_group]
+    mock_repo.memberships_for_account.return_value = [manual_membership]
+
+    sync_automatic_membership(account, mock_repo)
+
+    # Only the AUTO group should be added; MANUAL untouched
+    mock_repo.add_membership.assert_called_once()
+    added = mock_repo.add_membership.call_args[0][0]
+    assert added.group_id == auto_group.id
+    # remove_membership NOT called for the manual membership
+    mock_repo.remove_membership.assert_not_called()

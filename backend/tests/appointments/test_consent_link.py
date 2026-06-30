@@ -148,3 +148,63 @@ def test_case_c_decline_pending_appointment_calls_revoke_with_source() -> None:
     )
     # No grant was ever created for this (pending) appointment
     mock_consent.grant.assert_not_called()
+
+
+# --- Additional TASK-049 tests (SR-036 AC-3, AC-4 B, AC-6) ---
+
+
+def test_pending_appointment_creates_no_grant() -> None:
+    """SR-036 AC-3: A pending appointment creates no consent grant."""
+    patient = _make_account(UserType.PATIENT)
+    doctor = _make_account(UserType.DOCTOR)
+    appt = _make_appointment(patient.id, doctor.id, state=AppointmentState.PENDING)
+    _svc, mock_consent = _build_svc(appt)
+
+    # No confirm or decline called; consent must be untouched
+    mock_consent.grant.assert_not_called()
+    mock_consent.revoke.assert_not_called()
+
+
+def test_confirm_emits_audit_record() -> None:
+    """SR-036 AC-6: confirm emits at least one audit record."""
+    patient = _make_account(UserType.PATIENT)
+    doctor = _make_account(UserType.DOCTOR)
+    appt = _make_appointment(patient.id, doctor.id)
+
+    mock_appt_repo = MagicMock()
+    mock_appt_repo.get.return_value = appt
+    mock_account_repo = MagicMock()
+    mock_audit = MagicMock()
+    mock_consent_svc = MagicMock()
+    mock_consent_svc.has_active_grant.return_value = False
+    authz_svc = AuthorizationService(mock_consent_svc, MagicMock())
+    svc = AppointmentService(
+        mock_appt_repo, mock_account_repo, mock_audit, authz_svc, mock_consent_svc
+    )
+
+    svc.confirm(patient, appt.id)
+
+    mock_audit.record.assert_called()
+
+
+def test_case_b_manual_grant_preserved_after_decline() -> None:
+    """SR-036 AC-4 Case B: decline revokes only APPOINTMENT grant; MANUAL grant must not be revoked.
+
+    We verify that revoke() is called with source=APPOINTMENT:{id} and NOT with source=MANUAL.
+    """
+    patient = _make_account(UserType.PATIENT)
+    doctor = _make_account(UserType.DOCTOR)
+    appt = _make_appointment(patient.id, doctor.id)
+    svc, mock_consent = _build_svc(appt)
+
+    svc.decline(patient, appt.id)
+
+    # Must revoke ONLY the appointment-scoped grant
+    mock_consent.revoke.assert_called_once_with(
+        patient_id=patient.id,
+        doctor_id=doctor.id,
+        source=f"APPOINTMENT:{appt.id}",
+    )
+    # Verify "MANUAL" was not passed as source to revoke
+    for call in mock_consent.revoke.call_args_list:
+        assert call.kwargs.get("source") != "MANUAL", "revoke() must NOT target MANUAL grants"

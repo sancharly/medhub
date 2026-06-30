@@ -68,10 +68,11 @@ class AttachmentService:
 
         # DICOM validation
         is_dicom = content_type == "application/dicom" or filename.lower().endswith(".dcm")
+        dicom_meta: dict | None = None
         if is_dicom:
             from app.attachments.dicom_validation import validate_dicom  # noqa: PLC0415
 
-            validate_dicom(data)
+            dicom_meta = validate_dicom(data)
 
         # Compute storage key and checksum
         storage_key = f"attachments/{entry.patient_id}/{uuid.uuid4()}/{filename}"
@@ -89,6 +90,7 @@ class AttachmentService:
             size=len(data),
             storage_key=storage_key,
             checksum=checksum,
+            dicom_metadata=dicom_meta,
         )
         try:
             self._attachment_repo.add(attachment)

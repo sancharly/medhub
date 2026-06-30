@@ -7,6 +7,8 @@ from unittest.mock import MagicMock
 
 import pytest
 
+from sqlalchemy.exc import IntegrityError
+
 from app.api.errors import AuthorizationError, ConflictError, ValidationProblem
 from app.authz.service import AuthorizationService
 from app.db.models.account import Account, AccountStatus, UserType
@@ -85,8 +87,8 @@ def test_create_group_whitespace_only_raises_validation() -> None:
 
 def test_create_group_duplicate_raises_conflict() -> None:
     actor = _make_account(UserType.SYSADMIN)
-    existing = Group(id=uuid.uuid4(), name="Physicians")
-    svc, _, _ = _build_svc(existing_group=existing)
+    svc, mock_group_repo, _ = _build_svc()
+    mock_group_repo.add.side_effect = IntegrityError("uq_group_name", {}, Exception())
     with pytest.raises(ConflictError):
         svc.create_group(actor, "Physicians")
 
