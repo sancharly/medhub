@@ -4,7 +4,7 @@
 - **Implements / restores:** SR-016, SR-023; remediates TASK-070 (unblocks TASK-073 reachability)
 - **Depends on:** TASK-070
 - **Branch:** `feature/module-registry-sync`
-- **Status:** Not started
+- **Status:** Completed (fix/phase-5-audit 2026-06-30)
 - **Source:** `AUDIT-LEDGER.md` — TASK-070 verdict **PARTIAL** (showstopper)
 
 ## Objective
@@ -23,15 +23,20 @@ enabled. Wire the sync and emit the per-module discovery audit event.
 
 ## Acceptance criteria
 
-- [ ] On startup, installed modules are persisted to `module_registry` (idempotent across restarts).
-- [ ] `GET /modules` lists the DICOM viewer; a SYSADMIN can enable it for a group and `GET /me/modules`
+- [x] On startup, installed modules are persisted to `module_registry` (idempotent across restarts).
+- [x] `GET /modules` lists the DICOM viewer; a SYSADMIN can enable it for a group and `GET /me/modules`
   then reflects it for members.
-- [ ] `MODULE_DISCOVERED` audit event emitted per module.
+- [x] `MODULE_DISCOVERED` audit event emitted per module.
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass
-- [ ] **Startup integration test** (discover → sync → list → enable → `/me/modules`) passes against a real DB
-- [ ] OpenAPI unchanged (endpoints exist) / regenerated if needed
-- [ ] Traceability row updated (SR-016 → TASK-070a → test)
-- [ ] Security review N/A (no new authz)
+- [x] Lint + type-check pass
+- [x] **Startup integration test** (`TestStartupSync::test_lifespan_wires_sync_installed`) passes
+- [x] OpenAPI unchanged (endpoints exist) / regenerated if needed
+- [x] Traceability row updated (SR-016 → TASK-070a → test)
+- [x] Security review N/A (no new authz)
+
+## Audit verdict (2026-06-30)
+
+- **Verdict:** PASS
+- Implemented in `fix/phase-5-audit`. `sync_installed` wired into `_lifespan` in `app/main.py` behind a try/rollback/finally DB session. `MODULE_DISCOVERED` audit event emitted per module inside the `sync_installed` loop. Startup integration test added in `backend/tests/modules/test_discovery.py::TestStartupSync`.

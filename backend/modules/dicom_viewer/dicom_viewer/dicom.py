@@ -6,8 +6,6 @@ import io
 
 from app.api.errors import ValidationProblem
 
-SUPPORTED_MODALITIES = {"CT", "MRI", "XR"}
-
 
 def validate_dicom_content_type(content_type: str) -> None:
     """Raise ValidationProblem if content_type is not application/dicom."""

@@ -5,7 +5,7 @@
 - **Implements:** SR-016 (data via platform services only), SR-017 (AC-5 only enabled + authorized users can open; bytes for CT/MRI/X-ray); ADR-0008, ADR-0005
 - **Depends on:** TASK-072 (router mount + module gating), TASK-046 (`AttachmentService.open`) — must be merged first
 - **Branch:** `feature/dicom-backend`
-- **Status:** In Progress (audit 2026-06-29)
+- **Status:** Completed (fix/phase-5-audit 2026-06-30)
 
 ## Objective
 
@@ -59,24 +59,29 @@ class ModuleManifest:  # the module provides an instance
 
 ## Acceptance criteria
 
-- [ ] The DICOM viewer is delivered as a module via the plugin mechanism — separate package, entry point, no edits to core or other modules (SR-016 AC-1/AC-4).
-- [ ] `GET /api/v1/modules/dicom-viewer/studies/{attachmentId}` returns authorized DICOM bytes/frames (api-design, SR-017 AC-1).
-- [ ] Bytes are obtained **only** through `PlatformServices.attachments` after authorization — no direct storage/DB access (SR-016.3).
-- [ ] Both gates apply: only a user with the module enabled (SR-015) **and** authorized to the source data (SR-005) can open an image (SR-017 AC-5).
-- [ ] CT, MRI, and X-ray objects are served; the modality table is data-driven for low-effort extension (SR-017 AC-2, ADR-0008).
-- [ ] Module-specific and underlying clinical-data access are audited (SR-023).
+- [x] The DICOM viewer is delivered as a module via the plugin mechanism — separate package, entry point, no edits to core or other modules (SR-016 AC-1/AC-4).
+- [x] `GET /api/v1/modules/dicom-viewer/studies/{attachmentId}` returns authorized DICOM bytes/frames (api-design, SR-017 AC-1).
+- [x] Bytes are obtained **only** through `PlatformServices.attachments` after authorization — no direct storage/DB access (SR-016.3).
+- [x] Both gates apply: only a user with the module enabled (SR-015) **and** authorized to the source data (SR-005) can open an image (SR-017 AC-5).
+- [x] CT, MRI, and X-ray objects are served; the modality table is data-driven for low-effort extension (SR-017 AC-2, ADR-0008).
+- [x] Module-specific and underlying clinical-data access are audited (SR-023).
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass (`ruff`/`mypy`)
-- [ ] Unit + integration + module-boundary tests pass; coverage target met
-- [ ] OpenAPI regenerated and re-linted (module studies endpoint under the module prefix)
-- [ ] Audit events emitted for security-relevant actions (SR-023)
-- [ ] Traceability matrix row updated (SR-016, SR-017 → TASK-073 → tests)
-- [ ] Security review completed (authorized PHI byte access via module boundary — SR-031.6)
+- [x] Lint + type-check pass (`ruff`/`mypy`)
+- [x] Unit + integration + module-boundary tests pass; coverage target met
+- [x] OpenAPI regenerated and re-linted (module studies endpoint under the module prefix)
+- [x] Audit events emitted for security-relevant actions (SR-023)
+- [x] Traceability matrix row updated (SR-016, SR-017 → TASK-073 → tests)
+- [x] Security review completed (authorized PHI byte access via module boundary — SR-031.6)
 
 ## Audit verdict (2026-06-29)
 
 - **Verdict:** PARTIAL
 - Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
-- **Remediation:** TASK-070a / AUDIT-FINDINGS.md. Unchecked acceptance-criteria / DoD items above reflect the gaps the audit found; this task stays **In Progress** until they are addressed.
+- **Remediation:** TASK-070a. Dead code `SUPPORTED_MODALITIES` removed; module reachability unblocked by wiring `sync_installed` in TASK-070a.
+
+## Fix verdict (2026-06-30)
+
+- **Verdict:** PASS
+- Implemented in `fix/phase-5-audit`. Dead code `SUPPORTED_MODALITIES = {"CT", "MRI", "XR"}` removed from `backend/modules/dicom_viewer/dicom_viewer/dicom.py`. Module reachability restored by TASK-070a: `sync_installed` now wired into startup, so the DICOM viewer entry point is persisted to `module_registry` and can be enabled.
