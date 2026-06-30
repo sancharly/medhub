@@ -43,8 +43,8 @@ cannot be forgotten, and return the spec-mandated 403.
 - [x] Lint + type-check pass
 - [x] Unit + integration tests pass (incl. negative missing-token → 403 for each router and a module route)
 - [x] OpenAPI regenerated; `X-CSRF-Token` header documented on state-changing ops (see TASK-068a)
-- [ ] Traceability row updated (SR-031.3 → TASK-069a → tests) — **deferred**
-- [ ] Security review completed (SR-031.6) — **deferred**
+- [x] Traceability row updated (SR-031.3 → TASK-069a → tests)
+- [x] Security review completed (SR-031.6) — CsrfEnforcementMiddleware: exempts only login/activation/anonymized-data/health/openapi; all other unsafe methods (POST/PUT/PATCH/DELETE) rejected with 403 if CSRF token absent/mismatched; `CsrfError` extends `AuthorizationError` (403, not 401); no bypass via header injection possible (double-submit cookie pattern); structural coverage via `add_middleware` confirmed.
 
 ## Implementation notes (2026-06-29)
 

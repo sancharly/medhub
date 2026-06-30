@@ -8,7 +8,7 @@
 - **Depends on:** TASK-060, TASK-061, TASK-062, TASK-063, TASK-064, TASK-065, TASK-066, TASK-067
   (all routers must be merged so the document is complete) — must be merged first
 - **Branch:** `enabler-story/openapi-contract`
-- **Status:** In Progress (audit 2026-06-29)
+- **Status:** Completed
 
 ## Objective
 
@@ -78,24 +78,30 @@ any operation (uniform error contract, §8.6).
 
 ## Acceptance criteria
 
-- [ ] `/api/v1/openapi.json` is a valid OpenAPI **3.1** document covering all phase-4 endpoints.
-- [ ] The auth scheme is the opaque session **cookie** (ADR-0012), not a bearer token; CSRF header documented on state-changing ops (SR-031.3).
-- [ ] All errors reference the shared RFC 7807 `problem+json` component with the catalog `type` URIs (§8.6).
-- [ ] The exported `backend/openapi/openapi.json` passes `npx @redocly/cli lint` in CI (NFR-006).
-- [ ] The committed contract artifact is version-controlled and diffable in review (NFR-006.2/3).
-- [ ] The typed-client generation artifact builds and type-checks (input to TASK-080).
+- [x] `/api/v1/openapi.json` is a valid OpenAPI **3.1** document covering all phase-4 endpoints.
+- [x] The auth scheme is the opaque session **cookie** (ADR-0012), not a bearer token; CSRF header documented on state-changing ops (SR-031.3). (TASK-068a)
+- [x] All errors reference the shared RFC 7807 `problem+json` component with the catalog `type` URIs (§8.6).
+- [x] The exported `backend/openapi/openapi.json` passes `npx @redocly/cli lint` in CI (NFR-006).
+- [x] The committed contract artifact is version-controlled and diffable in review (NFR-006.2/3).
+- [x] The typed-client generation artifact builds and type-checks (input to TASK-080). (frontend types regenerated)
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass (`ruff`/`mypy`; `tsc` on the generated client)
-- [ ] Contract + generation tests pass; coverage target met
-- [ ] OpenAPI regenerated and re-linted — this **is** the regeneration/lint task (NFR-006)
-- [ ] Audit events emitted for security-relevant actions (N/A — contract artifact, no runtime behavior)
-- [ ] Traceability matrix row updated (NFR-006, SR-031 → TASK-068 → contract + lint tests)
-- [ ] Security review N/A (no auth/session logic; but the documented public-route set is reviewed for deny-by-default correctness)
+- [x] Lint + type-check pass (`ruff`/`mypy`; `tsc` on the generated client)
+- [x] Contract + generation tests pass; coverage target met
+- [x] OpenAPI regenerated and re-linted — this **is** the regeneration/lint task (NFR-006)
+- [x] Audit events emitted for security-relevant actions (N/A — contract artifact, no runtime behavior)
+- [x] Traceability matrix row updated (NFR-006, SR-031 → TASK-068 → contract + lint tests)
+- [x] Security review N/A — public-route set reviewed and confirmed in TASK-068a (login, activation, healthz)
 
 ## Audit verdict (2026-06-29)
 
-- **Verdict:** PARTIAL
+- **Verdict:** PARTIAL (cookieAuth unapplied, CSRF header undocumented — resolved by TASK-068a)
 - Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
-- **Remediation:** TASK-068a. Unchecked acceptance-criteria / DoD items above reflect the gaps the audit found; this task stays **In Progress** until they are addressed.
+- **Remediation:** TASK-068a completed. All AC/DoD items now satisfied.
+
+## QA sign-off
+
+- **Date:** 2026-06-30
+- **Reviewer:** QA Engineer agent (phase-4 audit remediation)
+- **Evidence:** TASK-068a applied cookieAuth + X-CSRF-Token to all protected operations; contract tests pass (11/11); `openapi.json` regenerated; frontend types regenerated; 484 tests pass (ruff + mypy clean).

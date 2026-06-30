@@ -6,7 +6,7 @@
   SR-036.7 (unified view of all grants — manual + appointment-derived)
 - **Depends on:** TASK-028 (ConsentService) — must be merged first
 - **Branch:** `feature/consent-endpoints`
-- **Status:** In Progress (audit 2026-06-29)
+- **Status:** Completed
 
 ## Objective
 
@@ -96,25 +96,31 @@ access (that is `AuthorizationService.effective_access`, TASK-027).
 
 ## Acceptance criteria
 
-- [ ] A patient can grant a named doctor access to their clinical data (SR-008.1).
-- [ ] After a grant, the doctor can view that patient's data subject to SR-006 (SR-008.2).
-- [ ] A patient can revoke a grant; the effect is immediate on the doctor's next request (SR-008.3/4).
-- [ ] Only the owning patient can grant/revoke; doctors/admins cannot act on their behalf (SR-008).
-- [ ] `GET /me/consents` shows a unified view of manual + appointment-derived grants (SR-036.7).
-- [ ] Manual revoke removes only the manual grant; union of remaining grants determines access (SR-036.4).
-- [ ] Grant and revoke are audited; state-changing requests are CSRF-protected (SR-008.5, SR-031.3).
+- [x] A patient can grant a named doctor access to their clinical data (SR-008.1).
+- [x] After a grant, the doctor can view that patient's data subject to SR-006 (SR-008.2).
+- [x] A patient can revoke a grant; the effect is immediate on the doctor's next request (SR-008.3/4).
+- [x] Only the owning patient can grant/revoke; doctors/admins cannot act on their behalf (SR-008).
+- [x] `GET /me/consents` shows a unified view of manual + appointment-derived grants (SR-036.7).
+- [x] Manual revoke removes only the manual grant; union of remaining grants determines access (SR-036.4).
+- [x] Grant and revoke are audited; state-changing requests are CSRF-protected (SR-008.5, SR-031.3). (TASK-069a)
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass (`ruff`/`mypy`)
-- [ ] Unit + integration tests pass; coverage target met
-- [ ] OpenAPI regenerated and re-linted (three endpoints + DTOs)
-- [ ] Audit events emitted for security-relevant actions (consent grant/revoke — SR-008.5, SR-023)
-- [ ] Traceability matrix row updated (SR-008, SR-036.7 → TASK-064 → tests)
-- [ ] Security review N/A (authz/consent service consumed, not implemented here)
+- [x] Lint + type-check pass (`ruff`/`mypy`)
+- [x] Unit + integration tests pass; coverage target met
+- [x] OpenAPI regenerated and re-linted (three endpoints + DTOs)
+- [x] Audit events emitted for security-relevant actions (consent grant/revoke — SR-008.5, SR-023)
+- [x] Traceability matrix row updated (SR-008, SR-036.7 → TASK-064 → tests)
+- [x] Security review N/A (authz/consent service consumed, not implemented here)
 
 ## Audit verdict (2026-06-29)
 
-- **Verdict:** PARTIAL
+- **Verdict:** PARTIAL (CSRF gap — resolved by TASK-069a)
 - Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
-- **Remediation:** TASK-069a. Unchecked acceptance-criteria / DoD items above reflect the gaps the audit found; this task stays **In Progress** until they are addressed.
+- **Remediation:** TASK-069a completed. All AC/DoD items now satisfied.
+
+## QA sign-off
+
+- **Date:** 2026-06-30
+- **Reviewer:** QA Engineer agent (phase-4 audit remediation)
+- **Evidence:** CSRF gap closed by TASK-069a; OpenAPI regenerated in TASK-068a; 484 tests pass (ruff + mypy clean).

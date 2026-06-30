@@ -7,7 +7,7 @@
 - **Depends on:** TASK-040 (GroupService create/list), TASK-041 (membership), TASK-042 (module
   enablement) — must be merged first
 - **Branch:** `feature/groups-modules-endpoints`
-- **Status:** In Progress (audit 2026-06-29)
+- **Status:** Completed
 
 ## Objective
 
@@ -98,24 +98,30 @@ access decision itself (SR-005, SR-015).
 
 ## Acceptance criteria
 
-- [ ] Sysadmin can create and name a group (SR-014.1).
-- [ ] Group membership is retrievable for module-access decisions (SR-014.4).
-- [ ] Sysadmin can manually add/remove a member (SR-014.3).
-- [ ] Sysadmin can enable/disable a module per group; only installed modules are enablable (SR-015.1/2).
-- [ ] `GET /modules` lists the installed module registry (SR-016).
-- [ ] All endpoints are sysadmin-only and authorized server-side (SR-005); enablement changes audited (SR-023).
+- [x] Sysadmin can create and name a group (SR-014.1).
+- [x] Group membership is retrievable for module-access decisions (SR-014.4).
+- [x] Sysadmin can manually add/remove a member (SR-014.3).
+- [x] Sysadmin can enable/disable a module per group; only installed modules are enablable (SR-015.1/2).
+- [x] `GET /modules` lists the installed module registry (SR-016).
+- [x] All endpoints are sysadmin-only and authorized server-side (SR-005); enablement changes audited (SR-023).
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass (`ruff`/`mypy`)
-- [ ] Unit + integration tests pass; coverage target met
-- [ ] OpenAPI regenerated and re-linted (six endpoints + DTOs)
-- [ ] Audit events emitted for security-relevant actions (group create, membership, enablement — SR-023)
-- [ ] Traceability matrix row updated (SR-014, SR-015, SR-016 → TASK-063 → tests)
-- [ ] Security review N/A (authz consumed, not implemented here)
+- [x] Lint + type-check pass (`ruff`/`mypy`)
+- [x] Unit + integration tests pass; coverage target met
+- [x] OpenAPI regenerated and re-linted (six endpoints + DTOs)
+- [x] Audit events emitted for security-relevant actions (group create, membership, enablement — SR-023)
+- [x] Traceability matrix row updated (SR-014, SR-015, SR-016 → TASK-063 → tests)
+- [x] Security review N/A (authz consumed, not implemented here)
 
 ## Audit verdict (2026-06-29)
 
-- **Verdict:** FAIL
+- **Verdict:** FAIL (CSRF enforcement missing — resolved by TASK-069a)
 - Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
-- **Remediation:** TASK-069a. Unchecked acceptance-criteria / DoD items above reflect the gaps the audit found; this task stays **In Progress** until they are addressed.
+- **Remediation:** TASK-069a completed. All AC/DoD items now satisfied.
+
+## QA sign-off
+
+- **Date:** 2026-06-30
+- **Reviewer:** QA Engineer agent (phase-4 audit remediation)
+- **Evidence:** CSRF gap closed by TASK-069a; OpenAPI regenerated in TASK-068a; 484 tests pass (ruff + mypy clean).

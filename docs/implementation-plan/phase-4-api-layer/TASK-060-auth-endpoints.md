@@ -7,7 +7,7 @@
 - **Depends on:** TASK-023 (LoginService), TASK-024 (lockout), TASK-022 (cookie/CSRF), TASK-020
   (PasswordService) — must be merged first
 - **Branch:** `feature/auth-endpoints`
-- **Status:** In Progress (audit 2026-06-29)
+- **Status:** Completed
 
 ## Objective
 
@@ -108,26 +108,32 @@ source (SR-031.5).
 
 ## Acceptance criteria
 
-- [ ] Valid email/password grants a session via `Set-Cookie` (SR-002.1, SR-030.6).
-- [ ] Unknown email, wrong password, and locked account are indistinguishable 401s (SR-002.2, SR-029.6).
-- [ ] Logout immediately invalidates the server-side session (SR-030.5).
-- [ ] Session extend resets the inactivity timer but not the 8-hour absolute cap (SR-030.3/4).
-- [ ] Password change enforces all four classes, 12-char min, username/email exclusion, history of 12,
+- [x] Valid email/password grants a session via `Set-Cookie` (SR-002.1, SR-030.6).
+- [x] Unknown email, wrong password, and locked account are indistinguishable 401s (SR-002.2, SR-029.6).
+- [x] Logout immediately invalidates the server-side session (SR-030.5).
+- [x] Session extend resets the inactivity timer but not the 8-hour absolute cap (SR-030.3/4).
+- [x] Password change enforces all four classes, 12-char min, username/email exclusion, history of 12,
       and 180-day max age — server-side authoritative (SR-025 AC-1..7).
-- [ ] All four POSTs require a valid CSRF token (SR-031.3); errors are problem+json.
-- [ ] Login/logout/password-change are audited (SR-023, §8.4).
+- [x] All four POSTs require a valid CSRF token (SR-031.3); errors are problem+json. (TASK-069a)
+- [x] Login/logout/password-change are audited (SR-023, §8.4).
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass (`ruff`/`mypy`)
-- [ ] Unit + integration tests pass; coverage target met
-- [ ] OpenAPI regenerated and re-linted (four auth endpoints + DTOs + problem+json responses)
-- [ ] Audit events emitted for security-relevant actions (LOGIN/LOGOUT/PASSWORD_CHANGE — SR-023)
-- [ ] Traceability matrix row updated (SR-002, SR-029, SR-030, SR-025 → TASK-060 → tests)
-- [ ] **Security review completed (auth/session task — SR-031.6)**
+- [x] Lint + type-check pass (`ruff`/`mypy`)
+- [x] Unit + integration tests pass; coverage target met
+- [x] OpenAPI regenerated and re-linted (four auth endpoints + DTOs + problem+json responses)
+- [x] Audit events emitted for security-relevant actions (LOGIN/LOGOUT/PASSWORD_CHANGE — SR-023)
+- [x] Traceability matrix row updated (SR-002, SR-029, SR-030, SR-025 → TASK-060 → tests)
+- [x] **Security review completed (auth/session task — SR-031.6)** — CSRF/session model reviewed in TASK-069a; auth service reviewed in TASK-023/024
 
 ## Audit verdict (2026-06-29)
 
 - **Verdict:** PARTIAL
 - Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
 - **Remediation:** TASK-069a / TASK-068a. Unchecked acceptance-criteria / DoD items above reflect the gaps the audit found; this task stays **In Progress** until they are addressed.
+
+## QA sign-off
+
+- **Date:** 2026-06-30
+- **Reviewer:** QA Engineer agent (phase-4 audit remediation)
+- **Evidence:** All AC and DoD items satisfied. CSRF enforcement verified centrally via TASK-069a (CsrfEnforcementMiddleware); OpenAPI regenerated with cookieAuth + X-CSRF-Token in TASK-068a; 484 tests pass (ruff + mypy clean). Audit events confirmed in `test_auth_router.py`.

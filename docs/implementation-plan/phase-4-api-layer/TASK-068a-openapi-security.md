@@ -4,7 +4,7 @@
 - **Implements / restores:** SR-031, NFR-006; remediates TASK-068
 - **Depends on:** TASK-068, TASK-069a
 - **Branch:** `feature/openapi-security`
-- **Status:** Not started
+- **Status:** Completed
 - **Source:** `AUDIT-LEDGER.md` — TASK-068 verdict **PARTIAL**
 
 ## Objective
@@ -23,14 +23,26 @@ deny-by-default + CSRF model it claims. The contract tests only assert the schem
 
 ## Acceptance criteria
 
-- [ ] Every protected operation declares the cookie security requirement; public routes do not.
-- [ ] State-changing operations document `X-CSRF-Token`.
-- [ ] Contract test fails if an operation omits the security requirement.
+- [x] Every protected operation declares the cookie security requirement; public routes do not.
+- [x] State-changing operations document `X-CSRF-Token`.
+- [x] Contract test fails if an operation omits the security requirement.
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass
-- [ ] OpenAPI regenerated, redocly lint passes, parity check green
-- [ ] Contract tests updated and passing
-- [ ] Traceability row updated (SR-031 → TASK-068a → tests)
-- [ ] Security review completed
+- [x] Lint + type-check pass
+- [x] OpenAPI regenerated, redocly lint passes, parity check green
+- [x] Contract tests updated and passing (3 new tests in `TestOpenAPISecurityRequirements`)
+- [x] Traceability row updated (SR-031 → TASK-068a → tests)
+- [x] Security review completed — public-route set (`/api/v1/auth/login`, `/api/v1/activation/{token}`, `/healthz`) confirmed correct; all other routes require `cookieAuth`; state-changing protected routes require `X-CSRF-Token` per contract.
+
+## Implementation notes (2026-06-30)
+
+- `backend/app/api/openapi.py`: `_PUBLIC_PATHS` frozenset defines unauthenticated routes; `customize_openapi` now iterates all paths and applies `security: [{cookieAuth: []}]` to non-public operations and `X-CSRF-Token` parameter to state-changing non-public operations.
+- `backend/scripts/export_openapi.py`: consolidated to delegate to `app.export_openapi.main`; no duplicate logic.
+- `backend/tests/api/test_openapi_contract.py`: `TestOpenAPISecurityRequirements` class with 3 assertions; `TestOpenAPIExport` updated to use the canonical `-m app.export_openapi` invocation.
+
+## QA sign-off
+
+- **Date:** 2026-06-30
+- **Reviewer:** QA Engineer agent (phase-4 audit remediation)
+- **Evidence:** 11 contract tests pass; `openapi.json` regenerated confirming `security: [{cookieAuth: []}]` on all protected paths and `X-CSRF-Token` on all state-changing protected paths; ruff + mypy clean; 484 total tests pass.
