@@ -236,6 +236,42 @@ def test_consent_inactive_excluded_from_active_list(db_session):
     assert len(active) == 0
 
 
+def test_list_patients_for_doctor_excludes_patients_without_consent(db_session):
+    """SR-006 AC-3: the doctor patient-roster query returns only patients with an
+    active consent grant for that doctor — a patient with no grant, or a grant for
+    a different doctor, must not appear (TASK-044a security review)."""
+    doctor = _add_account(db_session, "roster_doc_r@example.com", UserType.DOCTOR)
+    other_doctor = _add_account(db_session, "roster_other_doc_r@example.com", UserType.DOCTOR)
+    consented_patient = _add_account(db_session, "roster_pat_consented_r@example.com")
+    other_doctors_patient = _add_account(db_session, "roster_pat_other_r@example.com")
+    unconsented_patient = _add_account(db_session, "roster_pat_none_r@example.com")
+
+    repo = ConsentRepository(db_session)
+    repo.add(
+        ConsentGrant(
+            patient_id=consented_patient.id,
+            doctor_id=doctor.id,
+            source_type=ConsentSourceType.MANUAL,
+            active=True,
+        )
+    )
+    repo.add(
+        ConsentGrant(
+            patient_id=other_doctors_patient.id,
+            doctor_id=other_doctor.id,
+            source_type=ConsentSourceType.MANUAL,
+            active=True,
+        )
+    )
+
+    roster = repo.list_patients_for_doctor(doctor.id)
+    roster_ids = {p.id for p in roster}
+
+    assert consented_patient.id in roster_ids
+    assert other_doctors_patient.id not in roster_ids
+    assert unconsented_patient.id not in roster_ids
+
+
 # --- GroupRepository ---
 
 
