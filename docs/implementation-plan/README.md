@@ -170,6 +170,7 @@ phases 6–8 (frontend) can begin once the OpenAPI contract (TASK-068) is stable
 | [TASK-113](phase-9-integration-test-compliance/TASK-113-security-review.md)        | Security review + dependency scan         | SR-031.6, NFR-007 | 060,069,028     |
 | [TASK-114](phase-9-integration-test-compliance/TASK-114-traceability-update.md)    | Traceability matrix completion            | SR-028, NFR-006   | all             |
 | [TASK-115](phase-9-integration-test-compliance/TASK-115-deploy-docs.md)            | Deploy/run docs + sysadmin bootstrap      | dev-plan outputs  | 004             |
+| [TASK-116](phase-9-integration-test-compliance/TASK-116-clinical-data-rekeying.md) | Clinical data re-keying (erasure remediation) | ADR-0013, SR-024 | 035a,036,045    |
 
 ## Coverage
 
