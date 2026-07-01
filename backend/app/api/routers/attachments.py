@@ -63,6 +63,20 @@ async def upload_attachment(
     return AttachmentResponse.model_validate(attachment)
 
 
+@router.get(
+    "/clinical-entries/{entry_id}/attachments",
+    response_model=list[AttachmentResponse],
+)
+def list_attachments(
+    entry_id: uuid.UUID,
+    actor: Account = Depends(get_current_user),
+    svc: AttachmentService = Depends(_get_attachment_service),
+) -> list[AttachmentResponse]:
+    """List attachments for a clinical entry."""
+    attachments = svc.list_attachments(actor, entry_id)
+    return [AttachmentResponse.model_validate(a) for a in attachments]
+
+
 _CHUNK_SIZE = 65536  # 64 KiB
 
 

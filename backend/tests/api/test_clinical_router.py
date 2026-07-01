@@ -55,19 +55,60 @@ def _auth_as(client, actor: Account) -> None:
     client.app.dependency_overrides[get_db] = override_db
 
 
+def _make_author_account(
+    doctor_id: uuid.UUID, first_name: str = "Alice", surname: str | None = "Smith"
+) -> Account:
+    acct = MagicMock(spec=Account)
+    acct.id = doctor_id
+    acct.first_name = first_name
+    acct.surname = surname
+    acct.user_type = UserType.DOCTOR
+    acct.status = AccountStatus.ACTIVE
+    return acct
+
+
 class TestListClinicalEntries:
     def test_list_entries_returns_200(self, client):
         actor = _make_account(UserType.DOCTOR)
         patient_id = uuid.uuid4()
         entry = _make_entry(patient_id, actor.id)
+        author = _make_author_account(actor.id)
         _auth_as(client, actor)
 
-        with patch("app.clinical.service.ClinicalDataService.list_entries", return_value=[entry]):
+        with (
+            patch("app.clinical.service.ClinicalDataService.list_entries", return_value=[entry]),
+            patch(
+                "app.db.repositories.account_repo.AccountRepository.get_by_id",
+                return_value=author,
+            ),
+        ):
             resp = client.get(f"/api/v1/patients/{patient_id}/clinical-entries")
 
         client.app.dependency_overrides = {}
         assert resp.status_code == 200
-        assert isinstance(resp.json(), list)
+        data = resp.json()
+        assert isinstance(data, list)
+        assert data[0]["authorName"] == "Alice Smith"
+
+    def test_list_entries_author_without_surname_uses_first_name_only(self, client):
+        actor = _make_account(UserType.DOCTOR)
+        patient_id = uuid.uuid4()
+        entry = _make_entry(patient_id, actor.id)
+        author = _make_author_account(actor.id, first_name="Bob", surname=None)
+        _auth_as(client, actor)
+
+        with (
+            patch("app.clinical.service.ClinicalDataService.list_entries", return_value=[entry]),
+            patch(
+                "app.db.repositories.account_repo.AccountRepository.get_by_id",
+                return_value=author,
+            ),
+        ):
+            resp = client.get(f"/api/v1/patients/{patient_id}/clinical-entries")
+
+        client.app.dependency_overrides = {}
+        assert resp.status_code == 200
+        assert resp.json()[0]["authorName"] == "Bob"
 
     def test_list_entries_requires_auth(self, client):
         resp = client.get(f"/api/v1/patients/{uuid.uuid4()}/clinical-entries")
@@ -79,9 +120,16 @@ class TestCreateClinicalEntry:
         actor = _make_account(UserType.DOCTOR)
         patient_id = uuid.uuid4()
         entry = _make_entry(patient_id, actor.id)
+        author = _make_author_account(actor.id)
         _auth_as(client, actor)
 
-        with patch("app.clinical.service.ClinicalDataService.create_entry", return_value=entry):
+        with (
+            patch("app.clinical.service.ClinicalDataService.create_entry", return_value=entry),
+            patch(
+                "app.db.repositories.account_repo.AccountRepository.get_by_id",
+                return_value=author,
+            ),
+        ):
             resp = client.post(
                 f"/api/v1/patients/{patient_id}/clinical-entries",
                 json={
@@ -94,6 +142,7 @@ class TestCreateClinicalEntry:
 
         client.app.dependency_overrides = {}
         assert resp.status_code == 201
+        assert resp.json()["authorName"] == "Alice Smith"
 
     def test_create_entry_requires_auth(self, client):
         resp = client.post(

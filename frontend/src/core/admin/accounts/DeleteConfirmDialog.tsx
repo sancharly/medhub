@@ -34,9 +34,12 @@ export function DeleteConfirmDialog({
           <strong>Role:</strong> {account.userType}
         </Typography>
         <Alert severity="error" sx={{ mt: 2 }}>
-          This action is unrecoverable. All data associated with this account,
-          including any activation codes, will be permanently lost and cannot
-          be restored.
+          Deletion anonymizes this user&apos;s data into a dataset retained for
+          5 years; the email address is released and may be reused by another
+          account. A one-time retrieval code is emailed to the user — that code
+          is <strong>never stored</strong> by the system, so it is the user&apos;s
+          only way to retrieve the dataset. If the code is lost, the data is
+          unrecoverable. This action is unrecoverable and cannot be undone.
         </Alert>
       </DialogContent>
       <DialogActions>

@@ -14,17 +14,19 @@ export function AttachmentUpload({ entryId, patientId }: AttachmentUploadProps) 
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
-    mutationFn: (file: File) => apiClient.uploadAttachment(entryId, file),
+    mutationFn: (files: File[]) =>
+      Promise.all(files.map((file) => apiClient.uploadAttachment(entryId, file))),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["attachments", entryId] });
       queryClient.invalidateQueries({ queryKey: ["clinicalEntries", patientId] });
     },
   });
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (file) {
-      mutation.mutate(file);
-      // Reset so the same file can be uploaded again if needed
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      mutation.mutate(Array.from(files));
+      // Reset so the same file(s) can be uploaded again if needed
       if (inputRef.current) inputRef.current.value = "";
     }
   }
@@ -36,6 +38,7 @@ export function AttachmentUpload({ entryId, patientId }: AttachmentUploadProps) 
           id={`upload-${entryId}`}
           ref={inputRef}
           type="file"
+          multiple
           aria-label="Upload file"
           style={{ display: "none" }}
           onChange={handleChange}

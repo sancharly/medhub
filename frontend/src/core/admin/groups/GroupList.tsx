@@ -21,13 +21,12 @@ export function GroupList({ groups, installedModules }: GroupListProps) {
           <Typography variant="subtitle2" gutterBottom>
             Members
           </Typography>
-          {group.members.length === 0 ? (
+          {group.members.length === 0 && (
             <Typography variant="body2" color="text.secondary">
               No members.
             </Typography>
-          ) : (
-            <GroupMembers groupId={group.id} members={group.members} />
           )}
+          <GroupMembers groupId={group.id} members={group.members} />
           <Divider sx={{ my: 1 }} />
           <Typography variant="subtitle2" gutterBottom>
             Modules

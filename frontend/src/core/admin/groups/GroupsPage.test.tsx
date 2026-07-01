@@ -124,6 +124,66 @@ describe("GroupsPage", () => {
     });
   });
 
+  it("SR-014.3: a sysadmin can add a manual member; list refreshes", async () => {
+    const addSpy = vi.fn();
+    const groupWithNewMember = {
+      ...groupWithMembers,
+      members: [
+        ...groupWithMembers.members,
+        { accountId: "a3", name: "Carol New", membershipSource: "MANUAL" },
+      ],
+    };
+    let callCount = 0;
+
+    server.use(
+      http.get(`${BASE}/groups`, () => {
+        callCount++;
+        return HttpResponse.json([callCount > 1 ? groupWithNewMember : groupWithMembers]);
+      }),
+      http.get(`${BASE}/modules`, () => HttpResponse.json(installedModules)),
+      http.post(`${BASE}/groups/grp-1/members`, async ({ request }) => {
+        const body = (await request.json()) as { accountId: string };
+        addSpy(body);
+        return new HttpResponse(null, { status: 204 });
+      })
+    );
+
+    renderPage();
+
+    await waitFor(() => {
+      expect(screen.getByText(/Bob Manual/)).toBeInTheDocument();
+    });
+
+    await userEvent.type(screen.getByLabelText(/account id or email/i), "a3");
+    await userEvent.click(screen.getByRole("button", { name: /add member/i }));
+
+    await waitFor(() => {
+      expect(addSpy).toHaveBeenCalledWith({ accountId: "a3" });
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText(/Carol New/)).toBeInTheDocument();
+    });
+  });
+
+  it("SR-014.2/3: AUTO members stay read-only (no remove control) while manual members have one", async () => {
+    server.use(
+      http.get(`${BASE}/groups`, () => HttpResponse.json([groupWithMembers])),
+      http.get(`${BASE}/modules`, () => HttpResponse.json(installedModules))
+    );
+
+    renderPage();
+
+    await waitFor(() => {
+      expect(screen.getByText(/Alice Auto/)).toBeInTheDocument();
+    });
+
+    expect(
+      screen.queryByRole("button", { name: /remove alice auto/i })
+    ).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /remove bob manual/i })).toBeInTheDocument();
+  });
+
   it("SR-015.1/2: toggling module on sends PUT /groups/{id}/modules/dicom-viewer with enabled:true", async () => {
     const putSpy = vi.fn();
     const groupWithModule = {

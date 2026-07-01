@@ -33,6 +33,7 @@ class ClinicalEntryResponse(_CamelModel):
     id: uuid.UUID
     patient_id: uuid.UUID
     author_id: uuid.UUID
+    author_name: str
     occurred_at: datetime
     description: str
     created_at: datetime

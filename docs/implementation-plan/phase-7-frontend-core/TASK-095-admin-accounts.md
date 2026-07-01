@@ -5,7 +5,7 @@
 - **Implements:** SR-009 (non-clinical projection only), SR-032 (role-constrained create), SR-034 (deactivate/reactivate/delete with confirmation); ADR-0013 (delete = anonymized retention + lost-code warning)
 - **Depends on:** TASK-061 (account-create API, SI-API), TASK-062 (account lifecycle API: deactivate/reactivate/delete, SI-API), TASK-083 (auth/session UI + role context) — must be merged first
 - **Branch:** `feature/fe-admin-accounts`
-- **Status:** In Progress (audit 2026-06-29)
+- **Status:** Completed
 
 ## Objective
 
@@ -62,21 +62,29 @@ shell.confirmDialog({...});                        // delete + deactivate confir
 
 ## Acceptance criteria
 
-- [ ] The account list shows only the non-clinical projection; no clinical data is requested or shown (SR-009).
-- [ ] Account creation enforces required fields and offers only role-permitted user types (admin cannot create sysadmin) (SR-032.2/4/5).
-- [ ] Duplicate email is surfaced as a field error from the server `409` (SR-032.3).
-- [ ] System administrators can deactivate, reactivate, and delete accounts; non-sysadmins cannot see these actions (SR-034).
-- [ ] Delete shows a confirmation with the account email + type and the ADR-0013 lost-code warning, and cannot proceed without explicit confirmation (SR-034.6, SR-027.2, ADR-0013).
-- [ ] An admin cannot deactivate their own account from the UI (SR-034.1).
+- [x] The account list shows only the non-clinical projection; no clinical data is requested or shown (SR-009).
+- [x] Account creation enforces required fields and offers only role-permitted user types (admin cannot create sysadmin) (SR-032.2/4/5).
+- [x] Duplicate email is surfaced as a field error from the server `409` (SR-032.3).
+- [x] System administrators can deactivate, reactivate, and delete accounts; non-sysadmins cannot see these actions (SR-034).
+- [x] Delete shows a confirmation with the account email + type and the ADR-0013 lost-code warning, and cannot proceed without explicit confirmation (SR-034.6, SR-027.2, ADR-0013).
+- [x] An admin cannot deactivate their own account from the UI (SR-034.1).
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass (`eslint`/`tsc`)
-- [ ] Unit/component tests pass; coverage target met
-- [ ] Traceability matrix row updated (SR-009, SR-032, SR-034 → TASK-095 → tests)
+- [x] Lint + type-check pass (`eslint`/`tsc`)
+- [x] Unit/component tests pass; coverage target met — `AccountsPage.test.tsx`, 11/11 passing
+- [x] Traceability matrix row updated (SR-009, SR-032, SR-034 → TASK-095 → tests)
 
 ## Audit verdict (2026-06-29)
 
 - **Verdict:** PARTIAL
 - Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
 - **Remediation:** TASK-029a (backend admin projection), **TASK-095a** (FE: ADR-0013 delete warning, resend-activation control). Unchecked items reflect the gaps the audit found; stays **In Progress** until addressed.
+
+## Remediation verification (2026-06-30)
+
+TASK-029a (backend non-clinical projection) is merged on main; `AccountsPage.tsx` already consumed
+`apiClient.listAccounts()` correctly. TASK-095a closes the remaining gaps (ADR-0013 delete-warning copy,
+resend-activation control) — see that task file. All AC above are now genuinely met and covered by
+`AccountsPage.test.tsx` (11 tests, including the new ADR-0013 copy assertion and resend-activation
+assertion).

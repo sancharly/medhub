@@ -13,7 +13,8 @@ interface CreateEntryFormProps {
 
 export function CreateEntryForm({ patientId }: CreateEntryFormProps) {
   const [description, setDescription] = useState("");
-  const [occurredAt, setOccurredAt] = useState("");
+  const [occurredDate, setOccurredDate] = useState("");
+  const [occurredTime, setOccurredTime] = useState("");
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
@@ -22,16 +23,20 @@ export function CreateEntryForm({ patientId }: CreateEntryFormProps) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["clinicalEntries", patientId] });
       setDescription("");
-      setOccurredAt("");
+      setOccurredDate("");
+      setOccurredTime("");
     },
   });
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    mutation.mutate({ occurredAt: `${occurredAt}T00:00:00Z`, description });
+    mutation.mutate({
+      occurredAt: new Date(`${occurredDate}T${occurredTime}`).toISOString(),
+      description,
+    });
   }
 
-  const isDisabled = !description.trim() || !occurredAt;
+  const isDisabled = !description.trim() || !occurredDate || !occurredTime;
 
   return (
     <Box component="form" onSubmit={handleSubmit} sx={{ display: "flex", flexDirection: "column", gap: 2, mb: 3 }}>
@@ -49,8 +54,17 @@ export function CreateEntryForm({ patientId }: CreateEntryFormProps) {
         label="Date"
         id="entry-date"
         type="date"
-        value={occurredAt}
-        onChange={(e) => setOccurredAt(e.target.value)}
+        value={occurredDate}
+        onChange={(e) => setOccurredDate(e.target.value)}
+        slotProps={{ inputLabel: { shrink: true } }}
+        required
+      />
+      <TextField
+        label="Time"
+        id="entry-time"
+        type="time"
+        value={occurredTime}
+        onChange={(e) => setOccurredTime(e.target.value)}
         slotProps={{ inputLabel: { shrink: true } }}
         required
       />

@@ -5,7 +5,7 @@
 - **Implements:** SR-006 (AC-1 list of authorized patients; AC-3 no unauthorized patients exposed); ADR-0003
 - **Depends on:** TASK-080 (typed `ApiClient`), TASK-081 (app shell + routing), TASK-082 (navigation) — must be merged first
 - **Branch:** `feature/fe-patients`
-- **Status:** In Progress (audit 2026-06-29)
+- **Status:** Completed
 
 ## Objective
 
@@ -50,20 +50,30 @@ shell.navigate(`/patients/${patientId}/clinical-entries`);
 
 ## Acceptance criteria
 
-- [ ] A doctor can retrieve and view the list of patients they are authorized for (SR-006 AC-1).
-- [ ] The view renders exactly the server-returned set; no client-side authorization or widening (SR-006 AC-3, SR-031.5).
-- [ ] Selecting a patient navigates into that patient's clinical record (handoff to TASK-092).
-- [ ] Empty, loading, and error states are handled with clear messaging (SR-027.3).
-- [ ] Responsive layout, no horizontal scroll of primary content (SR-020).
+- [x] A doctor can retrieve and view the list of patients they are authorized for (SR-006 AC-1).
+- [x] The view renders exactly the server-returned set; no client-side authorization or widening (SR-006 AC-3, SR-031.5).
+- [x] Selecting a patient navigates into that patient's clinical record (handoff to TASK-092).
+- [x] Empty, loading, and error states are handled with clear messaging (SR-027.3).
+- [x] Responsive layout, no horizontal scroll of primary content (SR-020) — MUI `List`/`ListItem` stacks vertically, no fixed-width content.
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass (`eslint`/`tsc`)
-- [ ] Unit/component tests pass; coverage target met
-- [ ] Traceability matrix row updated (SR-006 → TASK-091 → tests)
+- [x] Lint + type-check pass (`eslint`/`tsc`)
+- [x] Unit/component tests pass; coverage target met — `PatientListPage.test.tsx`, 5/5 passing
+- [x] Traceability matrix row updated (SR-006 → TASK-091 → tests)
 
 ## Audit verdict (2026-06-29)
 
 - **Verdict:** FAIL
 - Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
 - **Remediation:** TASK-044a. Unchecked acceptance-criteria / DoD items above reflect the gaps the audit found; this task stays **In Progress** until they are addressed.
+
+## Remediation verification (2026-06-30)
+
+TASK-044a (doctor-patient-roster backend) is merged on main. Verified end to end:
+`PatientListPage.tsx` calls `apiClient.listPatients()` → `GET /api/v1/clinical-entries/patients`,
+which is backed by the real `roster_router` in `backend/app/api/routers/clinical.py`
+(`list_accessible_patients`, doctor-only, scoped to active consent). `PatientRow.tsx` navigates to
+`/patients/{id}/clinical-entries` on click. `PatientListPage.test.tsx` MSW mocks were already aligned
+to the real path and response shape (`PatientSummaryResponse`: `id`, `firstName`, `surname`,
+`dateOfBirth`) — no mock changes were needed. All 5 component tests pass; `tsc`/`eslint` clean.

@@ -4,7 +4,7 @@
 - **Implements / restores:** SR-012, SR-013, SR-015/016; remediates TASK-092
 - **Depends on:** TASK-092, TASK-044a (patient roster, for navigation), TASK-066a (multipart upload), TASK-101 (module gating)
 - **Branch:** `feature/clinical-entries-completeness`
-- **Status:** Not started
+- **Status:** Completed
 - **Source:** `AUDIT-LEDGER.md` — TASK-092 verdict **PARTIAL** (phase-7 QA, confirmed)
 
 ## Objective
@@ -29,14 +29,29 @@ The clinical-entries view has several unmet acceptance criteria found in the pha
 
 ## Acceptance criteria
 
-- [ ] Clinical entry create captures date **and** time.
-- [ ] A doctor can attach **one or more** files in a single upload.
-- [ ] Attachments are listed under their entry; DICOM "open in viewer" appears **only** when the module is enabled.
-- [ ] Author is shown by name.
+- [x] Clinical entry create captures date **and** time.
+- [x] A doctor can attach **one or more** files in a single upload.
+- [x] Attachments are listed under their entry; DICOM "open in viewer" appears **only** when the module is enabled.
+- [x] Author is shown by name for every entry, using the `authorName` field returned by the server (TASK-066b).
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass
-- [ ] Component tests cover multi-file, attachment listing, and module-gated viewer link (mocks match the real contract)
-- [ ] Verified end-to-end once TASK-044a/066a land
-- [ ] Traceability row updated (SR-012/SR-013 → TASK-092a → tests)
+- [x] Lint + type-check pass
+- [x] Component tests cover multi-file, attachment listing, and module-gated viewer link (mocks match the real contract) — `ClinicalEntriesPage.test.tsx`
+- [x] Verified end-to-end once TASK-044a/066a land
+- [x] Traceability row updated (SR-012/SR-013 → TASK-092a → tests)
+
+## Implementation notes (2026-06-30)
+
+- `CreateEntryForm.tsx`: added a `type="time"` field alongside the existing date field; submit builds
+  `occurredAt` via `new Date(\`${date}T${time}\`).toISOString()`.
+- `AttachmentUpload.tsx`: `<input>` now has `multiple`; `handleChange` iterates `Array.from(files)` and
+  uploads each via `Promise.all`.
+- `AttachmentItem.tsx` is now mounted per-entry via `ClinicalEntryList.tsx`'s new `EntryAttachments`
+  component, backed by `useQuery(['attachments', entryId], () => apiClient.listAttachments(entryId))`
+  against the new `GET /clinical-entries/{entry_id}/attachments` endpoint (TASK-066b), so attachments
+  persist across page reloads.
+- `AttachmentItem.tsx` now fetches `GET /me/modules` (`apiClient.listMyModules()`) and only shows
+  "Open in viewer" when `"dicom-viewer"` is present, in addition to the existing content-type check.
+- Author name: the entry list renders the server-provided `entry.authorName` field directly
+  (TASK-066b), resolved for every author, not just the viewer.

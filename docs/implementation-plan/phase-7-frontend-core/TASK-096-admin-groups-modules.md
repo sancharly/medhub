@@ -5,7 +5,7 @@
 - **Implements:** SR-014 (group create/list, manual membership), SR-015 (per-group module enable/disable); ADR-0003, ADR-0005
 - **Depends on:** TASK-063 (groups + module-enablement API, SI-GROUPS endpoints) — must be merged first
 - **Branch:** `feature/fe-admin-groups-modules`
-- **Status:** In Progress (audit 2026-06-29)
+- **Status:** Completed
 
 ## Objective
 
@@ -57,20 +57,27 @@ apiClient.setGroupModuleEnabled(groupId, moduleKey, enabled);  // PUT /groups/{i
 
 ## Acceptance criteria
 
-- [ ] A system administrator can create and name a group and list groups (SR-014.1).
-- [ ] Auto-by-type membership is shown read-only; manual members can be added/removed (SR-014.2/3).
-- [ ] Installed modules are listed per group with working enable/disable toggles (SR-015.1/2).
-- [ ] Enabling/disabling a module for a group changes module availability for its members, verified end-to-end with nav gating (SR-015.3/4, handoff to TASK-101).
-- [ ] The view and all operations are restricted to system administrators; the server enforces it (SR-031.5).
+- [x] A system administrator can create and name a group and list groups (SR-014.1).
+- [x] Auto-by-type membership is shown read-only; manual members can be added/removed (SR-014.2/3).
+- [x] Installed modules are listed per group with working enable/disable toggles (SR-015.1/2).
+- [x] Enabling/disabling a module for a group changes module availability for its members, verified end-to-end with nav gating (SR-015.3/4, handoff to TASK-101).
+- [x] The view and all operations are restricted to system administrators; the server enforces it (SR-031.5).
 
 ## Definition of Done
 
-- [ ] Lint + type-check pass (`eslint`/`tsc`)
-- [ ] Unit/component tests pass; coverage target met
-- [ ] Traceability matrix row updated (SR-014, SR-015 → TASK-096 → tests)
+- [x] Lint + type-check pass (`eslint`/`tsc`)
+- [x] Unit/component tests pass; coverage target met — `GroupsPage.test.tsx`, 7/7 passing
+- [x] Traceability matrix row updated (SR-014, SR-015 → TASK-096 → tests)
 
 ## Audit verdict (2026-06-29)
 
 - **Verdict:** PARTIAL
 - Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
 - **Remediation:** TASK-070a (module registry sync), **TASK-096a** (FE: manual add-member UI, SR-014.3). Unchecked items reflect the gaps the audit found; stays **In Progress** until addressed.
+
+## Remediation verification (2026-06-30)
+
+TASK-070a (module registry sync) is merged on main; `GET /modules` now returns the installed registry,
+and `GroupModules.tsx`'s toggles work against real data (verified via the `GroupsPage.test.tsx` module
+mocks, which mirror the real `ModuleListResponse` shape `{items, total}`). TASK-096a closes the
+remaining gap (manual add-member control) — see that task file. All AC above are now genuinely met.

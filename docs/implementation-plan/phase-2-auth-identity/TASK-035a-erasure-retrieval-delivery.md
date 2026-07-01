@@ -27,7 +27,7 @@ DELETE endpoint's "code will be emailed" response is false. Additionally `retrie
 
 - [x] The retrieval code is emailed exactly once on erasure; only its salted hash is stored; code never logged/audited.
 - [x] Anonymized data is retrievable by the code within the window; an expired dataset returns 404.
-- [ ] Clinical data is anonymized/re-keyed into the dataset (not silently dropped). — deferred: no ClinicalEntry repo available; payload carries `original_user_type` stub.
+- [ ] Clinical data is anonymized/re-keyed into the dataset (not silently dropped). — deferred: no ClinicalEntry repo available; payload carries `original_user_type` stub. **Tracked remediation: [TASK-116](../phase-9-integration-test-compliance/TASK-116-clinical-data-rekeying.md)** (phase 9) — the original deferral reason is stale (`ClinicalRepository`/`AttachmentRepository` now exist); once TASK-116's AC/DoD are met, this checkbox is checked and this task's status is re-confirmed as fully Completed.
 - [x] Retrieval is audited as `ANONYMIZED_RETRIEVAL`.
 
 ## Definition of Done

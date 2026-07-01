@@ -159,6 +159,10 @@ export class ApiClient {
     return response.json() as Promise<Attachment>;
   }
 
+  listAttachments(entryId: string): Promise<Attachment[]> {
+    return this.request<Attachment[]>("GET", `/clinical-entries/${entryId}/attachments`);
+  }
+
   getAttachmentUrl(attachmentId: string): string {
     return `${this.baseUrl}/attachments/${attachmentId}`;
   }

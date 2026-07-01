@@ -132,3 +132,19 @@ def test_create_entry_emits_audit() -> None:
     svc.create_entry(actor, patient.id, datetime.now(UTC), "Test description.")
     mock_audit.record.assert_called()
     assert "CLINICAL_CREATE" in str(mock_audit.record.call_args)
+
+
+def test_list_accessible_patients_emits_audit_with_basis() -> None:
+    """SR-006 AC-4: roster access is audited with the authorization basis
+    (TASK-044a security review)."""
+    doctor = _make_account(UserType.DOCTOR)
+    svc, _, mock_audit = _build_svc(effective_access=True)
+    mock_consent_repo = MagicMock()
+    mock_consent_repo.list_patients_for_doctor.return_value = []
+    svc._consent_repo = mock_consent_repo
+
+    svc.list_accessible_patients(doctor.id)
+
+    mock_audit.record.assert_called()
+    assert "CLINICAL_ACCESS" in str(mock_audit.record.call_args)
+    assert str(doctor.id) in str(mock_audit.record.call_args)

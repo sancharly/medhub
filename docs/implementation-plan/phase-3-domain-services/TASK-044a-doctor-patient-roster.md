@@ -37,11 +37,22 @@ clinical entries. Implement the missing roster: the distinct patients a doctor c
 - [x] Lint + type-check pass
 - [x] Unit + integration tests pass (consent/no-consent/denied)
 - [x] OpenAPI regenerated + frontend types regenerated; the frontend view loads against the real backend
-- [ ] Traceability row updated (SR-006 → TASK-044a → tests)
-- [ ] Security review completed
+- [x] Traceability row updated (SR-006 → TASK-044a → tests)
+- [x] Security review completed
 
 ## QA sign-off
 
 - **Date:** 2026-06-29
 - **Reviewer:** QA Engineer agent
-- **Evidence:** All non-deferred acceptance criteria and DoD items confirmed with code and tooling evidence: `ConsentRepository.list_patients_for_doctor` filters on `ConsentGrant.active.is_(True)` and `ConsentGrant.doctor_id`; `list_accessible_patients` calls `audit_svc.record`; router denies non-DOCTOR roles with `AuthorizationError`; `client.ts` `listPatients()` calls `/clinical-entries/patients` matching the registered backend path `/api/v1/clinical-entries/patients`; `openapi.json` contains the GET operation and `PatientSummaryResponse` schema; `types.ts` exports `PatientSummary` aliased to that schema; ruff + black exit 0; 9/9 pytest tests pass; `npm run typecheck` exits 0. Deferred items (Traceability row TASK-114, Security review) remain open.
+- **Evidence:** All non-deferred acceptance criteria and DoD items confirmed with code and tooling evidence: `ConsentRepository.list_patients_for_doctor` filters on `ConsentGrant.active.is_(True)` and `ConsentGrant.doctor_id`; `list_accessible_patients` calls `audit_svc.record`; router denies non-DOCTOR roles with `AuthorizationError`; `client.ts` `listPatients()` calls `/clinical-entries/patients` matching the registered backend path `/api/v1/clinical-entries/patients`; `openapi.json` contains the GET operation and `PatientSummaryResponse` schema; `types.ts` exports `PatientSummary` aliased to that schema; ruff + black exit 0; 9/9 pytest tests pass; `npm run typecheck` exits 0.
+
+## Security review (2026-07-01)
+
+The two DoD items left open by the 2026-06-29 QA pass are now closed:
+
+- **Traceability row**: added to `docs/design/traceability-matrix.md` under "Phase-7 frontend core task → test traceability" (SR-006 → TASK-044a → backend test files).
+- **Security review**: prior test coverage exercised deny-by-default (403 for PATIENT/ADMIN, 401 unauthenticated in `test_clinical_router.py`) but only via a **mocked** `list_accessible_patients` — no test exercised the real consent-scoping query against a database, which is exactly the "recurring root cause" (mock-only evidence) the phase-audit calls out. Closed the gap:
+  - Added `test_list_patients_for_doctor_excludes_patients_without_consent` (`backend/tests/db/test_repositories.py`) — a real-DB integration test asserting `ConsentRepository.list_patients_for_doctor` returns a patient with an active grant for the doctor, and excludes both a patient with no grant and a patient consented to a *different* doctor (SR-006 AC-2/AC-3).
+  - Added `test_list_accessible_patients_emits_audit_with_basis` (`backend/tests/clinical/test_clinical_service.py`) — asserts the roster access audit record carries the `CLINICAL_ACCESS` action and the doctor's id (SR-006 AC-4).
+  - Confirmed the endpoint is deny-by-default (doctor-only, 403 otherwise) at the router level (pre-existing tests, re-verified passing).
+  - Full backend suite re-run green after the additions.
