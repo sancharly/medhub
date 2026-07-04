@@ -1,6 +1,4 @@
 @startuml activity-account-lifecycle
-!include cyber.puml
-!include sprites/all.sprite
 skinparam linetype ortho
 
 title Activity - Account creation, activation & lifecycle (SR-032, SR-033, SR-034)

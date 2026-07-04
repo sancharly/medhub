@@ -1,6 +1,4 @@
 @startuml context
-!include cyber.puml
-!include sprites/all.sprite
 skinparam linetype ortho
 
 title MedHub - System Context (C4 Level 1)

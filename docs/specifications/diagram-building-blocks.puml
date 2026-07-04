@@ -1,6 +1,4 @@
 @startuml building-blocks
-!include cyber.puml
-!include sprites/all.sprite
 skinparam linetype ortho
 
 title MedHub - Building Block View (C4 Level 2, Containers & Core Items)

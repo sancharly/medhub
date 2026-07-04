@@ -1,6 +1,4 @@
 @startuml seq-appointment-consent
-!include cyber.puml
-!include sprites/all.sprite
 skinparam linetype ortho
 
 title Runtime - Appointment creation, notification, confirmation -> consent grant (SR-010, SR-035, SR-036)

@@ -1,6 +1,4 @@
 @startuml deployment
-!include cyber.puml
-!include sprites/all.sprite
 skinparam linetype ortho
 
 title MedHub - Deployment View (MVP, Docker Compose single host)

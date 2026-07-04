@@ -1,6 +1,4 @@
 @startuml domain-model
-!include cyber.puml
-!include sprites/all.sprite
 skinparam linetype ortho
 
 title MedHub - Domain Data Model (FHIR R4 aligned, see fhir-mapping.md)
