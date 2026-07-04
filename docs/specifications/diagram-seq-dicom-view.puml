@@ -1,6 +1,4 @@
 @startuml seq-dicom-view
-!include cyber.puml
-!include sprites/all.sprite
 skinparam linetype ortho
 
 title Runtime - Open & view DICOM via plugin module (SR-015, SR-016, SR-017, SR-018, SR-026)

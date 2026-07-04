@@ -1,6 +1,4 @@
 @startuml seq-doctor-access
-!include cyber.puml
-!include sprites/all.sprite
 skinparam linetype ortho
 
 title Runtime - Doctor views a patient's clinical data (SR-005, SR-006, SR-036)

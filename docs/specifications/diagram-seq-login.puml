@@ -1,6 +1,4 @@
 @startuml seq-login
-!include cyber.puml
-!include sprites/all.sprite
 skinparam linetype ortho
 
 title Runtime - Login with lockout & session creation (SR-002, SR-029, SR-030)

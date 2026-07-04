@@ -14,8 +14,6 @@
 
 ```plantuml
 @startuml
-!include cyber.puml
-!include sprites/all.sprite
 skinparam linetype ortho
 
 package "Application" #lightblue {
@@ -47,8 +45,6 @@ Products --> DB
 
 ```plantuml
 @startuml
-!include cyber.puml
-!include sprites/all.sprite
 skinparam linetype ortho
 
 rectangle "Users\nService" as UserSvc #lightblue
@@ -80,8 +76,6 @@ ProductSvc --> ProductDB
 
 ```plantuml
 @startuml
-!include cyber.puml
-!include sprites/all.sprite
 skinparam linetype ortho
 
 rectangle "Producer" as Producer #lightblue
@@ -110,8 +104,6 @@ Bus --> ConsumerB
 
 ```plantuml
 @startuml
-!include cyber.puml
-!include sprites/all.sprite
 skinparam linetype ortho
 
 rectangle "Commands" as Commands #lightblue

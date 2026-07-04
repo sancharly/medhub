@@ -1,3 +1,0 @@
-' sprites/all.sprite — local no-op sprite include for MedHub diagrams.
-' Present so the skill-mandated '!include sprites/all.sprite' resolves in this repo.
-' No sprites are used by the current diagrams.

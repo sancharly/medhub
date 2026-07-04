@@ -26,8 +26,6 @@
 
 ```plantuml
 @startuml
-!include cyber.puml
-!include sprites/all.sprite
 skinparam linetype ortho
 
 rectangle "Client\n(Web)" as Client #lightblue
