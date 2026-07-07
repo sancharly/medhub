@@ -1,0 +1,8 @@
+- /Users/carlos.santiago/Dev/prototypes/medhub-01/docs/implementation-plan/AUDIT-LEDGER.md
+- /Users/carlos.santiago/Dev/prototypes/medhub-01/docs/implementation-plan/README.md
+- /Users/carlos.santiago/Dev/prototypes/medhub-01/docs/implementation-plan/SMOKE-RESULTS.md
+- /Users/carlos.santiago/Dev/prototypes/medhub-01/docs/implementation-plan/TASK-TEMPLATE.md
+- /Users/carlos.santiago/Dev/prototypes/medhub-01/docs/specifications/api-design.md
+- /Users/carlos.santiago/Dev/prototypes/medhub-01/docs/specifications/fhir-mapping.md
+- /Users/carlos.santiago/Dev/prototypes/medhub-01/frontend/index.html
+- /Users/carlos.santiago/Dev/prototypes/medhub-01/infra/DEPLOY.md
