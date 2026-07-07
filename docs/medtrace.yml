@@ -1,0 +1,6 @@
+safety_class: C
+classification_rationale: Med hub is not a medical device
+no_soup: true
+soup_anomaly_max_age_days: 365
+severity_max: 5
+probability_max: 5
