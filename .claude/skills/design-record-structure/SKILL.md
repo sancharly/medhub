@@ -86,7 +86,7 @@ tags: []
 
 - User Need / NFR / Regulatory Requirement might not have any upstream links (they are the top of the traceability tree), but they should have downstream links to the Software Requirements that satisfy them.
 - NFR / Regulatory Requirement → `derives_from` → User Need.
-- Software Requirement → `satisfies` → User Need / NFR / Regulatory Req.
+- Software Requirement → `satisfies` / `derives_from` → User Need / NFR / Regulatory Req.
 - Task / Architecture Doc → `implements` → Software Requirement.
 - Test Specification / Test Report → `verifies` → Software Requirement (chain should
   reach a `test-report` eventually, or it shows as unverified).
@@ -96,7 +96,7 @@ tags: []
 
   ### Required links to enforce traceability
 
-  - Software Requirements must have at least one `satisfies` link to a User Need, NFR, or Regulatory Requirement.
+  - Software Requirements must have at least one `satisfies` or `derives_from` link to a User Need, NFR, or Regulatory Requirement.
   - Tasks must have at least one `implements` link to a Software Requirement.
   - Test Specifications must have at least one `verifies` link to a Software Requirement.
   - Architecture Docs must have at least one `implements` link to a Software Requirement.
