@@ -1,8 +1,8 @@
 {
   ".claude/settings.local.json": {
-    "mtime": 1783156163.146689,
-    "ast_hash": "fddf76f832eddd81fea2e3a86a324932",
-    "semantic_hash": "fddf76f832eddd81fea2e3a86a324932"
+    "mtime": 1783438067.967101,
+    "ast_hash": "93f51f4ce808535778dc4110c3ba0125",
+    "semantic_hash": ""
   },
   ".claude/skills/brand/scripts/tests/test_sync_brand_to_tokens.py": {
     "mtime": 1783253023.7333899,
@@ -2144,16 +2144,6 @@
     "ast_hash": "350f677e100b646f6baf6ac9b4be86c3",
     "semantic_hash": "350f677e100b646f6baf6ac9b4be86c3"
   },
-  ".claude/skills/grill-me/SKILL.md": {
-    "mtime": 1781946069.5126688,
-    "ast_hash": "d07c47e3f0ffefd2c28354eb81a1e831",
-    "semantic_hash": "d07c47e3f0ffefd2c28354eb81a1e831"
-  },
-  ".claude/skills/grilling/SKILL.md": {
-    "mtime": 1781946069.5129204,
-    "ast_hash": "995083fcd049f47686fd15c413023b2e",
-    "semantic_hash": "995083fcd049f47686fd15c413023b2e"
-  },
   ".claude/skills/planning-and-task-breakdown/SKILL.md": {
     "mtime": 1781946069.513203,
     "ast_hash": "d7f1d651f2c1cf4a656cf416fc3cb7cc",
@@ -2430,9 +2420,9 @@
     "semantic_hash": "e0b4004ebb98a631f5b81397628789d9"
   },
   "CLAUDE.md": {
-    "mtime": 1782670785.9410563,
-    "ast_hash": "55d302fe58afd4876395f9fe5b9a4a1e",
-    "semantic_hash": "55d302fe58afd4876395f9fe5b9a4a1e"
+    "mtime": 1783434789.8628578,
+    "ast_hash": "1ffa16cc96f2fed18b332b72b5115885",
+    "semantic_hash": ""
   },
   "README.md": {
     "mtime": 1781978348.21003,
@@ -3408,5 +3398,90 @@
     "mtime": 1782806214.2411828,
     "ast_hash": "c85d00900b813e1f0653b97783bf9905",
     "semantic_hash": "c85d00900b813e1f0653b97783bf9905"
+  },
+  ".claude/settings.json": {
+    "mtime": 1783434628.5955007,
+    "ast_hash": "66f7a5878e801ae6c42732d7424620b8",
+    "semantic_hash": ""
+  },
+  "docs/design-outputs/tasks/TASK-135-true-streaming-attachment-upload-and-download.md": {
+    "mtime": 1783451532.266889,
+    "ast_hash": "c0cb56f9127d2e7ac6b7889793c6a9a1",
+    "semantic_hash": ""
+  },
+  "docs/design-outputs/tasks/TASK-136-align-async-handlers-with-sync-io-stack.md": {
+    "mtime": 1783451544.203131,
+    "ast_hash": "034ab22d1a2485d88d55c70ebf88832b",
+    "semantic_hash": ""
+  },
+  "docs/design-outputs/tasks/TASK-137-capture-client-ip-in-authz-and-consent-audit.md": {
+    "mtime": 1783451554.0800364,
+    "ast_hash": "85a7482b44309f7835ec94f87636c1ab",
+    "semantic_hash": ""
+  },
+  "docs/design-outputs/tasks/TASK-138-pii-scrubbing-for-worker-and-notification-logs.md": {
+    "mtime": 1783451565.9778929,
+    "ast_hash": "83a0fb6560dc3b1feb5d5362a3a81497",
+    "semantic_hash": ""
+  },
+  "docs/design-outputs/tasks/TASK-139-csrf-exemption-exact-match-hardening.md": {
+    "mtime": 1783451582.9905448,
+    "ast_hash": "b863bf1aae622322ed7fd3fa9d60755f",
+    "semantic_hash": ""
+  },
+  "docs/design-outputs/tasks/TASK-140-auth-config-hygiene-dead-signing-key-lockout-required.md": {
+    "mtime": 1783451592.7561374,
+    "ast_hash": "da13fb828ecfd013cd26259da49a3bf5",
+    "semantic_hash": ""
+  },
+  "docs/design-outputs/tasks/TASK-141-worker-reliability-retention-sessions-retries-silent-failures.md": {
+    "mtime": 1783451604.9324827,
+    "ast_hash": "9b7073e2288862e4c5bd3ff1d7049e29",
+    "semantic_hash": ""
+  },
+  "docs/design-outputs/tasks/TASK-142-frontend-route-level-role-guards.md": {
+    "mtime": 1783451616.9792192,
+    "ast_hash": "4bc0663e8af2911253e62af9c4fac76b",
+    "semantic_hash": ""
+  },
+  "docs/design-outputs/tasks/TASK-143-unify-frontend-api-client-upload-and-problem-types.md": {
+    "mtime": 1783451636.5280325,
+    "ast_hash": "257e24455bcca76117be6b0337dbbf0a",
+    "semantic_hash": ""
+  },
+  "docs/design-outputs/tasks/TASK-144-shared-useme-hook-session-ttl-reconciliation-module-cache-invalidation.md": {
+    "mtime": 1783451649.7959929,
+    "ast_hash": "66c88a690519f982edcfc2125f6f9c1f",
+    "semantic_hash": ""
+  },
+  "docs/design-outputs/tasks/TASK-145-route-based-code-splitting.md": {
+    "mtime": 1783451659.1062384,
+    "ast_hash": "b2e8b9ea534ae11850c5f853772a70b1",
+    "semantic_hash": ""
+  },
+  "docs/design-outputs/tasks/TASK-146-frontend-unit-test-gaps-session-attachment-csrf.md": {
+    "mtime": 1783451669.545289,
+    "ast_hash": "224df2976e75fb1594cd226854cb4ea4",
+    "semantic_hash": ""
+  },
+  "docs/design-outputs/tasks/TASK-147-iso-14971-risk-register-bootstrap.md": {
+    "mtime": 1783451689.4108238,
+    "ast_hash": "8a12b1f04bc60e8714b619f21a1b3097",
+    "semantic_hash": ""
+  },
+  "docs/design-outputs/tasks/TASK-148-fix-dangling-remediation-ids-in-traceability-matrix.md": {
+    "mtime": 1783451699.5052316,
+    "ast_hash": "1743477620911adde7fb67de340a3ce8",
+    "semantic_hash": ""
+  },
+  "docs/implementation-plan/remediation-plan-review-2026-07.md": {
+    "mtime": 1783451783.2979956,
+    "ast_hash": "8cf832b011c135ca7f113bc26973c358",
+    "semantic_hash": ""
+  },
+  "docs/reports/CODE-REVIEW-2026-07.md": {
+    "mtime": 1783451757.14883,
+    "ast_hash": "6aa3596ab73ae5e17a5c0f0adf3c22c7",
+    "semantic_hash": ""
   }
 }
