@@ -1,16 +1,16 @@
 # Graph Report - medhub-01  (2026-07-17)
 
 ## Corpus Check
-- 684 files · ~347,974 words
+- 684 files · ~347,980 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 7103 nodes · 9676 edges · 1037 communities (522 shown, 515 thin omitted)
+- 7103 nodes · 9676 edges · 1039 communities (524 shown, 515 thin omitted)
 - Extraction: 88% EXTRACTED · 12% INFERRED · 0% AMBIGUOUS · INFERRED: 1151 edges (avg confidence: 0.72)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `8ebcccff`
+- Built from commit: `8ce54a0b`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -524,9 +524,11 @@
 - [[_COMMUNITY_TASK-041-group-membership-automatic-manual|TASK-041-group-membership-automatic-manual.md]]
 - [[_COMMUNITY_TASK-042-per-group-module-enablement|TASK-042-per-group-module-enablement.md]]
 - [[_COMMUNITY_TASK-043-moduleaccessguard|TASK-043-moduleaccessguard.md]]
+- [[_COMMUNITY_6|6]]
 - [[_COMMUNITY_TASK-045-attachment-upload-minio-pydicom-validation|TASK-045-attachment-upload-minio-pydicom-validation.md]]
 - [[_COMMUNITY_TASK-046-attachment-authorized-fetch|TASK-046-attachment-authorized-fetch.md]]
 - [[_COMMUNITY_TASK-047-appointment-create|TASK-047-appointment-create.md]]
+- [[_COMMUNITY_destructive|destructive]]
 - [[_COMMUNITY_TASK-050-appointment-notification-dispatch|TASK-050-appointment-notification-dispatch.md]]
 - [[_COMMUNITY_TASK-051-appointment-visibility-scoping|TASK-051-appointment-visibility-scoping.md]]
 - [[_COMMUNITY_TASK-044-clinical-entry-create-list|TASK-044-clinical-entry-create-list.md]]
@@ -1049,7 +1051,7 @@
 - **Regulatory and Compliance Requirements Chain** — docs_design_inputs_system_requirements_non_functional_nfr_004_gdpr_compliance_nfr_004, docs_design_inputs_system_requirements_non_functional_nfr_005_medical_device_nfr_005, docs_design_inputs_system_requirements_non_functional_nfr_006_iec_62304_nfr_006, docs_design_inputs_system_requirements_non_functional_nfr_007_cybersecurity_nfr_007 [EXTRACTED 1.00]
 - **Production Infrastructure Stack** — service_postgres, service_redis, service_minio, service_nginx, service_backend_fastapi, service_celery_worker, service_frontend_react, infra_docker_compose_topology [EXTRACTED 1.00]
 
-## Communities (1037 total, 515 thin omitted)
+## Communities (1039 total, 515 thin omitted)
 
 ### Community 0 - "Code Community"
 Cohesion: 0.27
@@ -1060,8 +1062,8 @@ Cohesion: 0.08
 Nodes (47): AuthorizationServiceProtocol, get_platform_services(), Yield a request-scoped PlatformServices wired from FastAPI DI., _get_account_service(), list_accounts(), resend_activation(), _get_activation_service(), _get_appointment_service() (+39 more)
 
 ### Community 2 - "Code Community"
-Cohesion: 0.08
-Nodes (25): ApiError, ChangePasswordRequest, apiClient, queryClient, QueryProvider(), QueryProviderProps, App(), ChangePasswordPage() (+17 more)
+Cohesion: 0.10
+Nodes (18): ApiError, apiClient, QueryProvider(), QueryProviderProps, App(), RequireAuth(), CreateGroupForm(), GroupsPage() (+10 more)
 
 ### Community 3 - "Code Community"
 Cohesion: 0.05
@@ -1073,7 +1075,7 @@ Nodes (39): LoginFailure, LoginService, LoginSuccess, Response, LoginService —
 
 ### Community 5 - "Code Community"
 Cohesion: 0.08
-Nodes (13): MeResponse, patientUser, groupWithMembers, installedModules, doctorMe, newerEntry, olderEntry, appointmentGrant (+5 more)
+Nodes (13): MeResponse, ForcedPasswordGate(), groupWithMembers, installedModules, doctorMe, newerEntry, olderEntry, appointmentGrant (+5 more)
 
 ### Community 6 - "Code Community"
 Cohesion: 0.33
@@ -1116,8 +1118,8 @@ Cohesion: 0.11
 Nodes (33): UnauthenticatedError, ActivationService, issue_activation_token(), UUID, Account activation via 72h token (TASK-032).  Token lifecycle:   issue_activatio, Re-issue an activation token. ADMIN or SYSADMIN only.          Returns the raw t, Generate a token, store its sha256 hash on the account, return the raw token., Activate an account: validate token, set password, set ACTIVE.          Raises U (+25 more)
 
 ### Community 16 - "Code Community"
-Cohesion: 0.10
-Nodes (20): ActivationTokenStatus, ActivationPage(), formatCountdown(), IdleWarningDialog(), IdleWarningDialogProps, LoginPage(), passwordHints, HintItem (+12 more)
+Cohesion: 0.09
+Nodes (24): ActivationTokenStatus, ChangePasswordRequest, queryClient, ActivationPage(), ChangePasswordPage(), formatCountdown(), IdleWarningDialog(), IdleWarningDialogProps (+16 more)
 
 ### Community 17 - "Code Community"
 Cohesion: 0.10
@@ -1280,8 +1282,8 @@ Cohesion: 0.10
 Nodes (12): audit_repo_mock(), AuditService tests (TASK-014, SR-023)., Passing action with password=... must not appear in stored record., In-memory AuditRepository mock that captures added logs., Pre-auth failure — actor is None (unknown)., Timestamp is set by AuditService, not supplied by caller., service(), test_audit_repo_has_only_add() (+4 more)
 
 ### Community 61 - "Code Community"
-Cohesion: 0.15
-Nodes (15): BM25, detect_domain(), _load_csv(), Load CSV and return list of dicts, Core search function using BM25, Auto-detect the most relevant domain from query, Main search function with auto-domain detection, Search across all domains and combine results (+7 more)
+Cohesion: 0.17
+Nodes (14): detect_domain(), _load_csv(), Load CSV and return list of dicts, Core search function using BM25, Auto-detect the most relevant domain from query, Main search function with auto-domain detection, Search across all domains and combine results, search() (+6 more)
 
 ### Community 62 - "Code Community"
 Cohesion: 0.15
@@ -1304,16 +1306,16 @@ Cohesion: 0.05
 Nodes (43): Arbitrary Values, Aspect Ratio, Background Colors, Border Color, Border Radius, Border Style, Border Width, Borders (+35 more)
 
 ### Community 67 - "Rationale Community"
-Cohesion: 0.16
-Nodes (17): detect_domain(), get_cip_brief(), _load_csv(), Load CSV and return list of dicts, Core search function using BM25, Auto-detect the most relevant domain from query, Main search function with auto-domain detection, Search across all domains and combine results (+9 more)
+Cohesion: 0.22
+Nodes (12): detect_domain(), get_cip_brief(), _load_csv(), Load CSV and return list of dicts, Core search function using BM25, Auto-detect the most relevant domain from query, Main search function with auto-domain detection, Search across all domains and combine results (+4 more)
 
 ### Community 68 - "Code Community"
 Cohesion: 0.11
-Nodes (19): $type, $value, background, destructive, foreground, muted-foreground, primary-hover, secondary (+11 more)
+Nodes (19): $type, $value, background, foreground, muted-foreground, primary, primary-hover, secondary (+11 more)
 
 ### Community 69 - "Code Community"
-Cohesion: 0.15
-Nodes (18): ansi_ljust(), format_ascii_box(), format_markdown(), format_master_md(), format_page_override_md(), generate_design_system(), hex_to_ansi(), persist_design_system() (+10 more)
+Cohesion: 0.19
+Nodes (14): _detect_page_type(), format_markdown(), format_master_md(), format_page_override_md(), generate_design_system(), _generate_intelligent_overrides(), persist_design_system(), Format a page-specific override file with intelligent AI-generated content. (+6 more)
 
 ### Community 70 - "Code Community"
 Cohesion: 0.14
@@ -1637,7 +1639,7 @@ Nodes (7): generate_html(), get_deliverable_info(), get_image_base64(), main(), 
 
 ### Community 157 - "Code Community"
 Cohesion: 0.29
-Nodes (8): padding-y, input, $type, $value, focus-ring, padding-y, $type, $value
+Nodes (8): padding-x, input, $type, $value, focus-ring, padding-x, $type, $value
 
 ### Community 158 - "Document Community"
 Cohesion: 0.22
@@ -1816,8 +1818,8 @@ Cohesion: 0.67
 Nodes (3): $type, $value, 8
 
 ### Community 226 - "Code Community"
-Cohesion: 0.40
-Nodes (4): format_output(), generate_design_brief(), Format results for Claude consumption (token-optimized), Generate a comprehensive logo design brief based on query
+Cohesion: 0.28
+Nodes (5): BM25, BM25 ranking algorithm for text search, Lowercase, split, remove punctuation, filter short words, Build BM25 index from documents, Score all documents against query
 
 ### Community 227 - "Code Community"
 Cohesion: 0.25
@@ -1836,8 +1838,8 @@ Cohesion: 0.67
 Nodes (3): ring, $type, $value
 
 ### Community 231 - "Code Community"
-Cohesion: 0.67
-Nodes (4): padding-x, padding-x, $type, $value
+Cohesion: 0.25
+Nodes (8): ansi_ljust(), format_ascii_box(), hex_to_ansi(), Convert hex color to ANSI True Color swatch (██) with fallback., Like str.ljust but accounts for zero-width ANSI escape sequences., Create a Unicode section separator: ├─── NAME ───...┤, Format design system as Unicode box with ANSI color swatches., section_header()
 
 ### Community 234 - "Code Community"
 Cohesion: 0.08
@@ -1944,12 +1946,12 @@ Cohesion: 0.25
 Nodes (7): Acceptance Criteria, Control Measures, Description, Potential Risks, Rationale, Risk Analysis, Summary
 
 ### Community 386 - "test_login_service.py"
-Cohesion: 0.67
-Nodes (4): $type, $value, none, none
+Cohesion: 0.38
+Nodes (3): LoginPage(), patientUser, useLogin()
 
 ### Community 387 - "_build_svc"
-Cohesion: 0.50
-Nodes (4): _detect_page_type(), _generate_intelligent_overrides(), Generate intelligent overrides based on page type using layered search., Detect page type from context and search results.
+Cohesion: 0.47
+Nodes (5): format_brief(), format_results(), main(), Format search results for display, Format CIP brief for display
 
 ### Community 388 - "Brand Consistency Checklist"
 Cohesion: 0.11
@@ -2401,7 +2403,7 @@ Nodes (8): Backend, Backend, Development, Frontend, Frontend, Full stack with Do
 
 ### Community 500 - "TestPlatformServicesFacade"
 Cohesion: 0.67
-Nodes (3): $type, $value, 5
+Nodes (4): padding-y, padding-y, $type, $value
 
 ### Community 501 - "CLAUDE.md"
 Cohesion: 0.25
@@ -2525,7 +2527,7 @@ Nodes (5): BM25, BM25 ranking algorithm for text search, Lowercase, split, remov
 
 ### Community 532 - "TASK-010-sqlalchemy-domain-models-fhir-aligned.md"
 Cohesion: 0.67
-Nodes (3): primary, $type, $value
+Nodes (4): $type, $value, md, md
 
 ### Community 533 - "TASK-011-alembic-initial-migration-constraints.md"
 Cohesion: 0.25
@@ -2603,6 +2605,10 @@ Nodes (7): Acceptance criteria, Audit verdict (2026-06-29), Definition of Done, 
 Cohesion: 0.25
 Nodes (7): Acceptance criteria, Audit verdict (2026-06-29), Definition of Done, Implementation detail, Interfaces to honor, Objective, Tests (write first — TDD, CLAUDE.md §4)
 
+### Community 552 - "6"
+Cohesion: 0.67
+Nodes (3): $type, $value, 6
+
 ### Community 553 - "TASK-045-attachment-upload-minio-pydicom-validation.md"
 Cohesion: 0.25
 Nodes (7): Acceptance criteria, Audit verdict (2026-06-29), Definition of Done, Implementation detail, Interfaces to honor, Objective, Tests (write first — TDD, CLAUDE.md §4)
@@ -2614,6 +2620,10 @@ Nodes (7): Acceptance criteria, Audit verdict (2026-06-29), Definition of Done, 
 ### Community 555 - "TASK-047-appointment-create.md"
 Cohesion: 0.25
 Nodes (7): Acceptance criteria, Audit verdict (2026-06-29), Definition of Done, Implementation detail, Interfaces to honor, Objective, Tests (write first — TDD, CLAUDE.md §4)
+
+### Community 556 - "destructive"
+Cohesion: 0.67
+Nodes (3): destructive, $type, $value
 
 ### Community 557 - "TASK-050-appointment-notification-dispatch.md"
 Cohesion: 0.25

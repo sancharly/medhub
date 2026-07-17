@@ -2037,7 +2037,7 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "claude_skills_design_system_templates_design_tokens_starter_spacing_1",
-      "community": 532,
+      "community": 50,
       "norm_label": "1"
     },
     {
@@ -2047,7 +2047,7 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "claude_skills_design_system_templates_design_tokens_starter_1_value",
-      "community": 532,
+      "community": 50,
       "norm_label": "$value"
     },
     {
@@ -2057,7 +2057,7 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "claude_skills_design_system_templates_design_tokens_starter_1_type",
-      "community": 532,
+      "community": 50,
       "norm_label": "$type"
     },
     {
@@ -2067,7 +2067,7 @@
       "source_location": "L42",
       "_origin": "ast",
       "id": "claude_skills_design_system_templates_design_tokens_starter_spacing_2",
-      "community": 50,
+      "community": 488,
       "norm_label": "2"
     },
     {
@@ -2077,7 +2077,7 @@
       "source_location": "L42",
       "_origin": "ast",
       "id": "claude_skills_design_system_templates_design_tokens_starter_2_value",
-      "community": 50,
+      "community": 488,
       "norm_label": "$value"
     },
     {
@@ -2087,7 +2087,7 @@
       "source_location": "L42",
       "_origin": "ast",
       "id": "claude_skills_design_system_templates_design_tokens_starter_2_type",
-      "community": 50,
+      "community": 488,
       "norm_label": "$type"
     },
     {
@@ -2097,7 +2097,7 @@
       "source_location": "L43",
       "_origin": "ast",
       "id": "claude_skills_design_system_templates_design_tokens_starter_spacing_3",
-      "community": 1039,
+      "community": 50,
       "norm_label": "3"
     },
     {
@@ -2107,7 +2107,7 @@
       "source_location": "L43",
       "_origin": "ast",
       "id": "claude_skills_design_system_templates_design_tokens_starter_3_value",
-      "community": 1039,
+      "community": 50,
       "norm_label": "$value"
     },
     {
@@ -2117,7 +2117,7 @@
       "source_location": "L43",
       "_origin": "ast",
       "id": "claude_skills_design_system_templates_design_tokens_starter_3_type",
-      "community": 1039,
+      "community": 50,
       "norm_label": "$type"
     },
     {
@@ -2157,7 +2157,7 @@
       "source_location": "L45",
       "_origin": "ast",
       "id": "claude_skills_design_system_templates_design_tokens_starter_spacing_5",
-      "community": 50,
+      "community": 500,
       "norm_label": "5"
     },
     {
@@ -2167,7 +2167,7 @@
       "source_location": "L45",
       "_origin": "ast",
       "id": "claude_skills_design_system_templates_design_tokens_starter_5_value",
-      "community": 50,
+      "community": 500,
       "norm_label": "$value"
     },
     {
@@ -2177,7 +2177,7 @@
       "source_location": "L45",
       "_origin": "ast",
       "id": "claude_skills_design_system_templates_design_tokens_starter_5_type",
-      "community": 50,
+      "community": 500,
       "norm_label": "$type"
     },
     {
@@ -2597,7 +2597,7 @@
       "source_location": "L63",
       "_origin": "ast",
       "id": "claude_skills_design_system_templates_design_tokens_starter_radius_none",
-      "community": 107,
+      "community": 386,
       "norm_label": "none"
     },
     {
@@ -2607,7 +2607,7 @@
       "source_location": "L63",
       "_origin": "ast",
       "id": "claude_skills_design_system_templates_design_tokens_starter_none_value",
-      "community": 107,
+      "community": 386,
       "norm_label": "$value"
     },
     {
@@ -2617,7 +2617,7 @@
       "source_location": "L63",
       "_origin": "ast",
       "id": "claude_skills_design_system_templates_design_tokens_starter_none_type",
-      "community": 107,
+      "community": 386,
       "norm_label": "$type"
     },
     {
@@ -2667,7 +2667,7 @@
       "source_location": "L66",
       "_origin": "ast",
       "id": "claude_skills_design_system_templates_design_tokens_starter_radius_md",
-      "community": 1038,
+      "community": 107,
       "norm_label": "md"
     },
     {
@@ -2677,7 +2677,7 @@
       "source_location": "L66",
       "_origin": "ast",
       "id": "claude_skills_design_system_templates_design_tokens_starter_md_value",
-      "community": 1038,
+      "community": 107,
       "norm_label": "$value"
     },
     {
@@ -2687,7 +2687,7 @@
       "source_location": "L66",
       "_origin": "ast",
       "id": "claude_skills_design_system_templates_design_tokens_starter_md_type",
-      "community": 1038,
+      "community": 107,
       "norm_label": "$type"
     },
     {
@@ -2757,7 +2757,7 @@
       "source_location": "L72",
       "_origin": "ast",
       "id": "claude_skills_design_system_templates_design_tokens_starter_shadow_none",
-      "community": 107,
+      "community": 386,
       "norm_label": "none"
     },
     {
@@ -2787,7 +2787,7 @@
       "source_location": "L75",
       "_origin": "ast",
       "id": "claude_skills_design_system_templates_design_tokens_starter_shadow_md",
-      "community": 1038,
+      "community": 107,
       "norm_label": "md"
     },
     {
@@ -2987,7 +2987,7 @@
       "source_location": "L88",
       "_origin": "ast",
       "id": "claude_skills_design_system_templates_design_tokens_starter_color_primary",
-      "community": 68,
+      "community": 532,
       "norm_label": "primary"
     },
     {
@@ -2997,7 +2997,7 @@
       "source_location": "L88",
       "_origin": "ast",
       "id": "claude_skills_design_system_templates_design_tokens_starter_primary_value",
-      "community": 68,
+      "community": 532,
       "norm_label": "$value"
     },
     {
@@ -3007,7 +3007,7 @@
       "source_location": "L88",
       "_origin": "ast",
       "id": "claude_skills_design_system_templates_design_tokens_starter_primary_type",
-      "community": 68,
+      "community": 532,
       "norm_label": "$type"
     },
     {
@@ -3197,7 +3197,7 @@
       "source_location": "L95",
       "_origin": "ast",
       "id": "claude_skills_design_system_templates_design_tokens_starter_color_destructive",
-      "community": 500,
+      "community": 68,
       "norm_label": "destructive"
     },
     {
@@ -3207,7 +3207,7 @@
       "source_location": "L95",
       "_origin": "ast",
       "id": "claude_skills_design_system_templates_design_tokens_starter_destructive_value",
-      "community": 500,
+      "community": 68,
       "norm_label": "$value"
     },
     {
@@ -3217,7 +3217,7 @@
       "source_location": "L95",
       "_origin": "ast",
       "id": "claude_skills_design_system_templates_design_tokens_starter_destructive_type",
-      "community": 500,
+      "community": 68,
       "norm_label": "$type"
     },
     {
@@ -3497,7 +3497,7 @@
       "source_location": "L110",
       "_origin": "ast",
       "id": "claude_skills_design_system_templates_design_tokens_starter_button_padding_x",
-      "community": 157,
+      "community": 231,
       "norm_label": "padding-x"
     },
     {
@@ -3507,7 +3507,7 @@
       "source_location": "L110",
       "_origin": "ast",
       "id": "claude_skills_design_system_templates_design_tokens_starter_padding_x_value",
-      "community": 157,
+      "community": 231,
       "norm_label": "$value"
     },
     {
@@ -3517,7 +3517,7 @@
       "source_location": "L110",
       "_origin": "ast",
       "id": "claude_skills_design_system_templates_design_tokens_starter_padding_x_type",
-      "community": 157,
+      "community": 231,
       "norm_label": "$type"
     },
     {
@@ -3527,7 +3527,7 @@
       "source_location": "L111",
       "_origin": "ast",
       "id": "claude_skills_design_system_templates_design_tokens_starter_button_padding_y",
-      "community": 386,
+      "community": 157,
       "norm_label": "padding-y"
     },
     {
@@ -3537,7 +3537,7 @@
       "source_location": "L111",
       "_origin": "ast",
       "id": "claude_skills_design_system_templates_design_tokens_starter_padding_y_value",
-      "community": 386,
+      "community": 157,
       "norm_label": "$value"
     },
     {
@@ -3547,7 +3547,7 @@
       "source_location": "L111",
       "_origin": "ast",
       "id": "claude_skills_design_system_templates_design_tokens_starter_padding_y_type",
-      "community": 386,
+      "community": 157,
       "norm_label": "$type"
     },
     {
@@ -3677,7 +3677,7 @@
       "source_location": "L119",
       "_origin": "ast",
       "id": "claude_skills_design_system_templates_design_tokens_starter_input_padding_x",
-      "community": 157,
+      "community": 231,
       "norm_label": "padding-x"
     },
     {
@@ -3687,7 +3687,7 @@
       "source_location": "L120",
       "_origin": "ast",
       "id": "claude_skills_design_system_templates_design_tokens_starter_input_padding_y",
-      "community": 386,
+      "community": 157,
       "norm_label": "padding-y"
     },
     {
@@ -4787,7 +4787,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "claude_skills_design_scripts_logo_search",
-      "community": 61,
+      "community": 226,
       "norm_label": "search.py"
     },
     {
@@ -4797,7 +4797,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "claude_skills_design_scripts_logo_search_format_output",
-      "community": 61,
+      "community": 226,
       "norm_label": "format_output()"
     },
     {
@@ -4807,7 +4807,7 @@
       "source_location": "L37",
       "_origin": "ast",
       "id": "claude_skills_design_scripts_logo_search_generate_design_brief",
-      "community": 61,
+      "community": 226,
       "norm_label": "generate_design_brief()"
     },
     {
@@ -4817,7 +4817,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "claude_skills_design_scripts_logo_search_rationale_16",
-      "community": 61,
+      "community": 226,
       "norm_label": "format results for claude consumption (token-optimized)"
     },
     {
@@ -4827,7 +4827,7 @@
       "source_location": "L38",
       "_origin": "ast",
       "id": "claude_skills_design_scripts_logo_search_rationale_38",
-      "community": 61,
+      "community": 226,
       "norm_label": "generate a comprehensive logo design brief based on query"
     },
     {
@@ -6847,7 +6847,7 @@
       "source_location": "L115",
       "_origin": "ast",
       "id": "claude_skills_ui_ux_pro_max_scripts_core_bm25",
-      "community": 128,
+      "community": 120,
       "norm_label": "bm25"
     },
     {
@@ -6857,7 +6857,7 @@
       "source_location": "L118",
       "_origin": "ast",
       "id": "claude_skills_ui_ux_pro_max_scripts_core_bm25_init",
-      "community": 128,
+      "community": 120,
       "norm_label": ".__init__()"
     },
     {
@@ -6867,7 +6867,7 @@
       "source_location": "L128",
       "_origin": "ast",
       "id": "claude_skills_ui_ux_pro_max_scripts_core_bm25_tokenize",
-      "community": 128,
+      "community": 120,
       "norm_label": ".tokenize()"
     },
     {
@@ -6877,7 +6877,7 @@
       "source_location": "L133",
       "_origin": "ast",
       "id": "claude_skills_ui_ux_pro_max_scripts_core_bm25_fit",
-      "community": 128,
+      "community": 120,
       "norm_label": ".fit()"
     },
     {
@@ -6887,7 +6887,7 @@
       "source_location": "L152",
       "_origin": "ast",
       "id": "claude_skills_ui_ux_pro_max_scripts_core_bm25_score",
-      "community": 128,
+      "community": 120,
       "norm_label": ".score()"
     },
     {
@@ -6947,7 +6947,7 @@
       "source_location": "L116",
       "_origin": "ast",
       "id": "claude_skills_ui_ux_pro_max_scripts_core_rationale_116",
-      "community": 128,
+      "community": 120,
       "norm_label": "bm25 ranking algorithm for text search"
     },
     {
@@ -6957,7 +6957,7 @@
       "source_location": "L129",
       "_origin": "ast",
       "id": "claude_skills_ui_ux_pro_max_scripts_core_rationale_129",
-      "community": 128,
+      "community": 120,
       "norm_label": "lowercase, split, remove punctuation, filter short words"
     },
     {
@@ -6967,7 +6967,7 @@
       "source_location": "L134",
       "_origin": "ast",
       "id": "claude_skills_ui_ux_pro_max_scripts_core_rationale_134",
-      "community": 128,
+      "community": 120,
       "norm_label": "build bm25 index from documents"
     },
     {
@@ -6977,7 +6977,7 @@
       "source_location": "L153",
       "_origin": "ast",
       "id": "claude_skills_ui_ux_pro_max_scripts_core_rationale_153",
-      "community": 128,
+      "community": 120,
       "norm_label": "score all documents against query"
     },
     {
@@ -7237,7 +7237,7 @@
       "source_location": "L1176",
       "_origin": "ast",
       "id": "claude_skills_ui_ux_pro_max_scripts_design_system_generate_intelligent_overrides",
-      "community": 69,
+      "community": 387,
       "norm_label": "_generate_intelligent_overrides()"
     },
     {
@@ -7247,7 +7247,7 @@
       "source_location": "L1282",
       "_origin": "ast",
       "id": "claude_skills_ui_ux_pro_max_scripts_design_system_detect_page_type",
-      "community": 69,
+      "community": 387,
       "norm_label": "_detect_page_type()"
     },
     {
@@ -7437,7 +7437,7 @@
       "source_location": "L1177",
       "_origin": "ast",
       "id": "claude_skills_ui_ux_pro_max_scripts_design_system_rationale_1177",
-      "community": 69,
+      "community": 387,
       "norm_label": "generate intelligent overrides based on page type using layered search."
     },
     {
@@ -7447,7 +7447,7 @@
       "source_location": "L1283",
       "_origin": "ast",
       "id": "claude_skills_ui_ux_pro_max_scripts_design_system_rationale_1283",
-      "community": 69,
+      "community": 387,
       "norm_label": "detect page type from context and search results."
     },
     {
@@ -7607,7 +7607,7 @@
       "source_location": "L94",
       "_origin": "ast",
       "id": "backend_app_api_deps_authorizationserviceprotocol_authorize",
-      "community": 26,
+      "community": 1,
       "norm_label": ".authorize()"
     },
     {
@@ -7737,7 +7737,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_app_api_errors",
-      "community": 198,
+      "community": 101,
       "norm_label": "errors.py"
     },
     {
@@ -7747,7 +7747,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "backend_app_api_errors_problemdetail",
-      "community": 102,
+      "community": 101,
       "norm_label": "problemdetail"
     },
     {
@@ -7757,7 +7757,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "basemodel",
-      "community": 94,
+      "community": 130,
       "norm_label": "basemodel"
     },
     {
@@ -7767,7 +7767,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "backend_app_api_errors_problemerror",
-      "community": 47,
+      "community": 101,
       "norm_label": "problemerror"
     },
     {
@@ -7787,7 +7787,7 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "backend_app_api_errors_problemerror_init",
-      "community": 47,
+      "community": 101,
       "norm_label": ".__init__()"
     },
     {
@@ -7837,7 +7837,7 @@
       "source_location": "L63",
       "_origin": "ast",
       "id": "backend_app_api_errors_validationproblem_init",
-      "community": 47,
+      "community": 101,
       "norm_label": ".__init__()"
     },
     {
@@ -7857,7 +7857,7 @@
       "source_location": "L77",
       "_origin": "ast",
       "id": "backend_app_api_errors_unauthenticatederror_init",
-      "community": 47,
+      "community": 101,
       "norm_label": ".__init__()"
     },
     {
@@ -7867,7 +7867,7 @@
       "source_location": "L81",
       "_origin": "ast",
       "id": "backend_app_api_errors_authorizationerror",
-      "community": 0,
+      "community": 229,
       "norm_label": "authorizationerror"
     },
     {
@@ -7877,7 +7877,7 @@
       "source_location": "L86",
       "_origin": "ast",
       "id": "backend_app_api_errors_authorizationerror_init",
-      "community": 47,
+      "community": 101,
       "norm_label": ".__init__()"
     },
     {
@@ -7887,7 +7887,7 @@
       "source_location": "L90",
       "_origin": "ast",
       "id": "backend_app_api_errors_notfounderror",
-      "community": 164,
+      "community": 39,
       "norm_label": "notfounderror"
     },
     {
@@ -7897,7 +7897,7 @@
       "source_location": "L95",
       "_origin": "ast",
       "id": "backend_app_api_errors_notfounderror_init",
-      "community": 47,
+      "community": 101,
       "norm_label": ".__init__()"
     },
     {
@@ -7907,7 +7907,7 @@
       "source_location": "L99",
       "_origin": "ast",
       "id": "backend_app_api_errors_conflicterror",
-      "community": 33,
+      "community": 85,
       "norm_label": "conflicterror"
     },
     {
@@ -7917,7 +7917,7 @@
       "source_location": "L104",
       "_origin": "ast",
       "id": "backend_app_api_errors_conflicterror_init",
-      "community": 47,
+      "community": 101,
       "norm_label": ".__init__()"
     },
     {
@@ -7927,7 +7927,7 @@
       "source_location": "L111",
       "_origin": "ast",
       "id": "backend_app_api_errors_ratelimitederror",
-      "community": 47,
+      "community": 101,
       "norm_label": "ratelimitederror"
     },
     {
@@ -7937,7 +7937,7 @@
       "source_location": "L116",
       "_origin": "ast",
       "id": "backend_app_api_errors_ratelimitederror_init",
-      "community": 47,
+      "community": 101,
       "norm_label": ".__init__()"
     },
     {
@@ -7987,7 +7987,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_app_api_errors_rationale_1",
-      "community": 198,
+      "community": 101,
       "norm_label": "rfc 7807 problem details error handling (task-026).  all http errors returned by"
     },
     {
@@ -7997,7 +7997,7 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "backend_app_api_errors_rationale_29",
-      "community": 47,
+      "community": 101,
       "norm_label": "base rfc 7807 problem error."
     },
     {
@@ -8017,7 +8017,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_app_api_health",
-      "community": 94,
+      "community": 130,
       "norm_label": "health.py"
     },
     {
@@ -8027,7 +8027,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "backend_app_api_health_healthresponse",
-      "community": 94,
+      "community": 130,
       "norm_label": "healthresponse"
     },
     {
@@ -8037,7 +8037,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "backend_app_api_health_healthz",
-      "community": 94,
+      "community": 130,
       "norm_label": "healthz()"
     },
     {
@@ -8047,7 +8047,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_app_api_health_rationale_1",
-      "community": 94,
+      "community": 130,
       "norm_label": "health check endpoint \u2014 no authentication, no phi."
     },
     {
@@ -8187,7 +8187,7 @@
       "source_location": "L62",
       "_origin": "ast",
       "id": "backend_app_api_routers_accounts_list_accounts",
-      "community": 52,
+      "community": 1,
       "norm_label": "list_accounts()"
     },
     {
@@ -8217,7 +8217,7 @@
       "source_location": "L113",
       "_origin": "ast",
       "id": "backend_app_api_routers_accounts_resend_activation",
-      "community": 52,
+      "community": 1,
       "norm_label": "resend_activation()"
     },
     {
@@ -8277,7 +8277,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_app_api_routers_activation",
-      "community": 552,
+      "community": 52,
       "norm_label": "activation.py"
     },
     {
@@ -8287,7 +8287,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "backend_app_api_routers_activation_get_activation_service",
-      "community": 552,
+      "community": 1,
       "norm_label": "_get_activation_service()"
     },
     {
@@ -8297,7 +8297,7 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "backend_app_api_routers_activation_validate_token",
-      "community": 552,
+      "community": 52,
       "norm_label": "validate_token()"
     },
     {
@@ -8307,7 +8307,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "activationtokenstatus",
-      "community": 552,
+      "community": 52,
       "norm_label": "activationtokenstatus"
     },
     {
@@ -8317,7 +8317,7 @@
       "source_location": "L52",
       "_origin": "ast",
       "id": "backend_app_api_routers_activation_activate_account",
-      "community": 552,
+      "community": 52,
       "norm_label": "activate_account()"
     },
     {
@@ -8327,7 +8327,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_app_api_routers_activation_rationale_1",
-      "community": 552,
+      "community": 52,
       "norm_label": "activation api router (task-061)."
     },
     {
@@ -8337,7 +8337,7 @@
       "source_location": "L36",
       "_origin": "ast",
       "id": "backend_app_api_routers_activation_rationale_36",
-      "community": 552,
+      "community": 52,
       "norm_label": "validate an activation token without consuming it."
     },
     {
@@ -8347,7 +8347,7 @@
       "source_location": "L57",
       "_origin": "ast",
       "id": "backend_app_api_routers_activation_rationale_57",
-      "community": 552,
+      "community": 52,
       "norm_label": "activate an account with the provided token and password."
     },
     {
@@ -8387,7 +8387,7 @@
       "source_location": "L42",
       "_origin": "ast",
       "id": "backend_app_api_routers_anonymized_data_get_erasure_service",
-      "community": 1,
+      "community": 27,
       "norm_label": "_get_erasure_service()"
     },
     {
@@ -8657,7 +8657,7 @@
       "source_location": "L38",
       "_origin": "ast",
       "id": "backend_app_api_routers_auth_get_login_service",
-      "community": 51,
+      "community": 1,
       "norm_label": "_get_login_service()"
     },
     {
@@ -8757,7 +8757,7 @@
       "source_location": "L123",
       "_origin": "ast",
       "id": "backend_app_api_routers_auth_change_password",
-      "community": 51,
+      "community": 10,
       "norm_label": "change_password()"
     },
     {
@@ -8807,7 +8807,7 @@
       "source_location": "L132",
       "_origin": "ast",
       "id": "backend_app_api_routers_auth_rationale_132",
-      "community": 51,
+      "community": 10,
       "norm_label": "verify current password, validate new, hash+persist, invalidate other sessions."
     },
     {
@@ -8827,7 +8827,7 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "backend_app_api_routers_clinical_get_account_repo",
-      "community": 92,
+      "community": 1,
       "norm_label": "_get_account_repo()"
     },
     {
@@ -8887,7 +8887,7 @@
       "source_location": "L109",
       "_origin": "ast",
       "id": "backend_app_api_routers_clinical_list_accessible_patients",
-      "community": 92,
+      "community": 229,
       "norm_label": "list_accessible_patients()"
     },
     {
@@ -8907,7 +8907,7 @@
       "source_location": "L113",
       "_origin": "ast",
       "id": "backend_app_api_routers_clinical_rationale_113",
-      "community": 92,
+      "community": 229,
       "norm_label": "list patients the authenticated doctor has active consent for (task-044a)."
     },
     {
@@ -8937,7 +8937,7 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "backend_app_api_routers_consents_get_consent_repo",
-      "community": 53,
+      "community": 1,
       "norm_label": "_get_consent_repo()"
     },
     {
@@ -9027,7 +9027,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_app_api_routers_groups",
-      "community": 39,
+      "community": 20,
       "norm_label": "groups.py"
     },
     {
@@ -9047,7 +9047,7 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "backend_app_api_routers_groups_create_group",
-      "community": 39,
+      "community": 20,
       "norm_label": "create_group()"
     },
     {
@@ -9057,7 +9057,7 @@
       "source_location": "L57",
       "_origin": "ast",
       "id": "backend_app_api_routers_groups_to_group_response",
-      "community": 94,
+      "community": 20,
       "norm_label": "_to_group_response()"
     },
     {
@@ -9067,7 +9067,7 @@
       "source_location": "L91",
       "_origin": "ast",
       "id": "backend_app_api_routers_groups_list_groups",
-      "community": 39,
+      "community": 20,
       "norm_label": "list_groups()"
     },
     {
@@ -9077,7 +9077,7 @@
       "source_location": "L101",
       "_origin": "ast",
       "id": "backend_app_api_routers_groups_add_member",
-      "community": 39,
+      "community": 20,
       "norm_label": "add_member()"
     },
     {
@@ -9087,7 +9087,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "backend_app_api_routers_groups_py_uuid",
-      "community": 39,
+      "community": 20,
       "norm_label": "uuid"
     },
     {
@@ -9097,7 +9097,7 @@
       "source_location": "L111",
       "_origin": "ast",
       "id": "backend_app_api_routers_groups_remove_member",
-      "community": 39,
+      "community": 20,
       "norm_label": "remove_member()"
     },
     {
@@ -9107,7 +9107,7 @@
       "source_location": "L121",
       "_origin": "ast",
       "id": "backend_app_api_routers_groups_set_module_enabled",
-      "community": 39,
+      "community": 20,
       "norm_label": "set_module_enabled()"
     },
     {
@@ -9117,7 +9117,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_app_api_routers_groups_rationale_1",
-      "community": 39,
+      "community": 20,
       "norm_label": "groups api router (task-040/041/042)."
     },
     {
@@ -9127,7 +9127,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_app_api_routers_lifecycle",
-      "community": 164,
+      "community": 382,
       "norm_label": "lifecycle.py"
     },
     {
@@ -9147,7 +9147,7 @@
       "source_location": "L37",
       "_origin": "ast",
       "id": "backend_app_api_routers_lifecycle_get_erasure_service",
-      "community": 1,
+      "community": 27,
       "norm_label": "_get_erasure_service()"
     },
     {
@@ -9157,7 +9157,7 @@
       "source_location": "L53",
       "_origin": "ast",
       "id": "backend_app_api_routers_lifecycle_deactivate_account",
-      "community": 164,
+      "community": 382,
       "norm_label": "deactivate_account()"
     },
     {
@@ -9167,7 +9167,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "backend_app_api_routers_lifecycle_py_uuid",
-      "community": 164,
+      "community": 382,
       "norm_label": "uuid"
     },
     {
@@ -9177,7 +9177,7 @@
       "source_location": "L63",
       "_origin": "ast",
       "id": "backend_app_api_routers_lifecycle_reactivate_account",
-      "community": 164,
+      "community": 382,
       "norm_label": "reactivate_account()"
     },
     {
@@ -9187,7 +9187,7 @@
       "source_location": "L73",
       "_origin": "ast",
       "id": "backend_app_api_routers_lifecycle_delete_account",
-      "community": 164,
+      "community": 382,
       "norm_label": "delete_account()"
     },
     {
@@ -9197,7 +9197,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_app_api_routers_lifecycle_rationale_1",
-      "community": 164,
+      "community": 382,
       "norm_label": "lifecycle (deactivate/reactivate/delete) endpoints (task-062)."
     },
     {
@@ -9207,7 +9207,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_app_api_routers_me",
-      "community": 131,
+      "community": 94,
       "norm_label": "me.py"
     },
     {
@@ -9217,7 +9217,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "backend_app_api_routers_me_get_me",
-      "community": 131,
+      "community": 94,
       "norm_label": "get_me()"
     },
     {
@@ -9227,7 +9227,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "meresponse",
-      "community": 131,
+      "community": 94,
       "norm_label": "meresponse"
     },
     {
@@ -9247,7 +9247,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_app_api_routers_me_rationale_1",
-      "community": 131,
+      "community": 94,
       "norm_label": "me api router (task-067)."
     },
     {
@@ -9257,7 +9257,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_app_api_routers_modules",
-      "community": 94,
+      "community": 130,
       "norm_label": "modules.py"
     },
     {
@@ -9267,7 +9267,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "backend_app_api_routers_modules_moduleresponse",
-      "community": 94,
+      "community": 130,
       "norm_label": "moduleresponse"
     },
     {
@@ -9277,7 +9277,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "backend_app_api_routers_modules_modulelistresponse",
-      "community": 94,
+      "community": 130,
       "norm_label": "modulelistresponse"
     },
     {
@@ -9287,7 +9287,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "backend_app_api_routers_modules_list_modules",
-      "community": 94,
+      "community": 130,
       "norm_label": "list_modules()"
     },
     {
@@ -9297,7 +9297,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_app_api_routers_modules_rationale_1",
-      "community": 94,
+      "community": 130,
       "norm_label": "modules admin api router (task-070) \u2014 sysadmin only."
     },
     {
@@ -9697,7 +9697,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_app_api_schemas_groups",
-      "community": 39,
+      "community": 20,
       "norm_label": "groups.py"
     },
     {
@@ -9707,7 +9707,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "backend_app_api_schemas_groups_camelmodel",
-      "community": 39,
+      "community": 20,
       "norm_label": "_camelmodel"
     },
     {
@@ -9717,7 +9717,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "backend_app_api_schemas_groups_groupcreate",
-      "community": 39,
+      "community": 20,
       "norm_label": "groupcreate"
     },
     {
@@ -9727,7 +9727,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "backend_app_api_schemas_groups_groupmemberresponse",
-      "community": 39,
+      "community": 20,
       "norm_label": "groupmemberresponse"
     },
     {
@@ -9737,7 +9737,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "backend_app_api_schemas_groups_groupresponse",
-      "community": 39,
+      "community": 20,
       "norm_label": "groupresponse"
     },
     {
@@ -9747,7 +9747,7 @@
       "source_location": "L38",
       "_origin": "ast",
       "id": "backend_app_api_schemas_groups_addmemberrequest",
-      "community": 39,
+      "community": 20,
       "norm_label": "addmemberrequest"
     },
     {
@@ -9757,7 +9757,7 @@
       "source_location": "L42",
       "_origin": "ast",
       "id": "backend_app_api_schemas_groups_setmoduleenabledrequest",
-      "community": 39,
+      "community": 20,
       "norm_label": "setmoduleenabledrequest"
     },
     {
@@ -9767,7 +9767,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_app_api_schemas_groups_rationale_1",
-      "community": 39,
+      "community": 20,
       "norm_label": "group api schemas (task-040/041/042)."
     },
     {
@@ -9927,7 +9927,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "backend_app_appointments_service_appointmentservice_init",
-      "community": 20,
+      "community": 1,
       "norm_label": ".__init__()"
     },
     {
@@ -9937,7 +9937,7 @@
       "source_location": "L36",
       "_origin": "ast",
       "id": "backend_app_appointments_service_appointmentservice_create",
-      "community": 26,
+      "community": 39,
       "norm_label": ".create()"
     },
     {
@@ -9947,7 +9947,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "backend_app_appointments_service_py_uuid",
-      "community": 26,
+      "community": 39,
       "norm_label": "uuid"
     },
     {
@@ -9967,7 +9967,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "backend_app_appointments_service_py_appointment",
-      "community": 26,
+      "community": 39,
       "norm_label": "appointment"
     },
     {
@@ -9977,7 +9977,7 @@
       "source_location": "L84",
       "_origin": "ast",
       "id": "backend_app_appointments_service_appointmentservice_confirm",
-      "community": 26,
+      "community": 39,
       "norm_label": ".confirm()"
     },
     {
@@ -9987,7 +9987,7 @@
       "source_location": "L121",
       "_origin": "ast",
       "id": "backend_app_appointments_service_appointmentservice_decline",
-      "community": 26,
+      "community": 39,
       "norm_label": ".decline()"
     },
     {
@@ -9997,7 +9997,7 @@
       "source_location": "L158",
       "_origin": "ast",
       "id": "backend_app_appointments_service_appointmentservice_list_for",
-      "community": 26,
+      "community": 39,
       "norm_label": ".list_for()"
     },
     {
@@ -10007,7 +10007,7 @@
       "source_location": "L173",
       "_origin": "ast",
       "id": "backend_app_appointments_service_appointmentservice_get",
-      "community": 26,
+      "community": 39,
       "norm_label": ".get()"
     },
     {
@@ -10027,7 +10027,7 @@
       "source_location": "L43",
       "_origin": "ast",
       "id": "backend_app_appointments_service_rationale_43",
-      "community": 26,
+      "community": 39,
       "norm_label": "create a new appointment. admin/sysadmin/doctor only."
     },
     {
@@ -10037,7 +10037,7 @@
       "source_location": "L85",
       "_origin": "ast",
       "id": "backend_app_appointments_service_rationale_85",
-      "community": 26,
+      "community": 39,
       "norm_label": "patient confirms their appointment."
     },
     {
@@ -10047,7 +10047,7 @@
       "source_location": "L122",
       "_origin": "ast",
       "id": "backend_app_appointments_service_rationale_122",
-      "community": 26,
+      "community": 39,
       "norm_label": "patient declines their appointment."
     },
     {
@@ -10057,7 +10057,7 @@
       "source_location": "L159",
       "_origin": "ast",
       "id": "backend_app_appointments_service_rationale_159",
-      "community": 26,
+      "community": 39,
       "norm_label": "list appointments visible to the actor."
     },
     {
@@ -10067,7 +10067,7 @@
       "source_location": "L174",
       "_origin": "ast",
       "id": "backend_app_appointments_service_rationale_174",
-      "community": 26,
+      "community": 39,
       "norm_label": "get a single appointment. returns notfounderror if not visible (sr-011 ac-4)."
     },
     {
@@ -10237,7 +10237,7 @@
       "source_location": "L115",
       "_origin": "ast",
       "id": "backend_app_attachments_service_attachmentservice_open",
-      "community": 164,
+      "community": 39,
       "norm_label": ".open()"
     },
     {
@@ -10277,7 +10277,7 @@
       "source_location": "L116",
       "_origin": "ast",
       "id": "backend_app_attachments_service_rationale_116",
-      "community": 164,
+      "community": 39,
       "norm_label": "fetch attachment bytes. returns (bytes, content_type, filename)."
     },
     {
@@ -10317,7 +10317,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_app_audit_actions",
-      "community": 20,
+      "community": 33,
       "norm_label": "actions.py"
     },
     {
@@ -10327,7 +10327,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "backend_app_audit_actions_auditaction",
-      "community": 20,
+      "community": 33,
       "norm_label": "auditaction"
     },
     {
@@ -10337,7 +10337,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_app_audit_actions_rationale_1",
-      "community": 20,
+      "community": 33,
       "norm_label": "audit action constants (sr-023)."
     },
     {
@@ -10477,7 +10477,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_app_auth_cookies",
-      "community": 51,
+      "community": 11,
       "norm_label": "cookies.py"
     },
     {
@@ -10487,7 +10487,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "backend_app_auth_cookies_set_session_cookie",
-      "community": 51,
+      "community": 11,
       "norm_label": "set_session_cookie()"
     },
     {
@@ -10497,7 +10497,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "backend_app_auth_cookies_py_response",
-      "community": 51,
+      "community": 11,
       "norm_label": "response"
     },
     {
@@ -10507,7 +10507,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "backend_app_auth_cookies_clear_session_cookie",
-      "community": 51,
+      "community": 11,
       "norm_label": "clear_session_cookie()"
     },
     {
@@ -10517,7 +10517,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_app_auth_cookies_rationale_1",
-      "community": 51,
+      "community": 11,
       "norm_label": "hardened session cookie helpers (task-022)."
     },
     {
@@ -10527,7 +10527,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "backend_app_auth_cookies_rationale_14",
-      "community": 51,
+      "community": 11,
       "norm_label": "write the httponly, secure, samesite=strict session cookie."
     },
     {
@@ -10537,7 +10537,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "backend_app_auth_cookies_rationale_28",
-      "community": 51,
+      "community": 11,
       "norm_label": "expire the session cookie."
     },
     {
@@ -10577,7 +10577,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "backend_app_auth_csrf_issue_csrf_token",
-      "community": 64,
+      "community": 11,
       "norm_label": "issue_csrf_token()"
     },
     {
@@ -10587,7 +10587,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "backend_app_auth_csrf_py_response",
-      "community": 64,
+      "community": 11,
       "norm_label": "response"
     },
     {
@@ -10627,7 +10627,7 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "backend_app_auth_csrf_rationale_29",
-      "community": 64,
+      "community": 11,
       "norm_label": "set the csrf cookie (not httponly) and return the raw token."
     },
     {
@@ -10837,7 +10837,7 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "backend_app_auth_login_loginsuccess",
-      "community": 22,
+      "community": 4,
       "norm_label": "loginsuccess"
     },
     {
@@ -10927,7 +10927,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_app_auth_password",
-      "community": 102,
+      "community": 10,
       "norm_label": "password.py"
     },
     {
@@ -10937,7 +10937,7 @@
       "source_location": "L43",
       "_origin": "ast",
       "id": "backend_app_auth_password_passwordpolicyviolation",
-      "community": 102,
+      "community": 101,
       "norm_label": "passwordpolicyviolation"
     },
     {
@@ -10957,7 +10957,7 @@
       "source_location": "L56",
       "_origin": "ast",
       "id": "backend_app_auth_password_passwordpolicyerror_init",
-      "community": 102,
+      "community": 101,
       "norm_label": ".__init__()"
     },
     {
@@ -10977,7 +10977,7 @@
       "source_location": "L75",
       "_origin": "ast",
       "id": "backend_app_auth_password_passwordservice_init",
-      "community": 102,
+      "community": 10,
       "norm_label": ".__init__()"
     },
     {
@@ -11027,7 +11027,7 @@
       "source_location": "L136",
       "_origin": "ast",
       "id": "backend_app_auth_password_passwordservice_record_history",
-      "community": 102,
+      "community": 10,
       "norm_label": ".record_history()"
     },
     {
@@ -11037,7 +11037,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "backend_app_auth_password_py_uuid",
-      "community": 102,
+      "community": 10,
       "norm_label": "uuid"
     },
     {
@@ -11047,7 +11047,7 @@
       "source_location": "L143",
       "_origin": "ast",
       "id": "backend_app_auth_password_passwordservice_is_expired",
-      "community": 10,
+      "community": 39,
       "norm_label": ".is_expired()"
     },
     {
@@ -11057,7 +11057,7 @@
       "source_location": "L150",
       "_origin": "ast",
       "id": "backend_app_auth_password_passwordservice_expires_within",
-      "community": 10,
+      "community": 39,
       "norm_label": ".expires_within()"
     },
     {
@@ -11067,7 +11067,7 @@
       "source_location": "L158",
       "_origin": "ast",
       "id": "backend_app_auth_password_get_dummy_hash",
-      "community": 102,
+      "community": 10,
       "norm_label": "get_dummy_hash()"
     },
     {
@@ -11077,7 +11077,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_app_auth_password_rationale_1",
-      "community": 102,
+      "community": 10,
       "norm_label": "passwordservice \u2014 argon2id hashing + policy enforcement (task-020).  policy cons"
     },
     {
@@ -11147,7 +11147,7 @@
       "source_location": "L137",
       "_origin": "ast",
       "id": "backend_app_auth_password_rationale_137",
-      "community": 102,
+      "community": 10,
       "norm_label": "persist the current hash to history. must be called after setting a new password"
     },
     {
@@ -11157,7 +11157,7 @@
       "source_location": "L144",
       "_origin": "ast",
       "id": "backend_app_auth_password_rationale_144",
-      "community": 10,
+      "community": 39,
       "norm_label": "true if the password has not been changed within max_age_days."
     },
     {
@@ -11167,7 +11167,7 @@
       "source_location": "L151",
       "_origin": "ast",
       "id": "backend_app_auth_password_rationale_151",
-      "community": 10,
+      "community": 39,
       "norm_label": "true if the password will expire within `days` days."
     },
     {
@@ -11177,7 +11177,7 @@
       "source_location": "L159",
       "_origin": "ast",
       "id": "backend_app_auth_password_rationale_159",
-      "community": 102,
+      "community": 10,
       "norm_label": "return a stable argon2id hash to use for anti-enumeration timing parity."
     },
     {
@@ -11187,7 +11187,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_app_auth_session",
-      "community": 53,
+      "community": 22,
       "norm_label": "session.py"
     },
     {
@@ -11207,7 +11207,7 @@
       "source_location": "L38",
       "_origin": "ast",
       "id": "backend_app_auth_session_account_sessions_key",
-      "community": 6,
+      "community": 224,
       "norm_label": "_account_sessions_key()"
     },
     {
@@ -11217,7 +11217,7 @@
       "source_location": "L43",
       "_origin": "ast",
       "id": "backend_app_auth_session_session",
-      "community": 53,
+      "community": 1,
       "norm_label": "session"
     },
     {
@@ -11237,7 +11237,7 @@
       "source_location": "L59",
       "_origin": "ast",
       "id": "backend_app_auth_session_sessionservice",
-      "community": 1,
+      "community": 27,
       "norm_label": "sessionservice"
     },
     {
@@ -11267,7 +11267,7 @@
       "source_location": "L70",
       "_origin": "ast",
       "id": "backend_app_auth_session_sessionservice_inactivity_ttl",
-      "community": 53,
+      "community": 22,
       "norm_label": "._inactivity_ttl()"
     },
     {
@@ -11277,7 +11277,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "backend_app_auth_session_py_usertype",
-      "community": 53,
+      "community": 22,
       "norm_label": "usertype"
     },
     {
@@ -11287,7 +11287,7 @@
       "source_location": "L75",
       "_origin": "ast",
       "id": "backend_app_auth_session_sessionservice_create_session",
-      "community": 53,
+      "community": 224,
       "norm_label": ".create_session()"
     },
     {
@@ -11297,7 +11297,7 @@
       "source_location": "L116",
       "_origin": "ast",
       "id": "backend_app_auth_session_sessionservice_resolve",
-      "community": 53,
+      "community": 22,
       "norm_label": ".resolve()"
     },
     {
@@ -11307,7 +11307,7 @@
       "source_location": "L151",
       "_origin": "ast",
       "id": "backend_app_auth_session_sessionservice_invalidate",
-      "community": 6,
+      "community": 224,
       "norm_label": ".invalidate()"
     },
     {
@@ -11317,7 +11317,7 @@
       "source_location": "L161",
       "_origin": "ast",
       "id": "backend_app_auth_session_sessionservice_list_account_session_ids",
-      "community": 53,
+      "community": 22,
       "norm_label": ".list_account_session_ids()"
     },
     {
@@ -11327,7 +11327,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "backend_app_auth_session_py_uuid",
-      "community": 53,
+      "community": 22,
       "norm_label": "uuid"
     },
     {
@@ -11337,7 +11337,7 @@
       "source_location": "L167",
       "_origin": "ast",
       "id": "backend_app_auth_session_sessionservice_get_inactivity_expiry",
-      "community": 53,
+      "community": 22,
       "norm_label": ".get_inactivity_expiry()"
     },
     {
@@ -11347,7 +11347,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "backend_app_auth_session_py_datetime",
-      "community": 53,
+      "community": 22,
       "norm_label": "datetime"
     },
     {
@@ -11357,7 +11357,7 @@
       "source_location": "L175",
       "_origin": "ast",
       "id": "backend_app_auth_session_sessionservice_invalidate_all",
-      "community": 6,
+      "community": 224,
       "norm_label": ".invalidate_all()"
     },
     {
@@ -11367,7 +11367,7 @@
       "source_location": "L185",
       "_origin": "ast",
       "id": "backend_app_auth_session_session_to_dict",
-      "community": 53,
+      "community": 22,
       "norm_label": "_session_to_dict()"
     },
     {
@@ -11377,7 +11377,7 @@
       "source_location": "L197",
       "_origin": "ast",
       "id": "backend_app_auth_session_session_from_dict",
-      "community": 53,
+      "community": 22,
       "norm_label": "_session_from_dict()"
     },
     {
@@ -11387,7 +11387,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_app_auth_session_rationale_1",
-      "community": 53,
+      "community": 22,
       "norm_label": "sessionservice \u2014 redis-backed opaque session tokens (task-021).  token: secrets."
     },
     {
@@ -11397,7 +11397,7 @@
       "source_location": "L60",
       "_origin": "ast",
       "id": "backend_app_auth_session_rationale_60",
-      "community": 1,
+      "community": 27,
       "norm_label": "redis-backed session management."
     },
     {
@@ -11407,7 +11407,7 @@
       "source_location": "L76",
       "_origin": "ast",
       "id": "backend_app_auth_session_rationale_76",
-      "community": 53,
+      "community": 224,
       "norm_label": "create a new session. evicts oldest if concurrency cap is exceeded."
     },
     {
@@ -11417,7 +11417,7 @@
       "source_location": "L117",
       "_origin": "ast",
       "id": "backend_app_auth_session_rationale_117",
-      "community": 53,
+      "community": 22,
       "norm_label": "look up a session by id, refresh its sliding ttl, return none if expired/missing"
     },
     {
@@ -11427,7 +11427,7 @@
       "source_location": "L152",
       "_origin": "ast",
       "id": "backend_app_auth_session_rationale_152",
-      "community": 6,
+      "community": 224,
       "norm_label": "delete a single session. idempotent."
     },
     {
@@ -11437,7 +11437,7 @@
       "source_location": "L162",
       "_origin": "ast",
       "id": "backend_app_auth_session_rationale_162",
-      "community": 53,
+      "community": 22,
       "norm_label": "return all active session ids for an account."
     },
     {
@@ -11447,7 +11447,7 @@
       "source_location": "L168",
       "_origin": "ast",
       "id": "backend_app_auth_session_rationale_168",
-      "community": 53,
+      "community": 22,
       "norm_label": "compute the inactivity expiry deadline for a resolved session."
     },
     {
@@ -11457,7 +11457,7 @@
       "source_location": "L176",
       "_origin": "ast",
       "id": "backend_app_auth_session_rationale_176",
-      "community": 6,
+      "community": 224,
       "norm_label": "delete all sessions for an account. idempotent."
     },
     {
@@ -11477,7 +11477,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_app_authz_admin_projection",
-      "community": 26,
+      "community": 93,
       "norm_label": "admin_projection.py"
     },
     {
@@ -11487,7 +11487,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "backend_app_authz_admin_projection_adminaccountview",
-      "community": 26,
+      "community": 93,
       "norm_label": "adminaccountview"
     },
     {
@@ -11497,7 +11497,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "backend_app_authz_admin_projection_project_for_admin",
-      "community": 26,
+      "community": 93,
       "norm_label": "project_for_admin()"
     },
     {
@@ -11507,7 +11507,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_app_authz_admin_projection_rationale_1",
-      "community": 26,
+      "community": 93,
       "norm_label": "admin non-clinical account projection (task-029).  whitelist approach: only expl"
     },
     {
@@ -11517,7 +11517,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "backend_app_authz_admin_projection_rationale_18",
-      "community": 26,
+      "community": 93,
       "norm_label": "safe, non-clinical view of an account for admin role."
     },
     {
@@ -11527,7 +11527,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "backend_app_authz_admin_projection_rationale_28",
-      "community": 26,
+      "community": 93,
       "norm_label": "whitelist projection \u2014 never blacklist.      only the fields explicitly named he"
     },
     {
@@ -11587,7 +11587,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_app_authz_consent",
-      "community": 231,
+      "community": 49,
       "norm_label": "consent.py"
     },
     {
@@ -11597,7 +11597,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "backend_app_authz_consent_consentgrantresult",
-      "community": 231,
+      "community": 49,
       "norm_label": "consentgrantresult"
     },
     {
@@ -11627,7 +11627,7 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "backend_app_authz_consent_consentservice_grant",
-      "community": 231,
+      "community": 49,
       "norm_label": ".grant()"
     },
     {
@@ -11637,7 +11637,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "backend_app_authz_consent_py_uuid",
-      "community": 231,
+      "community": 49,
       "norm_label": "uuid"
     },
     {
@@ -11647,7 +11647,7 @@
       "source_location": "L69",
       "_origin": "ast",
       "id": "backend_app_authz_consent_consentservice_revoke",
-      "community": 231,
+      "community": 49,
       "norm_label": ".revoke()"
     },
     {
@@ -11657,7 +11657,7 @@
       "source_location": "L115",
       "_origin": "ast",
       "id": "backend_app_authz_consent_consentservice_list_grants",
-      "community": 231,
+      "community": 49,
       "norm_label": ".list_grants()"
     },
     {
@@ -11667,7 +11667,7 @@
       "source_location": "L119",
       "_origin": "ast",
       "id": "backend_app_authz_consent_consentservice_has_active_grant",
-      "community": 231,
+      "community": 49,
       "norm_label": ".has_active_grant()"
     },
     {
@@ -11677,7 +11677,7 @@
       "source_location": "L125",
       "_origin": "ast",
       "id": "backend_app_authz_consent_parse_source",
-      "community": 231,
+      "community": 49,
       "norm_label": "_parse_source()"
     },
     {
@@ -11687,7 +11687,7 @@
       "source_location": "L136",
       "_origin": "ast",
       "id": "backend_app_authz_consent_to_result",
-      "community": 231,
+      "community": 49,
       "norm_label": "_to_result()"
     },
     {
@@ -11697,7 +11697,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "backend_app_authz_consent_py_consentgrant",
-      "community": 231,
+      "community": 49,
       "norm_label": "consentgrant"
     },
     {
@@ -11707,7 +11707,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_app_authz_consent_rationale_1",
-      "community": 231,
+      "community": 49,
       "norm_label": "consentservice \u2014 manages patient\u2192doctor consent grants (task-028)."
     },
     {
@@ -11717,7 +11717,7 @@
       "source_location": "L43",
       "_origin": "ast",
       "id": "backend_app_authz_consent_rationale_43",
-      "community": 231,
+      "community": 49,
       "norm_label": "create an active consent grant.          source: \"manual\" or \"appointment:{appoi"
     },
     {
@@ -11727,7 +11727,7 @@
       "source_location": "L77",
       "_origin": "ast",
       "id": "backend_app_authz_consent_rationale_77",
-      "community": 231,
+      "community": 49,
       "norm_label": "deactivate a specific consent grant.          only the matching source row is de"
     },
     {
@@ -11737,7 +11737,7 @@
       "source_location": "L120",
       "_origin": "ast",
       "id": "backend_app_authz_consent_rationale_120",
-      "community": 231,
+      "community": 49,
       "norm_label": "exists query: true if any active grant exists for this doctor/patient pair."
     },
     {
@@ -11747,7 +11747,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_app_authz_module_guard",
-      "community": 93,
+      "community": 31,
       "norm_label": "module_guard.py"
     },
     {
@@ -11757,7 +11757,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "backend_app_authz_module_guard_moduleaccessguard",
-      "community": 93,
+      "community": 31,
       "norm_label": "moduleaccessguard"
     },
     {
@@ -11767,7 +11767,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "backend_app_authz_module_guard_moduleaccessguard_init",
-      "community": 93,
+      "community": 23,
       "norm_label": ".__init__()"
     },
     {
@@ -11777,7 +11777,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "backend_app_authz_module_guard_moduleaccessguard_is_module_enabled",
-      "community": 93,
+      "community": 31,
       "norm_label": ".is_module_enabled()"
     },
     {
@@ -11787,7 +11787,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "backend_app_authz_module_guard_py_uuid",
-      "community": 93,
+      "community": 31,
       "norm_label": "uuid"
     },
     {
@@ -11797,7 +11797,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_app_authz_module_guard_rationale_1",
-      "community": 93,
+      "community": 31,
       "norm_label": "moduleaccessguard \u2014 checks whether a module is enabled for an account (task-043)"
     },
     {
@@ -11807,7 +11807,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "backend_app_authz_module_guard_rationale_17",
-      "community": 93,
+      "community": 31,
       "norm_label": "return true if any of the account's groups has the module enabled.          unkn"
     },
     {
@@ -11817,7 +11817,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_app_authz_service",
-      "community": 20,
+      "community": 39,
       "norm_label": "service.py"
     },
     {
@@ -11827,7 +11827,7 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "backend_app_authz_service_decision",
-      "community": 20,
+      "community": 39,
       "norm_label": "decision"
     },
     {
@@ -11837,7 +11837,7 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "backend_app_authz_service_resource",
-      "community": 20,
+      "community": 39,
       "norm_label": "resource"
     },
     {
@@ -11847,7 +11847,7 @@
       "source_location": "L43",
       "_origin": "ast",
       "id": "backend_app_authz_service_authorizationservice",
-      "community": 20,
+      "community": 1,
       "norm_label": "authorizationservice"
     },
     {
@@ -11857,7 +11857,7 @@
       "source_location": "L44",
       "_origin": "ast",
       "id": "backend_app_authz_service_authorizationservice_init",
-      "community": 20,
+      "community": 1,
       "norm_label": ".__init__()"
     },
     {
@@ -11867,7 +11867,7 @@
       "source_location": "L52",
       "_origin": "ast",
       "id": "backend_app_authz_service_authorizationservice_authorize",
-      "community": 20,
+      "community": 39,
       "norm_label": ".authorize()"
     },
     {
@@ -11877,7 +11877,7 @@
       "source_location": "L86",
       "_origin": "ast",
       "id": "backend_app_authz_service_authorizationservice_evaluate",
-      "community": 20,
+      "community": 39,
       "norm_label": "._evaluate()"
     },
     {
@@ -11887,7 +11887,7 @@
       "source_location": "L100",
       "_origin": "ast",
       "id": "backend_app_authz_service_authorizationservice_eval_patient",
-      "community": 20,
+      "community": 39,
       "norm_label": "._eval_patient()"
     },
     {
@@ -11897,7 +11897,7 @@
       "source_location": "L116",
       "_origin": "ast",
       "id": "backend_app_authz_service_authorizationservice_eval_doctor",
-      "community": 20,
+      "community": 39,
       "norm_label": "._eval_doctor()"
     },
     {
@@ -11907,7 +11907,7 @@
       "source_location": "L136",
       "_origin": "ast",
       "id": "backend_app_authz_service_authorizationservice_eval_admin",
-      "community": 20,
+      "community": 39,
       "norm_label": "._eval_admin()"
     },
     {
@@ -11917,7 +11917,7 @@
       "source_location": "L145",
       "_origin": "ast",
       "id": "backend_app_authz_service_authorizationservice_eval_sysadmin",
-      "community": 20,
+      "community": 39,
       "norm_label": "._eval_sysadmin()"
     },
     {
@@ -11927,7 +11927,7 @@
       "source_location": "L171",
       "_origin": "ast",
       "id": "backend_app_authz_service_authorizationservice_effective_access",
-      "community": 20,
+      "community": 39,
       "norm_label": ".effective_access()"
     },
     {
@@ -11937,7 +11937,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "backend_app_authz_service_py_uuid",
-      "community": 20,
+      "community": 39,
       "norm_label": "uuid"
     },
     {
@@ -11957,7 +11957,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_app_authz_service_rationale_1",
-      "community": 20,
+      "community": 39,
       "norm_label": "authorizationservice \u2014 rbac + ownership (task-027).  decision algorithm (deny-by"
     },
     {
@@ -11967,7 +11967,7 @@
       "source_location": "L36",
       "_origin": "ast",
       "id": "backend_app_authz_service_rationale_36",
-      "community": 20,
+      "community": 39,
       "norm_label": "lightweight resource descriptor passed to authorize()."
     },
     {
@@ -11977,7 +11977,7 @@
       "source_location": "L58",
       "_origin": "ast",
       "id": "backend_app_authz_service_rationale_58",
-      "community": 20,
+      "community": 39,
       "norm_label": "evaluate the access request and return a decision.          raises authorization"
     },
     {
@@ -11987,7 +11987,7 @@
       "source_location": "L172",
       "_origin": "ast",
       "id": "backend_app_authz_service_rationale_172",
-      "community": 20,
+      "community": 39,
       "norm_label": "live consent check \u2014 no cache."
     },
     {
@@ -12157,7 +12157,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_app_core_config",
-      "community": 11,
+      "community": 103,
       "norm_label": "config.py"
     },
     {
@@ -12167,7 +12167,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "backend_app_core_config_settings",
-      "community": 11,
+      "community": 103,
       "norm_label": "settings"
     },
     {
@@ -12177,7 +12177,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "basesettings",
-      "community": 11,
+      "community": 103,
       "norm_label": "basesettings"
     },
     {
@@ -12197,7 +12197,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_app_core_config_rationale_1",
-      "community": 11,
+      "community": 103,
       "norm_label": "application configuration via environment variables.  all secrets are typed as s"
     },
     {
@@ -12987,7 +12987,7 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "backend_app_db_models_account_account",
-      "community": 26,
+      "community": 39,
       "norm_label": "account"
     },
     {
@@ -13037,7 +13037,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_app_db_models_appointment",
-      "community": 387,
+      "community": 57,
       "norm_label": "appointment.py"
     },
     {
@@ -13057,7 +13057,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "backend_app_db_models_appointment_appointment",
-      "community": 387,
+      "community": 17,
       "norm_label": "appointment"
     },
     {
@@ -13067,7 +13067,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_app_db_models_appointment_rationale_1",
-      "community": 387,
+      "community": 57,
       "norm_label": "appointment model \u2014 maps to fhir appointment."
     },
     {
@@ -13107,7 +13107,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_app_db_models_audit",
-      "community": 184,
+      "community": 33,
       "norm_label": "audit.py"
     },
     {
@@ -13117,7 +13117,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "backend_app_db_models_audit_auditoutcome",
-      "community": 20,
+      "community": 33,
       "norm_label": "auditoutcome"
     },
     {
@@ -13137,7 +13137,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_app_db_models_audit_rationale_1",
-      "community": 184,
+      "community": 33,
       "norm_label": "auditlog model \u2014 append-only, no fk on actor_id (sr-023)."
     },
     {
@@ -13207,7 +13207,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_app_db_models_clinical",
-      "community": 488,
+      "community": 57,
       "norm_label": "clinical.py"
     },
     {
@@ -13217,7 +13217,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "backend_app_db_models_clinical_clinicalentry",
-      "community": 488,
+      "community": 57,
       "norm_label": "clinicalentry"
     },
     {
@@ -13227,7 +13227,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_app_db_models_clinical_rationale_1",
-      "community": 488,
+      "community": 57,
       "norm_label": "clinicalentry model \u2014 maps to fhir composition."
     },
     {
@@ -13237,7 +13237,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_app_db_models_consent",
-      "community": 402,
+      "community": 57,
       "norm_label": "consent.py"
     },
     {
@@ -13257,7 +13257,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "backend_app_db_models_consent_consentgrant",
-      "community": 402,
+      "community": 17,
       "norm_label": "consentgrant"
     },
     {
@@ -13267,7 +13267,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_app_db_models_consent_rationale_1",
-      "community": 402,
+      "community": 57,
       "norm_label": "consentgrant model \u2014 maps to fhir consent."
     },
     {
@@ -13337,7 +13337,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "backend_app_db_models_module_moduleregistry",
-      "community": 110,
+      "community": 23,
       "norm_label": "moduleregistry"
     },
     {
@@ -13347,7 +13347,7 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "backend_app_db_models_module_groupmoduleenablement",
-      "community": 23,
+      "community": 57,
       "norm_label": "groupmoduleenablement"
     },
     {
@@ -13397,7 +13397,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_app_db_models_password_history",
-      "community": 102,
+      "community": 10,
       "norm_label": "password_history.py"
     },
     {
@@ -13407,7 +13407,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "backend_app_db_models_password_history_passwordhistory",
-      "community": 102,
+      "community": 10,
       "norm_label": "passwordhistory"
     },
     {
@@ -13417,7 +13417,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_app_db_models_password_history_rationale_1",
-      "community": 102,
+      "community": 10,
       "norm_label": "passwordhistory model \u2014 stores hashed past passwords to enforce history policy."
     },
     {
@@ -13497,7 +13497,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "backend_app_db_repositories_account_repo_accountrepository_get_by_email",
-      "community": 26,
+      "community": 1,
       "norm_label": ".get_by_email()"
     },
     {
@@ -13557,7 +13557,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_app_db_repositories_appointment_repo",
-      "community": 387,
+      "community": 17,
       "norm_label": "appointment_repo.py"
     },
     {
@@ -13567,7 +13567,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "backend_app_db_repositories_appointment_repo_appointmentrepository",
-      "community": 387,
+      "community": 17,
       "norm_label": "appointmentrepository"
     },
     {
@@ -13577,7 +13577,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "backend_app_db_repositories_appointment_repo_appointmentrepository_init",
-      "community": 387,
+      "community": 17,
       "norm_label": ".__init__()"
     },
     {
@@ -13587,7 +13587,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "backend_app_db_repositories_appointment_repo_appointmentrepository_list_for_doctor",
-      "community": 387,
+      "community": 17,
       "norm_label": ".list_for_doctor()"
     },
     {
@@ -13597,7 +13597,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "backend_app_db_repositories_appointment_repo_py_uuid",
-      "community": 387,
+      "community": 17,
       "norm_label": "uuid"
     },
     {
@@ -13607,7 +13607,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "backend_app_db_repositories_appointment_repo_py_appointment",
-      "community": 387,
+      "community": 17,
       "norm_label": "appointment"
     },
     {
@@ -13617,7 +13617,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "backend_app_db_repositories_appointment_repo_appointmentrepository_list_for_patient",
-      "community": 387,
+      "community": 17,
       "norm_label": ".list_for_patient()"
     },
     {
@@ -13627,7 +13627,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "backend_app_db_repositories_appointment_repo_appointmentrepository_list_all",
-      "community": 387,
+      "community": 17,
       "norm_label": ".list_all()"
     },
     {
@@ -13637,7 +13637,7 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "backend_app_db_repositories_appointment_repo_appointmentrepository_update_state",
-      "community": 387,
+      "community": 17,
       "norm_label": ".update_state()"
     },
     {
@@ -13647,7 +13647,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_app_db_repositories_appointment_repo_rationale_1",
-      "community": 387,
+      "community": 17,
       "norm_label": "appointment repository."
     },
     {
@@ -13677,7 +13677,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "backend_app_db_repositories_attachment_repo_attachmentrepository_init",
-      "community": 53,
+      "community": 1,
       "norm_label": ".__init__()"
     },
     {
@@ -13747,7 +13747,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "backend_app_db_repositories_audit_repo_auditrepository_init",
-      "community": 53,
+      "community": 1,
       "norm_label": ".__init__()"
     },
     {
@@ -13897,7 +13897,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_app_db_repositories_clinical_repo",
-      "community": 488,
+      "community": 57,
       "norm_label": "clinical_repo.py"
     },
     {
@@ -13917,7 +13917,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "backend_app_db_repositories_clinical_repo_clinicalrepository_init",
-      "community": 53,
+      "community": 1,
       "norm_label": ".__init__()"
     },
     {
@@ -13927,7 +13927,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "backend_app_db_repositories_clinical_repo_clinicalrepository_list_for_patient",
-      "community": 488,
+      "community": 57,
       "norm_label": ".list_for_patient()"
     },
     {
@@ -13937,7 +13937,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "backend_app_db_repositories_clinical_repo_py_uuid",
-      "community": 488,
+      "community": 57,
       "norm_label": "uuid"
     },
     {
@@ -13947,7 +13947,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "backend_app_db_repositories_clinical_repo_py_clinicalentry",
-      "community": 488,
+      "community": 57,
       "norm_label": "clinicalentry"
     },
     {
@@ -13957,7 +13957,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "backend_app_db_repositories_clinical_repo_clinicalrepository_list_for_patient_ordered",
-      "community": 488,
+      "community": 57,
       "norm_label": ".list_for_patient_ordered()"
     },
     {
@@ -13967,7 +13967,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_app_db_repositories_clinical_repo_rationale_1",
-      "community": 488,
+      "community": 57,
       "norm_label": "clinicalentry repository."
     },
     {
@@ -13997,7 +13997,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "backend_app_db_repositories_consent_repo_consentrepository_init",
-      "community": 53,
+      "community": 1,
       "norm_label": ".__init__()"
     },
     {
@@ -14237,7 +14237,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "backend_app_db_repositories_module_repo_modulerepository",
-      "community": 94,
+      "community": 23,
       "norm_label": "modulerepository"
     },
     {
@@ -14247,7 +14247,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "backend_app_db_repositories_module_repo_modulerepository_init",
-      "community": 94,
+      "community": 23,
       "norm_label": ".__init__()"
     },
     {
@@ -14257,7 +14257,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "backend_app_db_repositories_module_repo_modulerepository_get_by_key",
-      "community": 110,
+      "community": 23,
       "norm_label": ".get_by_key()"
     },
     {
@@ -14317,7 +14317,7 @@
       "source_location": "L74",
       "_origin": "ast",
       "id": "backend_app_db_repositories_module_repo_modulerepository_upsert",
-      "community": 110,
+      "community": 23,
       "norm_label": ".upsert()"
     },
     {
@@ -14337,7 +14337,7 @@
       "source_location": "L102",
       "_origin": "ast",
       "id": "backend_app_db_repositories_module_repo_modulerepository_remove_absent",
-      "community": 123,
+      "community": 23,
       "norm_label": ".remove_absent()"
     },
     {
@@ -14347,7 +14347,7 @@
       "source_location": "L109",
       "_origin": "ast",
       "id": "backend_app_db_repositories_module_repo_modulerepository_list_installed",
-      "community": 110,
+      "community": 23,
       "norm_label": ".list_installed()"
     },
     {
@@ -14367,7 +14367,7 @@
       "source_location": "L82",
       "_origin": "ast",
       "id": "backend_app_db_repositories_module_repo_rationale_82",
-      "community": 110,
+      "community": 23,
       "norm_label": "insert or update a moduleregistry row by module_key."
     },
     {
@@ -14377,7 +14377,7 @@
       "source_location": "L103",
       "_origin": "ast",
       "id": "backend_app_db_repositories_module_repo_rationale_103",
-      "community": 123,
+      "community": 23,
       "norm_label": "delete rows whose module_key is not in present_keys."
     },
     {
@@ -14387,7 +14387,7 @@
       "source_location": "L110",
       "_origin": "ast",
       "id": "backend_app_db_repositories_module_repo_rationale_110",
-      "community": 110,
+      "community": 23,
       "norm_label": "return all registered modules."
     },
     {
@@ -14397,7 +14397,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_app_db_repositories_password_history_repo",
-      "community": 102,
+      "community": 10,
       "norm_label": "password_history_repo.py"
     },
     {
@@ -14407,7 +14407,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "backend_app_db_repositories_password_history_repo_passwordhistoryrepository",
-      "community": 102,
+      "community": 10,
       "norm_label": "passwordhistoryrepository"
     },
     {
@@ -14417,7 +14417,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "backend_app_db_repositories_password_history_repo_passwordhistoryrepository_init",
-      "community": 102,
+      "community": 10,
       "norm_label": ".__init__()"
     },
     {
@@ -14427,7 +14427,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "backend_app_db_repositories_password_history_repo_passwordhistoryrepository_list_recent",
-      "community": 102,
+      "community": 10,
       "norm_label": ".list_recent()"
     },
     {
@@ -14437,7 +14437,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "backend_app_db_repositories_password_history_repo_py_uuid",
-      "community": 102,
+      "community": 10,
       "norm_label": "uuid"
     },
     {
@@ -14447,7 +14447,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_app_db_repositories_password_history_repo_rationale_1",
-      "community": 102,
+      "community": 10,
       "norm_label": "passwordhistory repository."
     },
     {
@@ -14457,7 +14457,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "backend_app_db_repositories_password_history_repo_rationale_17",
-      "community": 102,
+      "community": 10,
       "norm_label": "return the most recent `limit` password history entries for an account."
     },
     {
@@ -14467,7 +14467,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_app_db_repositories_session",
-      "community": 11,
+      "community": 1,
       "norm_label": "session.py"
     },
     {
@@ -14477,7 +14477,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "backend_app_db_repositories_session_get_engine",
-      "community": 11,
+      "community": 1,
       "norm_label": "get_engine()"
     },
     {
@@ -14487,7 +14487,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "engine",
-      "community": 11,
+      "community": 1,
       "norm_label": "engine"
     },
     {
@@ -14497,7 +14497,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "backend_app_db_repositories_session_get_session_factory",
-      "community": 11,
+      "community": 1,
       "norm_label": "get_session_factory()"
     },
     {
@@ -14527,7 +14527,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_app_db_repositories_session_rationale_1",
-      "community": 11,
+      "community": 1,
       "norm_label": "database session factory and fastapi dependency."
     },
     {
@@ -14537,7 +14537,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "backend_app_db_repositories_session_rationale_15",
-      "community": 11,
+      "community": 1,
       "norm_label": "create the application-wide sqlalchemy engine (one connection pool, cached)."
     },
     {
@@ -14717,7 +14717,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "backend_app_groups_service_groupservice_init",
-      "community": 94,
+      "community": 1,
       "norm_label": ".__init__()"
     },
     {
@@ -14957,7 +14957,7 @@
       "source_location": "L39",
       "_origin": "ast",
       "id": "backend_app_identity_account_service_accountservice_init",
-      "community": 33,
+      "community": 1,
       "norm_label": ".__init__()"
     },
     {
@@ -14977,7 +14977,7 @@
       "source_location": "L104",
       "_origin": "ast",
       "id": "backend_app_identity_account_service_accountservice_get_profile",
-      "community": 33,
+      "community": 39,
       "norm_label": ".get_profile()"
     },
     {
@@ -15037,7 +15037,7 @@
       "source_location": "L105",
       "_origin": "ast",
       "id": "backend_app_identity_account_service_rationale_105",
-      "community": 33,
+      "community": 39,
       "norm_label": "fetch an account, enforcing authz (account:read)."
     },
     {
@@ -15207,7 +15207,7 @@
       "source_location": "L43",
       "_origin": "ast",
       "id": "backend_app_identity_erasure_erasureservice_init",
-      "community": 1,
+      "community": 27,
       "norm_label": ".__init__()"
     },
     {
@@ -15287,7 +15287,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_app_identity_lifecycle",
-      "community": 164,
+      "community": 382,
       "norm_label": "lifecycle.py"
     },
     {
@@ -15297,7 +15297,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "backend_app_identity_lifecycle_lifecycleservice",
-      "community": 164,
+      "community": 382,
       "norm_label": "lifecycleservice"
     },
     {
@@ -15317,7 +15317,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "backend_app_identity_lifecycle_lifecycleservice_deactivate",
-      "community": 164,
+      "community": 382,
       "norm_label": ".deactivate()"
     },
     {
@@ -15327,7 +15327,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "backend_app_identity_lifecycle_py_uuid",
-      "community": 164,
+      "community": 382,
       "norm_label": "uuid"
     },
     {
@@ -15337,7 +15337,7 @@
       "source_location": "L69",
       "_origin": "ast",
       "id": "backend_app_identity_lifecycle_lifecycleservice_reactivate",
-      "community": 164,
+      "community": 382,
       "norm_label": ".reactivate()"
     },
     {
@@ -15347,7 +15347,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_app_identity_lifecycle_rationale_1",
-      "community": 164,
+      "community": 382,
       "norm_label": "account deactivate/reactivate lifecycle (task-033)."
     },
     {
@@ -15357,7 +15357,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "backend_app_identity_lifecycle_rationale_28",
-      "community": 164,
+      "community": 382,
       "norm_label": "deactivate an account. sysadmin only. rejects self-deactivation.          kills"
     },
     {
@@ -15367,7 +15367,7 @@
       "source_location": "L70",
       "_origin": "ast",
       "id": "backend_app_identity_lifecycle_rationale_70",
-      "community": 164,
+      "community": 382,
       "norm_label": "reactivate a deactivated account. sysadmin only."
     },
     {
@@ -15387,7 +15387,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "backend_app_main_lifespan",
-      "community": 11,
+      "community": 1,
       "norm_label": "_lifespan()"
     },
     {
@@ -15517,7 +15517,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_app_modules_discovery",
-      "community": 1036,
+      "community": 58,
       "norm_label": "discovery.py"
     },
     {
@@ -15527,7 +15527,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "backend_app_modules_discovery_is_valid_manifest",
-      "community": 1036,
+      "community": 58,
       "norm_label": "_is_valid_manifest()"
     },
     {
@@ -15547,7 +15547,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_app_modules_discovery_rationale_1",
-      "community": 1036,
+      "community": 58,
       "norm_label": "module discovery via entry points (task-070)."
     },
     {
@@ -15557,7 +15557,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "backend_app_modules_discovery_rationale_17",
-      "community": 1036,
+      "community": 58,
       "norm_label": "return true if manifest satisfies the modulemanifest contract."
     },
     {
@@ -15577,7 +15577,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_app_modules_host",
-      "community": 641,
+      "community": 21,
       "norm_label": "host.py"
     },
     {
@@ -15587,7 +15587,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "backend_app_modules_host_register_all_modules",
-      "community": 641,
+      "community": 21,
       "norm_label": "register_all_modules()"
     },
     {
@@ -15597,7 +15597,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "backend_app_modules_host_py_fastapi",
-      "community": 641,
+      "community": 21,
       "norm_label": "fastapi"
     },
     {
@@ -15607,7 +15607,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_app_modules_host_rationale_1",
-      "community": 641,
+      "community": 21,
       "norm_label": "module host \u2014 registers all discovered modules into the fastapi app (task-072)."
     },
     {
@@ -15617,7 +15617,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "backend_app_modules_host_rationale_16",
-      "community": 641,
+      "community": 21,
       "norm_label": "for each manifest: build a routerregistry and call manifest.register().      pla"
     },
     {
@@ -15657,7 +15657,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_app_modules_registry_service",
-      "community": 528,
+      "community": 21,
       "norm_label": "registry_service.py"
     },
     {
@@ -15677,7 +15677,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "backend_app_modules_registry_service_moduleregistryservice_init",
-      "community": 94,
+      "community": 528,
       "norm_label": ".__init__()"
     },
     {
@@ -15717,7 +15717,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_app_modules_registry_service_rationale_1",
-      "community": 528,
+      "community": 21,
       "norm_label": "moduleregistryservice \u2014 sync discovered manifests to db (task-070)."
     },
     {
@@ -16245,7 +16245,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_modules_dicom_viewer_dicom_viewer_dicom",
-      "community": 105,
+      "community": 101,
       "norm_label": "dicom.py"
     },
     {
@@ -16255,7 +16255,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "backend_modules_dicom_viewer_dicom_viewer_dicom_validate_dicom_content_type",
-      "community": 105,
+      "community": 101,
       "norm_label": "validate_dicom_content_type()"
     },
     {
@@ -16265,7 +16265,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "backend_modules_dicom_viewer_dicom_viewer_dicom_stream_dicom",
-      "community": 105,
+      "community": 101,
       "norm_label": "stream_dicom()"
     },
     {
@@ -16275,7 +16275,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_modules_dicom_viewer_dicom_viewer_dicom_rationale_1",
-      "community": 105,
+      "community": 101,
       "norm_label": "dicom helpers \u2014 frame extraction and content-type validation."
     },
     {
@@ -16285,7 +16285,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "backend_modules_dicom_viewer_dicom_viewer_dicom_rationale_11",
-      "community": 105,
+      "community": 101,
       "norm_label": "raise validationproblem if content_type is not application/dicom."
     },
     {
@@ -16295,7 +16295,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "backend_modules_dicom_viewer_dicom_viewer_dicom_rationale_17",
-      "community": 105,
+      "community": 101,
       "norm_label": "return dicom bytes, optionally extracting a single frame.      if frame is none,"
     },
     {
@@ -17331,7 +17331,7 @@
       "source_location": "L77",
       "_origin": "ast",
       "id": "backend_tests_api_test_activation_router_testactivateaccount",
-      "community": 1035,
+      "community": 133,
       "norm_label": "testactivateaccount"
     },
     {
@@ -17341,7 +17341,7 @@
       "source_location": "L78",
       "_origin": "ast",
       "id": "backend_tests_api_test_activation_router_testactivateaccount_test_activate_returns_204",
-      "community": 1035,
+      "community": 133,
       "norm_label": ".test_activate_returns_204()"
     },
     {
@@ -17351,7 +17351,7 @@
       "source_location": "L92",
       "_origin": "ast",
       "id": "backend_tests_api_test_activation_router_testactivateaccount_test_activate_password_mismatch_returns_400",
-      "community": 1035,
+      "community": 133,
       "norm_label": ".test_activate_password_mismatch_returns_400()"
     },
     {
@@ -17361,7 +17361,7 @@
       "source_location": "L105",
       "_origin": "ast",
       "id": "backend_tests_api_test_activation_router_testactivateaccount_test_activate_missing_confirm_password_returns_error",
-      "community": 1035,
+      "community": 133,
       "norm_label": ".test_activate_missing_confirm_password_returns_error()"
     },
     {
@@ -17371,7 +17371,7 @@
       "source_location": "L113",
       "_origin": "ast",
       "id": "backend_tests_api_test_activation_router_testactivateaccount_test_activate_invalid_token_returns_401",
-      "community": 1035,
+      "community": 133,
       "norm_label": ".test_activate_invalid_token_returns_401()"
     },
     {
@@ -17591,7 +17591,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "backend_tests_api_test_anonymized_retrieve_make_dataset",
-      "community": 103,
+      "community": 15,
       "norm_label": "_make_dataset()"
     },
     {
@@ -17611,7 +17611,7 @@
       "source_location": "L38",
       "_origin": "ast",
       "id": "backend_tests_api_test_anonymized_retrieve_testanonymizedretrieve",
-      "community": 103,
+      "community": 15,
       "norm_label": "testanonymizedretrieve"
     },
     {
@@ -17621,7 +17621,7 @@
       "source_location": "L39",
       "_origin": "ast",
       "id": "backend_tests_api_test_anonymized_retrieve_testanonymizedretrieve_test_valid_code_returns_200",
-      "community": 103,
+      "community": 15,
       "norm_label": ".test_valid_code_returns_200()"
     },
     {
@@ -17631,7 +17631,7 @@
       "source_location": "L59",
       "_origin": "ast",
       "id": "backend_tests_api_test_anonymized_retrieve_testanonymizedretrieve_test_invalid_code_returns_401",
-      "community": 103,
+      "community": 15,
       "norm_label": ".test_invalid_code_returns_401()"
     },
     {
@@ -17641,7 +17641,7 @@
       "source_location": "L74",
       "_origin": "ast",
       "id": "backend_tests_api_test_anonymized_retrieve_testanonymizedretrieve_test_no_auth_required",
-      "community": 103,
+      "community": 15,
       "norm_label": ".test_no_auth_required()"
     },
     {
@@ -17651,7 +17651,7 @@
       "source_location": "L93",
       "_origin": "ast",
       "id": "backend_tests_api_test_anonymized_retrieve_testanonymizedretrieve_test_rate_limit_rejects_after_threshold",
-      "community": 103,
+      "community": 44,
       "norm_label": ".test_rate_limit_rejects_after_threshold()"
     },
     {
@@ -17671,7 +17671,7 @@
       "source_location": "L75",
       "_origin": "ast",
       "id": "backend_tests_api_test_anonymized_retrieve_rationale_75",
-      "community": 103,
+      "community": 15,
       "norm_label": "endpoint must be accessible without a session cookie."
     },
     {
@@ -17681,7 +17681,7 @@
       "source_location": "L94",
       "_origin": "ast",
       "id": "backend_tests_api_test_anonymized_retrieve_rationale_94",
-      "community": 103,
+      "community": 44,
       "norm_label": "repeated attempts from same ip trigger 429 rate limiting (adr-0013)."
     },
     {
@@ -18081,7 +18081,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_tests_api_test_auth_router",
-      "community": 22,
+      "community": 4,
       "norm_label": "test_auth_router.py"
     },
     {
@@ -18091,7 +18091,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "backend_tests_api_test_auth_router_make_account",
-      "community": 22,
+      "community": 4,
       "norm_label": "_make_account()"
     },
     {
@@ -18101,7 +18101,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "backend_tests_api_test_auth_router_py_usertype",
-      "community": 22,
+      "community": 4,
       "norm_label": "usertype"
     },
     {
@@ -18111,7 +18111,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "backend_tests_api_test_auth_router_py_accountstatus",
-      "community": 22,
+      "community": 4,
       "norm_label": "accountstatus"
     },
     {
@@ -18121,7 +18121,7 @@
       "source_location": "L39",
       "_origin": "ast",
       "id": "backend_tests_api_test_auth_router_make_session",
-      "community": 22,
+      "community": 4,
       "norm_label": "_make_session()"
     },
     {
@@ -18131,7 +18131,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "backend_tests_api_test_auth_router_py_usersession",
-      "community": 22,
+      "community": 4,
       "norm_label": "usersession"
     },
     {
@@ -18141,7 +18141,7 @@
       "source_location": "L53",
       "_origin": "ast",
       "id": "backend_tests_api_test_auth_router_app",
-      "community": 22,
+      "community": 4,
       "norm_label": "app()"
     },
     {
@@ -18151,7 +18151,7 @@
       "source_location": "L58",
       "_origin": "ast",
       "id": "backend_tests_api_test_auth_router_client",
-      "community": 22,
+      "community": 4,
       "norm_label": "client()"
     },
     {
@@ -18161,7 +18161,7 @@
       "source_location": "L62",
       "_origin": "ast",
       "id": "backend_tests_api_test_auth_router_auth_as",
-      "community": 22,
+      "community": 4,
       "norm_label": "_auth_as()"
     },
     {
@@ -18171,7 +18171,7 @@
       "source_location": "L77",
       "_origin": "ast",
       "id": "backend_tests_api_test_auth_router_testloginendpoint",
-      "community": 22,
+      "community": 4,
       "norm_label": "testloginendpoint"
     },
     {
@@ -18181,7 +18181,7 @@
       "source_location": "L78",
       "_origin": "ast",
       "id": "backend_tests_api_test_auth_router_testloginendpoint_test_login_success_returns_user",
-      "community": 22,
+      "community": 4,
       "norm_label": ".test_login_success_returns_user()"
     },
     {
@@ -18201,7 +18201,7 @@
       "source_location": "L133",
       "_origin": "ast",
       "id": "backend_tests_api_test_auth_router_testloginendpoint_test_login_missing_fields_returns_error",
-      "community": 22,
+      "community": 4,
       "norm_label": ".test_login_missing_fields_returns_error()"
     },
     {
@@ -18211,7 +18211,7 @@
       "source_location": "L137",
       "_origin": "ast",
       "id": "backend_tests_api_test_auth_router_testloginendpoint_test_login_missing_password_returns_error",
-      "community": 22,
+      "community": 4,
       "norm_label": ".test_login_missing_password_returns_error()"
     },
     {
@@ -18221,7 +18221,7 @@
       "source_location": "L142",
       "_origin": "ast",
       "id": "backend_tests_api_test_auth_router_testlogoutendpoint",
-      "community": 22,
+      "community": 4,
       "norm_label": "testlogoutendpoint"
     },
     {
@@ -18231,7 +18231,7 @@
       "source_location": "L143",
       "_origin": "ast",
       "id": "backend_tests_api_test_auth_router_testlogoutendpoint_test_logout_invalidates_session",
-      "community": 22,
+      "community": 4,
       "norm_label": ".test_logout_invalidates_session()"
     },
     {
@@ -18241,7 +18241,7 @@
       "source_location": "L158",
       "_origin": "ast",
       "id": "backend_tests_api_test_auth_router_testlogoutendpoint_test_logout_requires_auth",
-      "community": 22,
+      "community": 4,
       "norm_label": ".test_logout_requires_auth()"
     },
     {
@@ -18251,7 +18251,7 @@
       "source_location": "L162",
       "_origin": "ast",
       "id": "backend_tests_api_test_auth_router_testlogoutendpoint_test_logout_requires_csrf",
-      "community": 22,
+      "community": 4,
       "norm_label": ".test_logout_requires_csrf()"
     },
     {
@@ -18261,7 +18261,7 @@
       "source_location": "L175",
       "_origin": "ast",
       "id": "backend_tests_api_test_auth_router_testsessionextendendpoint",
-      "community": 22,
+      "community": 4,
       "norm_label": "testsessionextendendpoint"
     },
     {
@@ -18271,7 +18271,7 @@
       "source_location": "L176",
       "_origin": "ast",
       "id": "backend_tests_api_test_auth_router_testsessionextendendpoint_test_extend_returns_expiry",
-      "community": 22,
+      "community": 4,
       "norm_label": ".test_extend_returns_expiry()"
     },
     {
@@ -18281,7 +18281,7 @@
       "source_location": "L191",
       "_origin": "ast",
       "id": "backend_tests_api_test_auth_router_testsessionextendendpoint_test_extend_requires_auth",
-      "community": 22,
+      "community": 4,
       "norm_label": ".test_extend_requires_auth()"
     },
     {
@@ -18291,7 +18291,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_tests_api_test_auth_router_rationale_1",
-      "community": 22,
+      "community": 4,
       "norm_label": "tests for auth endpoints (task-060)."
     },
     {
@@ -18361,7 +18361,7 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "backend_tests_api_test_clinical_router_app",
-      "community": 37,
+      "community": 44,
       "norm_label": "app()"
     },
     {
@@ -18931,7 +18931,7 @@
       "source_location": "L127",
       "_origin": "ast",
       "id": "backend_tests_api_test_csrf_enforcement_testcsrfmiddlewaremismatch",
-      "community": 53,
+      "community": 12,
       "norm_label": "testcsrfmiddlewaremismatch"
     },
     {
@@ -19061,7 +19061,7 @@
       "source_location": "L240",
       "_origin": "ast",
       "id": "backend_tests_api_test_csrf_enforcement_testcsrfproblemjsonshape",
-      "community": 53,
+      "community": 27,
       "norm_label": "testcsrfproblemjsonshape"
     },
     {
@@ -19071,7 +19071,7 @@
       "source_location": "L243",
       "_origin": "ast",
       "id": "backend_tests_api_test_csrf_enforcement_testcsrfproblemjsonshape_test_403_response_is_problem_json",
-      "community": 53,
+      "community": 27,
       "norm_label": ".test_403_response_is_problem_json()"
     },
     {
@@ -19121,7 +19121,7 @@
       "source_location": "L128",
       "_origin": "ast",
       "id": "backend_tests_api_test_csrf_enforcement_rationale_128",
-      "community": 53,
+      "community": 12,
       "norm_label": "cookie token = header token \u2192 403."
     },
     {
@@ -19171,7 +19171,7 @@
       "source_location": "L241",
       "_origin": "ast",
       "id": "backend_tests_api_test_csrf_enforcement_rationale_241",
-      "community": 53,
+      "community": 27,
       "norm_label": "403 csrf errors must be application/problem+json."
     },
     {
@@ -19341,7 +19341,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "testclient",
-      "community": 59,
+      "community": 76,
       "norm_label": "testclient"
     },
     {
@@ -19951,7 +19951,7 @@
       "source_location": "L70",
       "_origin": "ast",
       "id": "backend_tests_api_test_lockout_integration_testlockoutwiredintologin",
-      "community": 115,
+      "community": 4,
       "norm_label": "testlockoutwiredintologin"
     },
     {
@@ -19961,7 +19961,7 @@
       "source_location": "L71",
       "_origin": "ast",
       "id": "backend_tests_api_test_lockout_integration_testlockoutwiredintologin_test_account_locked_after_max_failures",
-      "community": 115,
+      "community": 4,
       "norm_label": ".test_account_locked_after_max_failures()"
     },
     {
@@ -19971,7 +19971,7 @@
       "source_location": "L107",
       "_origin": "ast",
       "id": "backend_tests_api_test_lockout_integration_testlockoutwiredintologin_test_lockout_service_passed_to_login",
-      "community": 115,
+      "community": 4,
       "norm_label": ".test_lockout_service_passed_to_login()"
     },
     {
@@ -20051,7 +20051,7 @@
       "source_location": "L72",
       "_origin": "ast",
       "id": "backend_tests_api_test_lockout_integration_rationale_72",
-      "community": 115,
+      "community": 4,
       "norm_label": "after max_failures failed logins the account is locked and returns 401."
     },
     {
@@ -20061,7 +20061,7 @@
       "source_location": "L108",
       "_origin": "ast",
       "id": "backend_tests_api_test_lockout_integration_rationale_108",
-      "community": 115,
+      "community": 4,
       "norm_label": "login() is called with a lockout_svc kwarg when redis is available."
     },
     {
@@ -20551,7 +20551,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_tests_appointments_test_appointment_create",
-      "community": 101,
+      "community": 24,
       "norm_label": "test_appointment_create.py"
     },
     {
@@ -20561,7 +20561,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "backend_tests_appointments_test_appointment_create_make_account",
-      "community": 101,
+      "community": 24,
       "norm_label": "_make_account()"
     },
     {
@@ -20571,7 +20571,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "backend_tests_appointments_test_appointment_create_py_usertype",
-      "community": 101,
+      "community": 24,
       "norm_label": "usertype"
     },
     {
@@ -20581,7 +20581,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "backend_tests_appointments_test_appointment_create_py_uuid",
-      "community": 101,
+      "community": 24,
       "norm_label": "uuid"
     },
     {
@@ -20591,7 +20591,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "backend_tests_appointments_test_appointment_create_build_svc",
-      "community": 101,
+      "community": 24,
       "norm_label": "_build_svc()"
     },
     {
@@ -20601,7 +20601,7 @@
       "source_location": "L62",
       "_origin": "ast",
       "id": "backend_tests_appointments_test_appointment_create_test_admin_can_create_appointment",
-      "community": 101,
+      "community": 24,
       "norm_label": "test_admin_can_create_appointment()"
     },
     {
@@ -20611,7 +20611,7 @@
       "source_location": "L73",
       "_origin": "ast",
       "id": "backend_tests_appointments_test_appointment_create_test_sysadmin_can_create_appointment",
-      "community": 101,
+      "community": 24,
       "norm_label": "test_sysadmin_can_create_appointment()"
     },
     {
@@ -20621,7 +20621,7 @@
       "source_location": "L84",
       "_origin": "ast",
       "id": "backend_tests_appointments_test_appointment_create_test_doctor_can_create_appointment",
-      "community": 101,
+      "community": 24,
       "norm_label": "test_doctor_can_create_appointment()"
     },
     {
@@ -20631,7 +20631,7 @@
       "source_location": "L95",
       "_origin": "ast",
       "id": "backend_tests_appointments_test_appointment_create_test_patient_cannot_create_appointment",
-      "community": 101,
+      "community": 24,
       "norm_label": "test_patient_cannot_create_appointment()"
     },
     {
@@ -20641,7 +20641,7 @@
       "source_location": "L102",
       "_origin": "ast",
       "id": "backend_tests_appointments_test_appointment_create_test_create_with_non_doctor_account_raises_validation",
-      "community": 101,
+      "community": 24,
       "norm_label": "test_create_with_non_doctor_account_raises_validation()"
     },
     {
@@ -20651,7 +20651,7 @@
       "source_location": "L112",
       "_origin": "ast",
       "id": "backend_tests_appointments_test_appointment_create_test_create_with_non_patient_account_raises_validation",
-      "community": 101,
+      "community": 24,
       "norm_label": "test_create_with_non_patient_account_raises_validation()"
     },
     {
@@ -20661,7 +20661,7 @@
       "source_location": "L122",
       "_origin": "ast",
       "id": "backend_tests_appointments_test_appointment_create_test_create_emits_audit",
-      "community": 101,
+      "community": 24,
       "norm_label": "test_create_emits_audit()"
     },
     {
@@ -20671,7 +20671,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_tests_appointments_test_appointment_create_rationale_1",
-      "community": 101,
+      "community": 24,
       "norm_label": "task-047: appointmentservice create tests."
     },
     {
@@ -22641,7 +22641,7 @@
       "source_location": "L220",
       "_origin": "ast",
       "id": "backend_tests_auth_test_password_service_test_dummy_hash_is_argon2id",
-      "community": 102,
+      "community": 10,
       "norm_label": "test_dummy_hash_is_argon2id()"
     },
     {
@@ -22661,7 +22661,7 @@
       "source_location": "L232",
       "_origin": "ast",
       "id": "backend_tests_auth_test_password_service_test_dummy_hash_is_precomputed_same_value",
-      "community": 102,
+      "community": 10,
       "norm_label": "test_dummy_hash_is_precomputed_same_value()"
     },
     {
@@ -22681,7 +22681,7 @@
       "source_location": "L233",
       "_origin": "ast",
       "id": "backend_tests_auth_test_password_service_rationale_233",
-      "community": 102,
+      "community": 10,
       "norm_label": "get_dummy_hash() must return the same string on every call (pre-computed, not re"
     },
     {
@@ -22711,7 +22711,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "fakeredis",
-      "community": 6,
+      "community": 1037,
       "norm_label": "fakeredis"
     },
     {
@@ -22901,7 +22901,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_tests_authz_test_admin_projection",
-      "community": 26,
+      "community": 93,
       "norm_label": "test_admin_projection.py"
     },
     {
@@ -22911,7 +22911,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "backend_tests_authz_test_admin_projection_test_projection_includes_whitelisted_fields",
-      "community": 26,
+      "community": 93,
       "norm_label": "test_projection_includes_whitelisted_fields()"
     },
     {
@@ -22921,7 +22921,7 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "backend_tests_authz_test_admin_projection_test_projection_excludes_credentials",
-      "community": 26,
+      "community": 93,
       "norm_label": "test_projection_excludes_credentials()"
     },
     {
@@ -22931,7 +22931,7 @@
       "source_location": "L47",
       "_origin": "ast",
       "id": "backend_tests_authz_test_admin_projection_test_projection_excludes_activation_token",
-      "community": 26,
+      "community": 93,
       "norm_label": "test_projection_excludes_activation_token()"
     },
     {
@@ -22941,7 +22941,7 @@
       "source_location": "L60",
       "_origin": "ast",
       "id": "backend_tests_authz_test_admin_projection_test_projection_handles_null_fields",
-      "community": 26,
+      "community": 93,
       "norm_label": "test_projection_handles_null_fields()"
     },
     {
@@ -22951,7 +22951,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_tests_authz_test_admin_projection_rationale_1",
-      "community": 26,
+      "community": 93,
       "norm_label": "task-029: admin projection tests."
     },
     {
@@ -23461,7 +23461,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_tests_authz_test_module_guard",
-      "community": 93,
+      "community": 31,
       "norm_label": "test_module_guard.py"
     },
     {
@@ -23471,7 +23471,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "backend_tests_authz_test_module_guard_build_guard",
-      "community": 93,
+      "community": 31,
       "norm_label": "_build_guard()"
     },
     {
@@ -23481,7 +23481,7 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "backend_tests_authz_test_module_guard_test_no_memberships_returns_false",
-      "community": 93,
+      "community": 31,
       "norm_label": "test_no_memberships_returns_false()"
     },
     {
@@ -23491,7 +23491,7 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "backend_tests_authz_test_module_guard_test_module_enabled_in_group_returns_true",
-      "community": 93,
+      "community": 31,
       "norm_label": "test_module_enabled_in_group_returns_true()"
     },
     {
@@ -23501,7 +23501,7 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "backend_tests_authz_test_module_guard_test_module_not_enabled_returns_false",
-      "community": 93,
+      "community": 31,
       "norm_label": "test_module_not_enabled_returns_false()"
     },
     {
@@ -23511,7 +23511,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "backend_tests_authz_test_module_guard_test_unknown_module_key_returns_false",
-      "community": 93,
+      "community": 31,
       "norm_label": "test_unknown_module_key_returns_false()"
     },
     {
@@ -23521,7 +23521,7 @@
       "source_location": "L60",
       "_origin": "ast",
       "id": "backend_tests_authz_test_module_guard_test_group_ids_passed_to_module_repo",
-      "community": 93,
+      "community": 31,
       "norm_label": "test_group_ids_passed_to_module_repo()"
     },
     {
@@ -23531,7 +23531,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_tests_authz_test_module_guard_rationale_1",
-      "community": 93,
+      "community": 31,
       "norm_label": "task-043: moduleaccessguard tests."
     },
     {
@@ -24391,7 +24391,7 @@
       "source_location": "L56",
       "_origin": "ast",
       "id": "backend_tests_db_test_models_test_group_insert_select",
-      "community": 83,
+      "community": 31,
       "norm_label": "test_group_insert_select()"
     },
     {
@@ -24411,7 +24411,7 @@
       "source_location": "L78",
       "_origin": "ast",
       "id": "backend_tests_db_test_models_test_module_registry_insert_select",
-      "community": 110,
+      "community": 83,
       "norm_label": "test_module_registry_insert_select()"
     },
     {
@@ -24421,7 +24421,7 @@
       "source_location": "L87",
       "_origin": "ast",
       "id": "backend_tests_db_test_models_test_group_module_enablement_insert_select",
-      "community": 110,
+      "community": 31,
       "norm_label": "test_group_module_enablement_insert_select()"
     },
     {
@@ -24831,7 +24831,7 @@
       "source_location": "L292",
       "_origin": "ast",
       "id": "backend_tests_db_test_repositories_test_module_get_by_key",
-      "community": 110,
+      "community": 23,
       "norm_label": "test_module_get_by_key()"
     },
     {
@@ -24841,7 +24841,7 @@
       "source_location": "L300",
       "_origin": "ast",
       "id": "backend_tests_db_test_repositories_test_module_set_enablement",
-      "community": 110,
+      "community": 23,
       "norm_label": "test_module_set_enablement()"
     },
     {
@@ -24871,7 +24871,7 @@
       "source_location": "L342",
       "_origin": "ast",
       "id": "backend_tests_db_test_repositories_test_anonymized_dataset_get_by_code_hash_missing",
-      "community": 27,
+      "community": 17,
       "norm_label": "test_anonymized_dataset_get_by_code_hash_missing()"
     },
     {
@@ -25851,7 +25851,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_tests_identity_test_erasure",
-      "community": 24,
+      "community": 27,
       "norm_label": "test_erasure.py"
     },
     {
@@ -25861,7 +25861,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "backend_tests_identity_test_erasure_make_account",
-      "community": 24,
+      "community": 27,
       "norm_label": "_make_account()"
     },
     {
@@ -25871,7 +25871,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "backend_tests_identity_test_erasure_py_usertype",
-      "community": 24,
+      "community": 27,
       "norm_label": "usertype"
     },
     {
@@ -25881,7 +25881,7 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "backend_tests_identity_test_erasure_build_svc",
-      "community": 24,
+      "community": 27,
       "norm_label": "_build_svc()"
     },
     {
@@ -25891,7 +25891,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "backend_tests_identity_test_erasure_test_sysadmin_can_erase_any_account",
-      "community": 24,
+      "community": 27,
       "norm_label": "test_sysadmin_can_erase_any_account()"
     },
     {
@@ -25901,7 +25901,7 @@
       "source_location": "L59",
       "_origin": "ast",
       "id": "backend_tests_identity_test_erasure_test_erase_severs_pii",
-      "community": 24,
+      "community": 27,
       "norm_label": "test_erase_severs_pii()"
     },
     {
@@ -25911,7 +25911,7 @@
       "source_location": "L71",
       "_origin": "ast",
       "id": "backend_tests_identity_test_erasure_test_erase_severs_password_hash",
-      "community": 24,
+      "community": 27,
       "norm_label": "test_erase_severs_password_hash()"
     },
     {
@@ -25921,7 +25921,7 @@
       "source_location": "L80",
       "_origin": "ast",
       "id": "backend_tests_identity_test_erasure_test_erase_generates_retrieval_code",
-      "community": 24,
+      "community": 27,
       "norm_label": "test_erase_generates_retrieval_code()"
     },
     {
@@ -25931,7 +25931,7 @@
       "source_location": "L88",
       "_origin": "ast",
       "id": "backend_tests_identity_test_erasure_test_erase_stores_argon2id_hash_not_plaintext",
-      "community": 24,
+      "community": 27,
       "norm_label": "test_erase_stores_argon2id_hash_not_plaintext()"
     },
     {
@@ -25941,7 +25941,7 @@
       "source_location": "L117",
       "_origin": "ast",
       "id": "backend_tests_identity_test_erasure_test_erase_audits_deletion_and_anonymization",
-      "community": 24,
+      "community": 27,
       "norm_label": "test_erase_audits_deletion_and_anonymization()"
     },
     {
@@ -25951,7 +25951,7 @@
       "source_location": "L142",
       "_origin": "ast",
       "id": "backend_tests_identity_test_erasure_test_patient_can_erase_own_account",
-      "community": 24,
+      "community": 27,
       "norm_label": "test_patient_can_erase_own_account()"
     },
     {
@@ -25961,7 +25961,7 @@
       "source_location": "L149",
       "_origin": "ast",
       "id": "backend_tests_identity_test_erasure_test_non_sysadmin_cannot_erase_other_account",
-      "community": 24,
+      "community": 27,
       "norm_label": "test_non_sysadmin_cannot_erase_other_account()"
     },
     {
@@ -26001,7 +26001,7 @@
       "source_location": "L220",
       "_origin": "ast",
       "id": "backend_tests_identity_test_erasure_test_erase_enqueues_email_with_pre_erasure_address",
-      "community": 24,
+      "community": 27,
       "norm_label": "test_erase_enqueues_email_with_pre_erasure_address()"
     },
     {
@@ -26011,7 +26011,7 @@
       "source_location": "L240",
       "_origin": "ast",
       "id": "backend_tests_identity_test_erasure_test_erase_email_failure_does_not_raise",
-      "community": 24,
+      "community": 27,
       "norm_label": "test_erase_email_failure_does_not_raise()"
     },
     {
@@ -26021,7 +26021,7 @@
       "source_location": "L257",
       "_origin": "ast",
       "id": "backend_tests_identity_test_erasure_test_retrieval_code_not_in_audit_log",
-      "community": 24,
+      "community": 27,
       "norm_label": "test_retrieval_code_not_in_audit_log()"
     },
     {
@@ -26031,7 +26031,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_tests_identity_test_erasure_rationale_1",
-      "community": 24,
+      "community": 27,
       "norm_label": "task-035: erasure service tests."
     },
     {
@@ -26051,7 +26051,7 @@
       "source_location": "L221",
       "_origin": "ast",
       "id": "backend_tests_identity_test_erasure_rationale_221",
-      "community": 24,
+      "community": 27,
       "norm_label": "_erase enqueues send_erasure_code_email with the original email before severing"
     },
     {
@@ -26061,7 +26061,7 @@
       "source_location": "L241",
       "_origin": "ast",
       "id": "backend_tests_identity_test_erasure_rationale_241",
-      "community": 24,
+      "community": 27,
       "norm_label": "if enqueuing the email fails, the erasure still succeeds (best-effort)."
     },
     {
@@ -26071,7 +26071,7 @@
       "source_location": "L258",
       "_origin": "ast",
       "id": "backend_tests_identity_test_erasure_rationale_258",
-      "community": 24,
+      "community": 27,
       "norm_label": "the retrieval code must not appear in any audit record."
     },
     {
@@ -26641,7 +26641,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_tests_modules_test_platform_services",
-      "community": 0,
+      "community": 229,
       "norm_label": "test_platform_services.py"
     },
     {
@@ -26651,7 +26651,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "backend_tests_modules_test_platform_services_testplatformservicesfacade",
-      "community": 0,
+      "community": 229,
       "norm_label": "testplatformservicesfacade"
     },
     {
@@ -26661,7 +26661,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "backend_tests_modules_test_platform_services_testplatformservicesfacade_test_has_four_fields",
-      "community": 0,
+      "community": 229,
       "norm_label": ".test_has_four_fields()"
     },
     {
@@ -26671,7 +26671,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "backend_tests_modules_test_platform_services_testplatformservicesfacade_test_unauthorized_access_raises_403",
-      "community": 0,
+      "community": 229,
       "norm_label": ".test_unauthorized_access_raises_403()"
     },
     {
@@ -26681,7 +26681,7 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "backend_tests_modules_test_platform_services_testplatformservicesfacade_test_two_instances_are_independent",
-      "community": 0,
+      "community": 229,
       "norm_label": ".test_two_instances_are_independent()"
     },
     {
@@ -26691,7 +26691,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_tests_modules_test_platform_services_rationale_1",
-      "community": 0,
+      "community": 229,
       "norm_label": "tests for platformservices facade (task-071)."
     },
     {
@@ -26901,7 +26901,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_tests_test_config",
-      "community": 11,
+      "community": 103,
       "norm_label": "test_config.py"
     },
     {
@@ -26911,7 +26911,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "backend_tests_test_config_test_settings_loads_with_complete_env",
-      "community": 11,
+      "community": 103,
       "norm_label": "test_settings_loads_with_complete_env()"
     },
     {
@@ -26921,7 +26921,7 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "backend_tests_test_config_test_missing_required_field_raises_validation_error",
-      "community": 11,
+      "community": 103,
       "norm_label": "test_missing_required_field_raises_validation_error()"
     },
     {
@@ -26931,7 +26931,7 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "backend_tests_test_config_test_secret_str_not_revealed_in_repr",
-      "community": 11,
+      "community": 103,
       "norm_label": "test_secret_str_not_revealed_in_repr()"
     },
     {
@@ -26941,7 +26941,7 @@
       "source_location": "L52",
       "_origin": "ast",
       "id": "backend_tests_test_config_test_get_settings_is_cached",
-      "community": 11,
+      "community": 103,
       "norm_label": "test_get_settings_is_cached()"
     },
     {
@@ -26951,7 +26951,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_tests_test_config_rationale_1",
-      "community": 11,
+      "community": 103,
       "norm_label": "task-003: settings and secrets management tests."
     },
     {
@@ -26961,7 +26961,7 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "backend_tests_test_config_rationale_32",
-      "community": 11,
+      "community": 103,
       "norm_label": "missing database_url must raise validationerror (fail-fast)."
     },
     {
@@ -28211,7 +28211,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "frontend_src_api_client_apierror",
-      "community": 120,
+      "community": 2,
       "norm_label": "apierror"
     },
     {
@@ -28221,7 +28221,7 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "frontend_src_api_client_apierror_constructor",
-      "community": 120,
+      "community": 2,
       "norm_label": ".constructor()"
     },
     {
@@ -28461,7 +28461,7 @@
       "source_location": "L205",
       "_origin": "ast",
       "id": "frontend_src_api_client_apiclient_listaccounts",
-      "community": 36,
+      "community": 234,
       "norm_label": ".listaccounts()"
     },
     {
@@ -28721,7 +28721,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "frontend_src_api_generated_types_meresponse",
-      "community": 556,
+      "community": 5,
       "norm_label": "meresponse"
     },
     {
@@ -28741,7 +28741,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "frontend_src_api_generated_types_changepasswordrequest",
-      "community": 234,
+      "community": 2,
       "norm_label": "changepasswordrequest"
     },
     {
@@ -28781,7 +28781,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "frontend_src_api_generated_types_createclinicalentryrequest",
-      "community": 120,
+      "community": 234,
       "norm_label": "createclinicalentryrequest"
     },
     {
@@ -28801,7 +28801,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "frontend_src_api_generated_types_appointment",
-      "community": 2,
+      "community": 43,
       "norm_label": "appointment"
     },
     {
@@ -28811,7 +28811,7 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "frontend_src_api_generated_types_createappointmentrequest",
-      "community": 2,
+      "community": 234,
       "norm_label": "createappointmentrequest"
     },
     {
@@ -28821,7 +28821,7 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "frontend_src_api_generated_types_consentgrant",
-      "community": 43,
+      "community": 42,
       "norm_label": "consentgrant"
     },
     {
@@ -28831,7 +28831,7 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "frontend_src_api_generated_types_accountsummary",
-      "community": 36,
+      "community": 234,
       "norm_label": "accountsummary"
     },
     {
@@ -28981,7 +28981,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_auth_activationpage_test",
-      "community": 5,
+      "community": 16,
       "norm_label": "activationpage.test.tsx"
     },
     {
@@ -28991,7 +28991,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "frontend_src_auth_activationpage_test_renderactivation",
-      "community": 5,
+      "community": 16,
       "norm_label": "renderactivation()"
     },
     {
@@ -29021,7 +29021,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_auth_changepasswordpage_test",
-      "community": 16,
+      "community": 2,
       "norm_label": "changepasswordpage.test.tsx"
     },
     {
@@ -29031,7 +29031,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "frontend_src_auth_changepasswordpage_test_renderpage",
-      "community": 16,
+      "community": 2,
       "norm_label": "renderpage()"
     },
     {
@@ -29041,7 +29041,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_auth_changepasswordpage",
-      "community": 16,
+      "community": 2,
       "norm_label": "changepasswordpage.tsx"
     },
     {
@@ -29051,7 +29051,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "frontend_src_auth_changepasswordpage_changepasswordpage",
-      "community": 16,
+      "community": 2,
       "norm_label": "changepasswordpage()"
     },
     {
@@ -29191,7 +29191,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_auth_loginpage",
-      "community": 5,
+      "community": 16,
       "norm_label": "loginpage.tsx"
     },
     {
@@ -29201,7 +29201,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "frontend_src_auth_loginpage_rolelanding",
-      "community": 5,
+      "community": 16,
       "norm_label": "rolelanding()"
     },
     {
@@ -29211,7 +29211,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "frontend_src_auth_loginpage_loginpage",
-      "community": 5,
+      "community": 16,
       "norm_label": "loginpage()"
     },
     {
@@ -29261,7 +29261,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_auth_requireauth_test",
-      "community": 5,
+      "community": 2,
       "norm_label": "requireauth.test.tsx"
     },
     {
@@ -29271,7 +29271,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "frontend_src_auth_requireauth_test_renderwithauth",
-      "community": 5,
+      "community": 2,
       "norm_label": "renderwithauth()"
     },
     {
@@ -29281,7 +29281,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_auth_requireauth",
-      "community": 5,
+      "community": 2,
       "norm_label": "requireauth.tsx"
     },
     {
@@ -29291,7 +29291,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "frontend_src_auth_requireauth_requireauth",
-      "community": 5,
+      "community": 2,
       "norm_label": "requireauth()"
     },
     {
@@ -29431,7 +29431,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_auth_usechangepassword",
-      "community": 16,
+      "community": 2,
       "norm_label": "usechangepassword.ts"
     },
     {
@@ -29441,7 +29441,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "frontend_src_auth_usechangepassword_changepassworderror",
-      "community": 16,
+      "community": 2,
       "norm_label": "changepassworderror"
     },
     {
@@ -29451,7 +29451,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "frontend_src_auth_usechangepassword_usechangepassword",
-      "community": 16,
+      "community": 2,
       "norm_label": "usechangepassword()"
     },
     {
@@ -29461,7 +29461,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "frontend_src_auth_usechangepassword_extractchangepassworderror",
-      "community": 16,
+      "community": 2,
       "norm_label": "extractchangepassworderror()"
     },
     {
@@ -29531,7 +29531,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "frontend_src_auth_uselogin_uselogin",
-      "community": 5,
+      "community": 16,
       "norm_label": "uselogin()"
     },
     {
@@ -29541,7 +29541,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_core_admin_accounts_accountlist",
-      "community": 36,
+      "community": 159,
       "norm_label": "accountlist.tsx"
     },
     {
@@ -29551,7 +29551,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "frontend_src_core_admin_accounts_accountlist_accountlistprops",
-      "community": 36,
+      "community": 234,
       "norm_label": "accountlistprops"
     },
     {
@@ -29561,7 +29561,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "frontend_src_core_admin_accounts_accountlist_state_severity",
-      "community": 36,
+      "community": 159,
       "norm_label": "state_severity"
     },
     {
@@ -29701,7 +29701,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_core_admin_accounts_deleteconfirmdialog",
-      "community": 36,
+      "community": 234,
       "norm_label": "deleteconfirmdialog.tsx"
     },
     {
@@ -29711,7 +29711,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "frontend_src_core_admin_accounts_deleteconfirmdialog_deleteconfirmdialogprops",
-      "community": 36,
+      "community": 234,
       "norm_label": "deleteconfirmdialogprops"
     },
     {
@@ -29721,7 +29721,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "frontend_src_core_admin_accounts_deleteconfirmdialog_deleteconfirmdialog",
-      "community": 36,
+      "community": 234,
       "norm_label": "deleteconfirmdialog()"
     },
     {
@@ -29731,7 +29731,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_core_admin_accounts_lifecycleactions",
-      "community": 36,
+      "community": 234,
       "norm_label": "lifecycleactions.tsx"
     },
     {
@@ -29741,7 +29741,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "frontend_src_core_admin_accounts_lifecycleactions_lifecycleactionsprops",
-      "community": 36,
+      "community": 234,
       "norm_label": "lifecycleactionsprops"
     },
     {
@@ -29751,7 +29751,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "frontend_src_core_admin_accounts_lifecycleactions_lifecycleactions",
-      "community": 36,
+      "community": 234,
       "norm_label": "lifecycleactions()"
     },
     {
@@ -29811,7 +29811,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "frontend_src_core_admin_groups_grouplist_grouplist",
-      "community": 2,
+      "community": 234,
       "norm_label": "grouplist()"
     },
     {
@@ -29951,7 +29951,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_core_appointments_appointmentlist",
-      "community": 2,
+      "community": 43,
       "norm_label": "appointmentlist.tsx"
     },
     {
@@ -29961,7 +29961,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "frontend_src_core_appointments_appointmentlist_appointmentlistprops",
-      "community": 2,
+      "community": 43,
       "norm_label": "appointmentlistprops"
     },
     {
@@ -29971,7 +29971,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "frontend_src_core_appointments_appointmentlist_status_severity",
-      "community": 2,
+      "community": 43,
       "norm_label": "status_severity"
     },
     {
@@ -29981,7 +29981,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "frontend_src_core_appointments_appointmentlist_appointmentlist",
-      "community": 2,
+      "community": 43,
       "norm_label": "appointmentlist()"
     },
     {
@@ -29991,7 +29991,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_core_appointments_appointmentspage_test",
-      "community": 5,
+      "community": 43,
       "norm_label": "appointmentspage.test.tsx"
     },
     {
@@ -30001,7 +30001,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "frontend_src_core_appointments_appointmentspage_test_patientme",
-      "community": 5,
+      "community": 43,
       "norm_label": "patientme"
     },
     {
@@ -30011,7 +30011,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "frontend_src_core_appointments_appointmentspage_test_doctorme",
-      "community": 5,
+      "community": 43,
       "norm_label": "doctorme"
     },
     {
@@ -30021,7 +30021,7 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "frontend_src_core_appointments_appointmentspage_test_pendingappointment",
-      "community": 5,
+      "community": 43,
       "norm_label": "pendingappointment"
     },
     {
@@ -30031,7 +30031,7 @@
       "source_location": "L38",
       "_origin": "ast",
       "id": "frontend_src_core_appointments_appointmentspage_test_confirmedappointment",
-      "community": 5,
+      "community": 43,
       "norm_label": "confirmedappointment"
     },
     {
@@ -30041,7 +30041,7 @@
       "source_location": "L47",
       "_origin": "ast",
       "id": "frontend_src_core_appointments_appointmentspage_test_renderpage",
-      "community": 5,
+      "community": 43,
       "norm_label": "renderpage()"
     },
     {
@@ -30091,7 +30091,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_core_appointments_patientactions",
-      "community": 2,
+      "community": 43,
       "norm_label": "patientactions.tsx"
     },
     {
@@ -30101,7 +30101,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "frontend_src_core_appointments_patientactions_patientactionsprops",
-      "community": 2,
+      "community": 43,
       "norm_label": "patientactionsprops"
     },
     {
@@ -30111,7 +30111,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "frontend_src_core_appointments_patientactions_patientactions",
-      "community": 2,
+      "community": 43,
       "norm_label": "patientactions()"
     },
     {
@@ -30161,7 +30161,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_core_clinical_attachmentupload",
-      "community": 120,
+      "community": 2,
       "norm_label": "attachmentupload.tsx"
     },
     {
@@ -30171,7 +30171,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "frontend_src_core_clinical_attachmentupload_attachmentuploadprops",
-      "community": 120,
+      "community": 2,
       "norm_label": "attachmentuploadprops"
     },
     {
@@ -30181,7 +30181,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "frontend_src_core_clinical_attachmentupload_attachmentupload",
-      "community": 120,
+      "community": 2,
       "norm_label": "attachmentupload()"
     },
     {
@@ -30191,7 +30191,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_core_clinical_clinicalentriespage_test",
-      "community": 120,
+      "community": 5,
       "norm_label": "clinicalentriespage.test.tsx"
     },
     {
@@ -30201,7 +30201,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "frontend_src_core_clinical_clinicalentriespage_test_doctorme",
-      "community": 120,
+      "community": 5,
       "norm_label": "doctorme"
     },
     {
@@ -30211,7 +30211,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "frontend_src_core_clinical_clinicalentriespage_test_olderentry",
-      "community": 120,
+      "community": 5,
       "norm_label": "olderentry"
     },
     {
@@ -30221,7 +30221,7 @@
       "source_location": "L38",
       "_origin": "ast",
       "id": "frontend_src_core_clinical_clinicalentriespage_test_newerentry",
-      "community": 120,
+      "community": 5,
       "norm_label": "newerentry"
     },
     {
@@ -30231,7 +30231,7 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "frontend_src_core_clinical_clinicalentriespage_test_mockmeandmodules",
-      "community": 120,
+      "community": 5,
       "norm_label": "mockmeandmodules()"
     },
     {
@@ -30241,7 +30241,7 @@
       "source_location": "L55",
       "_origin": "ast",
       "id": "frontend_src_core_clinical_clinicalentriespage_test_mockemptyattachments",
-      "community": 120,
+      "community": 5,
       "norm_label": "mockemptyattachments()"
     },
     {
@@ -30251,7 +30251,7 @@
       "source_location": "L61",
       "_origin": "ast",
       "id": "frontend_src_core_clinical_clinicalentriespage_test_renderpage",
-      "community": 120,
+      "community": 5,
       "norm_label": "renderpage()"
     },
     {
@@ -30261,7 +30261,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_core_clinical_clinicalentriespage",
-      "community": 120,
+      "community": 2,
       "norm_label": "clinicalentriespage.tsx"
     },
     {
@@ -30271,7 +30271,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "frontend_src_core_clinical_clinicalentriespage_clinicalentriespageprops",
-      "community": 120,
+      "community": 2,
       "norm_label": "clinicalentriespageprops"
     },
     {
@@ -30281,7 +30281,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "frontend_src_core_clinical_clinicalentriespage_clinicalentriespage",
-      "community": 120,
+      "community": 2,
       "norm_label": "clinicalentriespage()"
     },
     {
@@ -30331,7 +30331,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_core_clinical_createentryform",
-      "community": 120,
+      "community": 2,
       "norm_label": "createentryform.tsx"
     },
     {
@@ -30341,7 +30341,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "frontend_src_core_clinical_createentryform_createentryformprops",
-      "community": 120,
+      "community": 2,
       "norm_label": "createentryformprops"
     },
     {
@@ -30351,7 +30351,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "frontend_src_core_clinical_createentryform_createentryform",
-      "community": 120,
+      "community": 2,
       "norm_label": "createentryform()"
     },
     {
@@ -30361,7 +30361,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_core_clinical_index",
-      "community": 120,
+      "community": 2,
       "norm_label": "index.ts"
     },
     {
@@ -30541,7 +30541,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_core_consent_consentlist",
-      "community": 43,
+      "community": 42,
       "norm_label": "consentlist.tsx"
     },
     {
@@ -30551,7 +30551,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "frontend_src_core_consent_consentlist_consentlistprops",
-      "community": 43,
+      "community": 42,
       "norm_label": "consentlistprops"
     },
     {
@@ -30561,7 +30561,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "frontend_src_core_consent_consentlist_sourcelabel",
-      "community": 43,
+      "community": 42,
       "norm_label": "sourcelabel()"
     },
     {
@@ -30571,7 +30571,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "frontend_src_core_consent_consentlist_consentlist",
-      "community": 43,
+      "community": 42,
       "norm_label": "consentlist()"
     },
     {
@@ -30581,7 +30581,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_core_consent_consentpage_test",
-      "community": 42,
+      "community": 5,
       "norm_label": "consentpage.test.tsx"
     },
     {
@@ -30591,7 +30591,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "frontend_src_core_consent_consentpage_test_manualgrant",
-      "community": 42,
+      "community": 5,
       "norm_label": "manualgrant"
     },
     {
@@ -30601,7 +30601,7 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "frontend_src_core_consent_consentpage_test_appointmentgrant",
-      "community": 42,
+      "community": 5,
       "norm_label": "appointmentgrant"
     },
     {
@@ -30611,7 +30611,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "frontend_src_core_consent_consentpage_test_renderpage",
-      "community": 42,
+      "community": 5,
       "norm_label": "renderpage()"
     },
     {
@@ -30661,7 +30661,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_core_consent_revokeaction",
-      "community": 43,
+      "community": 42,
       "norm_label": "revokeaction.tsx"
     },
     {
@@ -30671,7 +30671,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "frontend_src_core_consent_revokeaction_revokeactionprops",
-      "community": 43,
+      "community": 42,
       "norm_label": "revokeactionprops"
     },
     {
@@ -30681,7 +30681,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "frontend_src_core_consent_revokeaction_revokeaction",
-      "community": 43,
+      "community": 42,
       "norm_label": "revokeaction()"
     },
     {
@@ -30701,7 +30701,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_core_error_apperrorboundary_test",
-      "community": 42,
+      "community": 102,
       "norm_label": "apperrorboundary.test.tsx"
     },
     {
@@ -30711,7 +30711,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "frontend_src_core_error_apperrorboundary_test_wrapper",
-      "community": 42,
+      "community": 102,
       "norm_label": "wrapper()"
     },
     {
@@ -30721,7 +30721,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "frontend_src_core_error_apperrorboundary_test_bomb",
-      "community": 42,
+      "community": 102,
       "norm_label": "bomb()"
     },
     {
@@ -30731,7 +30731,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_core_error_apperrorboundary",
-      "community": 42,
+      "community": 102,
       "norm_label": "apperrorboundary.tsx"
     },
     {
@@ -30741,7 +30741,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "frontend_src_core_error_apperrorboundary_props",
-      "community": 42,
+      "community": 102,
       "norm_label": "props"
     },
     {
@@ -30751,7 +30751,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "frontend_src_core_error_apperrorboundary_state",
-      "community": 42,
+      "community": 102,
       "norm_label": "state"
     },
     {
@@ -30761,7 +30761,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "frontend_src_core_error_apperrorboundary_apperrorboundary",
-      "community": 42,
+      "community": 102,
       "norm_label": "apperrorboundary"
     },
     {
@@ -30771,7 +30771,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "frontend_src_core_error_apperrorboundary_apperrorboundary_constructor",
-      "community": 42,
+      "community": 102,
       "norm_label": ".constructor()"
     },
     {
@@ -30781,7 +30781,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "frontend_src_core_error_apperrorboundary_apperrorboundary_getderivedstatefromerror",
-      "community": 42,
+      "community": 102,
       "norm_label": ".getderivedstatefromerror()"
     },
     {
@@ -30791,7 +30791,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "frontend_src_core_error_apperrorboundary_apperrorboundary_componentdidcatch",
-      "community": 42,
+      "community": 102,
       "norm_label": ".componentdidcatch()"
     },
     {
@@ -30801,7 +30801,7 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "frontend_src_core_error_apperrorboundary_apperrorboundary_reset",
-      "community": 42,
+      "community": 102,
       "norm_label": ".reset()"
     },
     {
@@ -30811,7 +30811,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "frontend_src_core_error_apperrorboundary_apperrorboundary_render",
-      "community": 42,
+      "community": 102,
       "norm_label": ".render()"
     },
     {
@@ -30931,7 +30931,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "frontend_src_core_error_useerrortoast_useerrortoast",
-      "community": 43,
+      "community": 42,
       "norm_label": "useerrortoast()"
     },
     {
@@ -30958,7 +30958,7 @@
       "label": "renderLayout()",
       "file_type": "code",
       "source_file": "frontend/src/core/layout/AppLayout.test.tsx",
-      "source_location": "L7",
+      "source_location": "L8",
       "_origin": "ast",
       "id": "frontend_src_core_layout_applayout_test_renderlayout",
       "community": 159,
@@ -30978,7 +30978,7 @@
       "label": "AppLayoutProps",
       "file_type": "code",
       "source_file": "frontend/src/core/layout/AppLayout.tsx",
-      "source_location": "L7",
+      "source_location": "L8",
       "_origin": "ast",
       "id": "frontend_src_core_layout_applayout_applayoutprops",
       "community": 159,
@@ -30988,11 +30988,51 @@
       "label": "AppLayout()",
       "file_type": "code",
       "source_file": "frontend/src/core/layout/AppLayout.tsx",
-      "source_location": "L14",
+      "source_location": "L15",
       "_origin": "ast",
       "id": "frontend_src_core_layout_applayout_applayout",
       "community": 159,
       "norm_label": "applayout()"
+    },
+    {
+      "label": "SignOutButton.test.tsx",
+      "file_type": "code",
+      "source_file": "frontend/src/core/layout/SignOutButton.test.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "frontend_src_core_layout_signoutbutton_test",
+      "community": 159,
+      "norm_label": "signoutbutton.test.tsx"
+    },
+    {
+      "label": "renderButton()",
+      "file_type": "code",
+      "source_file": "frontend/src/core/layout/SignOutButton.test.tsx",
+      "source_location": "L13",
+      "_origin": "ast",
+      "id": "frontend_src_core_layout_signoutbutton_test_renderbutton",
+      "community": 159,
+      "norm_label": "renderbutton()"
+    },
+    {
+      "label": "SignOutButton.tsx",
+      "file_type": "code",
+      "source_file": "frontend/src/core/layout/SignOutButton.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "frontend_src_core_layout_signoutbutton",
+      "community": 159,
+      "norm_label": "signoutbutton.tsx"
+    },
+    {
+      "label": "SignOutButton()",
+      "file_type": "code",
+      "source_file": "frontend/src/core/layout/SignOutButton.tsx",
+      "source_location": "L7",
+      "_origin": "ast",
+      "id": "frontend_src_core_layout_signoutbutton_signoutbutton",
+      "community": 159,
+      "norm_label": "signoutbutton()"
     },
     {
       "label": "breakpoints.ts",
@@ -31261,7 +31301,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_core_profile_profilefields",
-      "community": 556,
+      "community": 5,
       "norm_label": "profilefields.tsx"
     },
     {
@@ -31271,7 +31311,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_src_core_profile_profilefields_profilefieldsprops",
-      "community": 556,
+      "community": 5,
       "norm_label": "profilefieldsprops"
     },
     {
@@ -31281,7 +31321,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "frontend_src_core_profile_profilefields_profilefields",
-      "community": 556,
+      "community": 5,
       "norm_label": "profilefields()"
     },
     {
@@ -31291,7 +31331,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_core_profile_profilepage_test",
-      "community": 556,
+      "community": 5,
       "norm_label": "profilepage.test.tsx"
     },
     {
@@ -31301,7 +31341,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "frontend_src_core_profile_profilepage_test_renderpage",
-      "community": 556,
+      "community": 5,
       "norm_label": "renderpage()"
     },
     {
@@ -31311,7 +31351,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_core_profile_profilepage",
-      "community": 556,
+      "community": 5,
       "norm_label": "profilepage.tsx"
     },
     {
@@ -31321,7 +31361,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "frontend_src_core_profile_profilepage_profilepage",
-      "community": 556,
+      "community": 5,
       "norm_label": "profilepage()"
     },
     {
@@ -31331,7 +31371,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_core_profile_index",
-      "community": 556,
+      "community": 5,
       "norm_label": "index.ts"
     },
     {
@@ -53787,7 +53827,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "docs_design_outputs_tasks_task_002_backend_fastapi_app_skeleton",
-      "community": 375,
+      "community": 131,
       "norm_label": "task-002-backend-fastapi-app-skeleton.md"
     },
     {
@@ -53797,7 +53837,7 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "docs_design_outputs_tasks_task_002_backend_fastapi_app_skeleton_objective",
-      "community": 375,
+      "community": 131,
       "norm_label": "objective"
     },
     {
@@ -53807,7 +53847,7 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "docs_design_outputs_tasks_task_002_backend_fastapi_app_skeleton_interfaces_to_honor",
-      "community": 375,
+      "community": 131,
       "norm_label": "interfaces to honor"
     },
     {
@@ -53817,7 +53857,7 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "docs_design_outputs_tasks_task_002_backend_fastapi_app_skeleton_implementation_detail",
-      "community": 375,
+      "community": 131,
       "norm_label": "implementation detail"
     },
     {
@@ -53827,7 +53867,7 @@
       "source_location": "L46",
       "_origin": "ast",
       "id": "docs_design_outputs_tasks_task_002_backend_fastapi_app_skeleton_tests_write_first_tdd_claude_md_4",
-      "community": 375,
+      "community": 131,
       "norm_label": "tests (write first \u2014 tdd, claude.md \u00a74)"
     },
     {
@@ -53837,7 +53877,7 @@
       "source_location": "L57",
       "_origin": "ast",
       "id": "docs_design_outputs_tasks_task_002_backend_fastapi_app_skeleton_acceptance_criteria",
-      "community": 375,
+      "community": 131,
       "norm_label": "acceptance criteria"
     },
     {
@@ -53847,7 +53887,7 @@
       "source_location": "L67",
       "_origin": "ast",
       "id": "docs_design_outputs_tasks_task_002_backend_fastapi_app_skeleton_definition_of_done",
-      "community": 375,
+      "community": 131,
       "norm_label": "definition of done"
     },
     {
@@ -53857,7 +53897,7 @@
       "source_location": "L76",
       "_origin": "ast",
       "id": "docs_design_outputs_tasks_task_002_backend_fastapi_app_skeleton_audit_verdict_2026_06_29",
-      "community": 375,
+      "community": 131,
       "norm_label": "audit verdict (2026-06-29)"
     },
     {
@@ -54027,7 +54067,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "docs_design_outputs_tasks_task_005_ci_pipeline",
-      "community": 375,
+      "community": 181,
       "norm_label": "task-005-ci-pipeline.md"
     },
     {
@@ -54037,7 +54077,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "docs_design_outputs_tasks_task_005_ci_pipeline_objective",
-      "community": 375,
+      "community": 181,
       "norm_label": "objective"
     },
     {
@@ -54047,7 +54087,7 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "docs_design_outputs_tasks_task_005_ci_pipeline_interfaces_to_honor",
-      "community": 375,
+      "community": 181,
       "norm_label": "interfaces to honor"
     },
     {
@@ -54057,7 +54097,7 @@
       "source_location": "L37",
       "_origin": "ast",
       "id": "docs_design_outputs_tasks_task_005_ci_pipeline_implementation_detail",
-      "community": 375,
+      "community": 181,
       "norm_label": "implementation detail"
     },
     {
@@ -54067,7 +54107,7 @@
       "source_location": "L53",
       "_origin": "ast",
       "id": "docs_design_outputs_tasks_task_005_ci_pipeline_tests_write_first_tdd_claude_md_4",
-      "community": 375,
+      "community": 181,
       "norm_label": "tests (write first \u2014 tdd, claude.md \u00a74)"
     },
     {
@@ -54077,7 +54117,7 @@
       "source_location": "L61",
       "_origin": "ast",
       "id": "docs_design_outputs_tasks_task_005_ci_pipeline_acceptance_criteria",
-      "community": 375,
+      "community": 181,
       "norm_label": "acceptance criteria"
     },
     {
@@ -54087,7 +54127,7 @@
       "source_location": "L72",
       "_origin": "ast",
       "id": "docs_design_outputs_tasks_task_005_ci_pipeline_definition_of_done",
-      "community": 375,
+      "community": 181,
       "norm_label": "definition of done"
     },
     {
@@ -54097,7 +54137,7 @@
       "source_location": "L81",
       "_origin": "ast",
       "id": "docs_design_outputs_tasks_task_005_ci_pipeline_audit_verdict_2026_06_29",
-      "community": 375,
+      "community": 181,
       "norm_label": "audit verdict (2026-06-29)"
     },
     {
@@ -57677,7 +57717,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "docs_design_outputs_tasks_task_072_routerregistry_mount_moduleaccessguard_gating",
-      "community": 224,
+      "community": 222,
       "norm_label": "task-072-routerregistry-mount-moduleaccessguard-gating.md"
     },
     {
@@ -57687,7 +57727,7 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "docs_design_outputs_tasks_task_072_routerregistry_mount_moduleaccessguard_gating_objective",
-      "community": 224,
+      "community": 222,
       "norm_label": "objective"
     },
     {
@@ -57697,7 +57737,7 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "docs_design_outputs_tasks_task_072_routerregistry_mount_moduleaccessguard_gating_interfaces_to_honor",
-      "community": 224,
+      "community": 222,
       "norm_label": "interfaces to honor"
     },
     {
@@ -57707,7 +57747,7 @@
       "source_location": "L46",
       "_origin": "ast",
       "id": "docs_design_outputs_tasks_task_072_routerregistry_mount_moduleaccessguard_gating_implementation_detail",
-      "community": 224,
+      "community": 222,
       "norm_label": "implementation detail"
     },
     {
@@ -57717,7 +57757,7 @@
       "source_location": "L58",
       "_origin": "ast",
       "id": "docs_design_outputs_tasks_task_072_routerregistry_mount_moduleaccessguard_gating_tests_write_first_tdd_claude_md_4",
-      "community": 224,
+      "community": 222,
       "norm_label": "tests (write first \u2014 tdd, claude.md \u00a74)"
     },
     {
@@ -57727,7 +57767,7 @@
       "source_location": "L70",
       "_origin": "ast",
       "id": "docs_design_outputs_tasks_task_072_routerregistry_mount_moduleaccessguard_gating_acceptance_criteria",
-      "community": 224,
+      "community": 222,
       "norm_label": "acceptance criteria"
     },
     {
@@ -57737,7 +57777,7 @@
       "source_location": "L79",
       "_origin": "ast",
       "id": "docs_design_outputs_tasks_task_072_routerregistry_mount_moduleaccessguard_gating_definition_of_done",
-      "community": 224,
+      "community": 222,
       "norm_label": "definition of done"
     },
     {
@@ -57747,7 +57787,7 @@
       "source_location": "L88",
       "_origin": "ast",
       "id": "docs_design_outputs_tasks_task_072_routerregistry_mount_moduleaccessguard_gating_audit_verdict_2026_06_29",
-      "community": 224,
+      "community": 222,
       "norm_label": "audit verdict (2026-06-29)"
     },
     {
@@ -58597,7 +58637,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "docs_design_outputs_tasks_task_090_profile_view",
-      "community": 226,
+      "community": 38,
       "norm_label": "task-090-profile-view.md"
     },
     {
@@ -58607,7 +58647,7 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "docs_design_outputs_tasks_task_090_profile_view_objective",
-      "community": 226,
+      "community": 38,
       "norm_label": "objective"
     },
     {
@@ -58617,7 +58657,7 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "docs_design_outputs_tasks_task_090_profile_view_interfaces_to_honor",
-      "community": 226,
+      "community": 38,
       "norm_label": "interfaces to honor"
     },
     {
@@ -58627,7 +58667,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "docs_design_outputs_tasks_task_090_profile_view_implementation_detail",
-      "community": 226,
+      "community": 38,
       "norm_label": "implementation detail"
     },
     {
@@ -58637,7 +58677,7 @@
       "source_location": "L62",
       "_origin": "ast",
       "id": "docs_design_outputs_tasks_task_090_profile_view_tests_write_first_tdd_claude_md_4",
-      "community": 226,
+      "community": 38,
       "norm_label": "tests (write first \u2014 tdd, claude.md \u00a74)"
     },
     {
@@ -58647,7 +58687,7 @@
       "source_location": "L71",
       "_origin": "ast",
       "id": "docs_design_outputs_tasks_task_090_profile_view_acceptance_criteria",
-      "community": 226,
+      "community": 38,
       "norm_label": "acceptance criteria"
     },
     {
@@ -58657,7 +58697,7 @@
       "source_location": "L79",
       "_origin": "ast",
       "id": "docs_design_outputs_tasks_task_090_profile_view_definition_of_done",
-      "community": 226,
+      "community": 38,
       "norm_label": "definition of done"
     },
     {
@@ -58667,7 +58707,7 @@
       "source_location": "L85",
       "_origin": "ast",
       "id": "docs_design_outputs_tasks_task_090_profile_view_audit_verdict_2026_06_29",
-      "community": 226,
+      "community": 38,
       "norm_label": "audit verdict (2026-06-29)"
     },
     {
@@ -59757,7 +59797,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "docs_design_outputs_tasks_task_114_traceability_matrix_completion_task_system_test",
-      "community": 635,
+      "community": 496,
       "norm_label": "task-114-traceability-matrix-completion-task-system-test.md"
     },
     {
@@ -59767,7 +59807,7 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "docs_design_outputs_tasks_task_114_traceability_matrix_completion_task_system_test_objective",
-      "community": 635,
+      "community": 496,
       "norm_label": "objective"
     },
     {
@@ -59777,7 +59817,7 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "docs_design_outputs_tasks_task_114_traceability_matrix_completion_task_system_test_interfaces_to_honor",
-      "community": 635,
+      "community": 496,
       "norm_label": "interfaces to honor"
     },
     {
@@ -59787,7 +59827,7 @@
       "source_location": "L37",
       "_origin": "ast",
       "id": "docs_design_outputs_tasks_task_114_traceability_matrix_completion_task_system_test_implementation_detail",
-      "community": 635,
+      "community": 496,
       "norm_label": "implementation detail"
     },
     {
@@ -59797,7 +59837,7 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "docs_design_outputs_tasks_task_114_traceability_matrix_completion_task_system_test_tests_write_first_tdd_claude_md_4",
-      "community": 635,
+      "community": 496,
       "norm_label": "tests (write first \u2014 tdd, claude.md \u00a74)"
     },
     {
@@ -59807,7 +59847,7 @@
       "source_location": "L55",
       "_origin": "ast",
       "id": "docs_design_outputs_tasks_task_114_traceability_matrix_completion_task_system_test_acceptance_criteria",
-      "community": 635,
+      "community": 496,
       "norm_label": "acceptance criteria"
     },
     {
@@ -59817,7 +59857,7 @@
       "source_location": "L63",
       "_origin": "ast",
       "id": "docs_design_outputs_tasks_task_114_traceability_matrix_completion_task_system_test_definition_of_done",
-      "community": 635,
+      "community": 496,
       "norm_label": "definition of done"
     },
     {
@@ -62037,7 +62077,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "docs_design_01_introduction_and_goals",
-      "community": 181,
+      "community": 496,
       "norm_label": "01-introduction-and-goals.md"
     },
     {
@@ -62047,7 +62087,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "docs_design_01_introduction_and_goals_01_introduction_and_goals",
-      "community": 181,
+      "community": 496,
       "norm_label": "01 - introduction and goals"
     },
     {
@@ -62057,7 +62097,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "docs_design_01_introduction_and_goals_purpose",
-      "community": 181,
+      "community": 496,
       "norm_label": "purpose"
     },
     {
@@ -62067,7 +62107,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "docs_design_01_introduction_and_goals_requirements_overview",
-      "community": 181,
+      "community": 496,
       "norm_label": "requirements overview"
     },
     {
@@ -62077,7 +62117,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "docs_design_01_introduction_and_goals_quality_goals",
-      "community": 181,
+      "community": 496,
       "norm_label": "quality goals"
     },
     {
@@ -62087,7 +62127,7 @@
       "source_location": "L39",
       "_origin": "ast",
       "id": "docs_design_01_introduction_and_goals_stakeholders",
-      "community": 181,
+      "community": 496,
       "norm_label": "stakeholders"
     },
     {
@@ -62647,7 +62687,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "docs_design_07_deployment_view_07_deployment_view",
-      "community": 1048,
+      "community": 30,
       "norm_label": "07 - deployment view"
     },
     {
@@ -62657,7 +62697,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "docs_design_07_deployment_view_mvp_topology",
-      "community": 1048,
+      "community": 30,
       "norm_label": "mvp topology"
     },
     {
@@ -62667,7 +62707,7 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "docs_design_07_deployment_view_operational_notes",
-      "community": 1048,
+      "community": 30,
       "norm_label": "operational notes"
     },
     {
@@ -62917,7 +62957,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "docs_design_12_interfaces",
-      "community": 534,
+      "community": 38,
       "norm_label": "12-interfaces.md"
     },
     {
@@ -62927,7 +62967,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "docs_design_12_interfaces_12_interfaces_between_software_items",
-      "community": 534,
+      "community": 38,
       "norm_label": "12 - interfaces between software items"
     },
     {
@@ -62937,7 +62977,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "docs_design_12_interfaces_12_1_internal_backend_interfaces",
-      "community": 534,
+      "community": 38,
       "norm_label": "12.1 internal backend interfaces"
     },
     {
@@ -62947,7 +62987,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "docs_design_12_interfaces_module_contract_provider_si_modhost_implementer_each_module",
-      "community": 534,
+      "community": 38,
       "norm_label": "module contract (provider: si-modhost; implementer: each module)"
     },
     {
@@ -62957,7 +62997,7 @@
       "source_location": "L44",
       "_origin": "ast",
       "id": "docs_design_12_interfaces_12_2_internal_frontend_interfaces",
-      "community": 534,
+      "community": 38,
       "norm_label": "12.2 internal frontend interfaces"
     },
     {
@@ -62967,7 +63007,7 @@
       "source_location": "L60",
       "_origin": "ast",
       "id": "docs_design_12_interfaces_12_3_item_dependency_rules_enforced_in_review",
-      "community": 534,
+      "community": 38,
       "norm_label": "12.3 item dependency rules (enforced in review)"
     },
     {
@@ -64587,7 +64627,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "docs_design_traceability_matrix",
-      "community": 181,
+      "community": 496,
       "norm_label": "traceability-matrix.md"
     },
     {
@@ -64757,7 +64797,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "docs_implementation_plan_audit_ledger",
-      "community": 181,
+      "community": 600,
       "norm_label": "audit-ledger.md"
     },
     {
@@ -64767,7 +64807,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "docs_implementation_plan_audit_ledger_medhub_audit_ledger_phases_0_7",
-      "community": 181,
+      "community": 600,
       "norm_label": "medhub \u2014 audit ledger (phases 0\u20137)"
     },
     {
@@ -64777,7 +64817,7 @@
       "source_location": "L90",
       "_origin": "ast",
       "id": "docs_implementation_plan_audit_ledger_summary",
-      "community": 181,
+      "community": 600,
       "norm_label": "summary"
     },
     {
@@ -64787,7 +64827,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "docs_implementation_plan_readme",
-      "community": 181,
+      "community": 600,
       "norm_label": "readme.md"
     },
     {
@@ -65067,7 +65107,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "docs_implementation_plan_task_template",
-      "community": 181,
+      "community": 600,
       "norm_label": "task-template.md"
     },
     {
@@ -65707,7 +65747,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "docs_specifications_api_design",
-      "community": 375,
+      "community": 222,
       "norm_label": "api-design.md"
     },
     {
@@ -65717,7 +65757,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "docs_specifications_api_design_medhub_api_interface_design",
-      "community": 445,
+      "community": 222,
       "norm_label": "medhub api & interface design"
     },
     {
@@ -65727,7 +65767,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "docs_specifications_api_design_conventions",
-      "community": 445,
+      "community": 222,
       "norm_label": "conventions"
     },
     {
@@ -65737,7 +65777,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "docs_specifications_api_design_error_catalog_rfc_7807_type_uris",
-      "community": 445,
+      "community": 222,
       "norm_label": "error catalog (rfc 7807 `type` uris)"
     },
     {
@@ -65847,7 +65887,7 @@
       "source_location": "L111",
       "_origin": "ast",
       "id": "docs_specifications_api_design_authentication_authorization_flow",
-      "community": 445,
+      "community": 222,
       "norm_label": "authentication & authorization flow"
     },
     {
@@ -65857,7 +65897,7 @@
       "source_location": "L117",
       "_origin": "ast",
       "id": "docs_specifications_api_design_internal_interface_module_contract_si_modhost",
-      "community": 445,
+      "community": 222,
       "norm_label": "internal interface \u2014 module contract (si-modhost)"
     },
     {
@@ -65867,7 +65907,7 @@
       "source_location": "L153",
       "_origin": "ast",
       "id": "docs_specifications_api_design_versioning_evolution",
-      "community": 445,
+      "community": 222,
       "norm_label": "versioning & evolution"
     },
     {
@@ -65877,7 +65917,7 @@
       "source_location": "L159",
       "_origin": "ast",
       "id": "docs_specifications_api_design_validation",
-      "community": 445,
+      "community": 222,
       "norm_label": "validation"
     },
     {
@@ -77289,6 +77329,72 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/design/scripts/cip/generate.py",
+      "source_location": "L26",
+      "weight": 1.0,
+      "source": "claude_skills_design_scripts_cip_generate",
+      "target": "claude_skills_design_scripts_cip_core",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/design/scripts/cip/render-html.py",
+      "source_location": "L20",
+      "weight": 1.0,
+      "source": "claude_skills_design_scripts_cip_render_html",
+      "target": "claude_skills_design_scripts_cip_core",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/design/scripts/cip/search.py",
+      "source_location": "L14",
+      "weight": 1.0,
+      "source": "claude_skills_design_scripts_cip_search",
+      "target": "claude_skills_design_scripts_cip_core",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/design/scripts/logo/search.py",
+      "source_location": "L12",
+      "weight": 1.0,
+      "source": "claude_skills_design_scripts_logo_search",
+      "target": "claude_skills_design_scripts_cip_core",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/ui-ux-pro-max/scripts/design_system.py",
+      "source_location": "L23",
+      "weight": 1.0,
+      "source": "claude_skills_ui_ux_pro_max_scripts_design_system",
+      "target": "claude_skills_design_scripts_cip_core",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/ui-ux-pro-max/scripts/search.py",
+      "source_location": "L26",
+      "weight": 1.0,
+      "source": "claude_skills_ui_ux_pro_max_scripts_search",
+      "target": "claude_skills_design_scripts_cip_core",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": ".claude/skills/design/scripts/cip/core.py",
@@ -77675,17 +77781,6 @@
       "confidence_score": 1.0
     },
     {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": ".claude/skills/design/scripts/cip/generate.py",
-      "source_location": "L26",
-      "weight": 1.0,
-      "source": "claude_skills_design_scripts_cip_generate",
-      "target": "claude_skills_ui_ux_pro_max_scripts_core",
-      "confidence_score": 1.0
-    },
-    {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
@@ -77874,17 +77969,6 @@
       "confidence_score": 1.0
     },
     {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": ".claude/skills/design/scripts/cip/render-html.py",
-      "source_location": "L20",
-      "weight": 1.0,
-      "source": "claude_skills_design_scripts_cip_render_html",
-      "target": "claude_skills_ui_ux_pro_max_scripts_core",
-      "confidence_score": 1.0
-    },
-    {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
@@ -77975,17 +78059,6 @@
       "weight": 1.0,
       "source": "claude_skills_design_scripts_cip_search",
       "target": "claude_skills_design_scripts_cip_search_main",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": ".claude/skills/design/scripts/cip/search.py",
-      "source_location": "L14",
-      "weight": 1.0,
-      "source": "claude_skills_design_scripts_cip_search",
-      "target": "claude_skills_ui_ux_pro_max_scripts_core",
       "confidence_score": 1.0
     },
     {
@@ -78731,17 +78804,6 @@
       "weight": 1.0,
       "source": "claude_skills_design_scripts_logo_search",
       "target": "claude_skills_design_scripts_logo_search_generate_design_brief",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": ".claude/skills/design/scripts/logo/search.py",
-      "source_location": "L12",
-      "weight": 1.0,
-      "source": "claude_skills_design_scripts_logo_search",
-      "target": "claude_skills_ui_ux_pro_max_scripts_core",
       "confidence_score": 1.0
     },
     {
@@ -81960,28 +82022,6 @@
       "weight": 1.0,
       "source": "claude_skills_ui_ux_pro_max_scripts_core",
       "target": "claude_skills_ui_ux_pro_max_scripts_core_search_stack",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": ".claude/skills/ui-ux-pro-max/scripts/design_system.py",
-      "source_location": "L23",
-      "weight": 1.0,
-      "source": "claude_skills_ui_ux_pro_max_scripts_design_system",
-      "target": "claude_skills_ui_ux_pro_max_scripts_core",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": ".claude/skills/ui-ux-pro-max/scripts/search.py",
-      "source_location": "L26",
-      "weight": 1.0,
-      "source": "claude_skills_ui_ux_pro_max_scripts_search",
-      "target": "claude_skills_ui_ux_pro_max_scripts_core",
       "confidence_score": 1.0
     },
     {
@@ -132592,6 +132632,17 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "frontend/src/core/layout/SignOutButton.tsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "frontend_src_core_layout_signoutbutton",
+      "target": "frontend_src_api_index",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "frontend/src/core/patients/PatientListPage.tsx",
       "source_location": "L7",
       "weight": 1.0,
@@ -132922,6 +132973,17 @@
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "frontend/src/core/layout/SignOutButton.tsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "frontend_src_core_layout_signoutbutton",
+      "target": "frontend_src_api_index_apiclient",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "frontend/src/core/patients/PatientListPage.tsx",
       "source_location": "L7",
       "weight": 1.0,
@@ -132984,6 +133046,17 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/core/layout/SignOutButton.tsx",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "frontend_src_core_layout_signoutbutton",
+      "target": "frontend_src_api_queryclient",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
@@ -133013,6 +133086,17 @@
       "source_location": "L3",
       "weight": 1.0,
       "source": "frontend_src_auth_uselogin",
+      "target": "frontend_src_api_queryclient_queryclient",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/core/layout/SignOutButton.tsx",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "frontend_src_core_layout_signoutbutton",
       "target": "frontend_src_api_queryclient_queryclient",
       "confidence_score": 1.0
     },
@@ -137524,7 +137608,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/src/core/layout/AppLayout.test.tsx",
-      "source_location": "L4",
+      "source_location": "L5",
       "weight": 1.0,
       "source": "frontend_src_core_layout_applayout_test",
       "target": "frontend_src_core_layout_applayout",
@@ -137535,7 +137619,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/src/core/layout/AppLayout.test.tsx",
-      "source_location": "L4",
+      "source_location": "L5",
       "weight": 1.0,
       "source": "frontend_src_core_layout_applayout_test",
       "target": "frontend_src_core_layout_applayout_applayout",
@@ -137545,7 +137629,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/src/core/layout/AppLayout.test.tsx",
-      "source_location": "L7",
+      "source_location": "L8",
       "weight": 1.0,
       "source": "frontend_src_core_layout_applayout_test",
       "target": "frontend_src_core_layout_applayout_test_renderlayout",
@@ -137556,7 +137640,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/src/core/layout/AppLayout.test.tsx",
-      "source_location": "L5",
+      "source_location": "L6",
       "weight": 1.0,
       "source": "frontend_src_core_layout_applayout_test",
       "target": "frontend_src_core_theme_theme",
@@ -137567,7 +137651,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/src/core/layout/AppLayout.test.tsx",
-      "source_location": "L5",
+      "source_location": "L6",
       "weight": 1.0,
       "source": "frontend_src_core_layout_applayout_test",
       "target": "frontend_src_core_theme_theme_theme",
@@ -137577,7 +137661,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/src/core/layout/AppLayout.tsx",
-      "source_location": "L14",
+      "source_location": "L15",
       "weight": 1.0,
       "source": "frontend_src_core_layout_applayout",
       "target": "frontend_src_core_layout_applayout_applayout",
@@ -137587,10 +137671,32 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/src/core/layout/AppLayout.tsx",
-      "source_location": "L7",
+      "source_location": "L8",
       "weight": 1.0,
       "source": "frontend_src_core_layout_applayout",
       "target": "frontend_src_core_layout_applayout_applayoutprops",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/core/layout/AppLayout.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "frontend_src_core_layout_applayout",
+      "target": "frontend_src_core_layout_signoutbutton",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/core/layout/AppLayout.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "frontend_src_core_layout_applayout",
+      "target": "frontend_src_core_layout_signoutbutton_signoutbutton",
       "confidence_score": 1.0
     },
     {
@@ -137649,6 +137755,114 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/core/layout/SignOutButton.test.tsx",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "frontend_src_core_layout_signoutbutton_test",
+      "target": "frontend_src_core_layout_signoutbutton",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/core/layout/SignOutButton.test.tsx",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "frontend_src_core_layout_signoutbutton_test",
+      "target": "frontend_src_core_layout_signoutbutton_signoutbutton",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/core/layout/SignOutButton.test.tsx",
+      "source_location": "L13",
+      "weight": 1.0,
+      "source": "frontend_src_core_layout_signoutbutton_test",
+      "target": "frontend_src_core_layout_signoutbutton_test_renderbutton",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/core/layout/SignOutButton.test.tsx",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "frontend_src_core_layout_signoutbutton_test",
+      "target": "frontend_src_core_theme_theme",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/core/layout/SignOutButton.test.tsx",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "frontend_src_core_layout_signoutbutton_test",
+      "target": "frontend_src_core_theme_theme_theme",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/core/layout/SignOutButton.test.tsx",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "frontend_src_core_layout_signoutbutton_test",
+      "target": "frontend_src_tests_setup",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/core/layout/SignOutButton.test.tsx",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "frontend_src_core_layout_signoutbutton_test",
+      "target": "frontend_src_tests_setup_server",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "re_exports",
+      "context": "export",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/core/layout/index.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "frontend_src_core_layout_index",
+      "target": "frontend_src_core_layout_signoutbutton",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/core/layout/SignOutButton.tsx",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "frontend_src_core_layout_signoutbutton",
+      "target": "frontend_src_core_layout_signoutbutton_signoutbutton",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "re_exports",
+      "context": "re-export",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/core/layout/index.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "frontend_src_core_layout_index",
+      "target": "frontend_src_core_layout_signoutbutton_signoutbutton",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/src/core/layout/breakpoints.ts",
@@ -137663,7 +137877,7 @@
       "context": "export",
       "confidence": "EXTRACTED",
       "source_file": "frontend/src/core/layout/index.ts",
-      "source_location": "L3",
+      "source_location": "L4",
       "weight": 1.0,
       "source": "frontend_src_core_layout_index",
       "target": "frontend_src_core_layout_breakpoints",
@@ -137674,7 +137888,7 @@
       "context": "re-export",
       "confidence": "EXTRACTED",
       "source_file": "frontend/src/core/layout/index.ts",
-      "source_location": "L3",
+      "source_location": "L4",
       "weight": 1.0,
       "source": "frontend_src_core_layout_index",
       "target": "frontend_src_core_layout_breakpoints_breakpoints",
@@ -172427,5 +172641,5 @@
       "source_location": "line 1-145"
     }
   ],
-  "built_at_commit": "e1465f81dab1a97f84d8b965d067e081399afd67"
+  "built_at_commit": "8ebcccff728e304f211b7d9c6f188cc3a1f6cf76"
 }

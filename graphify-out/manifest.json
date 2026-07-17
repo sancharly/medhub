@@ -1770,13 +1770,13 @@
     "semantic_hash": ""
   },
   "frontend/src/core/theme/theme.test.ts": {
-    "mtime": 1784291270.3645346,
-    "ast_hash": "5fc2fae1335fcda39d361cbff0bc108a",
+    "mtime": 1784315422.6361716,
+    "ast_hash": "d531586cf1abeb6322f42d15168bad81",
     "semantic_hash": ""
   },
   "frontend/src/core/theme/theme.ts": {
-    "mtime": 1784305253.052456,
-    "ast_hash": "dc1effe4d19588015b1d6354cf520569",
+    "mtime": 1784315412.1496162,
+    "ast_hash": "606be6dc98de2b7591526e4d75b1715d",
     "semantic_hash": ""
   },
   "frontend/src/main.tsx": {
@@ -3520,8 +3520,8 @@
     "semantic_hash": ""
   },
   "docs/design-outputs/architecture/ADD-001-medhub-design-system-and-theming.md": {
-    "mtime": 1784305398.8104224,
-    "ast_hash": "2a19f94eeb21c1e5b16b11f068cd41e0",
+    "mtime": 1784315545.2724729,
+    "ast_hash": "7a49988c5bd85f3d54032b8b6d3fbe44",
     "semantic_hash": ""
   },
   "docs/design-outputs/tasks/TASK-149-design-token-theme-foundation.md": {
