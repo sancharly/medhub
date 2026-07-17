@@ -74,6 +74,43 @@ describe("MUI theme", () => {
     });
   });
 
+  describe("component identity overrides (TASK-150)", () => {
+    it("MuiChip is pill-shaped", () => {
+      const chipRoot = theme.components?.MuiChip?.styleOverrides?.root as { borderRadius: number };
+      expect(chipRoot.borderRadius).toBe(999);
+    });
+
+    it.each(["success", "warning", "error", "info"] as const)(
+      "MuiAlert standard variant resolves %s severity to the statusPill token",
+      (severity) => {
+        type AlertOwnerState = { variant: string; colorSeverity: string };
+        type AlertRootFn = (props: {
+          theme: typeof theme;
+          ownerState: AlertOwnerState;
+        }) => Record<string, unknown>;
+        const rootFn = theme.components?.MuiAlert?.styleOverrides?.root as AlertRootFn;
+        const style = rootFn({ theme, ownerState: { variant: "standard", colorSeverity: severity } });
+        const pill = theme.vars.palette.statusPill[severity];
+        expect(style.backgroundColor).toBe(pill.bg);
+        expect(style.color).toBe(pill.text);
+      }
+    );
+
+    it("MuiOutlinedInput shows a visible accent focus ring", () => {
+      type OutlinedInputRootFn = (props: { theme: typeof theme }) => {
+        "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+          borderColor: string;
+          borderWidth: number;
+        };
+      };
+      const rootFn = theme.components?.MuiOutlinedInput?.styleOverrides?.root as OutlinedInputRootFn;
+      const style = rootFn({ theme });
+      const focusRule = style["&.Mui-focused .MuiOutlinedInput-notchedOutline"];
+      expect(focusRule.borderColor).toBe(theme.vars.palette.primary.main);
+      expect(focusRule.borderWidth).toBeGreaterThan(1);
+    });
+  });
+
   describe("no-flash inline script (frontend/index.html)", () => {
     const indexHtmlPath = resolve(__dirname, "../../../index.html");
     const indexHtml = readFileSync(indexHtmlPath, "utf-8");

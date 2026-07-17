@@ -265,5 +265,199 @@ export const theme = createTheme({
         },
       },
     },
+
+    // Elevated cards on the soft page background — subtle border always present
+    // (structure never depends on shadow alone); dark mode drops the shadow and
+    // relies on the border + lighter surface step instead (ADD-001 §4).
+    MuiPaper: {
+      styleOverrides: {
+        root: ({ theme }) => ({
+          backgroundImage: "none",
+          border: `1px solid ${theme.vars.palette.border.subtle}`,
+          ...theme.applyStyles("dark", {
+            boxShadow: "none",
+          }),
+        }),
+      },
+    },
+    MuiCard: {
+      styleOverrides: {
+        root: ({ theme }) => ({
+          borderRadius: 16,
+          boxShadow: theme.shadows[2],
+          ...theme.applyStyles("dark", {
+            boxShadow: "none",
+          }),
+        }),
+      },
+    },
+
+    // Restrained chrome: neutral AppBar/Drawer surfaces, not a solid accent bar.
+    MuiAppBar: {
+      styleOverrides: {
+        root: ({ theme }) => ({
+          backgroundColor: theme.vars.palette.background.paper,
+          color: theme.vars.palette.text.primary,
+          boxShadow: "none",
+          borderBottom: `1px solid ${theme.vars.palette.border.subtle}`,
+        }),
+      },
+    },
+    MuiDrawer: {
+      styleOverrides: {
+        paper: ({ theme }) => ({
+          backgroundColor: theme.vars.palette.background.paper,
+          borderRight: `1px solid ${theme.vars.palette.border.subtle}`,
+        }),
+      },
+    },
+    MuiListItemButton: {
+      styleOverrides: {
+        root: ({ theme }) => ({
+          borderRadius: 8,
+          "&.Mui-selected": {
+            backgroundColor: theme.vars.palette.background.selected,
+            color: theme.vars.palette.primary.onSelected,
+            ...theme.applyStyles("dark", {
+              color: theme.vars.palette.primary.light,
+            }),
+            "&:hover": {
+              backgroundColor: theme.vars.palette.background.selected,
+            },
+          },
+        }),
+      },
+    },
+
+    MuiButton: {
+      styleOverrides: {
+        root: ({ theme, ownerState }) => ({
+          borderRadius: 12,
+          textTransform: "none",
+          fontWeight: 600,
+          ...(ownerState.variant === "contained" &&
+            ownerState.color === "primary" && {
+              "&:hover": {
+                backgroundColor: theme.vars.palette.primary.dark,
+              },
+            }),
+        }),
+      },
+    },
+
+    // Visible accent focus ring; border.input outline (3:1 contrast boundary).
+    MuiOutlinedInput: {
+      styleOverrides: {
+        root: ({ theme }) => ({
+          borderRadius: 8,
+          "& .MuiOutlinedInput-notchedOutline": {
+            borderColor: theme.vars.palette.border.input,
+          },
+          "&:hover .MuiOutlinedInput-notchedOutline": {
+            borderColor: theme.vars.palette.text.secondary,
+          },
+          "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+            borderColor: theme.vars.palette.primary.main,
+            borderWidth: 2,
+          },
+        }),
+      },
+    },
+
+    // Elegant data tables: subtle header band, row hover, tabular figures for
+    // numeric cell content (inherited from TableRow into its cells).
+    MuiTableHead: {
+      styleOverrides: {
+        root: ({ theme }) => ({
+          backgroundColor: theme.vars.palette.background.subtle,
+        }),
+      },
+    },
+    MuiTableRow: {
+      styleOverrides: {
+        root: ({ theme }) => ({
+          fontFeatureSettings: '"tnum"',
+          "&:not(.MuiTableRow-head):hover": {
+            backgroundColor: theme.vars.palette.background.subtle,
+          },
+        }),
+      },
+    },
+
+    MuiChip: {
+      styleOverrides: {
+        root: {
+          borderRadius: 999,
+          fontWeight: 600,
+        },
+      },
+    },
+
+    // Dialog surface + a consistent scrim (ADD-001 §4 shadow level 4).
+    MuiDialog: {
+      styleOverrides: {
+        paper: ({ theme }) => ({
+          borderRadius: 16,
+          boxShadow: theme.shadows[4],
+        }),
+      },
+    },
+    MuiBackdrop: {
+      styleOverrides: {
+        root: {
+          backgroundColor: "rgba(15,23,22,.5)",
+        },
+      },
+    },
+
+    // Status pill tint sets for Alert's default (standard) variant.
+    MuiAlert: {
+      styleOverrides: {
+        root: ({ theme, ownerState }) => {
+          if (ownerState.variant !== "standard") {
+            return {};
+          }
+          const severity = ownerState.colorSeverity;
+          if (
+            severity !== "success" &&
+            severity !== "warning" &&
+            severity !== "error" &&
+            severity !== "info"
+          ) {
+            return {};
+          }
+          const pill = theme.vars.palette.statusPill[severity];
+          return {
+            backgroundColor: pill.bg,
+            color: pill.text,
+            "& .MuiAlert-icon": { color: pill.text },
+          };
+        },
+      },
+    },
+
+    MuiTabs: {
+      styleOverrides: {
+        indicator: ({ theme }) => ({
+          backgroundColor: theme.vars.palette.primary.main,
+        }),
+      },
+    },
+    MuiTab: {
+      styleOverrides: {
+        root: {
+          textTransform: "none",
+          fontWeight: 600,
+        },
+      },
+    },
+
+    MuiTooltip: {
+      styleOverrides: {
+        tooltip: {
+          borderRadius: 8,
+        },
+      },
+    },
   },
 });
