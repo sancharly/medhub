@@ -25,8 +25,8 @@ this document is the single source of truth for the *values*.
 
 ## 1. Visual identity: "Clinical Calm"
 
-MedHub's identity is built on a **teal-tinted neutral scale** — not gray. Every neutral
-(page background, borders, text) carries a faint green-blue undertone that ties the whole
+MedHub's identity is built on a **cool blue-gray neutral scale** — not flat gray. Every neutral
+(page background, borders, text) carries a faint blue undertone that ties the whole
 interface to the single strong accent, a clear **clinical blue**. The result reads as calm,
 precise, and modern — a considered, contemporary blue over soft cool neutrals, informed by
 the stakeholder reference material without copying it.
@@ -41,7 +41,7 @@ the stakeholder reference material without copying it.
   and non-status informational accents only — never for actions.
 - **Status language:** tinted pills (soft tinted background + dark tinted text + leading
   icon) for appointment/consent/account states; never color alone (SR-038 AC-4).
-- **Dark mode:** the same system, re-valued. Near-black teal-tinted page, slightly lighter
+- **Dark mode:** the same system, re-valued. Near-black blue-gray page, slightly lighter
   card surfaces, elevation expressed by surface lightness + hairline borders instead of
   shadows. First-class, not inverted.
 
@@ -54,15 +54,15 @@ contrast-verified in §6.
 
 | Token | Value | Role |
 |---|---|---|
-| `bg.page` | `#F4F7F6` | App/page background (teal-tinted neutral) |
+| `bg.page` | `#F4F6FB` | App/page background (cool blue-gray neutral) |
 | `bg.card` | `#FFFFFF` | Cards, tables, dialogs, menus (`background.paper`) |
-| `bg.subtle` | `#ECF2F0` | Hover rows, table headers, wells |
+| `bg.subtle` | `#ECF0F8` | Hover rows, table headers, wells |
 | `bg.selected` | `#E5EDFD` | Selected nav item / selected row tint |
-| `border.subtle` | `#E3EAE8` | Card outlines, dividers (decorative) |
-| `border.input` | `#75847F` | Input outlines, interactive boundaries (3:1 vs card) |
-| `text.primary` | `#16211F` | Headings, body |
-| `text.secondary` | `#52605D` | Captions, labels, secondary cells |
-| `text.disabled` | `#8A9793` | Disabled text (exempt from AA) |
+| `border.subtle` | `#E3E8F2` | Card outlines, dividers (decorative) |
+| `border.input` | `#79828F` | Input outlines, interactive boundaries (3:1 vs card) |
+| `text.primary` | `#171F2B` | Headings, body |
+| `text.secondary` | `#525C6C` | Captions, labels, secondary cells |
+| `text.disabled` | `#8A93A2` | Disabled text (exempt from AA) |
 | `primary.main` | `#2563EB` | Accent: buttons, links, focus, active nav (white text) |
 | `primary.dark` | `#1D4ED8` | Hover/pressed |
 | `primary.onSelected` | `#1D4ED8` | Text/icon on `bg.selected` |
@@ -76,15 +76,15 @@ contrast-verified in §6.
 
 | Token | Value | Role |
 |---|---|---|
-| `bg.page` | `#0E1413` | App/page background (near-black, teal-tinted) |
-| `bg.card` | `#161C1B` | Cards, tables (`background.paper`) |
-| `bg.elevated` | `#1C2422` | Menus, dialogs, popovers (highest surface) |
+| `bg.page` | `#0E131B` | App/page background (near-black, cool blue-gray) |
+| `bg.card` | `#161B24` | Cards, tables (`background.paper`) |
+| `bg.elevated` | `#1C222E` | Menus, dialogs, popovers (highest surface) |
 | `bg.selected` | `#132A44` | Selected nav item / selected row tint |
-| `border.subtle` | `#26302E` | Card outlines, dividers |
-| `border.input` | `#5C6B67` | Input outlines, interactive boundaries (3:1 vs card) |
-| `text.primary` | `#E6ECEA` | Headings, body |
-| `text.secondary` | `#A9B6B2` | Captions, labels |
-| `text.disabled` | `#6E7B77` | Disabled text |
+| `border.subtle` | `#262F3B` | Card outlines, dividers |
+| `border.input` | `#636D7D` | Input outlines, interactive boundaries (3:1 vs card) |
+| `text.primary` | `#E6EAF2` | Headings, body |
+| `text.secondary` | `#A9B2C1` | Captions, labels |
+| `text.disabled` | `#6E7787` | Disabled text |
 | `primary.main` | `#5AA2FF` | Accent (contrast text `#0A2540`) |
 | `primary.light` | `#9CC5FF` | Text/icon on `bg.selected`; hover text |
 | `secondary.main` | `#9DB4D0` | Icon badges (contrast text `#12233A`) |
@@ -111,7 +111,7 @@ it; today the app silently falls back to Helvetica/Arial.
 
 - **Radius:** `sm` 8px (inputs, small controls), `md` 12px (**MUI `shape.borderRadius`**:
   buttons, menus, alerts), `lg` 16px (cards, dialogs), `pill` 999px (status pills, chips).
-- **Shadows (light):** soft, low-opacity, teal-black ambient — level 1
+- **Shadows (light):** soft, low-opacity, blue-black ambient — level 1
   `0 1px 2px rgba(15,23,22,.05)`; level 2 (card) `0 1px 2px rgba(15,23,22,.04), 0 4px 12px rgba(15,23,22,.06)`;
   level 3 (popover) `0 2px 4px rgba(15,23,22,.05), 0 10px 24px rgba(15,23,22,.09)`;
   level 4 (dialog) `0 4px 8px rgba(15,23,22,.06), 0 20px 48px rgba(15,23,22,.14)`.
@@ -152,12 +152,12 @@ automated version becomes a unit test in TASK-153). Requirement: ≥4.5:1 normal
 
 | Pair (light) | Ratio | | Pair (dark) | Ratio |
 |---|---|---|---|---|
-| text.primary / card | 16.52 | | text.primary / card | 14.43 |
-| text.secondary / card | 6.58 | | text.secondary / card | 8.24 |
-| text.secondary / page | 6.11 | | text.secondary / elevated | 7.56 |
+| text.primary / card | 16.57 | | text.primary / card | 14.32 |
+| text.secondary / card | 6.76 | | text.secondary / card | 8.08 |
+| text.secondary / page | 6.25 | | text.secondary / elevated | 7.46 |
 | primary as text / card | 5.17 | | primary as text / card | 6.62 |
 | white / primary button | 5.17 | | on-primary / primary button | 5.95 |
-| input outline / card (3:1) | 3.92 | | input outline / card (3:1) | 3.09 |
+| input outline / card (3:1) | 3.89 | | input outline / card (3:1) | 3.30 |
 | selected text / selected bg | 5.70 | | selected text / selected bg | 8.21 |
 | success pill text / pill bg | 5.74 | | success pill text / pill bg | 9.15 |
 | warning pill text / pill bg | 6.01 | | warning pill text / pill bg | 9.08 |
@@ -165,7 +165,7 @@ automated version becomes a unit test in TASK-153). Requirement: ≥4.5:1 normal
 | info pill text / pill bg | 6.60 | | info pill text / pill bg | 8.17 |
 | error text / card | 5.31 | | error text / card | 6.83 |
 | secondary as text / card | 7.01 | | secondary / card | 8.12 |
-| focus ring / page (3:1) | 4.79 | | focus ring / page (3:1) | 7.13 |
+| focus ring / page (3:1) | 4.78 | | focus ring / page (3:1) | 7.14 |
 
 `text.disabled` and decorative `border.subtle` are intentionally below 4.5:1 (WCAG-exempt:
 disabled/decorative). Any future token change must re-run the contrast test before merge.

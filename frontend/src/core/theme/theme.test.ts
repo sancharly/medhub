@@ -49,10 +49,10 @@ describe("MUI theme", () => {
 
     it("light scheme matches ADD-001 §2.1 hex values", () => {
       const palette = theme.colorSchemes.light?.palette;
-      expect(palette?.background.default).toBe("#F4F7F6");
+      expect(palette?.background.default).toBe("#F4F6FB");
       expect(palette?.background.paper).toBe("#FFFFFF");
-      expect(palette?.text.primary).toBe("#16211F");
-      expect(palette?.text.secondary).toBe("#52605D");
+      expect(palette?.text.primary).toBe("#171F2B");
+      expect(palette?.text.secondary).toBe("#525C6C");
       expect(palette?.primary.main).toBe("#2563EB");
       expect(palette?.success.main).toBe("#1F7A47");
       expect(palette?.warning.main).toBe("#9A6402");
@@ -62,10 +62,10 @@ describe("MUI theme", () => {
 
     it("dark scheme matches ADD-001 §2.2 hex values", () => {
       const palette = theme.colorSchemes.dark?.palette;
-      expect(palette?.background.default).toBe("#0E1413");
-      expect(palette?.background.paper).toBe("#161C1B");
-      expect(palette?.text.primary).toBe("#E6ECEA");
-      expect(palette?.text.secondary).toBe("#A9B6B2");
+      expect(palette?.background.default).toBe("#0E131B");
+      expect(palette?.background.paper).toBe("#161B24");
+      expect(palette?.text.primary).toBe("#E6EAF2");
+      expect(palette?.text.secondary).toBe("#A9B2C1");
       expect(palette?.primary.main).toBe("#5AA2FF");
       expect(palette?.success.main).toBe("#5FC98A");
       expect(palette?.warning.main).toBe("#E0AC4A");

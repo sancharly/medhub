@@ -62,15 +62,15 @@ export const COLOR_SCHEME_ATTRIBUTES = {
 } as const;
 
 const lightTokens = {
-  bgPage: "#F4F7F6",
+  bgPage: "#F4F6FB",
   bgCard: "#FFFFFF",
-  bgSubtle: "#ECF2F0",
+  bgSubtle: "#ECF0F8",
   bgSelected: "#E5EDFD",
-  borderSubtle: "#E3EAE8",
-  borderInput: "#75847F",
-  textPrimary: "#16211F",
-  textSecondary: "#52605D",
-  textDisabled: "#8A9793",
+  borderSubtle: "#E3E8F2",
+  borderInput: "#79828F",
+  textPrimary: "#171F2B",
+  textSecondary: "#525C6C",
+  textDisabled: "#8A93A2",
   primaryMain: "#2563EB",
   primaryDark: "#1D4ED8",
   primaryOnSelected: "#1D4ED8",
@@ -82,15 +82,15 @@ const lightTokens = {
 } as const;
 
 const darkTokens = {
-  bgPage: "#0E1413",
-  bgCard: "#161C1B",
-  bgElevated: "#1C2422",
+  bgPage: "#0E131B",
+  bgCard: "#161B24",
+  bgElevated: "#1C222E",
   bgSelected: "#132A44",
-  borderSubtle: "#26302E",
-  borderInput: "#5C6B67",
-  textPrimary: "#E6ECEA",
-  textSecondary: "#A9B6B2",
-  textDisabled: "#6E7B77",
+  borderSubtle: "#262F3B",
+  borderInput: "#636D7D",
+  textPrimary: "#E6EAF2",
+  textSecondary: "#A9B2C1",
+  textDisabled: "#6E7787",
   primaryMain: "#5AA2FF",
   primaryContrastText: "#0A2540",
   primaryLight: "#9CC5FF",
@@ -121,10 +121,10 @@ const interFontFamily = '"Inter Variable", "Inter", "Roboto", "Helvetica", "Aria
 // step + 1px border.subtle instead of shadow) is expressed in TASK-150's Paper/Card/
 // Dialog styleOverrides via `theme.applyStyles("dark", { boxShadow: "none" })`, not
 // by swapping this array.
-const shadowLevel1 = "0 1px 2px rgba(15,23,22,.05)";
-const shadowLevel2 = "0 1px 2px rgba(15,23,22,.04), 0 4px 12px rgba(15,23,22,.06)";
-const shadowLevel3 = "0 2px 4px rgba(15,23,22,.05), 0 10px 24px rgba(15,23,22,.09)";
-const shadowLevel4 = "0 4px 8px rgba(15,23,22,.06), 0 20px 48px rgba(15,23,22,.14)";
+const shadowLevel1 = "0 1px 2px rgba(15,20,30,.05)";
+const shadowLevel2 = "0 1px 2px rgba(15,20,30,.04), 0 4px 12px rgba(15,20,30,.06)";
+const shadowLevel3 = "0 2px 4px rgba(15,20,30,.05), 0 10px 24px rgba(15,20,30,.09)";
+const shadowLevel4 = "0 4px 8px rgba(15,20,30,.06), 0 20px 48px rgba(15,20,30,.14)";
 
 const shadows = [
   "none",
@@ -414,7 +414,7 @@ export const theme = createTheme({
     MuiBackdrop: {
       styleOverrides: {
         root: {
-          backgroundColor: "rgba(15,23,22,.5)",
+          backgroundColor: "rgba(13,18,28,.5)",
         },
       },
     },
