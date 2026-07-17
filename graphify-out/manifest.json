@@ -1250,9 +1250,9 @@
     "semantic_hash": "07d7ea0439bfe806978006c90625c599"
   },
   "frontend/package.json": {
-    "mtime": 1782669495.3472114,
-    "ast_hash": "b1aafbc63c953f35d1a996619843db48",
-    "semantic_hash": "b1aafbc63c953f35d1a996619843db48"
+    "mtime": 1784288257.1796827,
+    "ast_hash": "fe032166a0a2ee02f94d4cd4718a8074",
+    "semantic_hash": ""
   },
   "frontend/public/mockServiceWorker.js": {
     "mtime": 1782226196.0671046,
@@ -1430,9 +1430,9 @@
     "semantic_hash": "2e0790ffc82d614481d0455a9a7afd9e"
   },
   "frontend/src/core/admin/accounts/AccountList.tsx": {
-    "mtime": 1782670008.32835,
-    "ast_hash": "3474668682a7f9aaf2829c356dff185c",
-    "semantic_hash": "3474668682a7f9aaf2829c356dff185c"
+    "mtime": 1784290017.9911928,
+    "ast_hash": "802c1c4e2c26fe2fa3c3801a36bde0c5",
+    "semantic_hash": ""
   },
   "frontend/src/core/admin/accounts/AccountsPage.test.tsx": {
     "mtime": 1782889067.439102,
@@ -1500,9 +1500,9 @@
     "semantic_hash": "894b3822098765319058959aa2378e39"
   },
   "frontend/src/core/appointments/AppointmentList.tsx": {
-    "mtime": 1782670226.936065,
-    "ast_hash": "5ac707b3d78e0c32c14cb0183f1ecb27",
-    "semantic_hash": "5ac707b3d78e0c32c14cb0183f1ecb27"
+    "mtime": 1784290006.906214,
+    "ast_hash": "a25ddfb03566b61aefcc6437c9c6f850",
+    "semantic_hash": ""
   },
   "frontend/src/core/appointments/AppointmentsPage.test.tsx": {
     "mtime": 1782670524.4093933,
@@ -1675,9 +1675,9 @@
     "semantic_hash": "899795fcb5b915314c834234ce3a6370"
   },
   "frontend/src/core/layout/AppLayout.tsx": {
-    "mtime": 1782670008.3085165,
-    "ast_hash": "97d3dbe09de5a0a9cfda28e4b3bbc1de",
-    "semantic_hash": "97d3dbe09de5a0a9cfda28e4b3bbc1de"
+    "mtime": 1784288685.802804,
+    "ast_hash": "1e66c3261f10263e8ab401f992d23101",
+    "semantic_hash": ""
   },
   "frontend/src/core/layout/breakpoints.ts": {
     "mtime": 1782670008.3080187,
@@ -1765,24 +1765,24 @@
     "semantic_hash": "ff80ab00fd46cc94536895420eb58b69"
   },
   "frontend/src/core/theme/ThemeProvider.tsx": {
-    "mtime": 1782670008.3154361,
-    "ast_hash": "54621d04a89936fdbcf8b414e6457c37",
-    "semantic_hash": "54621d04a89936fdbcf8b414e6457c37"
+    "mtime": 1784288304.73868,
+    "ast_hash": "1286f266a8b4f0d415e4d2d661400817",
+    "semantic_hash": ""
   },
   "frontend/src/core/theme/theme.test.ts": {
-    "mtime": 1782670008.3160107,
-    "ast_hash": "92da3211507ce5edd6b78cbce177316e",
-    "semantic_hash": "92da3211507ce5edd6b78cbce177316e"
+    "mtime": 1784291270.3645346,
+    "ast_hash": "5fc2fae1335fcda39d361cbff0bc108a",
+    "semantic_hash": ""
   },
   "frontend/src/core/theme/theme.ts": {
-    "mtime": 1782670008.3156817,
-    "ast_hash": "895b88b6966c58e6dc1bb71244be048f",
-    "semantic_hash": "895b88b6966c58e6dc1bb71244be048f"
+    "mtime": 1784305253.052456,
+    "ast_hash": "dc1effe4d19588015b1d6354cf520569",
+    "semantic_hash": ""
   },
   "frontend/src/main.tsx": {
-    "mtime": 1782670008.286268,
-    "ast_hash": "64534640d23e79256f39d2b6d2b4fb8e",
-    "semantic_hash": "64534640d23e79256f39d2b6d2b4fb8e"
+    "mtime": 1784288310.9043107,
+    "ast_hash": "caceb05d454eeb97cdca145d0989fe84",
+    "semantic_hash": ""
   },
   "frontend/src/modules/index.ts": {
     "mtime": 1782670008.3022366,
@@ -2010,9 +2010,9 @@
     "semantic_hash": "1e944e68f9a0c8f13e9839fd2713e781"
   },
   ".claude/skills/design-record-structure/SKILL.md": {
-    "mtime": 1783414417.7450051,
-    "ast_hash": "440a7a01d75992ae9ad4b1563825a3a4",
-    "semantic_hash": "440a7a01d75992ae9ad4b1563825a3a4"
+    "mtime": 1783765145.6201599,
+    "ast_hash": "514dcce7a7c12abb846e96ddda9ce752",
+    "semantic_hash": ""
   },
   ".claude/skills/design-system/SKILL.md": {
     "mtime": 1783253023.750992,
@@ -3235,9 +3235,9 @@
     "semantic_hash": "e6e6632024a9047e4545397fe318771b"
   },
   "docs/design/08-cross-cutting-concepts.md": {
-    "mtime": 1781946069.5273194,
-    "ast_hash": "06acd7af4a903c379c7b50fe88824b4f",
-    "semantic_hash": "06acd7af4a903c379c7b50fe88824b4f"
+    "mtime": 1784287687.667177,
+    "ast_hash": "28692de3b2618be4ea30b96622daeb0f",
+    "semantic_hash": ""
   },
   "docs/design/10-quality-requirements.md": {
     "mtime": 1781946069.527555,
@@ -3325,14 +3325,14 @@
     "semantic_hash": "bbf5aec0e4b2cd98e105c7102bb4664b"
   },
   "docs/design/adr/README.md": {
-    "mtime": 1781946069.5308564,
-    "ast_hash": "04920e54ffda9ab406760b756a45c319",
-    "semantic_hash": "04920e54ffda9ab406760b756a45c319"
+    "mtime": 1784287679.0835404,
+    "ast_hash": "2ea731a0e8bb2e520f43abbc4dde6b8f",
+    "semantic_hash": ""
   },
   "docs/design/traceability-matrix.md": {
-    "mtime": 1782889067.432577,
-    "ast_hash": "c12480873b1d7e63e7371cf24dfe6b74",
-    "semantic_hash": "c12480873b1d7e63e7371cf24dfe6b74"
+    "mtime": 1784291477.8039114,
+    "ast_hash": "32c5b87c14107343794d35592445aabb",
+    "semantic_hash": ""
   },
   "docs/implementation-plan/AUDIT-FINDINGS.md": {
     "mtime": 1782805570.8151848,
@@ -3385,9 +3385,9 @@
     "semantic_hash": "293f3b5671120af72131331fee7cecc0"
   },
   "frontend/index.html": {
-    "mtime": 1781978325.514737,
-    "ast_hash": "d20bf7ce404b8c763201f91c19b40a8d",
-    "semantic_hash": "d20bf7ce404b8c763201f91c19b40a8d"
+    "mtime": 1784288700.8551798,
+    "ast_hash": "09fa22d7b158130645dcc0eef4eb4fc4",
+    "semantic_hash": ""
   },
   "infra/DEPLOY.md": {
     "mtime": 1781978325.5179625,
@@ -3482,6 +3482,106 @@
   "docs/reports/CODE-REVIEW-2026-07.md": {
     "mtime": 1783451757.14883,
     "ast_hash": "6aa3596ab73ae5e17a5c0f0adf3c22c7",
+    "semantic_hash": ""
+  },
+  ".claude/agents/process-manager.md": {
+    "mtime": 1783253645.8119142,
+    "ast_hash": "3c5d9ee037eb8267fddbda985f2f9bad",
+    "semantic_hash": ""
+  },
+  ".claude/skills/problem-report-resolution/SKILL.md": {
+    "mtime": 1783446618.4211702,
+    "ast_hash": "d67534bffc57840f20cd6e294064d915",
+    "semantic_hash": ""
+  },
+  "docs/design-inputs/software-requirements/SR-037-design-token-based-theming-foundation.md": {
+    "mtime": 1784305398.7842505,
+    "ast_hash": "0e1bc4407dd203c9d9ef4ae9ea925d79",
+    "semantic_hash": ""
+  },
+  "docs/design-inputs/software-requirements/SR-038-light-and-dark-theme-modes.md": {
+    "mtime": 1784305398.7931159,
+    "ast_hash": "bc8cec2a66f3eccf4fe9f639c37c6064",
+    "semantic_hash": ""
+  },
+  "docs/design-inputs/software-requirements/SR-039-theme-mode-toggle-default-and-persistence.md": {
+    "mtime": 1784305398.8014486,
+    "ast_hash": "0293c0dbef1acc7f609073ce2a523f4a",
+    "semantic_hash": ""
+  },
+  "docs/design-inputs/user-needs/UN-014-professional-modern-medhub-visual-identity.md": {
+    "mtime": 1784305398.7652001,
+    "ast_hash": "feb03c566c0f4e0d69e589d3023afcd7",
+    "semantic_hash": ""
+  },
+  "docs/design-inputs/user-needs/UN-015-user-controlled-light-and-dark-appearance.md": {
+    "mtime": 1784305398.7748563,
+    "ast_hash": "b790ebf1194fec22570f47ca71508dbd",
+    "semantic_hash": ""
+  },
+  "docs/design-outputs/architecture/ADD-001-medhub-design-system-and-theming.md": {
+    "mtime": 1784305398.8104224,
+    "ast_hash": "2a19f94eeb21c1e5b16b11f068cd41e0",
+    "semantic_hash": ""
+  },
+  "docs/design-outputs/tasks/TASK-149-design-token-theme-foundation.md": {
+    "mtime": 1784288544.5439034,
+    "ast_hash": "732f892108a490d224eb282cb3e2a3ef",
+    "semantic_hash": ""
+  },
+  "docs/design-outputs/tasks/TASK-150-medhub-component-identity-overrides.md": {
+    "mtime": 1784289708.9673429,
+    "ast_hash": "e095ea259603e135172fd31c6f671899",
+    "semantic_hash": ""
+  },
+  "docs/design-outputs/tasks/TASK-151-theme-mode-toggle-and-persistence.md": {
+    "mtime": 1784288865.6920073,
+    "ast_hash": "ec9f3336e2f6a4a816b6c2f1fc9dec89",
+    "semantic_hash": ""
+  },
+  "docs/design-outputs/tasks/TASK-152-screen-sweep-tokenization-both-modes.md": {
+    "mtime": 1784291053.2082272,
+    "ast_hash": "092c57f4c4a1aa4ce8d991c6804ac9c1",
+    "semantic_hash": ""
+  },
+  "docs/design-outputs/tasks/TASK-153-theming-test-coverage-and-contrast.md": {
+    "mtime": 1784291484.404263,
+    "ast_hash": "d93be869f577d22fb3abcb5c0bb2e6f7",
+    "semantic_hash": ""
+  },
+  "docs/design/adr/0014-mui-css-variables-theming.md": {
+    "mtime": 1784287674.225206,
+    "ast_hash": "012200126a08394bd5d1ba878ec5e1c5",
+    "semantic_hash": ""
+  },
+  ".claude/launch.json": {
+    "mtime": 1784288468.1910174,
+    "ast_hash": "7d59f4cd33d1d1036dc6440ef89c47ef",
+    "semantic_hash": ""
+  },
+  "frontend/src/core/theme/ModeToggle.test.tsx": {
+    "mtime": 1784291359.49183,
+    "ast_hash": "6c75cfd07233da3c1432f7bcc9a711b4",
+    "semantic_hash": ""
+  },
+  "frontend/src/core/theme/ModeToggle.tsx": {
+    "mtime": 1784288676.0769565,
+    "ast_hash": "ecc7d7906494b58ededdba83aa1be269",
+    "semantic_hash": ""
+  },
+  "frontend/src/core/theme/StatusPill.test.tsx": {
+    "mtime": 1784291399.8783522,
+    "ast_hash": "34a8ab048bbb7e7058a562393577e81b",
+    "semantic_hash": ""
+  },
+  "frontend/src/core/theme/StatusPill.tsx": {
+    "mtime": 1784289245.209231,
+    "ast_hash": "40f5fe5cbabdde1b109472be6fec7d9e",
+    "semantic_hash": ""
+  },
+  "frontend/src/core/theme/index.ts": {
+    "mtime": 1784289249.5856373,
+    "ast_hash": "bd076fc077e073ece6d8add23a439119",
     "semantic_hash": ""
   }
 }
