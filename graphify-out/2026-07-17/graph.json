@@ -2157,7 +2157,7 @@
       "source_location": "L45",
       "_origin": "ast",
       "id": "claude_skills_design_system_templates_design_tokens_starter_spacing_5",
-      "community": 500,
+      "community": 50,
       "norm_label": "5"
     },
     {
@@ -2167,7 +2167,7 @@
       "source_location": "L45",
       "_origin": "ast",
       "id": "claude_skills_design_system_templates_design_tokens_starter_5_value",
-      "community": 500,
+      "community": 50,
       "norm_label": "$value"
     },
     {
@@ -2177,7 +2177,7 @@
       "source_location": "L45",
       "_origin": "ast",
       "id": "claude_skills_design_system_templates_design_tokens_starter_5_type",
-      "community": 500,
+      "community": 50,
       "norm_label": "$type"
     },
     {
@@ -2187,7 +2187,7 @@
       "source_location": "L46",
       "_origin": "ast",
       "id": "claude_skills_design_system_templates_design_tokens_starter_spacing_6",
-      "community": 50,
+      "community": 552,
       "norm_label": "6"
     },
     {
@@ -2197,7 +2197,7 @@
       "source_location": "L46",
       "_origin": "ast",
       "id": "claude_skills_design_system_templates_design_tokens_starter_6_value",
-      "community": 50,
+      "community": 552,
       "norm_label": "$value"
     },
     {
@@ -2207,7 +2207,7 @@
       "source_location": "L46",
       "_origin": "ast",
       "id": "claude_skills_design_system_templates_design_tokens_starter_6_type",
-      "community": 50,
+      "community": 552,
       "norm_label": "$type"
     },
     {
@@ -2597,7 +2597,7 @@
       "source_location": "L63",
       "_origin": "ast",
       "id": "claude_skills_design_system_templates_design_tokens_starter_radius_none",
-      "community": 386,
+      "community": 107,
       "norm_label": "none"
     },
     {
@@ -2607,7 +2607,7 @@
       "source_location": "L63",
       "_origin": "ast",
       "id": "claude_skills_design_system_templates_design_tokens_starter_none_value",
-      "community": 386,
+      "community": 107,
       "norm_label": "$value"
     },
     {
@@ -2617,7 +2617,7 @@
       "source_location": "L63",
       "_origin": "ast",
       "id": "claude_skills_design_system_templates_design_tokens_starter_none_type",
-      "community": 386,
+      "community": 107,
       "norm_label": "$type"
     },
     {
@@ -2667,7 +2667,7 @@
       "source_location": "L66",
       "_origin": "ast",
       "id": "claude_skills_design_system_templates_design_tokens_starter_radius_md",
-      "community": 107,
+      "community": 532,
       "norm_label": "md"
     },
     {
@@ -2677,7 +2677,7 @@
       "source_location": "L66",
       "_origin": "ast",
       "id": "claude_skills_design_system_templates_design_tokens_starter_md_value",
-      "community": 107,
+      "community": 532,
       "norm_label": "$value"
     },
     {
@@ -2687,7 +2687,7 @@
       "source_location": "L66",
       "_origin": "ast",
       "id": "claude_skills_design_system_templates_design_tokens_starter_md_type",
-      "community": 107,
+      "community": 532,
       "norm_label": "$type"
     },
     {
@@ -2757,7 +2757,7 @@
       "source_location": "L72",
       "_origin": "ast",
       "id": "claude_skills_design_system_templates_design_tokens_starter_shadow_none",
-      "community": 386,
+      "community": 107,
       "norm_label": "none"
     },
     {
@@ -2787,7 +2787,7 @@
       "source_location": "L75",
       "_origin": "ast",
       "id": "claude_skills_design_system_templates_design_tokens_starter_shadow_md",
-      "community": 107,
+      "community": 532,
       "norm_label": "md"
     },
     {
@@ -2987,7 +2987,7 @@
       "source_location": "L88",
       "_origin": "ast",
       "id": "claude_skills_design_system_templates_design_tokens_starter_color_primary",
-      "community": 532,
+      "community": 68,
       "norm_label": "primary"
     },
     {
@@ -2997,7 +2997,7 @@
       "source_location": "L88",
       "_origin": "ast",
       "id": "claude_skills_design_system_templates_design_tokens_starter_primary_value",
-      "community": 532,
+      "community": 68,
       "norm_label": "$value"
     },
     {
@@ -3007,7 +3007,7 @@
       "source_location": "L88",
       "_origin": "ast",
       "id": "claude_skills_design_system_templates_design_tokens_starter_primary_type",
-      "community": 532,
+      "community": 68,
       "norm_label": "$type"
     },
     {
@@ -3197,7 +3197,7 @@
       "source_location": "L95",
       "_origin": "ast",
       "id": "claude_skills_design_system_templates_design_tokens_starter_color_destructive",
-      "community": 68,
+      "community": 556,
       "norm_label": "destructive"
     },
     {
@@ -3207,7 +3207,7 @@
       "source_location": "L95",
       "_origin": "ast",
       "id": "claude_skills_design_system_templates_design_tokens_starter_destructive_value",
-      "community": 68,
+      "community": 556,
       "norm_label": "$value"
     },
     {
@@ -3217,7 +3217,7 @@
       "source_location": "L95",
       "_origin": "ast",
       "id": "claude_skills_design_system_templates_design_tokens_starter_destructive_type",
-      "community": 68,
+      "community": 556,
       "norm_label": "$type"
     },
     {
@@ -3497,7 +3497,7 @@
       "source_location": "L110",
       "_origin": "ast",
       "id": "claude_skills_design_system_templates_design_tokens_starter_button_padding_x",
-      "community": 231,
+      "community": 157,
       "norm_label": "padding-x"
     },
     {
@@ -3507,7 +3507,7 @@
       "source_location": "L110",
       "_origin": "ast",
       "id": "claude_skills_design_system_templates_design_tokens_starter_padding_x_value",
-      "community": 231,
+      "community": 157,
       "norm_label": "$value"
     },
     {
@@ -3517,7 +3517,7 @@
       "source_location": "L110",
       "_origin": "ast",
       "id": "claude_skills_design_system_templates_design_tokens_starter_padding_x_type",
-      "community": 231,
+      "community": 157,
       "norm_label": "$type"
     },
     {
@@ -3527,7 +3527,7 @@
       "source_location": "L111",
       "_origin": "ast",
       "id": "claude_skills_design_system_templates_design_tokens_starter_button_padding_y",
-      "community": 157,
+      "community": 500,
       "norm_label": "padding-y"
     },
     {
@@ -3537,7 +3537,7 @@
       "source_location": "L111",
       "_origin": "ast",
       "id": "claude_skills_design_system_templates_design_tokens_starter_padding_y_value",
-      "community": 157,
+      "community": 500,
       "norm_label": "$value"
     },
     {
@@ -3547,7 +3547,7 @@
       "source_location": "L111",
       "_origin": "ast",
       "id": "claude_skills_design_system_templates_design_tokens_starter_padding_y_type",
-      "community": 157,
+      "community": 500,
       "norm_label": "$type"
     },
     {
@@ -3677,7 +3677,7 @@
       "source_location": "L119",
       "_origin": "ast",
       "id": "claude_skills_design_system_templates_design_tokens_starter_input_padding_x",
-      "community": 231,
+      "community": 157,
       "norm_label": "padding-x"
     },
     {
@@ -3687,7 +3687,7 @@
       "source_location": "L120",
       "_origin": "ast",
       "id": "claude_skills_design_system_templates_design_tokens_starter_input_padding_y",
-      "community": 157,
+      "community": 500,
       "norm_label": "padding-y"
     },
     {
@@ -4267,7 +4267,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "claude_skills_design_scripts_cip_search",
-      "community": 67,
+      "community": 387,
       "norm_label": "search.py"
     },
     {
@@ -4277,7 +4277,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "claude_skills_design_scripts_cip_search_format_results",
-      "community": 67,
+      "community": 387,
       "norm_label": "format_results()"
     },
     {
@@ -4287,7 +4287,7 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "claude_skills_design_scripts_cip_search_format_brief",
-      "community": 67,
+      "community": 387,
       "norm_label": "format_brief()"
     },
     {
@@ -4297,7 +4297,7 @@
       "source_location": "L65",
       "_origin": "ast",
       "id": "claude_skills_design_scripts_cip_search_main",
-      "community": 67,
+      "community": 387,
       "norm_label": "main()"
     },
     {
@@ -4307,7 +4307,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "claude_skills_design_scripts_cip_search_rationale_18",
-      "community": 67,
+      "community": 387,
       "norm_label": "format search results for display"
     },
     {
@@ -4317,7 +4317,7 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "claude_skills_design_scripts_cip_search_rationale_33",
-      "community": 67,
+      "community": 387,
       "norm_label": "format cip brief for display"
     },
     {
@@ -4497,7 +4497,7 @@
       "source_location": "L37",
       "_origin": "ast",
       "id": "claude_skills_design_scripts_logo_core_bm25",
-      "community": 61,
+      "community": 226,
       "norm_label": "bm25"
     },
     {
@@ -4507,7 +4507,7 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "claude_skills_design_scripts_logo_core_bm25_init",
-      "community": 61,
+      "community": 226,
       "norm_label": ".__init__()"
     },
     {
@@ -4517,7 +4517,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "claude_skills_design_scripts_logo_core_bm25_tokenize",
-      "community": 61,
+      "community": 226,
       "norm_label": ".tokenize()"
     },
     {
@@ -4527,7 +4527,7 @@
       "source_location": "L55",
       "_origin": "ast",
       "id": "claude_skills_design_scripts_logo_core_bm25_fit",
-      "community": 61,
+      "community": 226,
       "norm_label": ".fit()"
     },
     {
@@ -4537,7 +4537,7 @@
       "source_location": "L74",
       "_origin": "ast",
       "id": "claude_skills_design_scripts_logo_core_bm25_score",
-      "community": 61,
+      "community": 226,
       "norm_label": ".score()"
     },
     {
@@ -4597,7 +4597,7 @@
       "source_location": "L38",
       "_origin": "ast",
       "id": "claude_skills_design_scripts_logo_core_rationale_38",
-      "community": 61,
+      "community": 226,
       "norm_label": "bm25 ranking algorithm for text search"
     },
     {
@@ -4607,7 +4607,7 @@
       "source_location": "L51",
       "_origin": "ast",
       "id": "claude_skills_design_scripts_logo_core_rationale_51",
-      "community": 61,
+      "community": 226,
       "norm_label": "lowercase, split, remove punctuation, filter short words"
     },
     {
@@ -4617,7 +4617,7 @@
       "source_location": "L56",
       "_origin": "ast",
       "id": "claude_skills_design_scripts_logo_core_rationale_56",
-      "community": 61,
+      "community": 226,
       "norm_label": "build bm25 index from documents"
     },
     {
@@ -4627,7 +4627,7 @@
       "source_location": "L75",
       "_origin": "ast",
       "id": "claude_skills_design_scripts_logo_core_rationale_75",
-      "community": 61,
+      "community": 226,
       "norm_label": "score all documents against query"
     },
     {
@@ -4787,7 +4787,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "claude_skills_design_scripts_logo_search",
-      "community": 226,
+      "community": 61,
       "norm_label": "search.py"
     },
     {
@@ -4797,7 +4797,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "claude_skills_design_scripts_logo_search_format_output",
-      "community": 226,
+      "community": 61,
       "norm_label": "format_output()"
     },
     {
@@ -4807,7 +4807,7 @@
       "source_location": "L37",
       "_origin": "ast",
       "id": "claude_skills_design_scripts_logo_search_generate_design_brief",
-      "community": 226,
+      "community": 61,
       "norm_label": "generate_design_brief()"
     },
     {
@@ -4817,7 +4817,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "claude_skills_design_scripts_logo_search_rationale_16",
-      "community": 226,
+      "community": 61,
       "norm_label": "format results for claude consumption (token-optimized)"
     },
     {
@@ -4827,7 +4827,7 @@
       "source_location": "L38",
       "_origin": "ast",
       "id": "claude_skills_design_scripts_logo_search_rationale_38",
-      "community": 226,
+      "community": 61,
       "norm_label": "generate a comprehensive logo design brief based on query"
     },
     {
@@ -7147,7 +7147,7 @@
       "source_location": "L333",
       "_origin": "ast",
       "id": "claude_skills_ui_ux_pro_max_scripts_design_system_hex_to_ansi",
-      "community": 69,
+      "community": 231,
       "norm_label": "hex_to_ansi()"
     },
     {
@@ -7157,7 +7157,7 @@
       "source_location": "L347",
       "_origin": "ast",
       "id": "claude_skills_ui_ux_pro_max_scripts_design_system_ansi_ljust",
-      "community": 69,
+      "community": 231,
       "norm_label": "ansi_ljust()"
     },
     {
@@ -7167,7 +7167,7 @@
       "source_location": "L355",
       "_origin": "ast",
       "id": "claude_skills_ui_ux_pro_max_scripts_design_system_section_header",
-      "community": 69,
+      "community": 231,
       "norm_label": "section_header()"
     },
     {
@@ -7177,7 +7177,7 @@
       "source_location": "L362",
       "_origin": "ast",
       "id": "claude_skills_ui_ux_pro_max_scripts_design_system_format_ascii_box",
-      "community": 69,
+      "community": 231,
       "norm_label": "format_ascii_box()"
     },
     {
@@ -7237,7 +7237,7 @@
       "source_location": "L1176",
       "_origin": "ast",
       "id": "claude_skills_ui_ux_pro_max_scripts_design_system_generate_intelligent_overrides",
-      "community": 387,
+      "community": 69,
       "norm_label": "_generate_intelligent_overrides()"
     },
     {
@@ -7247,7 +7247,7 @@
       "source_location": "L1282",
       "_origin": "ast",
       "id": "claude_skills_ui_ux_pro_max_scripts_design_system_detect_page_type",
-      "community": 387,
+      "community": 69,
       "norm_label": "_detect_page_type()"
     },
     {
@@ -7347,7 +7347,7 @@
       "source_location": "L334",
       "_origin": "ast",
       "id": "claude_skills_ui_ux_pro_max_scripts_design_system_rationale_334",
-      "community": 69,
+      "community": 231,
       "norm_label": "convert hex color to ansi true color swatch (\u2588\u2588) with fallback."
     },
     {
@@ -7357,7 +7357,7 @@
       "source_location": "L348",
       "_origin": "ast",
       "id": "claude_skills_ui_ux_pro_max_scripts_design_system_rationale_348",
-      "community": 69,
+      "community": 231,
       "norm_label": "like str.ljust but accounts for zero-width ansi escape sequences."
     },
     {
@@ -7367,7 +7367,7 @@
       "source_location": "L356",
       "_origin": "ast",
       "id": "claude_skills_ui_ux_pro_max_scripts_design_system_rationale_356",
-      "community": 69,
+      "community": 231,
       "norm_label": "create a unicode section separator: \u251c\u2500\u2500\u2500 name \u2500\u2500\u2500...\u2524"
     },
     {
@@ -7377,7 +7377,7 @@
       "source_location": "L363",
       "_origin": "ast",
       "id": "claude_skills_ui_ux_pro_max_scripts_design_system_rationale_363",
-      "community": 69,
+      "community": 231,
       "norm_label": "format design system as unicode box with ansi color swatches."
     },
     {
@@ -7437,7 +7437,7 @@
       "source_location": "L1177",
       "_origin": "ast",
       "id": "claude_skills_ui_ux_pro_max_scripts_design_system_rationale_1177",
-      "community": 387,
+      "community": 69,
       "norm_label": "generate intelligent overrides based on page type using layered search."
     },
     {
@@ -7447,7 +7447,7 @@
       "source_location": "L1283",
       "_origin": "ast",
       "id": "claude_skills_ui_ux_pro_max_scripts_design_system_rationale_1283",
-      "community": 387,
+      "community": 69,
       "norm_label": "detect page type from context and search results."
     },
     {
@@ -28741,7 +28741,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "frontend_src_api_generated_types_changepasswordrequest",
-      "community": 2,
+      "community": 16,
       "norm_label": "changepasswordrequest"
     },
     {
@@ -28921,7 +28921,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_api_queryclient",
-      "community": 2,
+      "community": 16,
       "norm_label": "queryclient.ts"
     },
     {
@@ -28931,7 +28931,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "frontend_src_api_queryclient_queryclient",
-      "community": 2,
+      "community": 16,
       "norm_label": "queryclient"
     },
     {
@@ -29021,7 +29021,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_auth_changepasswordpage_test",
-      "community": 2,
+      "community": 16,
       "norm_label": "changepasswordpage.test.tsx"
     },
     {
@@ -29031,7 +29031,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "frontend_src_auth_changepasswordpage_test_renderpage",
-      "community": 2,
+      "community": 16,
       "norm_label": "renderpage()"
     },
     {
@@ -29041,7 +29041,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_auth_changepasswordpage",
-      "community": 2,
+      "community": 16,
       "norm_label": "changepasswordpage.tsx"
     },
     {
@@ -29051,7 +29051,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "frontend_src_auth_changepasswordpage_changepasswordpage",
-      "community": 2,
+      "community": 16,
       "norm_label": "changepasswordpage()"
     },
     {
@@ -29061,7 +29061,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_auth_forcedpasswordgate_test",
-      "community": 2,
+      "community": 5,
       "norm_label": "forcedpasswordgate.test.tsx"
     },
     {
@@ -29071,7 +29071,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "frontend_src_auth_forcedpasswordgate_test_rendergate",
-      "community": 2,
+      "community": 5,
       "norm_label": "rendergate()"
     },
     {
@@ -29081,7 +29081,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_auth_forcedpasswordgate",
-      "community": 2,
+      "community": 5,
       "norm_label": "forcedpasswordgate.tsx"
     },
     {
@@ -29091,7 +29091,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "frontend_src_auth_forcedpasswordgate_forcedpasswordgate",
-      "community": 2,
+      "community": 5,
       "norm_label": "forcedpasswordgate()"
     },
     {
@@ -29161,7 +29161,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_auth_loginpage_test",
-      "community": 5,
+      "community": 386,
       "norm_label": "loginpage.test.tsx"
     },
     {
@@ -29171,7 +29171,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "frontend_src_auth_loginpage_test_renderlogin",
-      "community": 5,
+      "community": 386,
       "norm_label": "renderlogin()"
     },
     {
@@ -29181,7 +29181,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "frontend_src_auth_loginpage_test_patientuser",
-      "community": 5,
+      "community": 386,
       "norm_label": "patientuser"
     },
     {
@@ -29191,7 +29191,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_auth_loginpage",
-      "community": 16,
+      "community": 386,
       "norm_label": "loginpage.tsx"
     },
     {
@@ -29201,7 +29201,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "frontend_src_auth_loginpage_rolelanding",
-      "community": 16,
+      "community": 386,
       "norm_label": "rolelanding()"
     },
     {
@@ -29211,7 +29211,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "frontend_src_auth_loginpage_loginpage",
-      "community": 16,
+      "community": 386,
       "norm_label": "loginpage()"
     },
     {
@@ -29431,7 +29431,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_auth_usechangepassword",
-      "community": 2,
+      "community": 16,
       "norm_label": "usechangepassword.ts"
     },
     {
@@ -29441,7 +29441,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "frontend_src_auth_usechangepassword_changepassworderror",
-      "community": 2,
+      "community": 16,
       "norm_label": "changepassworderror"
     },
     {
@@ -29451,7 +29451,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "frontend_src_auth_usechangepassword_usechangepassword",
-      "community": 2,
+      "community": 16,
       "norm_label": "usechangepassword()"
     },
     {
@@ -29461,7 +29461,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "frontend_src_auth_usechangepassword_extractchangepassworderror",
-      "community": 2,
+      "community": 16,
       "norm_label": "extractchangepassworderror()"
     },
     {
@@ -29531,7 +29531,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "frontend_src_auth_uselogin_uselogin",
-      "community": 16,
+      "community": 386,
       "norm_label": "uselogin()"
     },
     {
@@ -77329,72 +77329,6 @@
       "confidence_score": 1.0
     },
     {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": ".claude/skills/design/scripts/cip/generate.py",
-      "source_location": "L26",
-      "weight": 1.0,
-      "source": "claude_skills_design_scripts_cip_generate",
-      "target": "claude_skills_design_scripts_cip_core",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": ".claude/skills/design/scripts/cip/render-html.py",
-      "source_location": "L20",
-      "weight": 1.0,
-      "source": "claude_skills_design_scripts_cip_render_html",
-      "target": "claude_skills_design_scripts_cip_core",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": ".claude/skills/design/scripts/cip/search.py",
-      "source_location": "L14",
-      "weight": 1.0,
-      "source": "claude_skills_design_scripts_cip_search",
-      "target": "claude_skills_design_scripts_cip_core",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": ".claude/skills/design/scripts/logo/search.py",
-      "source_location": "L12",
-      "weight": 1.0,
-      "source": "claude_skills_design_scripts_logo_search",
-      "target": "claude_skills_design_scripts_cip_core",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": ".claude/skills/ui-ux-pro-max/scripts/design_system.py",
-      "source_location": "L23",
-      "weight": 1.0,
-      "source": "claude_skills_ui_ux_pro_max_scripts_design_system",
-      "target": "claude_skills_design_scripts_cip_core",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": ".claude/skills/ui-ux-pro-max/scripts/search.py",
-      "source_location": "L26",
-      "weight": 1.0,
-      "source": "claude_skills_ui_ux_pro_max_scripts_search",
-      "target": "claude_skills_design_scripts_cip_core",
-      "confidence_score": 1.0
-    },
-    {
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": ".claude/skills/design/scripts/cip/core.py",
@@ -77781,6 +77715,17 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/design/scripts/cip/generate.py",
+      "source_location": "L26",
+      "weight": 1.0,
+      "source": "claude_skills_design_scripts_cip_generate",
+      "target": "claude_skills_design_scripts_logo_core",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
@@ -77969,6 +77914,17 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/design/scripts/cip/render-html.py",
+      "source_location": "L20",
+      "weight": 1.0,
+      "source": "claude_skills_design_scripts_cip_render_html",
+      "target": "claude_skills_design_scripts_logo_core",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
@@ -78059,6 +78015,17 @@
       "weight": 1.0,
       "source": "claude_skills_design_scripts_cip_search",
       "target": "claude_skills_design_scripts_cip_search_main",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/design/scripts/cip/search.py",
+      "source_location": "L14",
+      "weight": 1.0,
+      "source": "claude_skills_design_scripts_cip_search",
+      "target": "claude_skills_design_scripts_logo_core",
       "confidence_score": 1.0
     },
     {
@@ -78410,6 +78377,39 @@
       "weight": 1.0,
       "source": "claude_skills_design_scripts_logo_core",
       "target": "claude_skills_design_scripts_logo_core_search_csv",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/design/scripts/logo/search.py",
+      "source_location": "L12",
+      "weight": 1.0,
+      "source": "claude_skills_design_scripts_logo_search",
+      "target": "claude_skills_design_scripts_logo_core",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/ui-ux-pro-max/scripts/design_system.py",
+      "source_location": "L23",
+      "weight": 1.0,
+      "source": "claude_skills_ui_ux_pro_max_scripts_design_system",
+      "target": "claude_skills_design_scripts_logo_core",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/ui-ux-pro-max/scripts/search.py",
+      "source_location": "L26",
+      "weight": 1.0,
+      "source": "claude_skills_ui_ux_pro_max_scripts_search",
+      "target": "claude_skills_design_scripts_logo_core",
       "confidence_score": 1.0
     },
     {
@@ -172641,5 +172641,5 @@
       "source_location": "line 1-145"
     }
   ],
-  "built_at_commit": "8ebcccff728e304f211b7d9c6f188cc3a1f6cf76"
+  "built_at_commit": "8ce54a0b65ae42e8087ca00afc98f29b3fa6dda0"
 }

@@ -1770,13 +1770,13 @@
     "semantic_hash": ""
   },
   "frontend/src/core/theme/theme.test.ts": {
-    "mtime": 1784315422.6361716,
-    "ast_hash": "d531586cf1abeb6322f42d15168bad81",
+    "mtime": 1784315989.7210126,
+    "ast_hash": "8c1aa13623e7aaf3bc317a5f1fe65edf",
     "semantic_hash": ""
   },
   "frontend/src/core/theme/theme.ts": {
-    "mtime": 1784315412.1496162,
-    "ast_hash": "606be6dc98de2b7591526e4d75b1715d",
+    "mtime": 1784316101.5347176,
+    "ast_hash": "59443f0b3f17e13828cdb5926564ba90",
     "semantic_hash": ""
   },
   "frontend/src/main.tsx": {
@@ -3385,8 +3385,8 @@
     "semantic_hash": "293f3b5671120af72131331fee7cecc0"
   },
   "frontend/index.html": {
-    "mtime": 1784288700.8551798,
-    "ast_hash": "09fa22d7b158130645dcc0eef4eb4fc4",
+    "mtime": 1784315974.3424659,
+    "ast_hash": "332545a30a673ddcf6bb38e6911471df",
     "semantic_hash": ""
   },
   "infra/DEPLOY.md": {
@@ -3520,8 +3520,8 @@
     "semantic_hash": ""
   },
   "docs/design-outputs/architecture/ADD-001-medhub-design-system-and-theming.md": {
-    "mtime": 1784315545.2724729,
-    "ast_hash": "7a49988c5bd85f3d54032b8b6d3fbe44",
+    "mtime": 1784316123.1231582,
+    "ast_hash": "18bf3caafc67209049d31767d17508b0",
     "semantic_hash": ""
   },
   "docs/design-outputs/tasks/TASK-149-design-token-theme-foundation.md": {
@@ -3555,7 +3555,7 @@
     "semantic_hash": ""
   },
   ".claude/launch.json": {
-    "mtime": 1784288468.1910174,
+    "mtime": 1784316249.2263176,
     "ast_hash": "7d59f4cd33d1d1036dc6440ef89c47ef",
     "semantic_hash": ""
   },

@@ -1,16 +1,16 @@
 # Graph Report - medhub-01  (2026-07-17)
 
 ## Corpus Check
-- 684 files · ~347,980 words
+- 684 files · ~347,984 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 7103 nodes · 9676 edges · 1039 communities (524 shown, 515 thin omitted)
+- 7103 nodes · 9676 edges · 1035 communities (520 shown, 515 thin omitted)
 - Extraction: 88% EXTRACTED · 12% INFERRED · 0% AMBIGUOUS · INFERRED: 1151 edges (avg confidence: 0.72)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `8ce54a0b`
+- Built from commit: `ad1b73a1`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -359,7 +359,6 @@
 - [[_COMMUNITY_Core Logo Types|Core Logo Types]]
 - [[_COMMUNITY_LockoutService|LockoutService]]
 - [[_COMMUNITY_test_login_service.py|test_login_service.py]]
-- [[_COMMUNITY__build_svc|_build_svc]]
 - [[_COMMUNITY_Brand Consistency Checklist|Brand Consistency Checklist]]
 - [[_COMMUNITY_CIP Mockup Prompt Engineering|CIP Mockup Prompt Engineering]]
 - [[_COMMUNITY_React Performance|React Performance]]
@@ -460,7 +459,6 @@
 - [[_COMMUNITY_TASK-066-clinical-entry-attachment-endpoints|TASK-066-clinical-entry-attachment-endpoints.md]]
 - [[_COMMUNITY_TASK-068-openapi-3-1-contract-finalization-typed|TASK-068-openapi-3-1-contract-finalization-typed.md]]
 - [[_COMMUNITY_TASK-069-security-headers-middleware-csrf-enforcement|TASK-069-security-headers-middleware-csrf-enforcement.md]]
-- [[_COMMUNITY_TASK-070-module-discovery-modulemanifest-registry|TASK-070-module-discovery-modulemanifest-registry.md]]
 - [[_COMMUNITY_TASK-073-dicom-module-backend-authorized-bytes|TASK-073-dicom-module-backend-authorized-bytes.md]]
 - [[_COMMUNITY_TASK-080-typed-api-client-cookie-csrf-tanstack|TASK-080-typed-api-client-cookie-csrf-tanstack.md]]
 - [[_COMMUNITY_TASK-083-reusable-confirmation-dialog-for-destructive-actions|TASK-083-reusable-confirmation-dialog-for-destructive-actions.md]]
@@ -504,7 +502,6 @@
 - [[_COMMUNITY_TASK-003-config-secrets-management|TASK-003-config-secrets-management.md]]
 - [[_COMMUNITY_TASK-004-docker-compose-topology-reverse-proxy|TASK-004-docker-compose-topology-reverse-proxy.md]]
 - [[_COMMUNITY_TASK-005-ci-pipeline|TASK-005-ci-pipeline.md]]
-- [[_COMMUNITY_TASK-010-sqlalchemy-domain-models-fhir-aligned|TASK-010-sqlalchemy-domain-models-fhir-aligned.md]]
 - [[_COMMUNITY_TASK-011-alembic-initial-migration-constraints|TASK-011-alembic-initial-migration-constraints.md]]
 - [[_COMMUNITY_TASK-020-passwordservice-policy-argon2id|TASK-020-passwordservice-policy-argon2id.md]]
 - [[_COMMUNITY_TASK-023-login-flow|TASK-023-login-flow.md]]
@@ -524,7 +521,6 @@
 - [[_COMMUNITY_TASK-041-group-membership-automatic-manual|TASK-041-group-membership-automatic-manual.md]]
 - [[_COMMUNITY_TASK-042-per-group-module-enablement|TASK-042-per-group-module-enablement.md]]
 - [[_COMMUNITY_TASK-043-moduleaccessguard|TASK-043-moduleaccessguard.md]]
-- [[_COMMUNITY_6|6]]
 - [[_COMMUNITY_TASK-045-attachment-upload-minio-pydicom-validation|TASK-045-attachment-upload-minio-pydicom-validation.md]]
 - [[_COMMUNITY_TASK-046-attachment-authorized-fetch|TASK-046-attachment-authorized-fetch.md]]
 - [[_COMMUNITY_TASK-047-appointment-create|TASK-047-appointment-create.md]]
@@ -1051,7 +1047,7 @@
 - **Regulatory and Compliance Requirements Chain** — docs_design_inputs_system_requirements_non_functional_nfr_004_gdpr_compliance_nfr_004, docs_design_inputs_system_requirements_non_functional_nfr_005_medical_device_nfr_005, docs_design_inputs_system_requirements_non_functional_nfr_006_iec_62304_nfr_006, docs_design_inputs_system_requirements_non_functional_nfr_007_cybersecurity_nfr_007 [EXTRACTED 1.00]
 - **Production Infrastructure Stack** — service_postgres, service_redis, service_minio, service_nginx, service_backend_fastapi, service_celery_worker, service_frontend_react, infra_docker_compose_topology [EXTRACTED 1.00]
 
-## Communities (1039 total, 515 thin omitted)
+## Communities (1035 total, 515 thin omitted)
 
 ### Community 0 - "Code Community"
 Cohesion: 0.27
@@ -1282,8 +1278,8 @@ Cohesion: 0.10
 Nodes (12): audit_repo_mock(), AuditService tests (TASK-014, SR-023)., Passing action with password=... must not appear in stored record., In-memory AuditRepository mock that captures added logs., Pre-auth failure — actor is None (unknown)., Timestamp is set by AuditService, not supplied by caller., service(), test_audit_repo_has_only_add() (+4 more)
 
 ### Community 61 - "Code Community"
-Cohesion: 0.17
-Nodes (14): detect_domain(), _load_csv(), Load CSV and return list of dicts, Core search function using BM25, Auto-detect the most relevant domain from query, Main search function with auto-domain detection, Search across all domains and combine results, search() (+6 more)
+Cohesion: 0.11
+Nodes (19): BM25, detect_domain(), _load_csv(), Load CSV and return list of dicts, Core search function using BM25, Auto-detect the most relevant domain from query, Main search function with auto-domain detection, Search across all domains and combine results (+11 more)
 
 ### Community 62 - "Code Community"
 Cohesion: 0.15
@@ -1306,16 +1302,16 @@ Cohesion: 0.05
 Nodes (43): Arbitrary Values, Aspect Ratio, Background Colors, Border Color, Border Radius, Border Style, Border Width, Borders (+35 more)
 
 ### Community 67 - "Rationale Community"
-Cohesion: 0.22
-Nodes (12): detect_domain(), get_cip_brief(), _load_csv(), Load CSV and return list of dicts, Core search function using BM25, Auto-detect the most relevant domain from query, Main search function with auto-domain detection, Search across all domains and combine results (+4 more)
+Cohesion: 0.16
+Nodes (17): detect_domain(), get_cip_brief(), _load_csv(), Load CSV and return list of dicts, Core search function using BM25, Auto-detect the most relevant domain from query, Main search function with auto-domain detection, Search across all domains and combine results (+9 more)
 
 ### Community 68 - "Code Community"
 Cohesion: 0.11
 Nodes (19): $type, $value, background, foreground, muted-foreground, primary, primary-hover, secondary (+11 more)
 
 ### Community 69 - "Code Community"
-Cohesion: 0.19
-Nodes (14): _detect_page_type(), format_markdown(), format_master_md(), format_page_override_md(), generate_design_system(), _generate_intelligent_overrides(), persist_design_system(), Format a page-specific override file with intelligent AI-generated content. (+6 more)
+Cohesion: 0.13
+Nodes (22): ansi_ljust(), _detect_page_type(), format_ascii_box(), format_markdown(), format_master_md(), format_page_override_md(), generate_design_system(), _generate_intelligent_overrides() (+14 more)
 
 ### Community 70 - "Code Community"
 Cohesion: 0.14
@@ -1510,8 +1506,8 @@ Cohesion: 0.20
 Nodes (6): Generate configuration file content.          Returns:             Configuration, Generate TypeScript configuration., Generate JavaScript configuration., Format plugins array for config.          Validates each plugin name against a s, Add indentation to JSON string., Write configuration to file.          Returns:             Tuple of (success, me
 
 ### Community 120 - "Code Community"
-Cohesion: 0.28
-Nodes (5): BM25, BM25 ranking algorithm for text search, Lowercase, split, remove punctuation, filter short words, Build BM25 index from documents, Score all documents against query
+Cohesion: 0.67
+Nodes (4): $type, $value, none, none
 
 ### Community 122 - "Code Community"
 Cohesion: 0.22
@@ -1538,8 +1534,8 @@ Cohesion: 0.20
 Nodes (7): Tests for tailwind_config_gen.py, Reduce a generated TS/JS config to a bare assignable object so it can be     han, Regression guard for the missing-comma bug between the ``theme`` block and     `, The property preceding ``plugins`` must end with a comma (pure-Python         ch, The emitted config parses as valid JS via ``node --check``., _strip_to_object(), TestGeneratedConfigIsValidJs
 
 ### Community 128 - "Code Community"
-Cohesion: 0.25
-Nodes (10): detect_domain(), _load_csv(), Load CSV and return list of dicts, Core search function using BM25, Auto-detect the most relevant domain from query, Main search function with auto-domain detection, Search stack-specific guidelines, search() (+2 more)
+Cohesion: 0.15
+Nodes (15): BM25, detect_domain(), _load_csv(), BM25 ranking algorithm for text search, Lowercase, split, remove punctuation, filter short words, Build BM25 index from documents, Score all documents against query, Load CSV and return list of dicts (+7 more)
 
 ### Community 130 - "Code Community"
 Cohesion: 0.12
@@ -1818,8 +1814,8 @@ Cohesion: 0.67
 Nodes (3): $type, $value, 8
 
 ### Community 226 - "Code Community"
-Cohesion: 0.28
-Nodes (5): BM25, BM25 ranking algorithm for text search, Lowercase, split, remove punctuation, filter short words, Build BM25 index from documents, Score all documents against query
+Cohesion: 0.67
+Nodes (3): $type, $value, 0
 
 ### Community 227 - "Code Community"
 Cohesion: 0.25
@@ -1838,8 +1834,8 @@ Cohesion: 0.67
 Nodes (3): ring, $type, $value
 
 ### Community 231 - "Code Community"
-Cohesion: 0.25
-Nodes (8): ansi_ljust(), format_ascii_box(), hex_to_ansi(), Convert hex color to ANSI True Color swatch (██) with fallback., Like str.ljust but accounts for zero-width ANSI escape sequences., Create a Unicode section separator: ├─── NAME ───...┤, Format design system as Unicode box with ANSI color swatches., section_header()
+Cohesion: 0.67
+Nodes (3): $type, $value, 3
 
 ### Community 234 - "Code Community"
 Cohesion: 0.08
@@ -1948,10 +1944,6 @@ Nodes (7): Acceptance Criteria, Control Measures, Description, Potential Risks, 
 ### Community 386 - "test_login_service.py"
 Cohesion: 0.38
 Nodes (3): LoginPage(), patientUser, useLogin()
-
-### Community 387 - "_build_svc"
-Cohesion: 0.47
-Nodes (5): format_brief(), format_results(), main(), Format search results for display, Format CIP brief for display
 
 ### Community 388 - "Brand Consistency Checklist"
 Cohesion: 0.11
@@ -2353,10 +2345,6 @@ Nodes (8): Acceptance criteria, Audit verdict (2026-06-29), Definition of Done, 
 Cohesion: 0.22
 Nodes (8): Acceptance criteria, Audit verdict (2026-06-29), Definition of Done, Implementation detail, Interfaces to honor, Objective, QA sign-off, Tests (write first — TDD, CLAUDE.md §4)
 
-### Community 488 - "TASK-070-module-discovery-modulemanifest-registry.md"
-Cohesion: 0.67
-Nodes (3): $type, $value, 2
-
 ### Community 489 - "TASK-073-dicom-module-backend-authorized-bytes.md"
 Cohesion: 0.22
 Nodes (8): Acceptance criteria, Audit verdict (2026-06-29), Definition of Done, Fix verdict (2026-06-30), Implementation detail, Interfaces to honor, Objective, Tests (write first — TDD, CLAUDE.md §4)
@@ -2525,10 +2513,6 @@ Nodes (7): Acceptance criteria, Audit verdict (2026-06-29), Definition of Done, 
 Cohesion: 0.28
 Nodes (5): BM25, BM25 ranking algorithm for text search, Lowercase, split, remove punctuation, filter short words, Build BM25 index from documents, Score all documents against query
 
-### Community 532 - "TASK-010-sqlalchemy-domain-models-fhir-aligned.md"
-Cohesion: 0.67
-Nodes (4): $type, $value, md, md
-
 ### Community 533 - "TASK-011-alembic-initial-migration-constraints.md"
 Cohesion: 0.25
 Nodes (7): Acceptance criteria, Audit verdict (2026-06-29), Definition of Done, Implementation detail, Interfaces to honor, Objective, Tests (write first — TDD, CLAUDE.md §4)
@@ -2604,10 +2588,6 @@ Nodes (7): Acceptance criteria, Audit verdict (2026-06-29), Definition of Done, 
 ### Community 551 - "TASK-043-moduleaccessguard.md"
 Cohesion: 0.25
 Nodes (7): Acceptance criteria, Audit verdict (2026-06-29), Definition of Done, Implementation detail, Interfaces to honor, Objective, Tests (write first — TDD, CLAUDE.md §4)
-
-### Community 552 - "6"
-Cohesion: 0.67
-Nodes (3): $type, $value, 6
 
 ### Community 553 - "TASK-045-attachment-upload-minio-pydicom-validation.md"
 Cohesion: 0.25
@@ -2794,12 +2774,12 @@ Cohesion: 0.33
 Nodes (5): Acceptance criteria, Definition of Done, Implementation detail, Implementation notes (2026-06-30), Objective
 
 ### Community 599 - "MedHub — Audit Findings (Performance / Security / Simplicity)"
-Cohesion: 0.33
-Nodes (5): Cross-cutting test-quality gap (the audit's central lesson), MedHub — Audit Findings (Performance / Security / Simplicity), Performance, Security, Simplicity / hygiene
+Cohesion: 0.18
+Nodes (7): Cross-cutting test-quality gap (the audit's central lesson), MedHub — Audit Findings (Performance / Security / Simplicity), Performance, Security, Simplicity / hygiene, MedHub — Audit Ledger (Phases 0–7), Summary
 
 ### Community 600 - "MedHub Implementation Plan"
-Cohesion: 0.18
-Nodes (8): MedHub — Audit Ledger (Phases 0–7), Summary, Audit remediation tasks (2026-06-29), Coverage, How to execute, MedHub Implementation Plan, Out of scope (deferred), Phase order
+Cohesion: 0.33
+Nodes (6): Audit remediation tasks (2026-06-29), Coverage, How to execute, MedHub Implementation Plan, Out of scope (deferred), Phase order
 
 ### Community 601 - "Product Owner Agent"
 Cohesion: 0.40
