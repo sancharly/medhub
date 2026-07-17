@@ -299,6 +299,9 @@ export const theme = createTheme({
           backgroundColor: theme.vars.palette.background.paper,
           color: theme.vars.palette.text.primary,
           boxShadow: "none",
+          // MuiPaper.root sets a full 1px border on all four edges; reset it
+          // before re-asserting AppBar's single bottom edge.
+          border: "none",
           borderBottom: `1px solid ${theme.vars.palette.border.subtle}`,
         }),
       },
@@ -307,6 +310,9 @@ export const theme = createTheme({
       styleOverrides: {
         paper: ({ theme }) => ({
           backgroundColor: theme.vars.palette.background.paper,
+          // MuiPaper.root sets a full 1px border on all four edges; reset it
+          // before re-asserting Drawer's single right edge.
+          border: "none",
           borderRight: `1px solid ${theme.vars.palette.border.subtle}`,
         }),
       },
@@ -399,6 +405,9 @@ export const theme = createTheme({
         paper: ({ theme }) => ({
           borderRadius: 16,
           boxShadow: theme.shadows[4],
+          ...theme.applyStyles("dark", {
+            boxShadow: "none",
+          }),
         }),
       },
     },
