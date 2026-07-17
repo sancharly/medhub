@@ -8,8 +8,8 @@ interface ThemeProviderProps {
 
 export function ThemeProvider({ children }: ThemeProviderProps) {
   return (
-    <MuiThemeProvider theme={theme}>
-      <CssBaseline />
+    <MuiThemeProvider theme={theme} defaultMode="system">
+      <CssBaseline enableColorScheme />
       {children}
     </MuiThemeProvider>
   );

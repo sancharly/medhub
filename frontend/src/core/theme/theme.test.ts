@@ -25,6 +25,45 @@ describe("MUI theme", () => {
   });
 
   it("uses 8px spacing unit", () => {
-    expect(theme.spacing(1)).toBe("8px");
+    // Under CSS variables, resolved spacing is a var() expression with an 8px
+    // fallback rather than a literal string (ADR-0014) — same 8px unit, new token source.
+    expect(theme.spacing(1)).toBe("var(--mui-spacing, 8px)");
+  });
+
+  describe("colorSchemes", () => {
+    it.each(["light", "dark"] as const)("%s scheme defines background and text tokens", (scheme) => {
+      const palette = theme.colorSchemes[scheme]?.palette;
+      expect(palette?.background.default).toBeTruthy();
+      expect(palette?.background.paper).toBeTruthy();
+      expect(palette?.text.primary).toBeTruthy();
+      expect(palette?.text.secondary).toBeTruthy();
+      expect(palette?.primary.main).toBeTruthy();
+    });
+
+    it("light scheme matches ADD-001 §2.1 hex values", () => {
+      const palette = theme.colorSchemes.light?.palette;
+      expect(palette?.background.default).toBe("#F4F7F6");
+      expect(palette?.background.paper).toBe("#FFFFFF");
+      expect(palette?.text.primary).toBe("#16211F");
+      expect(palette?.text.secondary).toBe("#52605D");
+      expect(palette?.primary.main).toBe("#0E7C6B");
+      expect(palette?.success.main).toBe("#1F7A47");
+      expect(palette?.warning.main).toBe("#9A6402");
+      expect(palette?.error.main).toBe("#C03D33");
+      expect(palette?.info.main).toBe("#266DA1");
+    });
+
+    it("dark scheme matches ADD-001 §2.2 hex values", () => {
+      const palette = theme.colorSchemes.dark?.palette;
+      expect(palette?.background.default).toBe("#0E1413");
+      expect(palette?.background.paper).toBe("#161C1B");
+      expect(palette?.text.primary).toBe("#E6ECEA");
+      expect(palette?.text.secondary).toBe("#A9B6B2");
+      expect(palette?.primary.main).toBe("#34D3B6");
+      expect(palette?.success.main).toBe("#5FC98A");
+      expect(palette?.warning.main).toBe("#E0AC4A");
+      expect(palette?.error.main).toBe("#F2837A");
+      expect(palette?.info.main).toBe("#6FB2E3");
+    });
   });
 });
