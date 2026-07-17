@@ -1,25 +1,52 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, act } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ThemeProvider } from "./ThemeProvider";
 import { ModeToggle } from "./ModeToggle";
 import { COLOR_SCHEME_MODE_STORAGE_KEY } from "./theme";
 
+/**
+ * Mocks `window.matchMedia("(prefers-color-scheme: dark)")`. MUI's
+ * useColorScheme listens via the deprecated `addListener` API (for Safari/iOS
+ * compatibility), invoking the handler with the MediaQueryList itself. The
+ * returned `triggerChange` helper flips `matches` and re-invokes every
+ * registered listener, simulating a live OS preference change (SR-039 AC-3).
+ */
 function mockMatchMedia(prefersDark: boolean) {
+  let currentPrefersDark = prefersDark;
+  const darkQueryListeners: Array<(mql: { matches: boolean }) => void> = [];
+
   Object.defineProperty(window, "matchMedia", {
     writable: true,
     configurable: true,
-    value: vi.fn().mockImplementation((query: string) => ({
-      matches: query.includes("dark") ? prefersDark : !prefersDark,
-      media: query,
-      onchange: null,
-      addListener: vi.fn(),
-      removeListener: vi.fn(),
-      addEventListener: vi.fn(),
-      removeEventListener: vi.fn(),
-      dispatchEvent: vi.fn(),
-    })),
+    value: vi.fn().mockImplementation((query: string) => {
+      const isDarkQuery = query.includes("dark");
+      const mql = {
+        get matches() {
+          return isDarkQuery ? currentPrefersDark : !currentPrefersDark;
+        },
+        media: query,
+        onchange: null,
+        addListener: vi.fn((cb: (mql: { matches: boolean }) => void) => {
+          if (isDarkQuery) darkQueryListeners.push(cb);
+        }),
+        removeListener: vi.fn(),
+        addEventListener: vi.fn((event: string, cb: (mql: { matches: boolean }) => void) => {
+          if (isDarkQuery && event === "change") darkQueryListeners.push(cb);
+        }),
+        removeEventListener: vi.fn(),
+        dispatchEvent: vi.fn(),
+      };
+      return mql;
+    }),
   });
+
+  return {
+    triggerChange(newPrefersDark: boolean) {
+      currentPrefersDark = newPrefersDark;
+      darkQueryListeners.forEach((cb) => cb({ matches: newPrefersDark }));
+    },
+  };
 }
 
 describe("ModeToggle", () => {
@@ -91,5 +118,66 @@ describe("ModeToggle", () => {
       await screen.findByRole("button", { name: /switch to light mode/i })
     ).toBeInTheDocument();
     expect(document.documentElement).toHaveAttribute("data-dark");
+  });
+
+  it("SR-039 AC-1: is operable by keyboard (Enter activates the toggle)", async () => {
+    const user = userEvent.setup();
+    render(
+      <ThemeProvider>
+        <ModeToggle />
+      </ThemeProvider>
+    );
+    const toggle = await screen.findByRole("button", { name: /switch to dark mode/i });
+
+    toggle.focus();
+    expect(toggle).toHaveFocus();
+    await user.keyboard("{Enter}");
+
+    expect(await screen.findByRole("button", { name: /switch to light mode/i })).toBeInTheDocument();
+    expect(document.documentElement).toHaveAttribute("data-dark");
+  });
+
+  it("SR-039 AC-3: follows a live OS preference change while no explicit choice exists", async () => {
+    const mq = mockMatchMedia(false); // system starts light
+    render(
+      <ThemeProvider>
+        <ModeToggle />
+      </ThemeProvider>
+    );
+    expect(await screen.findByRole("button", { name: /switch to dark mode/i })).toBeInTheDocument();
+
+    act(() => {
+      mq.triggerChange(true); // system switches to dark
+    });
+
+    expect(await screen.findByRole("button", { name: /switch to light mode/i })).toBeInTheDocument();
+    expect(document.documentElement).toHaveAttribute("data-dark");
+  });
+
+  it("SR-039 AC-4: an explicit choice overrides a conflicting system preference across remount", async () => {
+    const user = userEvent.setup();
+    mockMatchMedia(false); // system prefers light
+
+    const { unmount } = render(
+      <ThemeProvider>
+        <ModeToggle />
+      </ThemeProvider>
+    );
+    const toggle = await screen.findByRole("button", { name: /switch to dark mode/i });
+    await user.click(toggle); // explicit choice: dark
+    expect(window.localStorage.getItem(COLOR_SCHEME_MODE_STORAGE_KEY)).toBe("dark");
+    unmount();
+
+    // System preference now conflicts with the stored explicit choice.
+    mockMatchMedia(true);
+    render(
+      <ThemeProvider>
+        <ModeToggle />
+      </ThemeProvider>
+    );
+
+    expect(await screen.findByRole("button", { name: /switch to light mode/i })).toBeInTheDocument();
+    expect(document.documentElement).toHaveAttribute("data-dark");
+    expect(document.documentElement).not.toHaveAttribute("data-light");
   });
 });

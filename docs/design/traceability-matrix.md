@@ -153,3 +153,13 @@ requirement→test column (TASK-114) must reflect these remediation tasks:
 | SR-012, SR-013, SR-015, SR-016   | TASK-092, TASK-092a, TASK-066b | `frontend/src/core/clinical/ClinicalEntriesPage.test.tsx`                                                                                                                                                                                                                                  |
 | SR-009, SR-032, SR-034, ADR-0013 | TASK-095, TASK-095a            | `frontend/src/core/admin/accounts/AccountsPage.test.tsx`                                                                                                                                                                                                                                   |
 | SR-014, SR-015                   | TASK-096, TASK-096a            | `frontend/src/core/admin/groups/GroupsPage.test.tsx`                                                                                                                                                                                                                                       |
+
+## UI-enhancement theming task → test traceability (2026-07-17)
+
+| Requirement            | Task     | Key test file(s)                                                                                                                                     |
+|-------------------------|----------|---------------------------------------------------------------------------------------------------------------------------------------------------|
+| SR-037, SR-038          | TASK-149 | `frontend/src/core/theme/theme.test.ts`                                                                                                             |
+| SR-037, SR-038          | TASK-150 | `frontend/src/core/theme/theme.test.ts`, `frontend/src/core/theme/StatusPill.test.tsx`                                                              |
+| SR-039, SR-038          | TASK-151 | `frontend/src/core/theme/ModeToggle.test.tsx`, `frontend/src/core/theme/theme.test.ts`                                                              |
+| SR-037, SR-038          | TASK-152 | `frontend/src/core/appointments/AppointmentsPage.test.tsx`, `frontend/src/core/admin/accounts/AccountsPage.test.tsx` (StatusPill adoption), full `frontend` suite (styling-only regression) |
+| SR-037, SR-038, SR-039  | TASK-153 | `frontend/src/core/theme/theme.test.ts` (token-structure parity, WCAG 2.1 AA contrast), `frontend/src/core/theme/ModeToggle.test.tsx` (keyboard activation, system-preference override/live change), `frontend/src/core/theme/StatusPill.test.tsx` (both color schemes) |
