@@ -1670,13 +1670,13 @@
     "semantic_hash": "506c4c23e3768e1e55058e5450dcb323"
   },
   "frontend/src/core/layout/AppLayout.test.tsx": {
-    "mtime": 1782670008.3082628,
-    "ast_hash": "899795fcb5b915314c834234ce3a6370",
-    "semantic_hash": "899795fcb5b915314c834234ce3a6370"
+    "mtime": 1784314752.8195024,
+    "ast_hash": "791197265cd8bae98a37d32920ce1cab",
+    "semantic_hash": ""
   },
   "frontend/src/core/layout/AppLayout.tsx": {
-    "mtime": 1784288685.802804,
-    "ast_hash": "1e66c3261f10263e8ab401f992d23101",
+    "mtime": 1784314740.2875273,
+    "ast_hash": "7834e167e7c15cb7c45ad080336d606f",
     "semantic_hash": ""
   },
   "frontend/src/core/layout/breakpoints.ts": {
@@ -1685,9 +1685,9 @@
     "semantic_hash": "f766c656f8fe649a8ca6e57e8c9f7ae9"
   },
   "frontend/src/core/layout/index.ts": {
-    "mtime": 1782670008.3087306,
-    "ast_hash": "862c2391b8cfb30a31f79a090c80a0ae",
-    "semantic_hash": "862c2391b8cfb30a31f79a090c80a0ae"
+    "mtime": 1784314746.0321395,
+    "ast_hash": "7ca4d6a25d714712cff512aa593cb9fd",
+    "semantic_hash": ""
   },
   "frontend/src/core/nav/AppNavigation.test.tsx": {
     "mtime": 1782670287.5558836,
@@ -3582,6 +3582,16 @@
   "frontend/src/core/theme/index.ts": {
     "mtime": 1784289249.5856373,
     "ast_hash": "bd076fc077e073ece6d8add23a439119",
+    "semantic_hash": ""
+  },
+  "frontend/src/core/layout/SignOutButton.test.tsx": {
+    "mtime": 1784314762.8375885,
+    "ast_hash": "5b94c1cd43f601e323d09290a614e549",
+    "semantic_hash": ""
+  },
+  "frontend/src/core/layout/SignOutButton.tsx": {
+    "mtime": 1784314732.6109812,
+    "ast_hash": "65a32b34c79395d06bd8b9c9833c9cdb",
     "semantic_hash": ""
   }
 }

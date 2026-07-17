@@ -1,16 +1,16 @@
 # Graph Report - medhub-01  (2026-07-17)
 
 ## Corpus Check
-- 682 files · ~347,611 words
+- 682 files · ~347,660 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 7099 nodes · 9660 edges · 1049 communities (534 shown, 515 thin omitted)
+- 7099 nodes · 9660 edges · 1046 communities (531 shown, 515 thin omitted)
 - Extraction: 88% EXTRACTED · 12% INFERRED · 0% AMBIGUOUS · INFERRED: 1151 edges (avg confidence: 0.72)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `b6b0d555`
+- Built from commit: `e1465f81`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -1015,9 +1015,6 @@
 - [[_COMMUNITY_12|12]]
 - [[_COMMUNITY_2|2]]
 - [[_COMMUNITY_4|4]]
-- [[_COMMUNITY_foreground|foreground]]
-- [[_COMMUNITY_muted-foreground|muted-foreground]]
-- [[_COMMUNITY_primary-hover|primary-hover]]
 - [[_COMMUNITY_search.py|search.py]]
 - [[_COMMUNITY_07 - Deployment View|07 - Deployment View]]
 
@@ -1061,7 +1058,7 @@
 - **Regulatory and Compliance Requirements Chain** — docs_design_inputs_system_requirements_non_functional_nfr_004_gdpr_compliance_nfr_004, docs_design_inputs_system_requirements_non_functional_nfr_005_medical_device_nfr_005, docs_design_inputs_system_requirements_non_functional_nfr_006_iec_62304_nfr_006, docs_design_inputs_system_requirements_non_functional_nfr_007_cybersecurity_nfr_007 [EXTRACTED 1.00]
 - **Production Infrastructure Stack** — service_postgres, service_redis, service_minio, service_nginx, service_backend_fastapi, service_celery_worker, service_frontend_react, infra_docker_compose_topology [EXTRACTED 1.00]
 
-## Communities (1049 total, 515 thin omitted)
+## Communities (1046 total, 515 thin omitted)
 
 ### Community 0 - "Code Community"
 Cohesion: 0.19
@@ -1073,7 +1070,7 @@ Nodes (37): AuthorizationServiceProtocol, get_platform_services(), Yield a reque
 
 ### Community 2 - "Code Community"
 Cohesion: 0.10
-Nodes (18): ApiError, CreateClinicalEntryRequest, apiClient, queryClient, QueryProvider(), QueryProviderProps, App(), ForcedPasswordGate() (+10 more)
+Nodes (20): Appointment, CreateAppointmentRequest, apiClient, queryClient, QueryProvider(), QueryProviderProps, App(), ForcedPasswordGate() (+12 more)
 
 ### Community 3 - "Code Community"
 Cohesion: 0.05
@@ -1084,8 +1081,8 @@ Cohesion: 0.16
 Nodes (23): LoginFailure, LoginService, Response, LoginService — full login flow with anti-enumeration (TASK-023).  Flow:   1. Nor, Authenticate a user and return a session on success.          Anti-enumeration:, CreateSessionResult, _build_svc(), _make_account() (+15 more)
 
 ### Community 5 - "Code Community"
-Cohesion: 0.10
-Nodes (9): LoginPage(), patientUser, useLogin(), groupWithMembers, installedModules, doctorMe, newerEntry, olderEntry (+1 more)
+Cohesion: 0.09
+Nodes (11): LoginPage(), patientUser, RequireAuth(), useLogin(), groupWithMembers, installedModules, confirmedAppointment, doctorMe (+3 more)
 
 ### Community 6 - "Code Community"
 Cohesion: 0.22
@@ -1228,20 +1225,20 @@ Cohesion: 0.20
 Nodes (23): _build_svc(), _make_account(), _make_auto_group(), Group, UserType, UUID, TASK-041: Group membership management tests., Account with matching user_type gets AUTO membership added. (+15 more)
 
 ### Community 42 - "Code Community"
-Cohesion: 0.12
-Nodes (18): AuthError, ConsentGrant, ProblemError, ConsentList(), ConsentListProps, sourceLabel(), ConsentPage(), appointmentGrant (+10 more)
+Cohesion: 0.11
+Nodes (12): AuthError, ProblemError, appointmentGrant, manualGrant, AppErrorBoundary, Props, State, ErrorToastContext (+4 more)
 
 ### Community 43 - "Code Community"
-Cohesion: 0.26
-Nodes (10): ConfirmDialog(), ConfirmDialogOptions, ConfirmDialogProps, TestButton(), CLOSED, ConfirmProvider(), DialogState, ConfirmContext (+2 more)
+Cohesion: 0.15
+Nodes (17): ConsentGrant, ConfirmDialog(), ConfirmDialogOptions, ConfirmDialogProps, TestButton(), CLOSED, ConfirmProvider(), DialogState (+9 more)
 
 ### Community 44 - "Code Community"
 Cohesion: 0.09
 Nodes (17): main(), Dump the OpenAPI schema to openapi.json.  Usage:     uv run python -m app.export, create_app(), FastAPI, MedHub API application factory., client(), Tests for anonymized data retrieval endpoint (TASK-062)., app() (+9 more)
 
 ### Community 47 - "Code Community"
-Cohesion: 0.25
-Nodes (8): _make_account(), UserType, TASK-050/050a: Appointment notification enqueue and resilience tests., create() calls send_appointment_notification.delay(...) after DB commit., If SMTP fails, in-app notification row is still committed with FAILED status., test_create_calls_delay_after_commit(), test_notification_task_email_failure_still_records_in_app(), Exception
+Cohesion: 0.12
+Nodes (11): ProblemError, RateLimitedError, Base RFC 7807 problem error., _make_account(), UserType, TASK-050/050a: Appointment notification enqueue and resilience tests., create() calls send_appointment_notification.delay(...) after DB commit., If SMTP fails, in-app notification row is still committed with FAILED status. (+3 more)
 
 ### Community 48 - "Code Community"
 Cohesion: 0.09
@@ -1292,8 +1289,8 @@ Cohesion: 0.10
 Nodes (12): audit_repo_mock(), AuditService tests (TASK-014, SR-023)., Passing action with password=... must not appear in stored record., In-memory AuditRepository mock that captures added logs., Pre-auth failure — actor is None (unknown)., Timestamp is set by AuditService, not supplied by caller., service(), test_audit_repo_has_only_add() (+4 more)
 
 ### Community 61 - "Code Community"
-Cohesion: 0.15
-Nodes (15): BM25, detect_domain(), _load_csv(), Load CSV and return list of dicts, Core search function using BM25, Auto-detect the most relevant domain from query, Main search function with auto-domain detection, Search across all domains and combine results (+7 more)
+Cohesion: 0.11
+Nodes (19): BM25, detect_domain(), _load_csv(), Load CSV and return list of dicts, Core search function using BM25, Auto-detect the most relevant domain from query, Main search function with auto-domain detection, Search across all domains and combine results (+11 more)
 
 ### Community 62 - "Code Community"
 Cohesion: 0.15
@@ -1321,11 +1318,11 @@ Nodes (17): detect_domain(), get_cip_brief(), _load_csv(), Load CSV and return l
 
 ### Community 68 - "Code Community"
 Cohesion: 0.11
-Nodes (19): $type, $value, background, destructive-foreground, primary, primary-foreground, secondary, secondary-foreground (+11 more)
+Nodes (19): $type, $value, background, foreground, muted-foreground, primary, primary-hover, secondary (+11 more)
 
 ### Community 69 - "Code Community"
-Cohesion: 0.15
-Nodes (18): ansi_ljust(), format_ascii_box(), format_markdown(), format_master_md(), format_page_override_md(), generate_design_system(), hex_to_ansi(), persist_design_system() (+10 more)
+Cohesion: 0.13
+Nodes (22): ansi_ljust(), _detect_page_type(), format_ascii_box(), format_markdown(), format_master_md(), format_page_override_md(), generate_design_system(), _generate_intelligent_overrides() (+14 more)
 
 ### Community 70 - "Code Community"
 Cohesion: 0.14
@@ -1444,8 +1441,8 @@ Cohesion: 0.13
 Nodes (13): ASGIApp, _problem_response(), Any, Request, CsrfEnforcementMiddleware, Request, Response, Security headers middleware (TASK-069). (+5 more)
 
 ### Community 101 - "Code Community"
-Cohesion: 0.09
-Nodes (26): ProblemError, RateLimitedError, Base RFC 7807 problem error., ValidationProblem, DICOM validation using pydicom (TASK-045)., Parse and validate a DICOM file. Returns metadata dict.      Raises ValidationPr, validate_dicom(), _build_svc() (+18 more)
+Cohesion: 0.14
+Nodes (23): ValidationProblem, DICOM validation using pydicom (TASK-045)., Parse and validate a DICOM file. Returns metadata dict.      Raises ValidationPr, validate_dicom(), _build_svc(), _make_account(), UserType, UUID (+15 more)
 
 ### Community 102 - "Code Community"
 Cohesion: 0.11
@@ -1508,8 +1505,8 @@ Cohesion: 0.32
 Nodes (11): _app_with_session_route(), _make_session(), FastAPI, UserSession, UUID, TASK-025: API dependency tests., test_get_current_user_raises_401_for_deactivated_account(), test_get_current_user_raises_401_for_inactive_account() (+3 more)
 
 ### Community 117 - "Code Community"
-Cohesion: 0.15
-Nodes (17): $type, $value, $type, $value, bg, bg, border, padding (+9 more)
+Cohesion: 0.20
+Nodes (12): $type, $value, bg, bg, padding, shadow, card, bg (+4 more)
 
 ### Community 118 - "Rationale Community"
 Cohesion: 0.17
@@ -1520,8 +1517,8 @@ Cohesion: 0.20
 Nodes (6): Generate configuration file content.          Returns:             Configuration, Generate TypeScript configuration., Generate JavaScript configuration., Format plugins array for config.          Validates each plugin name against a s, Add indentation to JSON string., Write configuration to file.          Returns:             Tuple of (success, me
 
 ### Community 120 - "Code Community"
-Cohesion: 0.20
-Nodes (3): AppErrorBoundary, Props, State
+Cohesion: 0.12
+Nodes (11): ApiError, CreateClinicalEntryRequest, AttachmentUpload(), AttachmentUploadProps, ClinicalEntriesPage(), ClinicalEntriesPageProps, doctorMe, newerEntry (+3 more)
 
 ### Community 122 - "Code Community"
 Cohesion: 0.22
@@ -1548,8 +1545,8 @@ Cohesion: 0.20
 Nodes (7): Tests for tailwind_config_gen.py, Reduce a generated TS/JS config to a bare assignable object so it can be     han, Regression guard for the missing-comma bug between the ``theme`` block and     `, The property preceding ``plugins`` must end with a comma (pure-Python         ch, The emitted config parses as valid JS via ``node --check``., _strip_to_object(), TestGeneratedConfigIsValidJs
 
 ### Community 128 - "Code Community"
-Cohesion: 0.25
-Nodes (10): detect_domain(), _load_csv(), Load CSV and return list of dicts, Core search function using BM25, Auto-detect the most relevant domain from query, Main search function with auto-domain detection, Search stack-specific guidelines, search() (+2 more)
+Cohesion: 0.15
+Nodes (15): BM25, detect_domain(), _load_csv(), BM25 ranking algorithm for text search, Lowercase, split, remove punctuation, filter short words, Build BM25 index from documents, Score all documents against query, Load CSV and return list of dicts (+7 more)
 
 ### Community 130 - "Code Community"
 Cohesion: 0.20
@@ -1604,8 +1601,8 @@ Cohesion: 0.22
 Nodes (4): app(), TASK-002: App factory and OpenAPI tests., Verify the /api/v1 router is mounted (openapi doc is accessible)., test_api_v1_prefix_exists()
 
 ### Community 144 - "Code Community"
-Cohesion: 0.40
-Nodes (4): format_output(), generate_design_brief(), Format results for Claude consumption (token-optimized), Generate a comprehensive logo design brief based on query
+Cohesion: 0.60
+Nodes (5): $type, $value, border, border, border
 
 ### Community 145 - "Code Community"
 Cohesion: 0.28
@@ -1656,8 +1653,8 @@ Cohesion: 0.22
 Nodes (8): Available Domains, Available Stacks, How to Use, Output Formats, Prerequisites, Rule Categories by Priority, Search Reference, UI/UX Pro Max - Design Intelligence
 
 ### Community 159 - "Code Community"
-Cohesion: 0.06
-Nodes (38): ADR-0014, Appointment, AppointmentListProps, STATUS_SEVERITY, PatientActions(), PatientActionsProps, AppLayout(), AppLayoutProps (+30 more)
+Cohesion: 0.07
+Nodes (33): ADR-0014, AppLayout(), AppLayoutProps, breakpoints, ModeToggle(), SEVERITY_ICON, StatusPill(), StatusPillProps (+25 more)
 
 ### Community 160 - "Code Community"
 Cohesion: 0.33
@@ -1976,8 +1973,8 @@ Cohesion: 0.11
 Nodes (18): 4. Client-Side Data Fetching (MEDIUM-HIGH), 7. JavaScript Performance (LOW-MEDIUM), 8. Advanced Patterns (LOW), Attribution, Automated Tools, Deduplicate global event listeners, Event handler refs, Init once per app load (+10 more)
 
 ### Community 391 - "_build_svc"
-Cohesion: 0.19
-Nodes (8): CreateAppointmentRequest, AppointmentList(), AppointmentsPage(), confirmedAppointment, doctorMe, patientMe, pendingAppointment, CreateAppointmentForm()
+Cohesion: 0.67
+Nodes (3): $type, $value, 16
 
 ### Community 392 - "test_lockout_integration.py"
 Cohesion: 0.38
@@ -2540,8 +2537,8 @@ Cohesion: 0.28
 Nodes (5): BM25, BM25 ranking algorithm for text search, Lowercase, split, remove punctuation, filter short words, Build BM25 index from documents, Score all documents against query
 
 ### Community 532 - "TASK-010-sqlalchemy-domain-models-fhir-aligned.md"
-Cohesion: 0.28
-Nodes (5): BM25, BM25 ranking algorithm for text search, Lowercase, split, remove punctuation, filter short words, Build BM25 index from documents, Score all documents against query
+Cohesion: 0.67
+Nodes (3): $type, $value, 1
 
 ### Community 533 - "TASK-011-alembic-initial-migration-constraints.md"
 Cohesion: 0.25
@@ -2988,8 +2985,8 @@ Cohesion: 0.67
 Nodes (4): $type, $value, md, md
 
 ### Community 1039 - "_generate_intelligent_overrides"
-Cohesion: 0.50
-Nodes (4): _detect_page_type(), _generate_intelligent_overrides(), Generate intelligent overrides based on page type using layered search., Detect page type from context and search results.
+Cohesion: 0.67
+Nodes (3): $type, $value, 3
 
 ### Community 1040 - "11 - Risks and Technical Debt"
 Cohesion: 0.50
@@ -2997,27 +2994,15 @@ Nodes (3): 11 - Risks and Technical Debt, Architectural risks & mitigations, Kno
 
 ### Community 1041 - "12"
 Cohesion: 0.67
-Nodes (3): $type, $value, 12
+Nodes (3): destructive-foreground, $type, $value
 
 ### Community 1042 - "2"
 Cohesion: 0.67
-Nodes (3): $type, $value, 2
+Nodes (3): primary-foreground, $type, $value
 
 ### Community 1043 - "4"
 Cohesion: 0.67
-Nodes (3): $type, $value, 4
-
-### Community 1044 - "foreground"
-Cohesion: 0.67
-Nodes (3): foreground, $type, $value
-
-### Community 1045 - "muted-foreground"
-Cohesion: 0.67
-Nodes (3): muted-foreground, $type, $value
-
-### Community 1046 - "primary-hover"
-Cohesion: 0.67
-Nodes (3): primary-hover, $type, $value
+Nodes (3): secondary-foreground, $type, $value
 
 ### Community 1048 - "07 - Deployment View"
 Cohesion: 0.67
@@ -3033,7 +3018,7 @@ _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `Account` connect `Code Community` to `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `test_lifecycle.py`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Rationale Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `test_attachment_fetch.py`?**
   _High betweenness centrality (0.047) - this node is a cross-community bridge._
-- **Why does `ConsentList()` connect `Code Community` to `Code Community`?**
+- **Why does `ConsentList()` connect `Code Community` to `Code Community`, `Code Community`?**
   _High betweenness centrality (0.039) - this node is a cross-community bridge._
 - **Why does `ConsentService` connect `Code Community` to `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`?**
   _High betweenness centrality (0.033) - this node is a cross-community bridge._

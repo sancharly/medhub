@@ -3495,33 +3495,33 @@
     "semantic_hash": ""
   },
   "docs/design-inputs/software-requirements/SR-037-design-token-based-theming-foundation.md": {
-    "mtime": 1784287274.6366482,
-    "ast_hash": "2dd2c82f5fa8fcfaec1fbf869317351e",
+    "mtime": 1784305398.7842505,
+    "ast_hash": "0e1bc4407dd203c9d9ef4ae9ea925d79",
     "semantic_hash": ""
   },
   "docs/design-inputs/software-requirements/SR-038-light-and-dark-theme-modes.md": {
-    "mtime": 1784287291.978397,
-    "ast_hash": "a92f430d1018b6f3b1899300e7b0bd2e",
+    "mtime": 1784305398.7931159,
+    "ast_hash": "bc8cec2a66f3eccf4fe9f639c37c6064",
     "semantic_hash": ""
   },
   "docs/design-inputs/software-requirements/SR-039-theme-mode-toggle-default-and-persistence.md": {
-    "mtime": 1784287309.8229249,
-    "ast_hash": "947f19d91ad59ca277ace31744d42af2",
+    "mtime": 1784305398.8014486,
+    "ast_hash": "0293c0dbef1acc7f609073ce2a523f4a",
     "semantic_hash": ""
   },
   "docs/design-inputs/user-needs/UN-014-professional-modern-medhub-visual-identity.md": {
-    "mtime": 1784287241.5909393,
-    "ast_hash": "61939592c45a757ee3e926c7b6f74c32",
+    "mtime": 1784305398.7652001,
+    "ast_hash": "feb03c566c0f4e0d69e589d3023afcd7",
     "semantic_hash": ""
   },
   "docs/design-inputs/user-needs/UN-015-user-controlled-light-and-dark-appearance.md": {
-    "mtime": 1784287256.028998,
-    "ast_hash": "fbb8646906737908d882405606005ff3",
+    "mtime": 1784305398.7748563,
+    "ast_hash": "b790ebf1194fec22570f47ca71508dbd",
     "semantic_hash": ""
   },
   "docs/design-outputs/architecture/ADD-001-medhub-design-system-and-theming.md": {
-    "mtime": 1784287649.3273797,
-    "ast_hash": "b8531700d0a5e0e5a206f85ee57edbcd",
+    "mtime": 1784305398.8104224,
+    "ast_hash": "2a19f94eeb21c1e5b16b11f068cd41e0",
     "semantic_hash": ""
   },
   "docs/design-outputs/tasks/TASK-149-design-token-theme-foundation.md": {
