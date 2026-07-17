@@ -53,7 +53,7 @@ describe("MUI theme", () => {
       expect(palette?.background.paper).toBe("#FFFFFF");
       expect(palette?.text.primary).toBe("#16211F");
       expect(palette?.text.secondary).toBe("#52605D");
-      expect(palette?.primary.main).toBe("#0E7C6B");
+      expect(palette?.primary.main).toBe("#2563EB");
       expect(palette?.success.main).toBe("#1F7A47");
       expect(palette?.warning.main).toBe("#9A6402");
       expect(palette?.error.main).toBe("#C03D33");
@@ -66,7 +66,7 @@ describe("MUI theme", () => {
       expect(palette?.background.paper).toBe("#161C1B");
       expect(palette?.text.primary).toBe("#E6ECEA");
       expect(palette?.text.secondary).toBe("#A9B6B2");
-      expect(palette?.primary.main).toBe("#34D3B6");
+      expect(palette?.primary.main).toBe("#5AA2FF");
       expect(palette?.success.main).toBe("#5FC98A");
       expect(palette?.warning.main).toBe("#E0AC4A");
       expect(palette?.error.main).toBe("#F2837A");
