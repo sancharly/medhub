@@ -3,6 +3,7 @@ import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import { ModeToggle } from "../theme/ModeToggle";
+import { SignOutButton } from "./SignOutButton";
 
 export interface AppLayoutProps {
   navigation: React.ReactNode;
@@ -24,6 +25,7 @@ export function AppLayout({ navigation, children }: AppLayoutProps) {
             MedHub
           </Typography>
           <ModeToggle />
+          <SignOutButton />
         </Toolbar>
       </AppBar>
 

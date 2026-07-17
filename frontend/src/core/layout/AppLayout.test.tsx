@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
 import { ThemeProvider as MuiThemeProvider } from "@mui/material/styles";
 import { AppLayout } from "./AppLayout";
 import { theme } from "../theme/theme";
@@ -7,7 +8,9 @@ import { theme } from "../theme/theme";
 function renderLayout(nav: React.ReactNode, content: React.ReactNode) {
   return render(
     <MuiThemeProvider theme={theme}>
-      <AppLayout navigation={nav}>{content}</AppLayout>
+      <MemoryRouter>
+        <AppLayout navigation={nav}>{content}</AppLayout>
+      </MemoryRouter>
     </MuiThemeProvider>
   );
 }
