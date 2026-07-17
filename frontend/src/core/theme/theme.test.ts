@@ -1,5 +1,12 @@
 import { describe, it, expect } from "vitest";
-import { theme } from "./theme";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
+import {
+  theme,
+  COLOR_SCHEME_MODE_STORAGE_KEY,
+  COLOR_SCHEME_ATTRIBUTES,
+  COLOR_SCHEME_PAGE_BACKGROUND,
+} from "./theme";
 
 describe("MUI theme", () => {
   it("minimum touch target is >=44px for ButtonBase", () => {
@@ -64,6 +71,19 @@ describe("MUI theme", () => {
       expect(palette?.warning.main).toBe("#E0AC4A");
       expect(palette?.error.main).toBe("#F2837A");
       expect(palette?.info.main).toBe("#6FB2E3");
+    });
+  });
+
+  describe("no-flash inline script (frontend/index.html)", () => {
+    const indexHtmlPath = resolve(__dirname, "../../../index.html");
+    const indexHtml = readFileSync(indexHtmlPath, "utf-8");
+
+    it("shares the mode storage key, attribute names, and page-background hex with theme.ts", () => {
+      expect(indexHtml).toContain(COLOR_SCHEME_MODE_STORAGE_KEY);
+      expect(indexHtml).toContain(COLOR_SCHEME_ATTRIBUTES.light);
+      expect(indexHtml).toContain(COLOR_SCHEME_ATTRIBUTES.dark);
+      expect(indexHtml).toContain(COLOR_SCHEME_PAGE_BACKGROUND.light);
+      expect(indexHtml).toContain(COLOR_SCHEME_PAGE_BACKGROUND.dark);
     });
   });
 });
