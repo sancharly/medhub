@@ -91,6 +91,7 @@ tags: []
 - Test Specification / Test Report → `verifies` → Software Requirement (chain should
   reach a `test-report` eventually, or it shows as unverified).
 - Software Requirement → `mitigates` → Risk.
+- Task → `mitigates` → Risk.
 - Anything else (dependency ordering, general association) → `relates_to`. There is no
   `depends_on` relation — use `relates_to` and keep the reason in the body.
 
