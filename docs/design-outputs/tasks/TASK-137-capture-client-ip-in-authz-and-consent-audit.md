@@ -3,11 +3,13 @@ id: "TASK-137"
 type: task
 title: "Capture client IP in authorization and consent audit records"
 status: draft
-version: "1.0"
+version: "1.1"
 author: "Carlos Santiago Liceras"
 created: "2026-07-07"
-updated: "2026-07-07"
+updated: "2026-09-17"
 links:
+  - target: "RISK-006"
+    relation: mitigates
   - target: "SR-023"
     relation: implements
   - target: "TASK-027"
@@ -53,3 +55,8 @@ what, from where) is impossible for the majority of security-relevant events —
 - [ ] Lint + type-check pass
 - [ ] Integration test asserts IP present on a 403 authz-denied audit row
 - [ ] Traceability row updated (SR-023 → TASK-137 → tests)
+
+## Version history
+
+- 1.1 (2026-09-17) — Added `mitigates` link to RISK-006 (risk register bootstrap, TASK-147). Traceability only: the requirement content is
+  unchanged, so the existing approval stands.

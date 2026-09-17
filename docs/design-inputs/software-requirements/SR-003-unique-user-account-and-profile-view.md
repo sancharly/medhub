@@ -3,11 +3,13 @@ id: "SR-003"
 type: software-requirement
 title: "Unique user account and profile view"
 status: approved
-version: "1.0"
+version: "1.1"
 author: "Carlos Santiago Liceras"
 created: "2026-07-07"
-updated: "2026-07-07"
+updated: "2026-09-17"
 links:
+  - target: "RISK-002"
+    relation: mitigates
   - target: "UN-002"
     relation: derives_from
   - target: "NFR-004"
@@ -48,3 +50,8 @@ Unique identification underpins access control; profile self-service supports th
 
 - Enforce email uniqueness at the data layer; scope profile retrieval to the authenticated user.
 - Broader access scoping enforced by SR-005.
+
+## Version history
+
+- 1.1 (2026-09-17) — Added `mitigates` link to RISK-002 (risk register bootstrap, TASK-147). Traceability only: the requirement content is
+  unchanged, so the existing approval stands.

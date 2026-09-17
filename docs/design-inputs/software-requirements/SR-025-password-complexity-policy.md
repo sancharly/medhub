@@ -3,11 +3,15 @@ id: "SR-025"
 type: software-requirement
 title: "Password complexity policy"
 status: approved
-version: "1.1"
+version: "1.2"
 author: "Carlos Santiago Liceras"
 created: "2026-07-07"
-updated: "2026-07-07"
+updated: "2026-09-17"
 links:
+  - target: "RISK-005"
+    relation: mitigates
+  - target: "RISK-010"
+    relation: mitigates
   - target: "NFR-007"
     relation: derives_from
 tags: []
@@ -57,3 +61,8 @@ Weak passwords are the most common vector for PHI data breaches. IEC 62443-3-3 S
 
 Version 1.0 - Initial creation
 Version 1.1 - Requirement split from combined SR-025; scope narrowed to password complexity and lifecycle
+
+## Version history
+
+- 1.2 (2026-09-17) — Added `mitigates` link to RISK-005, RISK-010 (risk register bootstrap, TASK-147). Traceability only: the requirement content is
+  unchanged, so the existing approval stands.

@@ -3,11 +3,17 @@ id: "SR-001"
 type: software-requirement
 title: "Browser-accessible web application over HTTPS"
 status: approved
-version: "1.0"
+version: "1.1"
 author: "Carlos Santiago Liceras"
 created: "2026-07-07"
-updated: "2026-07-07"
+updated: "2026-09-17"
 links:
+  - target: "RISK-005"
+    relation: mitigates
+  - target: "RISK-010"
+    relation: mitigates
+  - target: "RISK-011"
+    relation: mitigates
   - target: "UN-001"
     relation: derives_from
   - target: "NFR-007"
@@ -48,3 +54,8 @@ A browser-delivered application served over HTTPS satisfies the access goal whil
 
 - Enforce HTTPS-only with redirects and HSTS; verify via system testing.
 - Monitor availability of the hosted application.
+
+## Version history
+
+- 1.1 (2026-09-17) — Added `mitigates` link to RISK-005, RISK-010, RISK-011 (risk register bootstrap, TASK-147). Traceability only: the requirement content is
+  unchanged, so the existing approval stands.

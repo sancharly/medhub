@@ -3,11 +3,13 @@ id: "SR-029"
 type: software-requirement
 title: "Account lockout after failed login attempts"
 status: approved
-version: "1.0"
+version: "1.1"
 author: "Carlos Santiago Liceras"
 created: "2026-07-07"
-updated: "2026-07-07"
+updated: "2026-09-17"
 links:
+  - target: "RISK-005"
+    relation: mitigates
   - target: "NFR-007"
     relation: derives_from
 tags: ["split-from:SR-025"]
@@ -52,3 +54,8 @@ IEC 62443-3-3 SR 1.8 (SL 2) requires the system to limit login attempts to preve
 - Administrator manual unlock (criterion 3) provides an escape for genuine clinical emergencies.
 - Audit logging of every lockout event (criterion 5) enables anomaly detection and forensic investigation.
 - Error message non-disclosure (criterion 6) prevents attackers from learning valid usernames.
+
+## Version history
+
+- 1.1 (2026-09-17) — Added `mitigates` link to RISK-005 (risk register bootstrap, TASK-147). Traceability only: the requirement content is
+  unchanged, so the existing approval stands.

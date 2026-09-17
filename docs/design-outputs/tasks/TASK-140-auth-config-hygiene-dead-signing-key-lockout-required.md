@@ -3,11 +3,13 @@ id: "TASK-140"
 type: task
 title: "Auth config hygiene: remove dead session_signing_key, make lockout_svc required"
 status: draft
-version: "1.0"
+version: "1.1"
 author: "Carlos Santiago Liceras"
 created: "2026-07-07"
 updated: "2026-09-17"
 links:
+  - target: "RISK-005"
+    relation: mitigates
   - target: "SR-030"
     relation: implements
   - target: "SR-029"
@@ -57,3 +59,8 @@ Two hygiene items with security-adjacent weight:
 - [ ] Lint + type-check pass
 - [ ] Conftest/env fixtures updated
 - [ ] Traceability rows updated (SR-029/SR-030 references)
+
+## Version history
+
+- 1.1 (2026-09-17) — Added `mitigates` link to RISK-005 (risk register bootstrap, TASK-147). Traceability only: the requirement content is
+  unchanged, so the existing approval stands.

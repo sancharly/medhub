@@ -3,11 +3,21 @@ id: "SR-022"
 type: software-requirement
 title: "Encryption in transit and at rest"
 status: approved
-version: "1.0"
+version: "1.1"
 author: "Carlos Santiago Liceras"
 created: "2026-07-07"
-updated: "2026-07-07"
+updated: "2026-09-17"
 links:
+  - target: "RISK-006"
+    relation: mitigates
+  - target: "RISK-007"
+    relation: mitigates
+  - target: "RISK-008"
+    relation: mitigates
+  - target: "RISK-010"
+    relation: mitigates
+  - target: "RISK-011"
+    relation: mitigates
   - target: "NFR-004"
     relation: derives_from
   - target: "NFR-007"
@@ -46,3 +56,8 @@ Encryption protects special-category health data and is required by GDPR and med
 ### Control Measures
 
 - Enforce TLS (SR-001) and storage-level encryption; verify configuration during security review and system testing.
+
+## Version history
+
+- 1.1 (2026-09-17) — Added `mitigates` link to RISK-006, RISK-007, RISK-008, RISK-010, RISK-011 (risk register bootstrap, TASK-147). Traceability only: the requirement content is
+  unchanged, so the existing approval stands.

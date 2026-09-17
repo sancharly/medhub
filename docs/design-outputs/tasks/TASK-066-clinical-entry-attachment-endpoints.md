@@ -3,11 +3,13 @@ id: "TASK-066"
 type: task
 title: "Clinical-entry & attachment endpoints"
 status: approved
-version: "1.0"
+version: "1.1"
 author: "Carlos Santiago Liceras"
 created: "2026-07-07"
-updated: "2026-07-07"
+updated: "2026-09-17"
 links:
+  - target: "RISK-002"
+    relation: mitigates
   - target: "SR-012"
     relation: implements
   - target: "SR-013"
@@ -160,3 +162,8 @@ SI-ATTACH only, §8.9).
 - **Date:** 2026-06-30
 - **Reviewer:** QA Engineer agent (phase-4 audit remediation)
 - **Evidence:** Multipart upload implemented in TASK-066a; CSRF gap closed by TASK-069a; patient roster fixed in TASK-044a; OpenAPI regenerated in TASK-068a; 484 tests pass (ruff + mypy clean).
+
+## Version history
+
+- 1.1 (2026-09-17) — Added `mitigates` link to RISK-002 (risk register bootstrap, TASK-147). Traceability only: the requirement content is
+  unchanged, so the existing approval stands.

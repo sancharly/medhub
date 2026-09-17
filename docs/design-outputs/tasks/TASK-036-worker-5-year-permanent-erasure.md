@@ -3,11 +3,13 @@ id: "TASK-036"
 type: task
 title: "Worker: 5-year permanent erasure"
 status: approved
-version: "1.0"
+version: "1.1"
 author: "Carlos Santiago Liceras"
 created: "2026-07-07"
-updated: "2026-07-07"
+updated: "2026-09-17"
 links:
+  - target: "RISK-008"
+    relation: mitigates
   - target: "SR-024"
     relation: implements
   - target: "TASK-035"
@@ -108,3 +110,8 @@ Distilled from SR-024.4 / ADR-0013:
 - **Verdict:** PASS
 - Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
 - Acceptance criteria verified met; boxes checked.
+
+## Version history
+
+- 1.1 (2026-09-17) — Added `mitigates` link to RISK-008 (risk register bootstrap, TASK-147). Traceability only: the requirement content is
+  unchanged, so the existing approval stands.

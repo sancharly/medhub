@@ -3,11 +3,13 @@ id: "SR-035"
 type: software-requirement
 title: "Patient notification and confirmation of scheduled appointments"
 status: approved
-version: "1.0"
+version: "1.1"
 author: "Carlos Santiago Liceras"
 created: "2026-07-07"
-updated: "2026-07-07"
+updated: "2026-09-17"
 links:
+  - target: "RISK-009"
+    relation: mitigates
   - target: "UN-013"
     relation: derives_from
   - target: "UN-007"
@@ -58,3 +60,8 @@ Without notification and an explicit confirmation step, patients may be unaware 
 - The confirmation state is visible to all appointment participants (criterion 8) so the doctor can see whether the patient has confirmed before the encounter.
 - Only the patient can confirm or decline (criterion 9); this cannot be delegated to administrative personnel to ensure the consent action is unambiguously the patient's.
 - Audit logging (criterion 10) creates a traceable record of each consent action.
+
+## Version history
+
+- 1.1 (2026-09-17) — Added `mitigates` link to RISK-009 (risk register bootstrap, TASK-147). Traceability only: the requirement content is
+  unchanged, so the existing approval stands.

@@ -3,11 +3,17 @@ id: "TASK-141"
 type: task
 title: "Worker reliability: retention session handling, retry parity, silent enqueue failures"
 status: draft
-version: "1.0"
+version: "1.1"
 author: "Carlos Santiago Liceras"
 created: "2026-07-07"
 updated: "2026-09-17"
 links:
+  - target: "RISK-007"
+    relation: mitigates
+  - target: "RISK-008"
+    relation: mitigates
+  - target: "RISK-009"
+    relation: mitigates
   - target: "SR-024"
     relation: implements
   - target: "SR-035"
@@ -59,3 +65,8 @@ Three worker-reliability defects:
 - [ ] Lint + type-check pass
 - [ ] Worker tests extended for all three behaviors
 - [ ] Traceability rows updated (SR-024/SR-035 references)
+
+## Version history
+
+- 1.1 (2026-09-17) — Added `mitigates` link to RISK-007, RISK-008, RISK-009 (risk register bootstrap, TASK-147). Traceability only: the requirement content is
+  unchanged, so the existing approval stands.

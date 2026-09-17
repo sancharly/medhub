@@ -3,11 +3,15 @@ id: "TASK-116"
 type: task
 title: "Clinical data re-keying into the anonymized dataset (remediation)"
 status: draft
-version: "1.0"
+version: "1.1"
 author: "Carlos Santiago Liceras"
 created: "2026-07-07"
-updated: "2026-07-07"
+updated: "2026-09-17"
 links:
+  - target: "RISK-002"
+    relation: mitigates
+  - target: "RISK-008"
+    relation: mitigates
   - target: "SR-024"
     relation: implements
   - target: "TASK-121"
@@ -230,3 +234,8 @@ Each test names the SR-024/ADR-0013 requirement it verifies.
   dropped)" — is checked off in [TASK-035](TASK-035-erasure-anonymize-retrieval-code.md), which TASK-035a was
   folded into during the MedTrace record migration, and that record is re-confirmed as complete with
   no remaining deferred items.**
+
+## Version history
+
+- 1.1 (2026-09-17) — Added `mitigates` link to RISK-002, RISK-008 (risk register bootstrap, TASK-147). Traceability only: the requirement content is
+  unchanged, so the existing approval stands.

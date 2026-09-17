@@ -3,11 +3,13 @@ id: "TASK-110"
 type: task
 title: "Integration tests for the seven runtime flows"
 status: draft
-version: "1.0"
+version: "1.1"
 author: "Carlos Santiago Liceras"
 created: "2026-07-07"
-updated: "2026-07-07"
+updated: "2026-09-17"
 links:
+  - target: "RISK-002"
+    relation: mitigates
   - target: "SR-002"
     relation: implements
   - target: "SR-005"
@@ -136,3 +138,8 @@ This task **is** test code; the "test-first" discipline is that each flow test i
 - [ ] Audit events asserted for security-relevant actions in every flow (SR-023)
 - [ ] Traceability matrix rows updated (each §06 flow's SRs → TASK-110 → the named test)
 - [ ] Security review N/A here (no new auth/session code; auth/session code review is TASK-113)
+
+## Version history
+
+- 1.1 (2026-09-17) — Added `mitigates` link to RISK-002 (risk register bootstrap, TASK-147). Traceability only: the requirement content is
+  unchanged, so the existing approval stands.

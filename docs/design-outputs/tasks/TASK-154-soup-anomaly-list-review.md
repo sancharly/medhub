@@ -3,11 +3,13 @@ id: "TASK-154"
 type: task
 title: "First SOUP anomaly-list review"
 status: draft
-version: "1.0"
+version: "1.1"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
 updated: "2026-09-17"
 links:
+  - target: "RISK-010"
+    relation: mitigates
   - target: "SR-028"
     relation: implements
   - target: "ADD-004"
@@ -55,3 +57,8 @@ establishes the cadence recorded in the list's Monitoring section.
 
 - [ ] ADD-004 updated and left `in_review` for human approval
 - [ ] `traceability-check` shows no error for the touched records
+
+## Version history
+
+- 1.1 (2026-09-17) — Added `mitigates` link to RISK-010 (risk register bootstrap, TASK-147). Traceability only: the requirement content is
+  unchanged, so the existing approval stands.

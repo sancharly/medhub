@@ -3,11 +3,13 @@ id: "TASK-142"
 type: task
 title: "Frontend route-level role guards"
 status: draft
-version: "1.0"
+version: "1.1"
 author: "Carlos Santiago Liceras"
 created: "2026-07-07"
-updated: "2026-07-07"
+updated: "2026-09-17"
 links:
+  - target: "RISK-001"
+    relation: mitigates
   - target: "SR-005"
     relation: implements
   - target: "TASK-082"
@@ -53,3 +55,8 @@ screens the role can never use — information-architecture leak and poor failur
 - [ ] Lint + type-check pass
 - [ ] Vitest coverage for `RequireRole` (allowed, denied, undefined `me`)
 - [ ] Traceability row updated (SR-005 → TASK-142 → tests)
+
+## Version history
+
+- 1.1 (2026-09-17) — Added `mitigates` link to RISK-001 (risk register bootstrap, TASK-147). Traceability only: the requirement content is
+  unchanged, so the existing approval stands.

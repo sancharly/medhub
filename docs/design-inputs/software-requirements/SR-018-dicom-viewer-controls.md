@@ -3,11 +3,13 @@ id: "SR-018"
 type: software-requirement
 title: "DICOM viewer controls"
 status: approved
-version: "1.0"
+version: "1.1"
 author: "Carlos Santiago Liceras"
 created: "2026-07-07"
-updated: "2026-07-07"
+updated: "2026-09-17"
 links:
+  - target: "RISK-003"
+    relation: mitigates
   - target: "UN-011"
     relation: derives_from
   - target: "NFR-005"
@@ -50,3 +52,8 @@ These controls are explicitly required for the first prototype and are necessary
 
 - Verify each control's behavior against expected output during system testing, including slice-index correctness.
 - Ensure consistent behavior across target browsers (SR-019).
+
+## Version history
+
+- 1.1 (2026-09-17) — Added `mitigates` link to RISK-003 (risk register bootstrap, TASK-147). Traceability only: the requirement content is
+  unchanged, so the existing approval stands.

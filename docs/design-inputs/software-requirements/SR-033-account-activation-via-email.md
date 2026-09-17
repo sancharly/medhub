@@ -3,11 +3,13 @@ id: "SR-033"
 type: software-requirement
 title: "Account activation via email"
 status: approved
-version: "1.0"
+version: "1.1"
 author: "Carlos Santiago Liceras"
 created: "2026-07-07"
-updated: "2026-07-07"
+updated: "2026-09-17"
 links:
+  - target: "RISK-009"
+    relation: mitigates
   - target: "UN-012"
     relation: derives_from
   - target: "NFR-007"
@@ -59,3 +61,8 @@ Email-based activation serves two security purposes: it verifies that the regist
 - Admin resend capability (criterion 7) provides a recovery path without requiring account deletion and re-creation.
 - Password is set by the user (criterion 3), ensuring the administrator never knows the credential; SR-025 complexity rules apply from first set.
 - Password confirmation (criterion 4) prevents activation with an inadvertently mistyped password, which would immediately lock the user out of the account they just activated.
+
+## Version history
+
+- 1.1 (2026-09-17) — Added `mitigates` link to RISK-009 (risk register bootstrap, TASK-147). Traceability only: the requirement content is
+  unchanged, so the existing approval stands.

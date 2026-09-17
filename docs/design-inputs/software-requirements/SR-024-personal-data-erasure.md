@@ -3,11 +3,15 @@ id: "SR-024"
 type: software-requirement
 title: "Personal data erasure"
 status: approved
-version: "1.0"
+version: "1.1"
 author: "Carlos Santiago Liceras"
 created: "2026-07-07"
-updated: "2026-07-07"
+updated: "2026-09-17"
 links:
+  - target: "RISK-002"
+    relation: mitigates
+  - target: "RISK-008"
+    relation: mitigates
   - target: "NFR-004"
     relation: derives_from
 tags: []
@@ -47,3 +51,8 @@ The right to erasure is a core GDPR data-subject right; the platform must be abl
 
 - Provide an erasure/anonymization operation gated to authorized operators; reconcile with a documented retention policy; record in audit log (SR-023).
 - Assumption: detailed retention policy is defined with regulatory/legal input post-MVP; MVP provides the technical capability and policy hook.
+
+## Version history
+
+- 1.1 (2026-09-17) — Added `mitigates` link to RISK-002, RISK-008 (risk register bootstrap, TASK-147). Traceability only: the requirement content is
+  unchanged, so the existing approval stands.

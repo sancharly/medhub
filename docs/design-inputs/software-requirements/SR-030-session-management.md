@@ -3,11 +3,13 @@ id: "SR-030"
 type: software-requirement
 title: "Session management"
 status: approved
-version: "1.0"
+version: "1.1"
 author: "Carlos Santiago Liceras"
 created: "2026-07-07"
-updated: "2026-07-07"
+updated: "2026-09-17"
 links:
+  - target: "RISK-005"
+    relation: mitigates
   - target: "NFR-007"
     relation: derives_from
 tags: ["split-from:SR-025"]
@@ -53,3 +55,8 @@ IEC 62443-3-3 SR 1.5 (SL 2) requires the system to lock or terminate sessions af
 - Server-side token invalidation on logout (criterion 5) ensures that stolen or cached tokens cannot be replayed.
 - `Secure`/`HttpOnly`/`SameSite=Strict` cookie attributes (criterion 6) defend against XSS-based token extraction and cross-site request forgery.
 - Concurrent session limit (criterion 7) limits the impact of token theft by bounding the number of parallel sessions an attacker can maintain.
+
+## Version history
+
+- 1.1 (2026-09-17) — Added `mitigates` link to RISK-005 (risk register bootstrap, TASK-147). Traceability only: the requirement content is
+  unchanged, so the existing approval stands.

@@ -3,11 +3,13 @@ id: "SR-026"
 type: software-requirement
 title: "Performance budgets for routine operations"
 status: approved
-version: "1.0"
+version: "1.1"
 author: "Carlos Santiago Liceras"
 created: "2026-07-07"
-updated: "2026-07-07"
+updated: "2026-09-17"
 links:
+  - target: "RISK-007"
+    relation: mitigates
   - target: "NFR-008"
     relation: derives_from
 tags: []
@@ -45,3 +47,8 @@ Concrete budgets make the performance NFR testable and protect clinical-workflow
 ### Control Measures
 
 - Define performance budgets and verify with automated performance/system tests; defer heavy operations to preserve responsiveness.
+
+## Version history
+
+- 1.1 (2026-09-17) — Added `mitigates` link to RISK-007 (risk register bootstrap, TASK-147). Traceability only: the requirement content is
+  unchanged, so the existing approval stands.

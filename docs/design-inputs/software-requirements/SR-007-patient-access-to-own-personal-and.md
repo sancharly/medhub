@@ -3,11 +3,13 @@ id: "SR-007"
 type: software-requirement
 title: "Patient access to own personal and clinical data"
 status: approved
-version: "1.0"
+version: "1.1"
 author: "Carlos Santiago Liceras"
 created: "2026-07-07"
-updated: "2026-07-07"
+updated: "2026-09-17"
 links:
+  - target: "RISK-001"
+    relation: mitigates
   - target: "UN-005"
     relation: derives_from
   - target: "NFR-004"
@@ -47,3 +49,8 @@ Self-access to one's own records realizes patient autonomy and the GDPR right of
 
 - Scope retrieval to the authenticated patient via the authorization mechanism (SR-005).
 - Cover with tests including attempts to access other patients' data.
+
+## Version history
+
+- 1.1 (2026-09-17) — Added `mitigates` link to RISK-001 (risk register bootstrap, TASK-147). Traceability only: the requirement content is
+  unchanged, so the existing approval stands.
