@@ -48,7 +48,8 @@ file. This blocks any release claim.
   review's High/Medium findings (memory-DoS, audit-IP gap, PII-in-logs, erasure gap TASK-116).
 - Add a software safety classification statement (62304 class, justification) — likely in
   `docs/software-development-plan.md` or a dedicated record — and link it from the register.
-- Extend the traceability matrix with a risk column (coordinates with TASK-114).
+- Risk traceability is carried by `mitigates` links from the SR/TASK records to the RISK record
+  and reported by `traceability-check` — there is no separate matrix column.
 
 ## Acceptance criteria
 

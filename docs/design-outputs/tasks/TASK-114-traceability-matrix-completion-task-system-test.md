@@ -2,11 +2,11 @@
 id: "TASK-114"
 type: task
 title: "Traceability matrix completion (TASK → system-test column)"
-status: draft
+status: obsolete
 version: "1.0"
 author: "Carlos Santiago Liceras"
 created: "2026-07-07"
-updated: "2026-07-07"
+updated: "2026-09-17"
 links:
   - target: "SR-028"
     relation: implements
@@ -14,6 +14,11 @@ links:
     relation: implements
 tags: ["phase:9-integration-system-testing-compliance"]
 ---
+
+> **Obsolete (2026-09-17).** The hand-maintained traceability matrix was retired with the
+> agentic-os migration: traceability now lives in each record's `links` and is reported by
+> `traceability-check` in [`../../reports/`](../../reports/). This task's purpose no longer
+> exists; nothing in it was left undone.
 
 - **Phase:** 9 — Integration, system testing, compliance hardening
 - **Software item / unit:** (process) — completes the requirement→design→task→test record

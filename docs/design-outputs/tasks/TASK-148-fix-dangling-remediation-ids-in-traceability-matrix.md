@@ -2,11 +2,11 @@
 id: "TASK-148"
 type: task
 title: "Fix dangling remediation IDs in the traceability matrix"
-status: draft
+status: obsolete
 version: "1.0"
 author: "Carlos Santiago Liceras"
 created: "2026-07-07"
-updated: "2026-07-07"
+updated: "2026-09-17"
 links:
   - target: "SR-028"
     relation: implements
@@ -14,6 +14,11 @@ links:
     relation: relates_to
 tags: ["phase:review-2026-07", "severity:low", "regulatory"]
 ---
+
+> **Obsolete (2026-09-17).** The hand-maintained traceability matrix was retired with the
+> agentic-os migration: traceability now lives in each record's `links` and is reported by
+> `traceability-check` in [`../../reports/`](../../reports/). This task's purpose no longer
+> exists; nothing in it was left undone.
 
 - **Phase:** Review 2026-07 — regulatory blockers
 - **Implements:** SR-028 (traceable, version-controlled development records)
