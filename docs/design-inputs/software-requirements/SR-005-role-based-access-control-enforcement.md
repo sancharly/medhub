@@ -3,11 +3,13 @@ id: "SR-005"
 type: software-requirement
 title: "Role-based access control enforcement"
 status: approved
-version: "1.1"
+version: "1.2"
 author: "Carlos Santiago Liceras"
 created: "2026-07-07"
 updated: "2026-09-17"
 links:
+  - target: "RR-001"
+    relation: satisfies
   - target: "RISK-001"
     relation: mitigates
   - target: "UN-003"
@@ -59,4 +61,7 @@ A single, consistently applied authorization mechanism is required to guarantee 
 ## Version history
 
 - 1.1 (2026-09-17) — Added `mitigates` link to RISK-001 (risk register bootstrap, TASK-147). Traceability only: the requirement content is
+  unchanged, so the existing approval stands.
+- 1.2 (2026-09-17) — Added `satisfies` link to RR-001 (regulatory requirements
+  extracted from the NFRs with clause citations). Traceability only: the requirement content is
   unchanged, so the existing approval stands.

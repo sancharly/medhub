@@ -3,11 +3,13 @@ id: "SR-020"
 type: software-requirement
 title: "Responsive layout across devices"
 status: approved
-version: "1.0"
+version: "1.1"
 author: "Carlos Santiago Liceras"
 created: "2026-07-07"
-updated: "2026-07-07"
+updated: "2026-09-17"
 links:
+  - target: "RR-009"
+    relation: satisfies
   - target: "NFR-003"
     relation: derives_from
 tags: []
@@ -45,3 +47,9 @@ A responsive interface lets patients and mobile clinicians use the platform and 
 ### Control Measures
 
 - Implement and verify responsive breakpoints; test core workflows on representative device sizes.
+
+## Version history
+
+- 1.1 (2026-09-17) — Added `satisfies` link to RR-009 (regulatory requirements
+  extracted from the NFRs with clause citations). Traceability only: the requirement content is
+  unchanged, so the existing approval stands.

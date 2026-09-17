@@ -3,11 +3,13 @@ id: "SR-034"
 type: software-requirement
 title: "Account deactivation and deletion by system administrator"
 status: approved
-version: "1.0"
+version: "1.1"
 author: "Carlos Santiago Liceras"
 created: "2026-07-07"
-updated: "2026-07-07"
+updated: "2026-09-17"
 links:
+  - target: "RR-002"
+    relation: satisfies
   - target: "UN-012"
     relation: derives_from
   - target: "NFR-004"
@@ -60,3 +62,9 @@ Failure to revoke access promptly when a user leaves is a leading cause of unaut
 - Permanent deletion anonymizes rather than erases clinical records (criterion 5), preserving clinical integrity while removing personal identifying information as required by GDPR.
 - Explicit confirmation step (criterion 6) prevents accidental irreversible deletions.
 - Audit logging (criterion 8) provides a complete chain of custody for all lifecycle events, supporting both security forensics and regulatory audit.
+
+## Version history
+
+- 1.1 (2026-09-17) — Added `satisfies` link to RR-002 (regulatory requirements
+  extracted from the NFRs with clause citations). Traceability only: the requirement content is
+  unchanged, so the existing approval stands.
