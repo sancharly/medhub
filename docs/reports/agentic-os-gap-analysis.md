@@ -51,8 +51,47 @@ Status: **fixed** in this branch · **partial** (record created, human decision 
 | G13 | `medtrace-migration-prompt.md` is a spent one-off now covered by `design-record-structure`'s migration rules; `docs/exports/` and `docs/releases/` are empty and outside the taxonomy | — | see below |
 | G14 | arc42 section 9 is `adr/README.md`, not a canonical `09-*.md` file | `arc42` `arc42-sections` | **fixed** — `arc42-sections: 1-8, 10-12` declared, with §9 documented as the ADR log |
 
-Remaining dispositions are filled in as each remediation step lands; this file is updated in the
-same commit as the work it describes.
+### Disposition detail
+
+| # | What was done |
+|---|---|
+| G1 | `## Project configuration` in `CLAUDE.md`: overlay on, class B, `docs-root`, `arc42-root`, `arc42-sections`. **fixed** |
+| G2 | `medtrace.yml` set to class B, `no_soup: false`, rationale drafted from the intended use. **partial** — the rationale needs human approval |
+| G3 | SDP promoted to [ADD-002](../design-outputs/architecture/ADD-002-software-development-plan.md) with the stage overlay, gates, class B tailoring table, §6/§8/§9 sections and the agent role map; the old path is a pointer. **fixed** |
+| G4 | [ADD-004](../design-outputs/architecture/ADD-004-soup-list.md) lists every component at its locked version; anomaly review explicitly pending (TASK-154); pinning findings raised as PRB-001 and PRB-002. **partial** — the review itself is outstanding |
+| G5 | [ADD-003](../design-outputs/architecture/ADD-003-risk-management-plan.md) with the owner-approved 5×5 bands, plus RISK-001..011 and `mitigates` links from 42 SRs and TASKs. **partial** — residual-risk acceptance is a human decision |
+| G6 | TS-001..013, TP-001 and [TR-001](../test-plans-reports/reports/TR-001-verification-report-migration-baseline.md) from a real run: 29 of 39 SRs verified, the other 10 named with the reason. **partial** — by evidence, not by omission |
+| G7 | ADD-005..ADD-023, one per software item, with units, `implements` links and pointers to the arc42 narrative. **fixed** |
+| G8 | All 8 E8 errors fixed by promoting the SR each task actually implements. **fixed** |
+| G9 | 30 problem reports opened (PRB-003..032) for every still-open defect, with the source documents annotated and the already-fixed findings named. **fixed** |
+| G10 | RR-001..010 with clause citations, and `satisfies` links from the 22 SRs that realize them. **fixed** |
+| G11 | `traceability-matrix.md` deleted; its data folded into the ADDs; TASK-114 and TASK-148 marked `obsolete`. **fixed** |
+| G12 | `implementation-plan/README.md` rewritten around the records, `docs/templates/task.md` created, stale paths in TASK-092/116 fixed, phase tags normalized. **fixed** |
+| G13 | `medtrace-migration-prompt.md` and the empty `exports/`, `releases/` folders removed. **fixed** |
+| G14 | `arc42-sections: 1-8, 10-12` declared; §9 documented as the ADR log in `docs/design/README.md`. **fixed** |
+
+## Result
+
+The record set went from **8 errors / 248 warnings** to **0 errors / 95 warnings**, with 272 records
+scanned (from 181). The remaining warnings are all expected and none of them is a defect in the
+records:
+
+| Check | Count | Why it is open |
+|---|---|---|
+| W5 | 72 | An `approved` record links to an `in_review` one — the new risk, regulatory, architecture and verification records await the owner's approval. Clears on approval. |
+| W2 | 10 | The 10 SRs TR-001 names as unverified: blocked real-database cases, the unimplemented DICOM viewer, the browser matrix and performance validation. |
+| W7 | 9 | Approved tasks whose SR has no TS yet — the same SR-017, SR-018 and SR-026 group. |
+| W1 | 3 | SR-017, SR-018 and SR-026 have no test specification because the features and the performance run do not exist yet. |
+| W6 | 1 | TASK-148 links to TASK-114; both are `obsolete`, so the link is history, not a dangling reference. |
+
+## What the human still owns
+
+1. Approve the class B rationale in `docs/medtrace.yml`.
+2. Approve ADD-002, ADD-003, ADD-004 and the ADD-005..023 set (`in_review → approved`).
+3. Approve RR-001..010 and accept the residual risk of RISK-001..011 — no agent may do this.
+4. Approve TS-001..013, TP-001 and TR-001.
+5. Decide the order in which the 30 problem reports are resolved; each fix goes through a change
+   request that links `resolves` → its PRB.
 
 ## Verified counts (baseline)
 
