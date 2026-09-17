@@ -4,6 +4,28 @@ Behavioral guidelines to reduce common LLM coding mistakes. Merge with project-s
 
 **Tradeoff:** These guidelines bias toward caution over speed. For trivial tasks, use judgment.
 
+## Project configuration
+
+sdlc-extensions:
+  - medical-records:iec62304-sdlc
+software-safety-class: B
+docs-root: docs/
+arc42-root: docs/design/
+arc42-sections: 1-8, 10-12
+
+Agents and skills come from the [agentic-os](https://github.com/sancharly/agentic-os) plugins
+(`core-engineering`, `medical-records`, `web-fullstack`, `design-studio`), enabled in
+`.claude/settings.json`. Never hand-edit an installed plugin copy — change it in agentic-os,
+bump the bundle version and reinstall. `/ship-feature` drives the pipeline; the
+`medical-records:iec62304-sdlc` overlay above turns on the IEC 62304 stages, records and gates.
+
+Notes on the settings above:
+
+- **arc42 section 9** (architecture decisions) is the ADR log in `docs/design/adr/`, which is
+  why it is excluded from `arc42-sections`. Sections 1-8 and 10-12 use the canonical filenames.
+- **`docs/medtrace.yml`** mirrors `software-safety-class` for the MedTrace desktop app. The two
+  must stay in sync: change both or neither.
+
 ## 1. Think Before Coding
 
 **Don't assume. Don't hide confusion. Surface tradeoffs.**
