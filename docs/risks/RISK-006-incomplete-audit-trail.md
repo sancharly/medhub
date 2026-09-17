@@ -56,7 +56,9 @@ P1 (probability of the software fault itself) is taken as 1 per ADD-003: the fau
 |---|---|---|---|---|
 | 2 — Minor (indirect: delays correction) | 2 — Remote | 4 — Acceptable (4) | **pending human decision** | — |
 
-Append-only is enforced by convention rather than by the database today (audit finding), and TASK-137 is still `draft`.
+Append-only is enforced by convention rather than by the database today (PRB-005), the source IP is
+missing from authorization events (PRB-010, TASK-137, still `draft`), and log correlation is
+unavailable (PRB-032).
 
 ## Risks introduced by controls
 

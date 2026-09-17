@@ -5,6 +5,14 @@
 - **Reviewer:** Claude (Software Architect / Security Reviewer / QA Engineer role), session `audit/fable-review`.
 - **Outcome:** 15 confirmed findings → 14 new remediation tasks (TASK-135..148); 6 known gaps already tracked by existing tasks (pointers below); 3 candidates refuted; 1 verification-process integrity finding.
 
+> **Problem-report mapping (2026-09-17).** Each open finding below is now a problem report under
+> IEC 62304 §9, alongside the remediation task that will close it: A → PRB-008, B → PRB-009,
+> D → PRB-010, E → PRB-011, F → PRB-003, G+J → PRB-018, H → PRB-012, I → PRB-013, L → PRB-014,
+> M+N → PRB-019, P → PRB-015, R → PRB-016, S → PRB-020, T′ → PRB-017. Two findings are closed by
+> the agentic-os migration branch itself: **W** (no ISO 14971 risk register) by ADD-003 and
+> RISK-001..011, and **Y** (dangling `TASK-xxxa` IDs in the traceability matrix) by retiring the
+> matrix in favour of the record links and the generated gap report.
+
 Severity scale: Critical = exploitable/patient-safety impact now · High = must fix before release · Medium = fix before release recommended · Low = hygiene/hardening.
 
 **No Critical findings.** Core security posture is strong: Argon2id + dummy-hash timing parity, opaque Redis sessions with absolute+idle expiry, deny-by-default authz with audited decisions, double-submit CSRF, security headers/CSP, SSE-AES256 object storage, field-level AES-GCM for clinical text, append-only audit enforced by migration, no raw SQL, zero TODO/FIXME debt, ~490 backend tests with real integration suites.

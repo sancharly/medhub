@@ -57,7 +57,9 @@ P1 (probability of the software fault itself) is taken as 1 per ADD-003: the fau
 |---|---|---|---|---|
 | 3 — Moderate (wrong data or disclosure) | 1 — Improbable | 3 — Acceptable (3) | **pending human decision** | — |
 
-Residual depends on PRB-003 (CSRF enforced on only part of the routers) and TASK-140 (lockout wiring made mandatory) being closed. Until then the effective probability is higher than the residual estimate.
+App-wide CSRF enforcement and the lockout wiring are in place (TASK-128, TASK-118). Residual still
+depends on PRB-003 (exemptions matched by prefix), PRB-018 (lockout parameter made required) and
+PRB-023 (non-atomic session-cap eviction) being closed.
 
 ## Risks introduced by controls
 

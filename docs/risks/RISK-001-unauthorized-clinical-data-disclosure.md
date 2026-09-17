@@ -56,7 +56,10 @@ P1 (probability of the software fault itself) is taken as 1 per ADD-003: the fau
 |---|---|---|---|---|
 | 2 — Minor (privacy harm, no physical harm) | 2 — Remote | 4 — Acceptable (4) | **pending human decision** | — |
 
-Residual estimate assumes the deny-by-default control and its negative tests are in place and verified. Open items that keep the current probability higher than the residual estimate: PRB-003 (CSRF coverage) and the admin-projection finding tracked in the audit ledger.
+Residual estimate assumes the deny-by-default control and its negative tests are in place and verified. Open items that keep the current probability higher than the residual estimate: PRB-003 (CSRF
+exemptions matched by prefix), PRB-014 (no route-level role guards) and PRB-026/PRB-027
+(authorization decisions taken outside `AuthorizationService`). The admin-projection finding from
+the audit is closed by TASK-120.
 
 ## Risks introduced by controls
 

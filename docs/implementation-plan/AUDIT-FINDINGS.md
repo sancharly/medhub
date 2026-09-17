@@ -4,6 +4,20 @@ Branch: `enabler/audit-and-design-review`. Companion to `AUDIT-LEDGER.md`.
 
 These are improvement proposals surfaced during the phase 0–7 audit. **None are fixed in this branch**
 unless they were a basic-functionality showstopper (those are in the `FIX:` commits / new TASK files).
+
+> **Problem-report mapping (2026-09-17).** Under IEC 62304 §9 every still-open defect is now a
+> problem report in [`../problem-reports/`](../problem-reports/); this document stays as the
+> historical audit record. The four High security findings are closed: CSRF enforcement by
+> TASK-128, lockout wiring by TASK-118, anonymized-retrieval delivery by TASK-121 and the admin
+> projection by TASK-120. Open findings map as: crypto envelope → PRB-004, audit append-only and
+> scrub → PRB-005, DICOM decode bound → PRB-006, container root and insecure defaults → PRB-007,
+> semver regex → PRB-028, proxy-keyed rate limit → PRB-029, module boundary test → PRB-030,
+> destructive dialog focus → PRB-031; missing indexes → PRB-021, activation full scan → PRB-022,
+> non-atomic eviction → PRB-023, group N+1 → PRB-024, in-memory attachment buffering → PRB-008,
+> idle-timer debounce → PRB-025; repository-layer authorization → PRB-026, direct role comparisons
+> → PRB-027, dropped request-id → PRB-032. The remaining hygiene items (dead code, duplicate
+> export scripts, formatter overlap, unused parameter, dead UI branches) are improvement proposals,
+> not §9 problems, and stay here only.
 Items tagged **→ TASK-…** were promoted to a tracked remediation task because they are functional or
 security defects; the rest are recorded here for prioritisation.
 
