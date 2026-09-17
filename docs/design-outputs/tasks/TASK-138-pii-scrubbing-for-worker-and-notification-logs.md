@@ -6,12 +6,14 @@ status: draft
 version: "1.0"
 author: "Carlos Santiago Liceras"
 created: "2026-07-07"
-updated: "2026-07-07"
+updated: "2026-09-17"
 links:
+  - target: "SR-024"
+    relation: implements
   - target: "NFR-004"
     relation: implements
   - target: "SR-023"
-    relation: relates_to
+    relation: implements
   - target: "TASK-031"
     relation: relates_to
 tags: ["phase:review-2026-07", "severity:medium"]

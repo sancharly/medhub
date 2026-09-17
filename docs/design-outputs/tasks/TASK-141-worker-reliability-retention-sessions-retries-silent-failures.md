@@ -6,12 +6,12 @@ status: draft
 version: "1.0"
 author: "Carlos Santiago Liceras"
 created: "2026-07-07"
-updated: "2026-07-07"
+updated: "2026-09-17"
 links:
   - target: "SR-024"
-    relation: relates_to
+    relation: implements
   - target: "SR-035"
-    relation: relates_to
+    relation: implements
   - target: "TASK-036"
     relation: relates_to
   - target: "TASK-124"

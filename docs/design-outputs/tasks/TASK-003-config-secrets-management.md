@@ -6,8 +6,10 @@ status: approved
 version: "1.0"
 author: "Carlos Santiago Liceras"
 created: "2026-07-07"
-updated: "2026-07-07"
+updated: "2026-09-17"
 links:
+  - target: "SR-031"
+    relation: implements
   - target: "NFR-007"
     relation: implements
   - target: "TASK-002"

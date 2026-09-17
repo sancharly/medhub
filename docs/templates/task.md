@@ -1,11 +1,30 @@
+---
+id: "TASK-000"
+type: task
+title: "<title, no ID prefix inside it>"
+status: draft
+version: "1.0"
+author: "<full name>"
+created: "<YYYY-MM-DD>"
+updated: "<YYYY-MM-DD>"
+links:
+  - target: "SR-000"
+    relation: implements
+tags: ["phase:<n>-<slug>"]
+---
+
 # TASK-NNN — <title>
 
-- **Phase:** <n> — <name>
+<!--
+Body template for `type: task` records (design-record-structure). The frontmatter above is
+authoritative: `links` carries traceability (at least one `implements` → SR; `mitigates` → RISK
+for risk controls), and `status` moves draft → in_review (developer handoff) → approved (QA only).
+Never restate id/status/links as prose below.
+-->
+
 - **Software item / unit:** SI-XXX / U-XXX[, U-YYY]
-- **Implements:** SR-### …, NFR-### …; ADR-#### …
-- **Depends on:** TASK-### … (must be merged first)
+- **Depends on:** TASK-### … (must be merged first), as `relates_to` links
 - **Branch:** `feature/<slug>` (or `enabler-story/<slug>`)
-- **Status:** Not started
 
 ## Objective
 
@@ -14,7 +33,7 @@ One paragraph: what this unit does and why, traced to its requirement(s).
 ## Interfaces to honor
 
 Exact in-process / HTTP contracts this unit provides or consumes (from
-[12-interfaces.md](../../design/12-interfaces.md)), with Python / TS signatures.
+[12-interfaces.md](../design/12-interfaces.md)), with Python / TS signatures.
 State explicitly what it must **not** do (e.g. modules touch PHI only via `PlatformServices`).
 
 ## Implementation detail
@@ -40,7 +59,8 @@ Checklist distilled from the SR(s) — objectively verifiable.
 - [ ] Unit (and required integration) tests pass; coverage target met
 - [ ] OpenAPI regenerated and re-linted (API tasks only)
 - [ ] Audit events emitted for security-relevant actions (SR-023)
-- [ ] Traceability matrix row updated (SR/NFR → TASK → test)
+- [ ] `implements` links point at the SR(s) this task satisfies, and the TS that verifies them
+      exists; the `traceability-check` gap report shows no error for this record
 - [ ] Security review completed (auth / session / authz tasks only — SR-031.6)
 
 ---
@@ -64,7 +84,7 @@ infra/{docker-compose.yml, reverse-proxy/, .env.example}
 - **TDD**: failing tests first, then implement, then verify (CLAUDE.md §4). Surgical changes only (§3).
 - **Backend**: every protected endpoint passes the `AuthorizationService` FastAPI dependency —
   **deny-by-default** (SR-005). Server-side Pydantic validation is authoritative (SR-031.5).
-  Errors are RFC 7807 `application/problem+json` ([api-design.md](../../specifications/api-design.md)).
+  Errors are RFC 7807 `application/problem+json` ([api-design.md](../specifications/api-design.md)).
   Security-relevant actions call `AuditService` (SR-023). ORM-only parameterized queries (SR-031).
 - **Secrets / config**: 12-factor, env-injected, never committed (NFR-007).
 - **Frontend**: TypeScript only; typed client generated from OpenAPI; cookie + CSRF auth;
@@ -74,4 +94,4 @@ infra/{docker-compose.yml, reverse-proxy/, .env.example}
   React 18, Vite, React Router, TanStack Query, MUI, Cornerstone3D
   (`@cornerstonejs/core|tools|dicom-image-loader`); Docker Compose, Traefik/nginx reverse proxy
   (TLS / HSTS / security headers).
-- **Git Flow** (per [software-development-plan.md](../../software-development-plan.md)): one branch/PR per task.
+- **Git Flow** (per [software-development-plan.md](../software-development-plan.md)): one branch/PR per task.

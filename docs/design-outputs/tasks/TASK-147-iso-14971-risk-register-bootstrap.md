@@ -6,8 +6,10 @@ status: draft
 version: "1.0"
 author: "Carlos Santiago Liceras"
 created: "2026-07-07"
-updated: "2026-07-07"
+updated: "2026-09-17"
 links:
+  - target: "SR-028"
+    relation: implements
   - target: "NFR-005"
     relation: implements
   - target: "NFR-006"
