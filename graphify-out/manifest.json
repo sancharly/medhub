@@ -4,141 +4,6 @@
     "ast_hash": "93f51f4ce808535778dc4110c3ba0125",
     "semantic_hash": ""
   },
-  ".claude/skills/brand/scripts/tests/test_sync_brand_to_tokens.py": {
-    "mtime": 1783253023.7333899,
-    "ast_hash": "1cc075890cd68fa5c5f7463b9e1a4618",
-    "semantic_hash": "1cc075890cd68fa5c5f7463b9e1a4618"
-  },
-  ".claude/skills/design-system/scripts/fetch-background.py": {
-    "mtime": 1783253023.747933,
-    "ast_hash": "3269f2ebc8024e55b65008108910f3d4",
-    "semantic_hash": "3269f2ebc8024e55b65008108910f3d4"
-  },
-  ".claude/skills/design-system/scripts/generate-slide.py": {
-    "mtime": 1783253023.7502685,
-    "ast_hash": "622d80cd7d9696f269e2da6b063754f7",
-    "semantic_hash": "622d80cd7d9696f269e2da6b063754f7"
-  },
-  ".claude/skills/design-system/scripts/html-token-validator.py": {
-    "mtime": 1783253023.7493677,
-    "ast_hash": "1d18dae9d3d916137c50df5ec7e65039",
-    "semantic_hash": "1d18dae9d3d916137c50df5ec7e65039"
-  },
-  ".claude/skills/design-system/scripts/search-slides.py": {
-    "mtime": 1783253023.748373,
-    "ast_hash": "bc70c45549014b579fb2a27f3acf3d2e",
-    "semantic_hash": "bc70c45549014b579fb2a27f3acf3d2e"
-  },
-  ".claude/skills/design-system/scripts/slide-token-validator.py": {
-    "mtime": 1783253023.7497196,
-    "ast_hash": "ee5d76c06903f98a460a8661e150c5d3",
-    "semantic_hash": "ee5d76c06903f98a460a8661e150c5d3"
-  },
-  ".claude/skills/design-system/scripts/slide_search_core.py": {
-    "mtime": 1783253023.7475991,
-    "ast_hash": "994ab50455710fce437399e86df23286",
-    "semantic_hash": "994ab50455710fce437399e86df23286"
-  },
-  ".claude/skills/design-system/scripts/tests/test_validate_tokens.py": {
-    "mtime": 1783253023.7489727,
-    "ast_hash": "32a9d34bbfa0041852963c189ea0ee5c",
-    "semantic_hash": "32a9d34bbfa0041852963c189ea0ee5c"
-  },
-  ".claude/skills/design-system/templates/design-tokens-starter.json": {
-    "mtime": 1783253023.7514367,
-    "ast_hash": "a5771c378d6fea057242eeebe83a7747",
-    "semantic_hash": "a5771c378d6fea057242eeebe83a7747"
-  },
-  ".claude/skills/design/scripts/cip/core.py": {
-    "mtime": 1783253023.675796,
-    "ast_hash": "9fcf192c150e285ab6176a9bbacd475b",
-    "semantic_hash": "9fcf192c150e285ab6176a9bbacd475b"
-  },
-  ".claude/skills/design/scripts/cip/generate.py": {
-    "mtime": 1783253023.675466,
-    "ast_hash": "5662ddd34b366544e6541686ec9c8d22",
-    "semantic_hash": "5662ddd34b366544e6541686ec9c8d22"
-  },
-  ".claude/skills/design/scripts/cip/render-html.py": {
-    "mtime": 1783253023.6761565,
-    "ast_hash": "6fe3ce567110811670f05f40d386b48f",
-    "semantic_hash": "6fe3ce567110811670f05f40d386b48f"
-  },
-  ".claude/skills/design/scripts/cip/search.py": {
-    "mtime": 1783253023.6765406,
-    "ast_hash": "21a63380316bd899c49302e1b9a59191",
-    "semantic_hash": "21a63380316bd899c49302e1b9a59191"
-  },
-  ".claude/skills/design/scripts/icon/generate.py": {
-    "mtime": 1783253023.6783454,
-    "ast_hash": "b142cc490fdf8a45bcf95bfe972284df",
-    "semantic_hash": "b142cc490fdf8a45bcf95bfe972284df"
-  },
-  ".claude/skills/design/scripts/logo/core.py": {
-    "mtime": 1783253023.6774344,
-    "ast_hash": "b8ea226dde31603e5a5e790641334055",
-    "semantic_hash": "b8ea226dde31603e5a5e790641334055"
-  },
-  ".claude/skills/design/scripts/logo/generate.py": {
-    "mtime": 1783253023.6770813,
-    "ast_hash": "6f973ff8ea948cb774340703c8b51b54",
-    "semantic_hash": "6f973ff8ea948cb774340703c8b51b54"
-  },
-  ".claude/skills/design/scripts/logo/search.py": {
-    "mtime": 1783253023.6777527,
-    "ast_hash": "56aa8e1e15479f304a7e4709a767c98b",
-    "semantic_hash": "56aa8e1e15479f304a7e4709a767c98b"
-  },
-  ".claude/skills/requirements-writer/evals/evals.json": {
-    "mtime": 1781946069.5151417,
-    "ast_hash": "39ad89b8910720adced188dbef34973d",
-    "semantic_hash": "39ad89b8910720adced188dbef34973d"
-  },
-  ".claude/skills/ui-styling/scripts/shadcn_add.py": {
-    "mtime": 1783253023.7277696,
-    "ast_hash": "4eb5eb020e3b45a8f73f4a371abbdbe1",
-    "semantic_hash": "4eb5eb020e3b45a8f73f4a371abbdbe1"
-  },
-  ".claude/skills/ui-styling/scripts/tailwind_config_gen.py": {
-    "mtime": 1783253023.7249093,
-    "ast_hash": "cafc602e66323d217188d319c9a0412e",
-    "semantic_hash": "cafc602e66323d217188d319c9a0412e"
-  },
-  ".claude/skills/ui-styling/scripts/tests/coverage-ui.json": {
-    "mtime": 1783253023.7274156,
-    "ast_hash": "42c486def8b180c1e72b1e7b865b9607",
-    "semantic_hash": "42c486def8b180c1e72b1e7b865b9607"
-  },
-  ".claude/skills/ui-styling/scripts/tests/test_shadcn_add.py": {
-    "mtime": 1783253023.7265553,
-    "ast_hash": "b988db86bf66d891a0d21baa71c6d27a",
-    "semantic_hash": "b988db86bf66d891a0d21baa71c6d27a"
-  },
-  ".claude/skills/ui-styling/scripts/tests/test_tailwind_config_gen.py": {
-    "mtime": 1783253023.7269104,
-    "ast_hash": "f5d99288827b293f4b6fdb86b8b56229",
-    "semantic_hash": "f5d99288827b293f4b6fdb86b8b56229"
-  },
-  ".claude/skills/ui-ux-pro-max/data/_sync_all.py": {
-    "mtime": 1783253023.6619346,
-    "ast_hash": "c5102d726b2b4bdba1c4b7e3d5a55c52",
-    "semantic_hash": "c5102d726b2b4bdba1c4b7e3d5a55c52"
-  },
-  ".claude/skills/ui-ux-pro-max/scripts/core.py": {
-    "mtime": 1783253023.651422,
-    "ast_hash": "c81307355b3c2ba9fc8cbadcf5cddebd",
-    "semantic_hash": "c81307355b3c2ba9fc8cbadcf5cddebd"
-  },
-  ".claude/skills/ui-ux-pro-max/scripts/design_system.py": {
-    "mtime": 1783253023.6510284,
-    "ast_hash": "8b874ab517d58744fe59d258ac17194a",
-    "semantic_hash": "8b874ab517d58744fe59d258ac17194a"
-  },
-  ".claude/skills/ui-ux-pro-max/scripts/search.py": {
-    "mtime": 1783253023.6517959,
-    "ast_hash": "5554b288de0aa25789e28bc4be94fd58",
-    "semantic_hash": "5554b288de0aa25789e28bc4be94fd58"
-  },
   "backend/app/__init__.py": {
     "mtime": 1781978325.5060837,
     "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
@@ -815,7 +680,7 @@
     "semantic_hash": "18628cd9e4b403bab2d1bed7b1dd5b81"
   },
   "backend/openapi/openapi.json": {
-    "mtime": 1782889067.4295416,
+    "mtime": 1789677836.6432395,
     "ast_hash": "2d25c904b3af57e835f7b2bd9ac63d61",
     "semantic_hash": "2d25c904b3af57e835f7b2bd9ac63d61"
   },
@@ -1824,591 +1689,6 @@
     "ast_hash": "c09bfae8de27ddc3712565fb776f6c50",
     "semantic_hash": "c09bfae8de27ddc3712565fb776f6c50"
   },
-  ".claude/agents/document-writer.md": {
-    "mtime": 1782313121.5983875,
-    "ast_hash": "d72486691fe45d4362d9c8edae09eb89",
-    "semantic_hash": "d72486691fe45d4362d9c8edae09eb89"
-  },
-  ".claude/agents/product-owner.md": {
-    "mtime": 1781347467.747741,
-    "ast_hash": "5467c0a6ac331d4781ed8a246fbb3c78",
-    "semantic_hash": "5467c0a6ac331d4781ed8a246fbb3c78"
-  },
-  ".claude/agents/qa-engineer.md": {
-    "mtime": 1783411447.7642007,
-    "ast_hash": "a0057bbe7c5d64f41476557585f61406",
-    "semantic_hash": "a0057bbe7c5d64f41476557585f61406"
-  },
-  ".claude/agents/software-architect.md": {
-    "mtime": 1782313182.7048914,
-    "ast_hash": "df97f9d45eb3ef55ce3b2e34b995b48b",
-    "semantic_hash": "df97f9d45eb3ef55ce3b2e34b995b48b"
-  },
-  ".claude/agents/software-developer.md": {
-    "mtime": 1783411471.2416766,
-    "ast_hash": "b7617b905332df4d2bb867f37750e09a",
-    "semantic_hash": "b7617b905332df4d2bb867f37750e09a"
-  },
-  ".claude/skills/api-designer/SKILL.md": {
-    "mtime": 1781946069.508927,
-    "ast_hash": "a9644eb8be70ab7a9a262044c6c5121d",
-    "semantic_hash": "a9644eb8be70ab7a9a262044c6c5121d"
-  },
-  ".claude/skills/api-designer/assets/error-handling.md": {
-    "mtime": 1781946069.5091884,
-    "ast_hash": "86e3446157d3647891bbb9c6fab73fca",
-    "semantic_hash": "86e3446157d3647891bbb9c6fab73fca"
-  },
-  ".claude/skills/api-designer/assets/openapi.md": {
-    "mtime": 1781946069.5093718,
-    "ast_hash": "5d1f0ea65f00b3059cb7a280a1072798",
-    "semantic_hash": "5d1f0ea65f00b3059cb7a280a1072798"
-  },
-  ".claude/skills/api-designer/assets/pagination.md": {
-    "mtime": 1781946069.5095735,
-    "ast_hash": "0306089fb32f7a2308d2717f716215ba",
-    "semantic_hash": "0306089fb32f7a2308d2717f716215ba"
-  },
-  ".claude/skills/api-designer/assets/rest-patterns.md": {
-    "mtime": 1781946069.509799,
-    "ast_hash": "b4c1a368cc27a0e285c372e7717267f8",
-    "semantic_hash": "b4c1a368cc27a0e285c372e7717267f8"
-  },
-  ".claude/skills/api-designer/assets/versioning.md": {
-    "mtime": 1781946069.51023,
-    "ast_hash": "b1c5d323f069449d62feb856313db61f",
-    "semantic_hash": "b1c5d323f069449d62feb856313db61f"
-  },
-  ".claude/skills/arc42/SKILL.md": {
-    "mtime": 1782314188.9001908,
-    "ast_hash": "3e2996144cc160f88066651e521070dd",
-    "semantic_hash": "3e2996144cc160f88066651e521070dd"
-  },
-  ".claude/skills/arc42/assets/01-introduction-and-goals.md": {
-    "mtime": 1781349132.8550153,
-    "ast_hash": "d9c377930cb9b22a20367e08ab612aaa",
-    "semantic_hash": "d9c377930cb9b22a20367e08ab612aaa"
-  },
-  ".claude/skills/arc42/assets/02-architecture-constraints.md": {
-    "mtime": 1781349132.855363,
-    "ast_hash": "e6406a4be3caf360c010d2fc30d117dc",
-    "semantic_hash": "e6406a4be3caf360c010d2fc30d117dc"
-  },
-  ".claude/skills/arc42/assets/03-context-and-scope.md": {
-    "mtime": 1781349132.854607,
-    "ast_hash": "7919e4e25b6c56cc4bc209da3c9f2443",
-    "semantic_hash": "7919e4e25b6c56cc4bc209da3c9f2443"
-  },
-  ".claude/skills/architecture-designer/SKILL.md": {
-    "mtime": 1783156314.7636101,
-    "ast_hash": "61173d0a65c35ba6cfbab0c81d91b0e1",
-    "semantic_hash": "61173d0a65c35ba6cfbab0c81d91b0e1"
-  },
-  ".claude/skills/architecture-designer/assets/adr-template.md": {
-    "mtime": 1781946069.5108898,
-    "ast_hash": "fe664c0d4ed715c9f6448ed69f7d058d",
-    "semantic_hash": "fe664c0d4ed715c9f6448ed69f7d058d"
-  },
-  ".claude/skills/architecture-designer/assets/architecture-patterns.md": {
-    "mtime": 1783156314.7640212,
-    "ast_hash": "8afa47bbabadc48d2bf71453575b3a99",
-    "semantic_hash": "8afa47bbabadc48d2bf71453575b3a99"
-  },
-  ".claude/skills/architecture-designer/assets/database-selection.md": {
-    "mtime": 1781946069.5112019,
-    "ast_hash": "d65e2baf4123f27f865ad6a70a9a9c96",
-    "semantic_hash": "d65e2baf4123f27f865ad6a70a9a9c96"
-  },
-  ".claude/skills/architecture-designer/assets/nfr-checklist.md": {
-    "mtime": 1781946069.5113442,
-    "ast_hash": "9f65a730c1ecea3015c14266f46aa088",
-    "semantic_hash": "9f65a730c1ecea3015c14266f46aa088"
-  },
-  ".claude/skills/architecture-designer/assets/system-design.md": {
-    "mtime": 1783156314.7642627,
-    "ast_hash": "00a7f411e4b70d9d702849452289121e",
-    "semantic_hash": "00a7f411e4b70d9d702849452289121e"
-  },
-  ".claude/skills/banner-design/SKILL.md": {
-    "mtime": 1783253023.683281,
-    "ast_hash": "aaf11854e0f8233bb53282699334164e",
-    "semantic_hash": "aaf11854e0f8233bb53282699334164e"
-  },
-  ".claude/skills/banner-design/references/banner-sizes-and-styles.md": {
-    "mtime": 1783253023.6828916,
-    "ast_hash": "2581cbdf098909b898471bea6adabff6",
-    "semantic_hash": "2581cbdf098909b898471bea6adabff6"
-  },
-  ".claude/skills/brand/SKILL.md": {
-    "mtime": 1783253023.7349432,
-    "ast_hash": "7d771c480a628d8abdd2749d1893c7ab",
-    "semantic_hash": "7d771c480a628d8abdd2749d1893c7ab"
-  },
-  ".claude/skills/brand/references/approval-checklist.md": {
-    "mtime": 1783253023.731192,
-    "ast_hash": "8cedb5a9d3ddff0d5f7d98affd1fadfc",
-    "semantic_hash": "8cedb5a9d3ddff0d5f7d98affd1fadfc"
-  },
-  ".claude/skills/brand/references/asset-organization.md": {
-    "mtime": 1783253023.7295673,
-    "ast_hash": "8c359aaccb0d5f5a9c0daed9128fd9e9",
-    "semantic_hash": "8c359aaccb0d5f5a9c0daed9128fd9e9"
-  },
-  ".claude/skills/brand/references/brand-guideline-template.md": {
-    "mtime": 1783253023.730437,
-    "ast_hash": "40aadbb3eb6b82efb9c933951cdfe632",
-    "semantic_hash": "40aadbb3eb6b82efb9c933951cdfe632"
-  },
-  ".claude/skills/brand/references/color-palette-management.md": {
-    "mtime": 1783253023.729939,
-    "ast_hash": "b7e3dc308cfc2e65bd94ecf85fb580e7",
-    "semantic_hash": "b7e3dc308cfc2e65bd94ecf85fb580e7"
-  },
-  ".claude/skills/brand/references/consistency-checklist.md": {
-    "mtime": 1783253023.7291703,
-    "ast_hash": "e0be65fe750959b397a96d72ee939ebc",
-    "semantic_hash": "e0be65fe750959b397a96d72ee939ebc"
-  },
-  ".claude/skills/brand/references/logo-usage-rules.md": {
-    "mtime": 1783253023.7318368,
-    "ast_hash": "03cb4cb2d302a9e827fceeff93b4186a",
-    "semantic_hash": "03cb4cb2d302a9e827fceeff93b4186a"
-  },
-  ".claude/skills/brand/references/messaging-framework.md": {
-    "mtime": 1783253023.7322369,
-    "ast_hash": "9390c33e1c7ddb04a39528aa5872f85f",
-    "semantic_hash": "9390c33e1c7ddb04a39528aa5872f85f"
-  },
-  ".claude/skills/brand/references/typography-specifications.md": {
-    "mtime": 1783253023.73094,
-    "ast_hash": "bc5d6e2d497b8aa2d3110de1d8463276",
-    "semantic_hash": "bc5d6e2d497b8aa2d3110de1d8463276"
-  },
-  ".claude/skills/brand/references/update.md": {
-    "mtime": 1783253023.7301886,
-    "ast_hash": "14b943f767980c2675e19008209d9eac",
-    "semantic_hash": "14b943f767980c2675e19008209d9eac"
-  },
-  ".claude/skills/brand/references/visual-identity.md": {
-    "mtime": 1783253023.7315295,
-    "ast_hash": "0ada28b9a2e03da7fe50b95f3318f4de",
-    "semantic_hash": "0ada28b9a2e03da7fe50b95f3318f4de"
-  },
-  ".claude/skills/brand/references/voice-framework.md": {
-    "mtime": 1783253023.730669,
-    "ast_hash": "05b79e16c373850ea5e94e0977856dbc",
-    "semantic_hash": "05b79e16c373850ea5e94e0977856dbc"
-  },
-  ".claude/skills/brand/templates/brand-guidelines-starter.md": {
-    "mtime": 1783253023.7353961,
-    "ast_hash": "f7a5da16b17f9792a93270626d97a978",
-    "semantic_hash": "f7a5da16b17f9792a93270626d97a978"
-  },
-  ".claude/skills/commit-message/SKILL.md": {
-    "mtime": 1781946069.5116608,
-    "ast_hash": "1e944e68f9a0c8f13e9839fd2713e781",
-    "semantic_hash": "1e944e68f9a0c8f13e9839fd2713e781"
-  },
-  ".claude/skills/design-record-structure/SKILL.md": {
-    "mtime": 1783765145.6201599,
-    "ast_hash": "514dcce7a7c12abb846e96ddda9ce752",
-    "semantic_hash": ""
-  },
-  ".claude/skills/design-system/SKILL.md": {
-    "mtime": 1783253023.750992,
-    "ast_hash": "399b2e5ffbeac0bc777882e340245be9",
-    "semantic_hash": "399b2e5ffbeac0bc777882e340245be9"
-  },
-  ".claude/skills/design-system/references/component-specs.md": {
-    "mtime": 1783253023.7442362,
-    "ast_hash": "4b96207671408be2dac5b13c9e31f5bd",
-    "semantic_hash": "4b96207671408be2dac5b13c9e31f5bd"
-  },
-  ".claude/skills/design-system/references/states-and-variants.md": {
-    "mtime": 1783253023.7459536,
-    "ast_hash": "ff0c751bff96625c6780ae076ed4558d",
-    "semantic_hash": "ff0c751bff96625c6780ae076ed4558d"
-  },
-  ".claude/skills/design-system/references/tailwind-integration.md": {
-    "mtime": 1783253023.745623,
-    "ast_hash": "d111e6c9b42fc6c83e353be65f1e7380",
-    "semantic_hash": "d111e6c9b42fc6c83e353be65f1e7380"
-  },
-  ".claude/skills/design/SKILL.md": {
-    "mtime": 1783253023.67873,
-    "ast_hash": "d61b2326528cef1f0a8802c473840aa7",
-    "semantic_hash": "d61b2326528cef1f0a8802c473840aa7"
-  },
-  ".claude/skills/design/references/banner-sizes-and-styles.md": {
-    "mtime": 1783253023.6710474,
-    "ast_hash": "2581cbdf098909b898471bea6adabff6",
-    "semantic_hash": "2581cbdf098909b898471bea6adabff6"
-  },
-  ".claude/skills/design/references/cip-deliverable-guide.md": {
-    "mtime": 1783253023.6746752,
-    "ast_hash": "529d95a6ced350448cff5c2c994adaf6",
-    "semantic_hash": "529d95a6ced350448cff5c2c994adaf6"
-  },
-  ".claude/skills/design/references/cip-design.md": {
-    "mtime": 1783253023.6721456,
-    "ast_hash": "0c7a987fa779a7058a26b92aba5c1e8c",
-    "semantic_hash": "0c7a987fa779a7058a26b92aba5c1e8c"
-  },
-  ".claude/skills/design/references/cip-prompt-engineering.md": {
-    "mtime": 1783253023.6749117,
-    "ast_hash": "71a93064bf55486c3d3bbbfa512db516",
-    "semantic_hash": "71a93064bf55486c3d3bbbfa512db516"
-  },
-  ".claude/skills/design/references/cip-style-guide.md": {
-    "mtime": 1783253023.6717656,
-    "ast_hash": "45ddddcc2633526b10d3936407a37fdb",
-    "semantic_hash": "45ddddcc2633526b10d3936407a37fdb"
-  },
-  ".claude/skills/design/references/design-routing.md": {
-    "mtime": 1783253023.674441,
-    "ast_hash": "fb2836b233f4a1a538fcf515d7746d6d",
-    "semantic_hash": "fb2836b233f4a1a538fcf515d7746d6d"
-  },
-  ".claude/skills/design/references/icon-design.md": {
-    "mtime": 1783253023.6687348,
-    "ast_hash": "629ff5002717b909f53363f5cb1cfd28",
-    "semantic_hash": "629ff5002717b909f53363f5cb1cfd28"
-  },
-  ".claude/skills/design/references/logo-color-psychology.md": {
-    "mtime": 1783253023.6713803,
-    "ast_hash": "c16a5c2f71bca6dffe5be145fb8e1cb4",
-    "semantic_hash": "c16a5c2f71bca6dffe5be145fb8e1cb4"
-  },
-  ".claude/skills/design/references/logo-design.md": {
-    "mtime": 1783253023.6731153,
-    "ast_hash": "ddf37c8f5fb996f86e11052bbe55e2c5",
-    "semantic_hash": "ddf37c8f5fb996f86e11052bbe55e2c5"
-  },
-  ".claude/skills/design/references/logo-prompt-engineering.md": {
-    "mtime": 1783253023.6703055,
-    "ast_hash": "f2efe3315b1b88e32e3a46f76f00e975",
-    "semantic_hash": "f2efe3315b1b88e32e3a46f76f00e975"
-  },
-  ".claude/skills/design/references/logo-style-guide.md": {
-    "mtime": 1783253023.6727335,
-    "ast_hash": "87c13758b7b6ee686d46dd1ad444a3d0",
-    "semantic_hash": "87c13758b7b6ee686d46dd1ad444a3d0"
-  },
-  ".claude/skills/design/references/slides-copywriting-formulas.md": {
-    "mtime": 1783253023.6706846,
-    "ast_hash": "cc6e52e1363e4df1bb56365444dc0f64",
-    "semantic_hash": "cc6e52e1363e4df1bb56365444dc0f64"
-  },
-  ".claude/skills/design/references/slides-create.md": {
-    "mtime": 1783253023.6737027,
-    "ast_hash": "0c134b4ddc19a2be22f8e378e954cf29",
-    "semantic_hash": "0c134b4ddc19a2be22f8e378e954cf29"
-  },
-  ".claude/skills/design/references/slides-html-template.md": {
-    "mtime": 1783253023.6740913,
-    "ast_hash": "8240be541e1fa33ed5a1e6f3a6f56525",
-    "semantic_hash": "8240be541e1fa33ed5a1e6f3a6f56525"
-  },
-  ".claude/skills/design/references/slides-layout-patterns.md": {
-    "mtime": 1783253023.6723914,
-    "ast_hash": "1fc25584d384bb44ca077016a7481109",
-    "semantic_hash": "1fc25584d384bb44ca077016a7481109"
-  },
-  ".claude/skills/design/references/slides-strategies.md": {
-    "mtime": 1783253023.669847,
-    "ast_hash": "1fb116496c22dc3e9ca8a44f86b219bb",
-    "semantic_hash": "1fb116496c22dc3e9ca8a44f86b219bb"
-  },
-  ".claude/skills/design/references/slides.md": {
-    "mtime": 1783253023.6690698,
-    "ast_hash": "6c72659c3af2cdb7df76827cdfff8c2c",
-    "semantic_hash": "6c72659c3af2cdb7df76827cdfff8c2c"
-  },
-  ".claude/skills/design/references/social-photos-design.md": {
-    "mtime": 1783253023.6693923,
-    "ast_hash": "e4df69abcf5c9d57a219b0e264b699be",
-    "semantic_hash": "e4df69abcf5c9d57a219b0e264b699be"
-  },
-  ".claude/skills/fastapi-patterns/SKILL.md": {
-    "mtime": 1781946069.511882,
-    "ast_hash": "afcc9b50a6faaee01cac47ec98b951b7",
-    "semantic_hash": "afcc9b50a6faaee01cac47ec98b951b7"
-  },
-  ".claude/skills/frontend-design/SKILL.md": {
-    "mtime": 1781946069.5120986,
-    "ast_hash": "31c633612585bf2dd4e6d1103afc9f33",
-    "semantic_hash": "31c633612585bf2dd4e6d1103afc9f33"
-  },
-  ".claude/skills/frontend-patterns/SKILL.md": {
-    "mtime": 1781946069.5123198,
-    "ast_hash": "350f677e100b646f6baf6ac9b4be86c3",
-    "semantic_hash": "350f677e100b646f6baf6ac9b4be86c3"
-  },
-  ".claude/skills/planning-and-task-breakdown/SKILL.md": {
-    "mtime": 1781946069.513203,
-    "ast_hash": "d7f1d651f2c1cf4a656cf416fc3cb7cc",
-    "semantic_hash": "d7f1d651f2c1cf4a656cf416fc3cb7cc"
-  },
-  ".claude/skills/plantuml/SKILL.md": {
-    "mtime": 1783156314.7646458,
-    "ast_hash": "137293fff85f857e2f396e16b03907d6",
-    "semantic_hash": "137293fff85f857e2f396e16b03907d6"
-  },
-  ".claude/skills/react-patterns/SKILL.md": {
-    "mtime": 1781946069.5138302,
-    "ast_hash": "d3dd967f897c4aa8d06ba51254ed6ced",
-    "semantic_hash": "d3dd967f897c4aa8d06ba51254ed6ced"
-  },
-  ".claude/skills/react-performance/SKILL.md": {
-    "mtime": 1781946069.5140717,
-    "ast_hash": "88b95905383397581606240bd886fd46",
-    "semantic_hash": "88b95905383397581606240bd886fd46"
-  },
-  ".claude/skills/react-testing/SKILL.md": {
-    "mtime": 1781946069.5143209,
-    "ast_hash": "a95f25e11de050fb44045cabb7759988",
-    "semantic_hash": "a95f25e11de050fb44045cabb7759988"
-  },
-  ".claude/skills/requirements-writer/SKILL.md": {
-    "mtime": 1781946069.514583,
-    "ast_hash": "f8798c376b6bcafbd133b72207aa62a2",
-    "semantic_hash": "f8798c376b6bcafbd133b72207aa62a2"
-  },
-  ".claude/skills/requirements-writer/assets/requirements-template.md": {
-    "mtime": 1781946069.5148516,
-    "ast_hash": "2953844ba16657977f1415ba4e3298b6",
-    "semantic_hash": "2953844ba16657977f1415ba4e3298b6"
-  },
-  ".claude/skills/slides/SKILL.md": {
-    "mtime": 1783253023.7382553,
-    "ast_hash": "1d017fa64446b147cb7c84f05562520f",
-    "semantic_hash": "1d017fa64446b147cb7c84f05562520f"
-  },
-  ".claude/skills/slides/references/copywriting-formulas.md": {
-    "mtime": 1783253023.7376869,
-    "ast_hash": "cc6e52e1363e4df1bb56365444dc0f64",
-    "semantic_hash": "cc6e52e1363e4df1bb56365444dc0f64"
-  },
-  ".claude/skills/slides/references/create.md": {
-    "mtime": 1783253023.7373304,
-    "ast_hash": "0c134b4ddc19a2be22f8e378e954cf29",
-    "semantic_hash": "0c134b4ddc19a2be22f8e378e954cf29"
-  },
-  ".claude/skills/slides/references/html-template.md": {
-    "mtime": 1783253023.7365642,
-    "ast_hash": "8240be541e1fa33ed5a1e6f3a6f56525",
-    "semantic_hash": "8240be541e1fa33ed5a1e6f3a6f56525"
-  },
-  ".claude/skills/slides/references/layout-patterns.md": {
-    "mtime": 1783253023.7362182,
-    "ast_hash": "1fc25584d384bb44ca077016a7481109",
-    "semantic_hash": "1fc25584d384bb44ca077016a7481109"
-  },
-  ".claude/skills/slides/references/slide-strategies.md": {
-    "mtime": 1783253023.7369916,
-    "ast_hash": "1fb116496c22dc3e9ca8a44f86b219bb",
-    "semantic_hash": "1fb116496c22dc3e9ca8a44f86b219bb"
-  },
-  ".claude/skills/spec-driven-development/SKILL.md": {
-    "mtime": 1781946069.515433,
-    "ast_hash": "3994078991ce3671d1230608dc85e601",
-    "semantic_hash": "3994078991ce3671d1230608dc85e601"
-  },
-  ".claude/skills/ui-styling/LICENSE.txt": {
-    "mtime": 1783253023.728577,
-    "ast_hash": "175792518e4ac015ab6696d16c4f607e",
-    "semantic_hash": "175792518e4ac015ab6696d16c4f607e"
-  },
-  ".claude/skills/ui-styling/SKILL.md": {
-    "mtime": 1783253023.7280989,
-    "ast_hash": "28a3c5ed8e63a04595cc398a355a3b63",
-    "semantic_hash": "28a3c5ed8e63a04595cc398a355a3b63"
-  },
-  ".claude/skills/ui-styling/canvas-fonts/ArsenalSC-OFL.txt": {
-    "mtime": 1783253023.6920826,
-    "ast_hash": "6ba27859bff46d6040ce48e164b2b6b5",
-    "semantic_hash": "6ba27859bff46d6040ce48e164b2b6b5"
-  },
-  ".claude/skills/ui-styling/canvas-fonts/BigShoulders-OFL.txt": {
-    "mtime": 1783253023.7180998,
-    "ast_hash": "db35b3b1166369fabfe18614e67ad0f7",
-    "semantic_hash": "db35b3b1166369fabfe18614e67ad0f7"
-  },
-  ".claude/skills/ui-styling/canvas-fonts/Boldonse-OFL.txt": {
-    "mtime": 1783253023.7199886,
-    "ast_hash": "fd1bd9bdc739431ca190a2178b29fe2e",
-    "semantic_hash": "fd1bd9bdc739431ca190a2178b29fe2e"
-  },
-  ".claude/skills/ui-styling/canvas-fonts/BricolageGrotesque-OFL.txt": {
-    "mtime": 1783253023.712206,
-    "ast_hash": "c01c6f2840f06aacc97899ab09ec0e01",
-    "semantic_hash": "c01c6f2840f06aacc97899ab09ec0e01"
-  },
-  ".claude/skills/ui-styling/canvas-fonts/CrimsonPro-OFL.txt": {
-    "mtime": 1783253023.695233,
-    "ast_hash": "2b62069b71f49dddd2bde54448a986a0",
-    "semantic_hash": "2b62069b71f49dddd2bde54448a986a0"
-  },
-  ".claude/skills/ui-styling/canvas-fonts/DMMono-OFL.txt": {
-    "mtime": 1783253023.7087076,
-    "ast_hash": "c6a3ddf00ed346cbb45fdfa0ca2c4b9c",
-    "semantic_hash": "c6a3ddf00ed346cbb45fdfa0ca2c4b9c"
-  },
-  ".claude/skills/ui-styling/canvas-fonts/EricaOne-OFL.txt": {
-    "mtime": 1783253023.7069855,
-    "ast_hash": "0312065d0003e7a4ef6a459afd7e1ccb",
-    "semantic_hash": "0312065d0003e7a4ef6a459afd7e1ccb"
-  },
-  ".claude/skills/ui-styling/canvas-fonts/GeistMono-OFL.txt": {
-    "mtime": 1783253023.7165587,
-    "ast_hash": "9678944f41fc8b46592ca1626f1c0896",
-    "semantic_hash": "9678944f41fc8b46592ca1626f1c0896"
-  },
-  ".claude/skills/ui-styling/canvas-fonts/Gloock-OFL.txt": {
-    "mtime": 1783253023.6934063,
-    "ast_hash": "2cc6d168f1171b25a10e825bb7a54ee7",
-    "semantic_hash": "2cc6d168f1171b25a10e825bb7a54ee7"
-  },
-  ".claude/skills/ui-styling/canvas-fonts/IBMPlexMono-OFL.txt": {
-    "mtime": 1783253023.7183576,
-    "ast_hash": "30de3a874e3399fc7b9d1bec045d3166",
-    "semantic_hash": "30de3a874e3399fc7b9d1bec045d3166"
-  },
-  ".claude/skills/ui-styling/canvas-fonts/InstrumentSans-OFL.txt": {
-    "mtime": 1783253023.7061033,
-    "ast_hash": "35856d470a6adf5d5c4a9bcdfd659bcc",
-    "semantic_hash": "35856d470a6adf5d5c4a9bcdfd659bcc"
-  },
-  ".claude/skills/ui-styling/canvas-fonts/Italiana-OFL.txt": {
-    "mtime": 1783253023.6923656,
-    "ast_hash": "233d74d83b54a786d21a429304775aef",
-    "semantic_hash": "233d74d83b54a786d21a429304775aef"
-  },
-  ".claude/skills/ui-styling/canvas-fonts/JetBrainsMono-OFL.txt": {
-    "mtime": 1783253023.717842,
-    "ast_hash": "2025a2ee80175b15561a8232e67d74d5",
-    "semantic_hash": "2025a2ee80175b15561a8232e67d74d5"
-  },
-  ".claude/skills/ui-styling/canvas-fonts/Jura-OFL.txt": {
-    "mtime": 1783253023.6960862,
-    "ast_hash": "227060bfebf7bcf3f924fafa47d1237d",
-    "semantic_hash": "227060bfebf7bcf3f924fafa47d1237d"
-  },
-  ".claude/skills/ui-styling/canvas-fonts/LibreBaskerville-OFL.txt": {
-    "mtime": 1783253023.711204,
-    "ast_hash": "077df2dc77ecd9ca43d6fbc15ed1c0cb",
-    "semantic_hash": "077df2dc77ecd9ca43d6fbc15ed1c0cb"
-  },
-  ".claude/skills/ui-styling/canvas-fonts/Lora-OFL.txt": {
-    "mtime": 1783253023.702992,
-    "ast_hash": "a6f35dd3870842fab964fbcd0ffb2908",
-    "semantic_hash": "a6f35dd3870842fab964fbcd0ffb2908"
-  },
-  ".claude/skills/ui-styling/canvas-fonts/NationalPark-OFL.txt": {
-    "mtime": 1783253023.7089655,
-    "ast_hash": "67073750dbf1a5d68e56c4c5ffec8f09",
-    "semantic_hash": "67073750dbf1a5d68e56c4c5ffec8f09"
-  },
-  ".claude/skills/ui-styling/canvas-fonts/NothingYouCouldDo-OFL.txt": {
-    "mtime": 1783253023.7128127,
-    "ast_hash": "b3dd666855ec5cd55f351287c80b9eb1",
-    "semantic_hash": "b3dd666855ec5cd55f351287c80b9eb1"
-  },
-  ".claude/skills/ui-styling/canvas-fonts/Outfit-OFL.txt": {
-    "mtime": 1783253023.6931288,
-    "ast_hash": "1b36bbe38eb97e26055123ff42f44fc7",
-    "semantic_hash": "1b36bbe38eb97e26055123ff42f44fc7"
-  },
-  ".claude/skills/ui-styling/canvas-fonts/PixelifySans-OFL.txt": {
-    "mtime": 1783253023.695816,
-    "ast_hash": "1f685eb54479bfa39bced4f64798a900",
-    "semantic_hash": "1f685eb54479bfa39bced4f64798a900"
-  },
-  ".claude/skills/ui-styling/canvas-fonts/PoiretOne-OFL.txt": {
-    "mtime": 1783253023.711456,
-    "ast_hash": "954ca844e5dd9e31353213c6a142b9a4",
-    "semantic_hash": "954ca844e5dd9e31353213c6a142b9a4"
-  },
-  ".claude/skills/ui-styling/canvas-fonts/RedHatMono-OFL.txt": {
-    "mtime": 1783253023.7150636,
-    "ast_hash": "0787f4274246f7bbf6c429db807e3049",
-    "semantic_hash": "0787f4274246f7bbf6c429db807e3049"
-  },
-  ".claude/skills/ui-styling/canvas-fonts/Silkscreen-OFL.txt": {
-    "mtime": 1783253023.6966329,
-    "ast_hash": "ed13fbda3931ec8f3beb063f8fcd2182",
-    "semantic_hash": "ed13fbda3931ec8f3beb063f8fcd2182"
-  },
-  ".claude/skills/ui-styling/canvas-fonts/SmoochSans-OFL.txt": {
-    "mtime": 1783253023.710354,
-    "ast_hash": "da377dd00a998b32d88274b2b17c64be",
-    "semantic_hash": "da377dd00a998b32d88274b2b17c64be"
-  },
-  ".claude/skills/ui-styling/canvas-fonts/Tektur-OFL.txt": {
-    "mtime": 1783253023.7064312,
-    "ast_hash": "40fd22c803f19bfbdb6383598f3bfacb",
-    "semantic_hash": "40fd22c803f19bfbdb6383598f3bfacb"
-  },
-  ".claude/skills/ui-styling/canvas-fonts/WorkSans-OFL.txt": {
-    "mtime": 1783253023.702735,
-    "ast_hash": "4bf1338afcac74d0c9ea569f07a87fab",
-    "semantic_hash": "4bf1338afcac74d0c9ea569f07a87fab"
-  },
-  ".claude/skills/ui-styling/canvas-fonts/YoungSerif-OFL.txt": {
-    "mtime": 1783253023.6939962,
-    "ast_hash": "fa532d4441344be225f3f46d7ce2aabf",
-    "semantic_hash": "fa532d4441344be225f3f46d7ce2aabf"
-  },
-  ".claude/skills/ui-styling/references/canvas-design-system.md": {
-    "mtime": 1783253023.7243214,
-    "ast_hash": "af9125f586c5909737dab10874f0c1e2",
-    "semantic_hash": "af9125f586c5909737dab10874f0c1e2"
-  },
-  ".claude/skills/ui-styling/references/shadcn-accessibility.md": {
-    "mtime": 1783253023.7236376,
-    "ast_hash": "942f36327bb6ada5ce9a7f3d0e1877ce",
-    "semantic_hash": "942f36327bb6ada5ce9a7f3d0e1877ce"
-  },
-  ".claude/skills/ui-styling/references/shadcn-components.md": {
-    "mtime": 1783253023.7239304,
-    "ast_hash": "e6c281ca23ac2a97aefae71f6190f915",
-    "semantic_hash": "e6c281ca23ac2a97aefae71f6190f915"
-  },
-  ".claude/skills/ui-styling/references/shadcn-theming.md": {
-    "mtime": 1783253023.7221935,
-    "ast_hash": "1c3f2a49a346f7e22e364f94c3b1d99c",
-    "semantic_hash": "1c3f2a49a346f7e22e364f94c3b1d99c"
-  },
-  ".claude/skills/ui-styling/references/tailwind-customization.md": {
-    "mtime": 1783253023.723304,
-    "ast_hash": "214b07281279c73713262edc92cba5c4",
-    "semantic_hash": "214b07281279c73713262edc92cba5c4"
-  },
-  ".claude/skills/ui-styling/references/tailwind-responsive.md": {
-    "mtime": 1783253023.7229772,
-    "ast_hash": "0404b2ca094826682d24226231ff2fef",
-    "semantic_hash": "0404b2ca094826682d24226231ff2fef"
-  },
-  ".claude/skills/ui-styling/references/tailwind-utilities.md": {
-    "mtime": 1783253023.7226357,
-    "ast_hash": "cc42c158e59165c86fc826c83862c97e",
-    "semantic_hash": "cc42c158e59165c86fc826c83862c97e"
-  },
-  ".claude/skills/ui-styling/scripts/requirements.txt": {
-    "mtime": 1783253023.7252755,
-    "ast_hash": "56d0657c2d53f4edf30689d0c217efbb",
-    "semantic_hash": "56d0657c2d53f4edf30689d0c217efbb"
-  },
-  ".claude/skills/ui-styling/scripts/tests/requirements.txt": {
-    "mtime": 1783253023.7262456,
-    "ast_hash": "d7fb3d2ea85706944ec8609949c3a851",
-    "semantic_hash": "d7fb3d2ea85706944ec8609949c3a851"
-  },
-  ".claude/skills/ui-ux-pro-max/SKILL.md": {
-    "mtime": 1783253023.652314,
-    "ast_hash": "4a422bc3a678f719b2dd7e5bb62769d5",
-    "semantic_hash": "4a422bc3a678f719b2dd7e5bb62769d5"
-  },
   ".github/workflows/ci.yml": {
     "mtime": 1782810692.3529804,
     "ast_hash": "e2187fd8e2dc7895c195766ecb2c0319",
@@ -2420,8 +1700,8 @@
     "semantic_hash": "e0b4004ebb98a631f5b81397628789d9"
   },
   "CLAUDE.md": {
-    "mtime": 1783434789.8628578,
-    "ast_hash": "1ffa16cc96f2fed18b332b72b5115885",
+    "mtime": 1789674368.295255,
+    "ast_hash": "5c7f218230f1c0e51a55af016490ace2",
     "semantic_hash": ""
   },
   "README.md": {
@@ -2435,49 +1715,49 @@
     "semantic_hash": "0bb3cd97ac42618adb9e8cb56228c005"
   },
   "docs/design-inputs/software-requirements/SR-001-browser-accessible-web-application-over-https.md": {
-    "mtime": 1783414417.745376,
-    "ast_hash": "a29e8026006ea5bc04e2a2cf06ba1b0c",
-    "semantic_hash": "a29e8026006ea5bc04e2a2cf06ba1b0c"
+    "mtime": 1789677795.2823505,
+    "ast_hash": "ab7ace6e3518054f08bb041db8273dee",
+    "semantic_hash": ""
   },
   "docs/design-inputs/software-requirements/SR-002-email-and-password-authentication.md": {
-    "mtime": 1783414417.7457104,
-    "ast_hash": "e6e0e1cf61da15198e6ef55413ac89cc",
-    "semantic_hash": "e6e0e1cf61da15198e6ef55413ac89cc"
+    "mtime": 1789677795.2827368,
+    "ast_hash": "c905627e50604482c13e1730e888faed",
+    "semantic_hash": ""
   },
   "docs/design-inputs/software-requirements/SR-003-unique-user-account-and-profile-view.md": {
-    "mtime": 1783414417.7464733,
-    "ast_hash": "d0456554cf8352797d61577062c44014",
-    "semantic_hash": "d0456554cf8352797d61577062c44014"
+    "mtime": 1789677162.7208295,
+    "ast_hash": "80c921816ef22d5fdea0416e314915c1",
+    "semantic_hash": ""
   },
   "docs/design-inputs/software-requirements/SR-004-user-type-assignment.md": {
-    "mtime": 1783414417.7466846,
-    "ast_hash": "0e6276f45db566b2dcd8c469e9459a92",
-    "semantic_hash": "0e6276f45db566b2dcd8c469e9459a92"
+    "mtime": 1789677162.7209475,
+    "ast_hash": "855d70f9f5c474242e069e95d627c817",
+    "semantic_hash": ""
   },
   "docs/design-inputs/software-requirements/SR-005-role-based-access-control-enforcement.md": {
-    "mtime": 1783414417.7468889,
-    "ast_hash": "f609b5f011876715978a6c2e92e620ff",
-    "semantic_hash": "f609b5f011876715978a6c2e92e620ff"
+    "mtime": 1789677795.2828808,
+    "ast_hash": "ce969aca07a7af30eda153eebd43ec9e",
+    "semantic_hash": ""
   },
   "docs/design-inputs/software-requirements/SR-006-doctor-access-to-own-patients-clinical.md": {
-    "mtime": 1783414417.7470634,
-    "ast_hash": "88ee27c2251688864ec87ffecbb78c3b",
-    "semantic_hash": "88ee27c2251688864ec87ffecbb78c3b"
+    "mtime": 1789677795.2830198,
+    "ast_hash": "262f20aa088150c1466bb374625aba83",
+    "semantic_hash": ""
   },
   "docs/design-inputs/software-requirements/SR-007-patient-access-to-own-personal-and.md": {
-    "mtime": 1783414417.7473016,
-    "ast_hash": "3bdd0f0e2c23817e1673f3ef98ee5837",
-    "semantic_hash": "3bdd0f0e2c23817e1673f3ef98ee5837"
+    "mtime": 1789677795.2831647,
+    "ast_hash": "1c4eef51b316fb3588c89841dfeb984d",
+    "semantic_hash": ""
   },
   "docs/design-inputs/software-requirements/SR-008-patient-grant-and-revoke-of-clinical.md": {
-    "mtime": 1783414417.7475622,
-    "ast_hash": "3723fe9aaa7a394675016685eccbf7d2",
-    "semantic_hash": "3723fe9aaa7a394675016685eccbf7d2"
+    "mtime": 1789677795.2832859,
+    "ast_hash": "213d56ea9743a7c16a537c4924673d22",
+    "semantic_hash": ""
   },
   "docs/design-inputs/software-requirements/SR-009-administrative-personnel-non-clinical-data-scope.md": {
-    "mtime": 1783414417.747969,
-    "ast_hash": "eb1ed60bcce2185dd9c05d6272b75bc3",
-    "semantic_hash": "eb1ed60bcce2185dd9c05d6272b75bc3"
+    "mtime": 1789677795.2834103,
+    "ast_hash": "1ae6639eed16460663ada1f317a96c79",
+    "semantic_hash": ""
   },
   "docs/design-inputs/software-requirements/SR-010-appointment-creation.md": {
     "mtime": 1783414417.7482617,
@@ -2485,19 +1765,19 @@
     "semantic_hash": "cbb42dc06e7b0e6074d4c77fdb07394c"
   },
   "docs/design-inputs/software-requirements/SR-011-appointment-visibility.md": {
-    "mtime": 1783414417.7486348,
-    "ast_hash": "bae1c2c029d4748e1225033370acd80c",
-    "semantic_hash": "bae1c2c029d4748e1225033370acd80c"
+    "mtime": 1789677162.72164,
+    "ast_hash": "ec885fe8a3fd20c786d5ec092ccbec91",
+    "semantic_hash": ""
   },
   "docs/design-inputs/software-requirements/SR-012-clinical-entry-creation-with-required-fields.md": {
-    "mtime": 1783414417.7488155,
-    "ast_hash": "0970c52d9083d8910087963160d1f279",
-    "semantic_hash": "0970c52d9083d8910087963160d1f279"
+    "mtime": 1789677162.7217505,
+    "ast_hash": "f4f9e06e20188a005ebe7e6185d1603e",
+    "semantic_hash": ""
   },
   "docs/design-inputs/software-requirements/SR-013-clinical-entry-file-attachments.md": {
-    "mtime": 1783414417.7490516,
-    "ast_hash": "1fa546c4cc403cd46a97a6f8e5af9361",
-    "semantic_hash": "1fa546c4cc403cd46a97a6f8e5af9361"
+    "mtime": 1789677162.7218587,
+    "ast_hash": "8ee687c27e14621d44cbbe6907ab794b",
+    "semantic_hash": ""
   },
   "docs/design-inputs/software-requirements/SR-014-user-group-management.md": {
     "mtime": 1783414417.7493002,
@@ -2515,79 +1795,79 @@
     "semantic_hash": "df56a49281c672abd2fa116bf5c9d132"
   },
   "docs/design-inputs/software-requirements/SR-017-dicom-image-opening-and-rendering.md": {
-    "mtime": 1783414417.7504554,
-    "ast_hash": "fa12de2e250bae98b2dff5cb5e1fe7e9",
-    "semantic_hash": "fa12de2e250bae98b2dff5cb5e1fe7e9"
+    "mtime": 1789677795.2835412,
+    "ast_hash": "023b770413df485bda05ab667f22b71b",
+    "semantic_hash": ""
   },
   "docs/design-inputs/software-requirements/SR-018-dicom-viewer-controls.md": {
-    "mtime": 1783414417.7509027,
-    "ast_hash": "3b07fe9fc263c8f037435ac89b613ef1",
-    "semantic_hash": "3b07fe9fc263c8f037435ac89b613ef1"
+    "mtime": 1789677162.722079,
+    "ast_hash": "a44f163255f35204b1956ec60001f6ea",
+    "semantic_hash": ""
   },
   "docs/design-inputs/software-requirements/SR-019-cross-browser-support.md": {
-    "mtime": 1783414417.7510715,
-    "ast_hash": "ea4fe342b6848e20812c0c8ad42b0129",
-    "semantic_hash": "ea4fe342b6848e20812c0c8ad42b0129"
+    "mtime": 1789677795.2836637,
+    "ast_hash": "1db6a02b03078db1ae5af7a237ba6ae0",
+    "semantic_hash": ""
   },
   "docs/design-inputs/software-requirements/SR-020-responsive-layout-across-devices.md": {
-    "mtime": 1783414417.75127,
-    "ast_hash": "4f5a3056fd9e670ff2facf3a15aa342b",
-    "semantic_hash": "4f5a3056fd9e670ff2facf3a15aa342b"
+    "mtime": 1789677795.2837849,
+    "ast_hash": "313ea79e5e59413d0cb7ad875d968be3",
+    "semantic_hash": ""
   },
   "docs/design-inputs/software-requirements/SR-021-fhir-aligned-data-model.md": {
-    "mtime": 1783414417.7514546,
-    "ast_hash": "496e3c3d9145d6c6703f68497eb2f980",
-    "semantic_hash": "496e3c3d9145d6c6703f68497eb2f980"
+    "mtime": 1789677162.7223072,
+    "ast_hash": "0ac448f723470bbf283d901ac10804d5",
+    "semantic_hash": ""
   },
   "docs/design-inputs/software-requirements/SR-022-encryption-in-transit-and-at-rest.md": {
-    "mtime": 1783414417.7516387,
-    "ast_hash": "c8996ee415e745ff6cd4079f74b1a8e8",
-    "semantic_hash": "c8996ee415e745ff6cd4079f74b1a8e8"
+    "mtime": 1789677795.2839086,
+    "ast_hash": "716f8993d9ef6b48ada40bc617b16c64",
+    "semantic_hash": ""
   },
   "docs/design-inputs/software-requirements/SR-023-audit-logging-of-security-relevant-events.md": {
-    "mtime": 1783414417.7518167,
-    "ast_hash": "078c6d6f3564391a414fce1342c503d6",
-    "semantic_hash": "078c6d6f3564391a414fce1342c503d6"
+    "mtime": 1789677795.2840257,
+    "ast_hash": "1dba37235efe8715df8c70e918cfdf1c",
+    "semantic_hash": ""
   },
   "docs/design-inputs/software-requirements/SR-024-personal-data-erasure.md": {
-    "mtime": 1783414417.7520552,
-    "ast_hash": "fb573ceed989f21697109e8848de0fc0",
-    "semantic_hash": "fb573ceed989f21697109e8848de0fc0"
+    "mtime": 1789677795.28426,
+    "ast_hash": "0594aae5bb8304fa8108aa39f943dcd5",
+    "semantic_hash": ""
   },
   "docs/design-inputs/software-requirements/SR-025-password-complexity-policy.md": {
-    "mtime": 1783414417.7523046,
-    "ast_hash": "d98d084cf5bf558e66305b5cc6ba5e5d",
-    "semantic_hash": "d98d084cf5bf558e66305b5cc6ba5e5d"
+    "mtime": 1789677795.284406,
+    "ast_hash": "60643295f1e2cb2d1682a3c3850132db",
+    "semantic_hash": ""
   },
   "docs/design-inputs/software-requirements/SR-026-performance-budgets-for-routine-operations.md": {
-    "mtime": 1783414417.752836,
-    "ast_hash": "46bb1e077eea7150170370c107bc0de2",
-    "semantic_hash": "46bb1e077eea7150170370c107bc0de2"
+    "mtime": 1789677795.2845407,
+    "ast_hash": "ad66cb604bb0638ceabf115561ebfb67",
+    "semantic_hash": ""
   },
   "docs/design-inputs/software-requirements/SR-027-usability-controls.md": {
-    "mtime": 1783414417.7530136,
-    "ast_hash": "73d08e79b8d37090d5272005892660f5",
-    "semantic_hash": "73d08e79b8d37090d5272005892660f5"
+    "mtime": 1789677795.2846684,
+    "ast_hash": "197cfbd90c9d33151a397e0a60e191b0",
+    "semantic_hash": ""
   },
   "docs/design-inputs/software-requirements/SR-028-traceable-version-controlled-development-records.md": {
-    "mtime": 1783414417.7531967,
-    "ast_hash": "7da0e45344fb4c1abacc35c4cb9901fb",
-    "semantic_hash": "7da0e45344fb4c1abacc35c4cb9901fb"
+    "mtime": 1789677795.2848125,
+    "ast_hash": "35d370efce3463a4eb59791259934e03",
+    "semantic_hash": ""
   },
   "docs/design-inputs/software-requirements/SR-029-account-lockout-after-failed-login-attempts.md": {
-    "mtime": 1783414417.753366,
-    "ast_hash": "83d07bb4233253feb31e85cdcba18231",
-    "semantic_hash": "83d07bb4233253feb31e85cdcba18231"
+    "mtime": 1789677795.2850509,
+    "ast_hash": "5a48c8d7020ddf2f75756ec05978febd",
+    "semantic_hash": ""
   },
   "docs/design-inputs/software-requirements/SR-030-session-management.md": {
-    "mtime": 1783414417.7535381,
-    "ast_hash": "5fb9c8e1358bcad1d86b9b1dc6e632e2",
-    "semantic_hash": "5fb9c8e1358bcad1d86b9b1dc6e632e2"
+    "mtime": 1789677795.285205,
+    "ast_hash": "ee028d1a9e48aec0d7b6c9937581d231",
+    "semantic_hash": ""
   },
   "docs/design-inputs/software-requirements/SR-031-web-vulnerability-mitigations.md": {
-    "mtime": 1783414417.753706,
-    "ast_hash": "4e2961a44effabe75da799e802b313dc",
-    "semantic_hash": "4e2961a44effabe75da799e802b313dc"
+    "mtime": 1789677795.2853682,
+    "ast_hash": "41601cb8b4a8b68e17944f6b9c54ae8a",
+    "semantic_hash": ""
   },
   "docs/design-inputs/software-requirements/SR-032-role-constrained-user-account-creation.md": {
     "mtime": 1783414417.7538736,
@@ -2595,24 +1875,24 @@
     "semantic_hash": "519a180eff9dd0085c806b4f345723cd"
   },
   "docs/design-inputs/software-requirements/SR-033-account-activation-via-email.md": {
-    "mtime": 1783414417.7540667,
-    "ast_hash": "25303856c9fea87d29099cc6b239e9c1",
-    "semantic_hash": "25303856c9fea87d29099cc6b239e9c1"
+    "mtime": 1789677162.7241178,
+    "ast_hash": "a50ae6588d0d938644231ba8d003eeca",
+    "semantic_hash": ""
   },
   "docs/design-inputs/software-requirements/SR-034-account-deactivation-and-deletion-by-system.md": {
-    "mtime": 1783414417.7542825,
-    "ast_hash": "5ce57c446fef327aae3a6445737a1764",
-    "semantic_hash": "5ce57c446fef327aae3a6445737a1764"
+    "mtime": 1789677795.285699,
+    "ast_hash": "a6e07b74f8e4e3ef1892e4460c7c09dc",
+    "semantic_hash": ""
   },
   "docs/design-inputs/software-requirements/SR-035-patient-notification-and-confirmation-of-scheduled.md": {
-    "mtime": 1783414417.7544823,
-    "ast_hash": "5a7cf8cae54e9942ba9c63af218a11bb",
-    "semantic_hash": "5a7cf8cae54e9942ba9c63af218a11bb"
+    "mtime": 1789677162.7242653,
+    "ast_hash": "8640c10bfea919bbf1da5fe03e7cab58",
+    "semantic_hash": ""
   },
   "docs/design-inputs/software-requirements/SR-036-clinical-data-access-grant-on-appointment.md": {
-    "mtime": 1783414417.7546906,
-    "ast_hash": "ae375ffc48de1cb65838c6861ed4bf50",
-    "semantic_hash": "ae375ffc48de1cb65838c6861ed4bf50"
+    "mtime": 1789677795.2858703,
+    "ast_hash": "310ebbe4d3d548f7e3c0366b5c4123c6",
+    "semantic_hash": ""
   },
   "docs/design-inputs/system-requirements/non-functional/NFR-001-browser-compatibility.md": {
     "mtime": 1783414417.7550826,
@@ -2735,9 +2015,9 @@
     "semantic_hash": "fea3d9cb82f480e5c2d4411c1ff4168e"
   },
   "docs/design-outputs/tasks/TASK-003-config-secrets-management.md": {
-    "mtime": 1783414417.7617295,
-    "ast_hash": "7a791255d180ee9d10a95376d6a80a3e",
-    "semantic_hash": "7a791255d180ee9d10a95376d6a80a3e"
+    "mtime": 1789674687.648932,
+    "ast_hash": "ec6c413f97a38cadb0e3ea3c4bd77847",
+    "semantic_hash": ""
   },
   "docs/design-outputs/tasks/TASK-004-docker-compose-topology-reverse-proxy.md": {
     "mtime": 1783414417.7620027,
@@ -2840,9 +2120,9 @@
     "semantic_hash": "931b8943da40f0239b616ada7a5b2b09"
   },
   "docs/design-outputs/tasks/TASK-036-worker-5-year-permanent-erasure.md": {
-    "mtime": 1783414417.7674472,
-    "ast_hash": "a47e47c9f297f5a9e26049b00e6e2430",
-    "semantic_hash": "a47e47c9f297f5a9e26049b00e6e2430"
+    "mtime": 1789677162.7247806,
+    "ast_hash": "52436030c865b2cb81920375122987f3",
+    "semantic_hash": ""
   },
   "docs/design-outputs/tasks/TASK-040-group-crud.md": {
     "mtime": 1783414417.767635,
@@ -2935,9 +2215,9 @@
     "semantic_hash": "af40655b1901ea1d8f4a635f3299e716"
   },
   "docs/design-outputs/tasks/TASK-066-clinical-entry-attachment-endpoints.md": {
-    "mtime": 1783414417.771314,
-    "ast_hash": "44ec18ed002614009973197b224e8742",
-    "semantic_hash": "44ec18ed002614009973197b224e8742"
+    "mtime": 1789677162.7251394,
+    "ast_hash": "71c0c1fca36b14b1e5bab2c47de2f8ee",
+    "semantic_hash": ""
   },
   "docs/design-outputs/tasks/TASK-067-current-user-me-endpoints.md": {
     "mtime": 1783414417.7714946,
@@ -3030,9 +2310,9 @@
     "semantic_hash": "4231d74fb7240fe16faecdf921668375"
   },
   "docs/design-outputs/tasks/TASK-092-clinical-entries-view-create-attachment-upload.md": {
-    "mtime": 1783414417.7754188,
-    "ast_hash": "4430467a2dfa55bd9fa72335d7e66247",
-    "semantic_hash": "4430467a2dfa55bd9fa72335d7e66247"
+    "mtime": 1789674736.7753086,
+    "ast_hash": "27aa077969385cdc31c1629502b8f1e1",
+    "semantic_hash": ""
   },
   "docs/design-outputs/tasks/TASK-093-appointments-list-create-confirm-decline.md": {
     "mtime": 1783414417.7756245,
@@ -3075,14 +2355,14 @@
     "semantic_hash": "0ca866c335ac409b18197b38013d655b"
   },
   "docs/design-outputs/tasks/TASK-110-integration-tests-for-the-seven-runtime.md": {
-    "mtime": 1783414417.777219,
-    "ast_hash": "732c1b1fec79f51f6ebeed95e3491ee2",
-    "semantic_hash": "732c1b1fec79f51f6ebeed95e3491ee2"
+    "mtime": 1789677162.7253778,
+    "ast_hash": "a0a1dd0cb443030fc04582407216c3aa",
+    "semantic_hash": ""
   },
   "docs/design-outputs/tasks/TASK-111-system-end-to-end-tests-playwright.md": {
-    "mtime": 1783414417.7774072,
-    "ast_hash": "f5a4e0776760b357bdf9e31d1c9062d4",
-    "semantic_hash": "f5a4e0776760b357bdf9e31d1c9062d4"
+    "mtime": 1789677162.725539,
+    "ast_hash": "ce1dc60e8e954ef091aabe66c2306ffc",
+    "semantic_hash": ""
   },
   "docs/design-outputs/tasks/TASK-112-performance-validation-against-the-budgets.md": {
     "mtime": 1783414417.777587,
@@ -3090,49 +2370,49 @@
     "semantic_hash": "baaf27802cb7b78302e0b9d7fca0484f"
   },
   "docs/design-outputs/tasks/TASK-113-security-review-of-auth-session-authz.md": {
-    "mtime": 1783414417.7777565,
-    "ast_hash": "23dd7a8224da63c7d34f12eeaf2ae44c",
-    "semantic_hash": "23dd7a8224da63c7d34f12eeaf2ae44c"
+    "mtime": 1789677162.7256985,
+    "ast_hash": "50ee3fafc9f28d5dcb5f3b2b4a6ed58d",
+    "semantic_hash": ""
   },
   "docs/design-outputs/tasks/TASK-114-traceability-matrix-completion-task-system-test.md": {
-    "mtime": 1783414417.7779272,
-    "ast_hash": "a0a5f73526881946d6cb76ec71ae7e69",
-    "semantic_hash": "a0a5f73526881946d6cb76ec71ae7e69"
+    "mtime": 1789677564.5586417,
+    "ast_hash": "091411b3ee65da27d879a4eba7586592",
+    "semantic_hash": ""
   },
   "docs/design-outputs/tasks/TASK-115-deploy-run-documentation-first-sysadmin-bootstrap.md": {
-    "mtime": 1783414417.7781048,
-    "ast_hash": "800846d2bb3517aa723db1aa4ff59b50",
-    "semantic_hash": "800846d2bb3517aa723db1aa4ff59b50"
+    "mtime": 1789677162.725839,
+    "ast_hash": "548795f871042d37842bbc4b16535cc4",
+    "semantic_hash": ""
   },
   "docs/design-outputs/tasks/TASK-116-clinical-data-re-keying-into-the.md": {
-    "mtime": 1783414417.7782972,
-    "ast_hash": "2b2c1698d153f08e18f1b6f0f915425f",
-    "semantic_hash": "2b2c1698d153f08e18f1b6f0f915425f"
+    "mtime": 1789677162.7260337,
+    "ast_hash": "6a8c3529a2dd946c76e970076177d519",
+    "semantic_hash": ""
   },
   "docs/design-outputs/tasks/TASK-117-database-migration-on-bring-up-remediation.md": {
-    "mtime": 1783414417.7785277,
-    "ast_hash": "b86f4573dea44d507b5fbe8425890efa",
-    "semantic_hash": "b86f4573dea44d507b5fbe8425890efa"
+    "mtime": 1789674789.55971,
+    "ast_hash": "ece09857cfc166cbb615aac9e631930a",
+    "semantic_hash": ""
   },
   "docs/design-outputs/tasks/TASK-118-wire-account-lockout-into-the-login.md": {
-    "mtime": 1783414417.778769,
-    "ast_hash": "6747956248525d0591fecc27301c4192",
-    "semantic_hash": "6747956248525d0591fecc27301c4192"
+    "mtime": 1789677162.7262967,
+    "ast_hash": "6fa5298c22f209366c92cdede8d2f99f",
+    "semantic_hash": ""
   },
   "docs/design-outputs/tasks/TASK-119-password-policy-errors-as-400-activation.md": {
-    "mtime": 1783414417.779242,
-    "ast_hash": "100027455712ea2a43611a4adac737d1",
-    "semantic_hash": "100027455712ea2a43611a4adac737d1"
+    "mtime": 1789674789.5660017,
+    "ast_hash": "e6041df55bdbfc89c7234dce59fdf874",
+    "semantic_hash": ""
   },
   "docs/design-outputs/tasks/TASK-120-wire-admin-non-clinical-projection-into.md": {
-    "mtime": 1783414417.7794282,
-    "ast_hash": "1264a4ad16a896e50b367dd39e497309",
-    "semantic_hash": "1264a4ad16a896e50b367dd39e497309"
+    "mtime": 1789674789.5646443,
+    "ast_hash": "c7ae9e0f52e49c79e77eabea85400050",
+    "semantic_hash": ""
   },
   "docs/design-outputs/tasks/TASK-121-erasure-retrieval-code-delivery-deadline-re.md": {
-    "mtime": 1783414417.7796054,
-    "ast_hash": "b7d61e842eb63e921b19cf434705d973",
-    "semantic_hash": "b7d61e842eb63e921b19cf434705d973"
+    "mtime": 1789674789.564346,
+    "ast_hash": "8b7be7c135bf13c2d58ca6f4c4f19a3a",
+    "semantic_hash": ""
   },
   "docs/design-outputs/tasks/TASK-122-group-name-uniqueness-db-constraint-remediation.md": {
     "mtime": 1783414417.7797732,
@@ -3140,9 +2420,9 @@
     "semantic_hash": "29f374a51422c05ccf4e6eaf693a8fc6"
   },
   "docs/design-outputs/tasks/TASK-123-doctor-patient-roster-endpoint-remediation.md": {
-    "mtime": 1783414417.7799551,
-    "ast_hash": "2f5194b350098f6d80c10ea3cbe3f9bf",
-    "semantic_hash": "2f5194b350098f6d80c10ea3cbe3f9bf"
+    "mtime": 1789674789.5671418,
+    "ast_hash": "4ff14fd6c8d129358a1b83297eb60407",
+    "semantic_hash": ""
   },
   "docs/design-outputs/tasks/TASK-124-appointment-notification-resilience-remediation.md": {
     "mtime": 1783414417.7801194,
@@ -3185,29 +2465,29 @@
     "semantic_hash": "cc6e2728cdc12071f40dbde1caab4fae"
   },
   "docs/design-outputs/tasks/TASK-132-clinical-entries-view-completeness-remediation.md": {
-    "mtime": 1783414417.7814634,
-    "ast_hash": "068f35881a7921ce2df558dedea9b927",
-    "semantic_hash": "068f35881a7921ce2df558dedea9b927"
+    "mtime": 1789674789.562489,
+    "ast_hash": "ac672286e962bc3b2d541c1bf41b2805",
+    "semantic_hash": ""
   },
   "docs/design-outputs/tasks/TASK-133-admin-accounts-view-completeness-remediation.md": {
-    "mtime": 1783414417.7816324,
-    "ast_hash": "2758868c2b1cddbcb289cff89acdce17",
-    "semantic_hash": "2758868c2b1cddbcb289cff89acdce17"
+    "mtime": 1789674789.562262,
+    "ast_hash": "2893312013e1dd8b77acf4cb7bbb2e78",
+    "semantic_hash": ""
   },
   "docs/design-outputs/tasks/TASK-134-manual-add-member-ui-for-groups.md": {
-    "mtime": 1783414417.7817824,
-    "ast_hash": "eeabe350f39d71d21e155927917e9213",
-    "semantic_hash": "eeabe350f39d71d21e155927917e9213"
+    "mtime": 1789674789.5616293,
+    "ast_hash": "91c868115c92f884e0486835f654a131",
+    "semantic_hash": ""
   },
   "docs/design/01-introduction-and-goals.md": {
-    "mtime": 1781946069.5257287,
-    "ast_hash": "dc76fd2402947dbc73afb013faaddf2c",
-    "semantic_hash": "dc76fd2402947dbc73afb013faaddf2c"
+    "mtime": 1789677564.5603664,
+    "ast_hash": "e93dd5a558f58090bd1e9d737435edc4",
+    "semantic_hash": ""
   },
   "docs/design/02-architecture-constraints.md": {
-    "mtime": 1781946069.5259671,
-    "ast_hash": "3f91e15723088715197f6a6f44bce397",
-    "semantic_hash": "3f91e15723088715197f6a6f44bce397"
+    "mtime": 1789677573.262945,
+    "ast_hash": "ed972f482543175e8c6d67c8cee555de",
+    "semantic_hash": ""
   },
   "docs/design/03-context-and-scope.md": {
     "mtime": 1781946069.5262206,
@@ -3215,9 +2495,9 @@
     "semantic_hash": "29d6bdf42969c120b22d3a97b32f271d"
   },
   "docs/design/04-solution-strategy.md": {
-    "mtime": 1781946069.5264387,
-    "ast_hash": "95cc5a26329e54722294a5b2d8aca129",
-    "semantic_hash": "95cc5a26329e54722294a5b2d8aca129"
+    "mtime": 1789677564.560814,
+    "ast_hash": "2a41da5d949d08824a09e46213f367e4",
+    "semantic_hash": ""
   },
   "docs/design/05-building-blocks.md": {
     "mtime": 1781946069.526633,
@@ -3255,9 +2535,9 @@
     "semantic_hash": "7beb305522aed757324450338512eefe"
   },
   "docs/design/README.md": {
-    "mtime": 1781946069.5281544,
-    "ast_hash": "550c33d11535ecbca33b897c5866189b",
-    "semantic_hash": "550c33d11535ecbca33b897c5866189b"
+    "mtime": 1789674804.2505398,
+    "ast_hash": "c94bc1384beff9ff88260b4e7714b7e5",
+    "semantic_hash": ""
   },
   "docs/design/adr/0001-overall-architecture-style.md": {
     "mtime": 1781946069.528378,
@@ -3329,15 +2609,10 @@
     "ast_hash": "2ea731a0e8bb2e520f43abbc4dde6b8f",
     "semantic_hash": ""
   },
-  "docs/design/traceability-matrix.md": {
-    "mtime": 1784291477.8039114,
-    "ast_hash": "32c5b87c14107343794d35592445aabb",
-    "semantic_hash": ""
-  },
   "docs/implementation-plan/AUDIT-FINDINGS.md": {
-    "mtime": 1782805570.8151848,
-    "ast_hash": "2f5ee518e4ec03ca122ed5a33b7b5dde",
-    "semantic_hash": "2f5ee518e4ec03ca122ed5a33b7b5dde"
+    "mtime": 1789677398.1308122,
+    "ast_hash": "baf36b391b702c1691ab456767cb41c5",
+    "semantic_hash": ""
   },
   "docs/implementation-plan/AUDIT-LEDGER.md": {
     "mtime": 1782889067.4330246,
@@ -3345,34 +2620,24 @@
     "semantic_hash": "2ac3ceddeca9cb298c405a55b178d741"
   },
   "docs/implementation-plan/README.md": {
-    "mtime": 1782889067.4335966,
-    "ast_hash": "f25b5450d1b254f2673226fa6fbb9772",
-    "semantic_hash": "f25b5450d1b254f2673226fa6fbb9772"
+    "mtime": 1789674779.2541497,
+    "ast_hash": "ad353ee921302b8290df25164d974854",
+    "semantic_hash": ""
   },
   "docs/implementation-plan/SMOKE-RESULTS.md": {
     "mtime": 1782744412.4167747,
     "ast_hash": "1c6fcc2ea0f5f96690c4353e72dae1de",
     "semantic_hash": "1c6fcc2ea0f5f96690c4353e72dae1de"
   },
-  "docs/implementation-plan/TASK-TEMPLATE.md": {
-    "mtime": 1781946069.531435,
-    "ast_hash": "2b0127b1e8e28fe2943b20c80b896775",
-    "semantic_hash": "2b0127b1e8e28fe2943b20c80b896775"
-  },
-  "docs/medtrace-migration-prompt.md": {
-    "mtime": 1783414417.7822416,
-    "ast_hash": "f8f5f8af99c42096e988f14e6b44098c",
-    "semantic_hash": "f8f5f8af99c42096e988f14e6b44098c"
-  },
   "docs/medtrace.yml": {
-    "mtime": 1783414417.7824388,
-    "ast_hash": "361e676d54fc35f490bcf36d90642ae2",
-    "semantic_hash": "361e676d54fc35f490bcf36d90642ae2"
+    "mtime": 1789674426.222222,
+    "ast_hash": "ea5a3522d3dd84713ef872a845520d2f",
+    "semantic_hash": ""
   },
   "docs/software-development-plan.md": {
-    "mtime": 1781946638.0625725,
-    "ast_hash": "8ea5143428f05e19ddc0682a6366cf89",
-    "semantic_hash": "8ea5143428f05e19ddc0682a6366cf89"
+    "mtime": 1789674971.0608675,
+    "ast_hash": "00188c07f3f7793d087694c6d87c1090",
+    "semantic_hash": ""
   },
   "docs/specifications/api-design.md": {
     "mtime": 1781946069.5489843,
@@ -3400,28 +2665,28 @@
     "semantic_hash": "c85d00900b813e1f0653b97783bf9905"
   },
   ".claude/settings.json": {
-    "mtime": 1783434628.5955007,
-    "ast_hash": "66f7a5878e801ae6c42732d7424620b8",
+    "mtime": 1789674355.2556157,
+    "ast_hash": "41adf8874f73ae355c3a143f5aa0d355",
     "semantic_hash": ""
   },
   "docs/design-outputs/tasks/TASK-135-true-streaming-attachment-upload-and-download.md": {
-    "mtime": 1783451532.266889,
-    "ast_hash": "c0cb56f9127d2e7ac6b7889793c6a9a1",
+    "mtime": 1789677162.7265365,
+    "ast_hash": "3e35dad515919e818c26a1bc31cb7a11",
     "semantic_hash": ""
   },
   "docs/design-outputs/tasks/TASK-136-align-async-handlers-with-sync-io-stack.md": {
-    "mtime": 1783451544.203131,
-    "ast_hash": "034ab22d1a2485d88d55c70ebf88832b",
+    "mtime": 1789674687.6499016,
+    "ast_hash": "7c9d22249d7f4a35fcf158685513e435",
     "semantic_hash": ""
   },
   "docs/design-outputs/tasks/TASK-137-capture-client-ip-in-authz-and-consent-audit.md": {
-    "mtime": 1783451554.0800364,
-    "ast_hash": "85a7482b44309f7835ec94f87636c1ab",
+    "mtime": 1789677162.7267406,
+    "ast_hash": "3256ce5075b57bb1c8c60755792cdf2f",
     "semantic_hash": ""
   },
   "docs/design-outputs/tasks/TASK-138-pii-scrubbing-for-worker-and-notification-logs.md": {
-    "mtime": 1783451565.9778929,
-    "ast_hash": "83a0fb6560dc3b1feb5d5362a3a81497",
+    "mtime": 1789677162.7268665,
+    "ast_hash": "fe82f2fcd50cc97cf579e3c81ead0811",
     "semantic_hash": ""
   },
   "docs/design-outputs/tasks/TASK-139-csrf-exemption-exact-match-hardening.md": {
@@ -3430,23 +2695,23 @@
     "semantic_hash": ""
   },
   "docs/design-outputs/tasks/TASK-140-auth-config-hygiene-dead-signing-key-lockout-required.md": {
-    "mtime": 1783451592.7561374,
-    "ast_hash": "da13fb828ecfd013cd26259da49a3bf5",
+    "mtime": 1789677162.7269893,
+    "ast_hash": "a2b6af1ca68eb8fdc2670af3e5ddc34b",
     "semantic_hash": ""
   },
   "docs/design-outputs/tasks/TASK-141-worker-reliability-retention-sessions-retries-silent-failures.md": {
-    "mtime": 1783451604.9324827,
-    "ast_hash": "9b7073e2288862e4c5bd3ff1d7049e29",
+    "mtime": 1789677162.7271166,
+    "ast_hash": "0f9b6be38fcccddaf3b5b7f7380341d8",
     "semantic_hash": ""
   },
   "docs/design-outputs/tasks/TASK-142-frontend-route-level-role-guards.md": {
-    "mtime": 1783451616.9792192,
-    "ast_hash": "4bc0663e8af2911253e62af9c4fac76b",
+    "mtime": 1789677162.7274246,
+    "ast_hash": "7dbcaee830d40e30f2903b32d0dbb5b2",
     "semantic_hash": ""
   },
   "docs/design-outputs/tasks/TASK-143-unify-frontend-api-client-upload-and-problem-types.md": {
-    "mtime": 1783451636.5280325,
-    "ast_hash": "257e24455bcca76117be6b0337dbbf0a",
+    "mtime": 1789674687.6526818,
+    "ast_hash": "17890e533bff50eafca6a4ca6027b873",
     "semantic_hash": ""
   },
   "docs/design-outputs/tasks/TASK-144-shared-useme-hook-session-ttl-reconciliation-module-cache-invalidation.md": {
@@ -3460,18 +2725,18 @@
     "semantic_hash": ""
   },
   "docs/design-outputs/tasks/TASK-146-frontend-unit-test-gaps-session-attachment-csrf.md": {
-    "mtime": 1783451669.545289,
-    "ast_hash": "224df2976e75fb1594cd226854cb4ea4",
+    "mtime": 1789674687.653334,
+    "ast_hash": "6c47e6ef0228c2a31703159f257d880d",
     "semantic_hash": ""
   },
   "docs/design-outputs/tasks/TASK-147-iso-14971-risk-register-bootstrap.md": {
-    "mtime": 1783451689.4108238,
-    "ast_hash": "8a12b1f04bc60e8714b619f21a1b3097",
+    "mtime": 1789677564.5599408,
+    "ast_hash": "73e304fa422d5d70e42386b0b60175d4",
     "semantic_hash": ""
   },
   "docs/design-outputs/tasks/TASK-148-fix-dangling-remediation-ids-in-traceability-matrix.md": {
-    "mtime": 1783451699.5052316,
-    "ast_hash": "1743477620911adde7fb67de340a3ce8",
+    "mtime": 1789677564.5594456,
+    "ast_hash": "a2eda79719b955387d523c352768485c",
     "semantic_hash": ""
   },
   "docs/implementation-plan/remediation-plan-review-2026-07.md": {
@@ -3480,18 +2745,8 @@
     "semantic_hash": ""
   },
   "docs/reports/CODE-REVIEW-2026-07.md": {
-    "mtime": 1783451757.14883,
-    "ast_hash": "6aa3596ab73ae5e17a5c0f0adf3c22c7",
-    "semantic_hash": ""
-  },
-  ".claude/agents/process-manager.md": {
-    "mtime": 1783253645.8119142,
-    "ast_hash": "3c5d9ee037eb8267fddbda985f2f9bad",
-    "semantic_hash": ""
-  },
-  ".claude/skills/problem-report-resolution/SKILL.md": {
-    "mtime": 1783446618.4211702,
-    "ast_hash": "d67534bffc57840f20cd6e294064d915",
+    "mtime": 1789677398.1312559,
+    "ast_hash": "9b866d037cb7c2982e3d59f242795144",
     "semantic_hash": ""
   },
   "docs/design-inputs/software-requirements/SR-037-design-token-based-theming-foundation.md": {
@@ -3520,7 +2775,7 @@
     "semantic_hash": ""
   },
   "docs/design-outputs/architecture/ADD-001-medhub-design-system-and-theming.md": {
-    "mtime": 1784316123.1231582,
+    "mtime": 1789677539.4593952,
     "ast_hash": "18bf3caafc67209049d31767d17508b0",
     "semantic_hash": ""
   },
@@ -3592,6 +2847,476 @@
   "frontend/src/core/layout/SignOutButton.tsx": {
     "mtime": 1784314732.6109812,
     "ast_hash": "65a32b34c79395d06bd8b9c9833c9cdb",
+    "semantic_hash": ""
+  },
+  "docs/design-inputs/system-requirements/regulatory/RR-001-lawful-basis-and-data-minimization-for.md": {
+    "mtime": 1789677717.8398104,
+    "ast_hash": "4c8f4ac6a30214a367b7899bff6c610b",
+    "semantic_hash": ""
+  },
+  "docs/design-inputs/system-requirements/regulatory/RR-002-right-to-erasure-of-personal-data.md": {
+    "mtime": 1789677717.8399715,
+    "ast_hash": "21d47149502a813e6319c4b7fa4b2f30",
+    "semantic_hash": ""
+  },
+  "docs/design-inputs/system-requirements/regulatory/RR-003-security-of-processing-encryption-and-access.md": {
+    "mtime": 1789677717.8400931,
+    "ast_hash": "72fdfd203f9da6eb8e260fad2b39409e",
+    "semantic_hash": ""
+  },
+  "docs/design-inputs/system-requirements/regulatory/RR-004-accountability-auditability-of-access-to-health.md": {
+    "mtime": 1789677717.8402007,
+    "ast_hash": "11ab92a152ae606c88a6776bbcb7d97d",
+    "semantic_hash": ""
+  },
+  "docs/design-inputs/system-requirements/regulatory/RR-005-storage-limitation-for-retained-clinical-datasets.md": {
+    "mtime": 1789677717.840308,
+    "ast_hash": "d7082bd5d9a895e0a80ac73cb0c84bf1",
+    "semantic_hash": ""
+  },
+  "docs/design-inputs/system-requirements/regulatory/RR-006-iec-62304-lifecycle-records-and-traceability.md": {
+    "mtime": 1789677717.8404071,
+    "ast_hash": "019eb93c61c0f3131d37c908d340c770",
+    "semantic_hash": ""
+  },
+  "docs/design-inputs/system-requirements/regulatory/RR-007-risk-management-for-medical-device-software.md": {
+    "mtime": 1789677717.840509,
+    "ast_hash": "0e1c0e6c8b37bfaf00ca6a824231cc0e",
+    "semantic_hash": ""
+  },
+  "docs/design-inputs/system-requirements/regulatory/RR-008-software-of-unknown-provenance-identification-and.md": {
+    "mtime": 1789677717.8406062,
+    "ast_hash": "e97b526ccf92f5949b7b2c2c32c2c39d",
+    "semantic_hash": ""
+  },
+  "docs/design-inputs/system-requirements/regulatory/RR-009-usability-engineering-for-use-related-risk.md": {
+    "mtime": 1789677717.8407087,
+    "ast_hash": "5bec72cdb2e4a78fe8cc9c9f68441875",
+    "semantic_hash": ""
+  },
+  "docs/design-inputs/system-requirements/regulatory/RR-010-medical-device-software-general-safety-and.md": {
+    "mtime": 1789677717.8408039,
+    "ast_hash": "f2886c61398d29b56023f26b6d9429bf",
+    "semantic_hash": ""
+  },
+  "docs/design-outputs/architecture/ADD-002-software-development-plan.md": {
+    "mtime": 1789677539.4605956,
+    "ast_hash": "3af2e280055517a4b9fd28d717f4d9c0",
+    "semantic_hash": ""
+  },
+  "docs/design-outputs/architecture/ADD-003-risk-management-plan.md": {
+    "mtime": 1789677539.4611044,
+    "ast_hash": "382d878551eee4080ab0585ee7f75cc1",
+    "semantic_hash": ""
+  },
+  "docs/design-outputs/architecture/ADD-004-soup-list.md": {
+    "mtime": 1789677539.461759,
+    "ast_hash": "439930e1fcba4561d4e70cadb14ef657",
+    "semantic_hash": ""
+  },
+  "docs/design-outputs/architecture/ADD-005-api-layer-routers.md": {
+    "mtime": 1789677539.4621677,
+    "ast_hash": "8f8eb5ab00e35856a8fa06e5ed8d71f8",
+    "semantic_hash": ""
+  },
+  "docs/design-outputs/architecture/ADD-006-authentication-and-session.md": {
+    "mtime": 1789677539.4624646,
+    "ast_hash": "4dead0ed5e6d434d6f8c42b9d8f1dc0a",
+    "semantic_hash": ""
+  },
+  "docs/design-outputs/architecture/ADD-007-authorization-and-consent.md": {
+    "mtime": 1789677539.462738,
+    "ast_hash": "48b282afd6c8d83dd2feba373638c3b1",
+    "semantic_hash": ""
+  },
+  "docs/design-outputs/architecture/ADD-008-identity-and-account-lifecycle.md": {
+    "mtime": 1789677539.4629803,
+    "ast_hash": "cab04ac4e4481f2a1da6620439f42f6a",
+    "semantic_hash": ""
+  },
+  "docs/design-outputs/architecture/ADD-009-groups-and-module-enablement.md": {
+    "mtime": 1789677539.463236,
+    "ast_hash": "f2fcbc869b8ee22de6d0b817d25e03a9",
+    "semantic_hash": ""
+  },
+  "docs/design-outputs/architecture/ADD-010-appointments-and-notifications.md": {
+    "mtime": 1789677539.4634807,
+    "ast_hash": "17f2a2b1bb062cd009502524cf718474",
+    "semantic_hash": ""
+  },
+  "docs/design-outputs/architecture/ADD-011-clinical-records.md": {
+    "mtime": 1789677539.463763,
+    "ast_hash": "0ff8b12f34c39984901a8a486faf320f",
+    "semantic_hash": ""
+  },
+  "docs/design-outputs/architecture/ADD-012-attachment-service.md": {
+    "mtime": 1789677539.4640906,
+    "ast_hash": "a712b3ea3146eb4f04908881778552b7",
+    "semantic_hash": ""
+  },
+  "docs/design-outputs/architecture/ADD-013-audit-service.md": {
+    "mtime": 1789677539.4643793,
+    "ast_hash": "69523ec95e67a6c2d7d12abcae99669b",
+    "semantic_hash": ""
+  },
+  "docs/design-outputs/architecture/ADD-014-module-host-plugin-registry.md": {
+    "mtime": 1789677539.464693,
+    "ast_hash": "a5c88e5a826a18d2607a2a68fc39fb3f",
+    "semantic_hash": ""
+  },
+  "docs/design-outputs/architecture/ADD-015-dicom-module-backend.md": {
+    "mtime": 1789677539.4649842,
+    "ast_hash": "61539508480b8d8fdf5e90fd4011718f",
+    "semantic_hash": ""
+  },
+  "docs/design-outputs/architecture/ADD-016-persistence.md": {
+    "mtime": 1789677539.4652526,
+    "ast_hash": "0931b53dfaa10a2e5d390c3f2143687b",
+    "semantic_hash": ""
+  },
+  "docs/design-outputs/architecture/ADD-017-async-worker.md": {
+    "mtime": 1789677539.465538,
+    "ast_hash": "e4aa2dcb8b34769f62e1a97b0a165276",
+    "semantic_hash": ""
+  },
+  "docs/design-outputs/architecture/ADD-018-frontend-app-shell.md": {
+    "mtime": 1789677539.4658332,
+    "ast_hash": "069e4c79b02b1da5120e8fbc5375c221",
+    "semantic_hash": ""
+  },
+  "docs/design-outputs/architecture/ADD-019-frontend-auth-session-ui.md": {
+    "mtime": 1789677539.466089,
+    "ast_hash": "aa709944a608cf7e62326e1c30f6edd4",
+    "semantic_hash": ""
+  },
+  "docs/design-outputs/architecture/ADD-020-frontend-core-views.md": {
+    "mtime": 1789677539.466359,
+    "ast_hash": "d1fd550670dda88a066d195a65730eef",
+    "semantic_hash": ""
+  },
+  "docs/design-outputs/architecture/ADD-021-frontend-module-registry.md": {
+    "mtime": 1789677539.4666243,
+    "ast_hash": "2f332b8b0c29fd8649d54309dc87d118",
+    "semantic_hash": ""
+  },
+  "docs/design-outputs/architecture/ADD-022-dicom-viewer-module-frontend.md": {
+    "mtime": 1789677539.4668796,
+    "ast_hash": "bc26e9595fef0a0f84ed2e76ed3d7ffb",
+    "semantic_hash": ""
+  },
+  "docs/design-outputs/architecture/ADD-023-frontend-api-client.md": {
+    "mtime": 1789677539.4671316,
+    "ast_hash": "43ce679effcb614bcfe8e72fd5d99b55",
+    "semantic_hash": ""
+  },
+  "docs/design-outputs/tasks/TASK-154-soup-anomaly-list-review.md": {
+    "mtime": 1789677162.7275493,
+    "ast_hash": "6fff23ed291c53dd301b4597ad528f0b",
+    "semantic_hash": ""
+  },
+  "docs/design-outputs/tests-specifications/TS-001-authentication-password-policy-lockout-and-session.md": {
+    "mtime": 1789678824.243615,
+    "ast_hash": "20f904bc979532c7fb6c51b3c6147eba",
+    "semantic_hash": ""
+  },
+  "docs/design-outputs/tests-specifications/TS-002-authorization-consent-and-visibility.md": {
+    "mtime": 1789678824.2437875,
+    "ast_hash": "36322c441c4fe2a8935df56dfa707838",
+    "semantic_hash": ""
+  },
+  "docs/design-outputs/tests-specifications/TS-003-identity-account-creation-activation-and-lifecycle.md": {
+    "mtime": 1789678824.243906,
+    "ast_hash": "81e236d36258980fd60bf9fcdf25608c",
+    "semantic_hash": ""
+  },
+  "docs/design-outputs/tests-specifications/TS-004-personal-data-erasure-and-retention.md": {
+    "mtime": 1789678824.2440236,
+    "ast_hash": "895d9d4401aa37685d07005ff099028a",
+    "semantic_hash": ""
+  },
+  "docs/design-outputs/tests-specifications/TS-005-groups-and-per-group-module-enablement.md": {
+    "mtime": 1789678824.244129,
+    "ast_hash": "871cbd8246eed05d62b70b8d645758f8",
+    "semantic_hash": ""
+  },
+  "docs/design-outputs/tests-specifications/TS-006-appointments-and-notification.md": {
+    "mtime": 1789678824.2442224,
+    "ast_hash": "f818e1314b5110090be211a485b4944e",
+    "semantic_hash": ""
+  },
+  "docs/design-outputs/tests-specifications/TS-007-clinical-entries-and-attachment.md": {
+    "mtime": 1789678824.2443254,
+    "ast_hash": "e18a0e42dbd86b371e1d5f0142ac970f",
+    "semantic_hash": ""
+  },
+  "docs/design-outputs/tests-specifications/TS-008-persistence-fhir-aligned-model-and-encryption.md": {
+    "mtime": 1789678824.2444155,
+    "ast_hash": "3ce3fa19d25445ebad235d0cea44e24e",
+    "semantic_hash": ""
+  },
+  "docs/design-outputs/tests-specifications/TS-009-audit-logging.md": {
+    "mtime": 1789678824.2445064,
+    "ast_hash": "3cb8a6490d865681bf29d32f55765953",
+    "semantic_hash": ""
+  },
+  "docs/design-outputs/tests-specifications/TS-010-module-host-and-plugin-architecture.md": {
+    "mtime": 1789678824.2445948,
+    "ast_hash": "13fc0cb4f67f452a89ffca111b51e048",
+    "semantic_hash": ""
+  },
+  "docs/design-outputs/tests-specifications/TS-011-transport-security-csrf-and-error-contract.md": {
+    "mtime": 1789678824.2446856,
+    "ast_hash": "732bf2bacef409b54e4ae06e7a09491a",
+    "semantic_hash": ""
+  },
+  "docs/design-outputs/tests-specifications/TS-012-usability-responsiveness-and-theming.md": {
+    "mtime": 1789678824.2447782,
+    "ast_hash": "3d940c8cfa6855321e9f0b0f465e82ba",
+    "semantic_hash": ""
+  },
+  "docs/design-outputs/tests-specifications/TS-013-lifecycle-record-and-traceability.md": {
+    "mtime": 1789678824.2448752,
+    "ast_hash": "a3c1d64ec6e91652a569e03a8ab6973f",
+    "semantic_hash": ""
+  },
+  "docs/problem-reports/PRB-001-floating-container-image-tags.md": {
+    "mtime": 1789675150.8496754,
+    "ast_hash": "b25e1237cf12ecb252137eaebbe3087b",
+    "semantic_hash": ""
+  },
+  "docs/problem-reports/PRB-002-undeclared-boto3-dependency.md": {
+    "mtime": 1789675150.8521671,
+    "ast_hash": "4a04a38e65eae84ef250ffc76d96cbd3",
+    "semantic_hash": ""
+  },
+  "docs/problem-reports/PRB-003-csrf-exemption-prefix-matching.md": {
+    "mtime": 1789677353.414353,
+    "ast_hash": "b72242cdc11c70ebd258f3312e96b695",
+    "semantic_hash": ""
+  },
+  "docs/problem-reports/PRB-004-ciphertext-envelope-without-key-id.md": {
+    "mtime": 1789677353.4144838,
+    "ast_hash": "e205e2858db5aedbb3bf073f06dc7b62",
+    "semantic_hash": ""
+  },
+  "docs/problem-reports/PRB-005-audit-append-only-by-convention.md": {
+    "mtime": 1789677353.4145901,
+    "ast_hash": "6a6d1d1215732ff63c31f37831e8c207",
+    "semantic_hash": ""
+  },
+  "docs/problem-reports/PRB-006-dicom-decompression-bomb.md": {
+    "mtime": 1789677353.414679,
+    "ast_hash": "1506dcee0664d342073216b1ce41e819",
+    "semantic_hash": ""
+  },
+  "docs/problem-reports/PRB-007-container-runs-as-root-insecure-defaults.md": {
+    "mtime": 1789677353.414768,
+    "ast_hash": "78915a4ebea8a70ab2c7fc086208a4be",
+    "semantic_hash": ""
+  },
+  "docs/problem-reports/PRB-008-attachment-upload-buffers-whole-body.md": {
+    "mtime": 1789677353.4148552,
+    "ast_hash": "aba067272fb7d3b618b6dcf9257f8010",
+    "semantic_hash": ""
+  },
+  "docs/problem-reports/PRB-009-async-handlers-block-event-loop.md": {
+    "mtime": 1789677353.4149384,
+    "ast_hash": "d60491e1e85e2c50f7d589bd14461238",
+    "semantic_hash": ""
+  },
+  "docs/problem-reports/PRB-010-authz-audit-without-source-ip.md": {
+    "mtime": 1789677378.8794827,
+    "ast_hash": "67531d36c63a35c857fe768883a071d5",
+    "semantic_hash": ""
+  },
+  "docs/problem-reports/PRB-011-worker-logs-emit-email-addresses.md": {
+    "mtime": 1789677353.4151049,
+    "ast_hash": "fe8c8ff0d02bc0c7e8489f2c8ce5d670",
+    "semantic_hash": ""
+  },
+  "docs/problem-reports/PRB-012-retention-sweep-session-leak-no-retry.md": {
+    "mtime": 1789677353.415196,
+    "ast_hash": "d3663d79ea18e24b20c3d7e6f40aa1aa",
+    "semantic_hash": ""
+  },
+  "docs/problem-reports/PRB-013-silent-enqueue-failure.md": {
+    "mtime": 1789677353.415281,
+    "ast_hash": "2e0c2320b367b6419134d1b3d364add8",
+    "semantic_hash": ""
+  },
+  "docs/problem-reports/PRB-014-no-route-level-role-guards.md": {
+    "mtime": 1789677353.415367,
+    "ast_hash": "8df2380930c55cdb93a2d72820c557e4",
+    "semantic_hash": ""
+  },
+  "docs/problem-reports/PRB-015-stale-module-gating-cache.md": {
+    "mtime": 1789677353.4154541,
+    "ast_hash": "d6db79e4725ac533ba4c1d6c7c14e1c9",
+    "semantic_hash": ""
+  },
+  "docs/problem-reports/PRB-016-me-query-retry-and-session-ttl-drift.md": {
+    "mtime": 1789677353.4155455,
+    "ast_hash": "f953694a82853b9f7c76ad17d164e23e",
+    "semantic_hash": ""
+  },
+  "docs/problem-reports/PRB-017-untested-security-relevant-frontend-units.md": {
+    "mtime": 1789677353.4156249,
+    "ast_hash": "f19c217f8804e799b25699f6a0a62fd3",
+    "semantic_hash": ""
+  },
+  "docs/problem-reports/PRB-018-dead-session-signing-key-optional-lockout.md": {
+    "mtime": 1789677353.4157147,
+    "ast_hash": "0c8447eabede7038500d1bd8d4a474db",
+    "semantic_hash": ""
+  },
+  "docs/problem-reports/PRB-019-duplicate-upload-path-and-handwritten-problem-type.md": {
+    "mtime": 1789677353.4157958,
+    "ast_hash": "40aff81f37866b9d871f61a036f07755",
+    "semantic_hash": ""
+  },
+  "docs/problem-reports/PRB-020-no-code-splitting.md": {
+    "mtime": 1789677353.4158835,
+    "ast_hash": "3ce32ffddd9eda1dd25d66cc18f4e98d",
+    "semantic_hash": ""
+  },
+  "docs/problem-reports/PRB-021-missing-indexes-on-authz-lookups.md": {
+    "mtime": 1789677353.4159734,
+    "ast_hash": "055f6cdfb52f942f6684b891d7323fb9",
+    "semantic_hash": ""
+  },
+  "docs/problem-reports/PRB-022-activation-token-full-scan.md": {
+    "mtime": 1789677353.4160647,
+    "ast_hash": "23d1ffaa4bd8b3d7282d6b640da8adb7",
+    "semantic_hash": ""
+  },
+  "docs/problem-reports/PRB-023-non-atomic-session-cap-eviction.md": {
+    "mtime": 1789677353.4161448,
+    "ast_hash": "6f1695ee29d41adaafae9b966aef4f35",
+    "semantic_hash": ""
+  },
+  "docs/problem-reports/PRB-024-group-membership-n-plus-one.md": {
+    "mtime": 1789677353.4162292,
+    "ast_hash": "939c4eab229dd6270c985d8bf3e74a64",
+    "semantic_hash": ""
+  },
+  "docs/problem-reports/PRB-025-idle-timer-not-debounced.md": {
+    "mtime": 1789677353.416307,
+    "ast_hash": "0c4e39a2821c0c0cdfa5864357673ed1",
+    "semantic_hash": ""
+  },
+  "docs/problem-reports/PRB-026-authz-logic-in-persistence-layer.md": {
+    "mtime": 1789677353.4163911,
+    "ast_hash": "cf6bbab74be993447e095a27bd8edbfd",
+    "semantic_hash": ""
+  },
+  "docs/problem-reports/PRB-027-direct-role-comparisons-bypass-authz.md": {
+    "mtime": 1789677378.8799834,
+    "ast_hash": "1c39849ca340ec5aba59fa5de045da1c",
+    "semantic_hash": ""
+  },
+  "docs/problem-reports/PRB-028-semver-regex-accepts-trailing-garbage.md": {
+    "mtime": 1789677353.416554,
+    "ast_hash": "7abd442226989ba96b5c2aaa604b8f10",
+    "semantic_hash": ""
+  },
+  "docs/problem-reports/PRB-029-rate-limit-keyed-on-proxy-ip.md": {
+    "mtime": 1789677353.4167812,
+    "ast_hash": "a3becd4be56f8bd57aff4d8289ca40db",
+    "semantic_hash": ""
+  },
+  "docs/problem-reports/PRB-030-module-boundary-test-too-narrow.md": {
+    "mtime": 1789677353.4170144,
+    "ast_hash": "abb377bd430ae9003c606a411ba71d7d",
+    "semantic_hash": ""
+  },
+  "docs/problem-reports/PRB-031-destructive-dialog-autofocuses-confirm.md": {
+    "mtime": 1789677353.4171143,
+    "ast_hash": "490f8d9a5444bb9294798bf82663311d",
+    "semantic_hash": ""
+  },
+  "docs/problem-reports/PRB-032-json-logger-drops-request-id.md": {
+    "mtime": 1789677353.4172106,
+    "ast_hash": "7b6e1d5928c33432dbf1742350aef301",
+    "semantic_hash": ""
+  },
+  "docs/reports/agentic-os-gap-analysis.md": {
+    "mtime": 1789678947.2116663,
+    "ast_hash": "2aa7dd4658d16de629d9e754e69fa991",
+    "semantic_hash": ""
+  },
+  "docs/reports/gap-report-2026-09-17.md": {
+    "mtime": 1789678919.2214642,
+    "ast_hash": "3126b2217ec974d47069d0b6bf1f7c11",
+    "semantic_hash": ""
+  },
+  "docs/risks/RISK-001-unauthorized-clinical-data-disclosure.md": {
+    "mtime": 1789677378.8803499,
+    "ast_hash": "5686898ed38c6c3db03e512949fc2bd5",
+    "semantic_hash": ""
+  },
+  "docs/risks/RISK-002-clinical-data-misattribution.md": {
+    "mtime": 1789676166.9563937,
+    "ast_hash": "5e613445fec691a6354b4afae004d236",
+    "semantic_hash": ""
+  },
+  "docs/risks/RISK-003-incorrect-dicom-rendering.md": {
+    "mtime": 1789676166.956492,
+    "ast_hash": "e0c6f6ef709c2d0c575e2aa1c22142a4",
+    "semantic_hash": ""
+  },
+  "docs/risks/RISK-004-legitimate-clinical-access-denied.md": {
+    "mtime": 1789676166.9565847,
+    "ast_hash": "157161e5c31feb5956db07f3cf599a28",
+    "semantic_hash": ""
+  },
+  "docs/risks/RISK-005-account-takeover.md": {
+    "mtime": 1789677378.8805766,
+    "ast_hash": "948bc49652ecca8ed8400b8296656b8e",
+    "semantic_hash": ""
+  },
+  "docs/risks/RISK-006-incomplete-audit-trail.md": {
+    "mtime": 1789677378.8807685,
+    "ast_hash": "a254f85ccb0420fc3abccee6bbeb8d72",
+    "semantic_hash": ""
+  },
+  "docs/risks/RISK-007-clinical-information-unavailable.md": {
+    "mtime": 1789676166.9568796,
+    "ast_hash": "b2bf69bd96d97fba2d331c5ed3b92d6d",
+    "semantic_hash": ""
+  },
+  "docs/risks/RISK-008-personal-data-lifecycle-failure.md": {
+    "mtime": 1789676166.956989,
+    "ast_hash": "4d1d5853da71cff2ecb73bcc9957b574",
+    "semantic_hash": ""
+  },
+  "docs/risks/RISK-009-notification-not-delivered.md": {
+    "mtime": 1789676166.9570787,
+    "ast_hash": "6c459d2b8dbae3c6413c7ab3ce838a1c",
+    "semantic_hash": ""
+  },
+  "docs/risks/RISK-010-unreviewed-soup-change.md": {
+    "mtime": 1789676166.957178,
+    "ast_hash": "7c666be604cd59e6e3a3f83e60d8d687",
+    "semantic_hash": ""
+  },
+  "docs/risks/RISK-011-encryption-key-management-failure.md": {
+    "mtime": 1789676166.9572682,
+    "ast_hash": "e4b025e94ccb678ea8b61a0a6e761732",
+    "semantic_hash": ""
+  },
+  "docs/templates/task.md": {
+    "mtime": 1789674759.7590525,
+    "ast_hash": "8f46222a8677afdb8bcb77598e1fac7a",
+    "semantic_hash": ""
+  },
+  "docs/test-plans-reports/plans/TP-001-verification-plan-migration-baseline.md": {
+    "mtime": 1789678893.2927272,
+    "ast_hash": "0e63e479b8aed491c1d4bdeb6d9f0490",
+    "semantic_hash": ""
+  },
+  "docs/test-plans-reports/reports/TR-001-verification-report-migration-baseline.md": {
+    "mtime": 1789678893.2929041,
+    "ast_hash": "0d99052c4556f8816bf3f1003c43e4e6",
     "semantic_hash": ""
   }
 }
