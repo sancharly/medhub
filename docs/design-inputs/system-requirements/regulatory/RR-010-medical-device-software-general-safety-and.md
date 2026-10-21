@@ -2,15 +2,11 @@
 id: RR-010
 type: regulatory-requirement
 title: Medical device software general safety and performance
-status: approved
-version: "1.0"
+status: in_review
+version: "1.1"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-10-21"
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-10-21"
-approved_digest: 3c418b745534550e3197bb09e47b87ea3d81a86222dec6718ddaae4927051023
-approval_note: self-approved
 links: []
 tags:
   - mdr
@@ -41,4 +37,4 @@ The project shall define the intended use and the software safety class, verify 
 
 ## Realized by
 
-SR-026, SR-019, and RR-011 (formerly SR-028). Records: PLAN-001, the test plan and report records. Problem report: PRB-001.
+SR-028, SR-026, SR-019. Records: PLAN-001, the test plan and report records. Problem report: PRB-001.

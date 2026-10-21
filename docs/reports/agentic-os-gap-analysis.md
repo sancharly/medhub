@@ -147,10 +147,11 @@ Corrections found while moving the data: `fhir.resources` is locked at 8.2.0 (AD
 | `soup_unintegrated` | 1 | SOUP-018 `fakeredis`: no item uses it (PRB-033) |
 | `sr_without_architecture` | 1 | SR-028 (traceable, version-controlled records) was covered by ADD-002/003, which are now plans. It is a process requirement that no software item implements; see the note below |
 
-**Owner decisions (2026-10-21).** SR-028 was restated as the regulatory requirement **RR-011**
-(SR-028 and TS-013 are now `obsolete`), which removes `sr_without_architecture`. PLAN-005's band
-summary was aligned with `risk_matrix`, which governs. After those changes: **314 records, 0
-errors**. New, expected findings: W4 on RR-011 (satisfied by the plans, not by an SR), W6 on
-TASK-001/005/147/154 (process tasks still implementing the obsolete SR-028 — the contract requires a
-TASK to implement an SR and none fits process work), and `risk_control_unverified` on TASK-111 and
-TASK-154 (their only verified SR was SR-028).
+**Owner decisions (2026-10-21).** PLAN-005's band summary was aligned with `risk_matrix`, which
+governs. SR-028 was first restated as RR-011, then **restored**: it is the only software requirement
+realizing RR-006, RR-007 and RR-008 and is implemented by TASK-001/005/111/147/154, so the
+restatement orphaned those links. The class B rule that every SR is covered by an architecture
+record is met instead by **ADD-024**, the development and verification infrastructure (CI pipeline,
+toolchain, OpenAPI contract export) that implements SR-028. RR-011 is `obsolete` (withdrawn, never
+approved); TS-013 is back in review. Result: **315 records, 0 errors**, and the remaining findings
+are the ones listed in the table above plus 14 W5 for the records awaiting re-approval.

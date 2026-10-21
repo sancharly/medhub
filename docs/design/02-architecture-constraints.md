@@ -22,8 +22,8 @@
 | **OC-02: MDR (EU) & FDA (US)**      | Medical-device regulation incl. cybersecurity case file                     | Documentation, traceability, risk analysis, verification rigor (NFR-005, SR-031)                        |
 | **OC-03: GDPR**                     | Lawful consent, minimization, data-subject rights, audit                    | Consent model, erasure, audit log, encryption (NFR-004)                                                 |
 | **OC-04: IEC 62443-3-3 SL 2**       | Credential, lockout, session controls cite this standard                    | SR-025, SR-029, SR-030 define exact behaviors                                                           |
-| **OC-05: Folder & version control** | Design in `docs/design/`, specs in `docs/specifications/`, all under git    | Per dev-plan; RR-011                                                                                    |
-| **OC-06: Traceability**             | Bidirectional UN/NFR → SR → architecture → test                             | RR-011, NFR-006; record links + gap report                                                         |
+| **OC-05: Folder & version control** | Design in `docs/design/`, specs in `docs/specifications/`, all under git    | Per dev-plan; SR-028                                                                                    |
+| **OC-06: Traceability**             | Bidirectional UN/NFR → SR → architecture → test                             | SR-028, NFR-006; record links + gap report                                                         |
 | **OC-07: Documentation language**   | English; Markdown + PlantUML                                                | Consistency with existing repo artifacts                                                                |
 
 ## Conventions

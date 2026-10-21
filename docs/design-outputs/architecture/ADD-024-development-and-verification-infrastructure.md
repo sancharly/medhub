@@ -1,0 +1,69 @@
+---
+id: "ADD-024"
+type: architecture-doc
+title: "Development and verification infrastructure (SI-DEVINFRA)"
+status: in_review
+version: "1.0"
+author: "Carlos Santiago Liceras"
+created: "2026-10-21"
+updated: "2026-10-21"
+links:
+  - target: "SR-028"
+    relation: implements
+tags: ["software-item:SI-DEVINFRA", "class:B", "layer:tooling"]
+---
+
+# ADD-024 — Development and verification infrastructure (SI-DEVINFRA)
+
+## Responsibility
+
+The software that keeps every change identified, version-controlled, verified and traceable before
+it can reach `main` (SR-028). It is part of the repository and runs on every pull request, but it is
+**not deployed**: no runtime item depends on it, and it handles no PHI.
+
+## Software units (IEC 62304 §5.4.1)
+
+- `U-INF-CIPipeline` — `.github/workflows/ci.yml`: backend quality (ruff, black, mypy), backend
+  tests against a real PostgreSQL service with migrations applied, frontend quality (ESLint, tsc),
+  frontend tests, and the OpenAPI lint gate. A failing job blocks the merge (SR-028 AC-4).
+- `U-INF-Toolchain` — the monorepo toolchain configuration: `backend/pyproject.toml` tool sections,
+  `.pre-commit-config.yaml`, the frontend ESLint and TypeScript configuration, and the lock files
+  that pin every dependency (SR-028 AC-1).
+- `U-INF-ContractExport` — `backend/app/export_openapi.py` and `npm run generate:types`: the
+  committed OpenAPI schema and the generated frontend types, kept identical to the implementation
+  by the `openapi-lint` job (the contract rule in `CLAUDE.md`).
+
+Built by TASK-001 (monorepo and tooling) and TASK-005 (CI pipeline).
+
+## Requirements implemented
+
+Software requirements: SR-028. Non-functional requirements constraining this item: NFR-005, NFR-006.
+
+The parts of SR-028 that are process rather than software — record IDs, statuses, links and
+approvals — are defined by the lifecycle plans ([PLAN-001](../../plans/PLAN-001-software-development-plan.md),
+[PLAN-003](../../plans/PLAN-003-configuration-management-plan.md)) and checked by
+`traceability-check`; this record covers the software that enforces them.
+
+## Interfaces
+
+- Consumes: the repository contents and the GitHub Actions runner; PostgreSQL 16 as a CI service
+  container.
+- Provides: pass/fail status checks on pull requests, the committed `backend/openapi/openapi.json`
+  and `frontend/src/api/generated/openapi.ts`.
+
+## Verification
+
+[TS-013](../tests-specifications/TS-013-lifecycle-record-and-traceability.md):
+`backend/tests/test_toolchain.py`, `frontend/tests/toolchain.test.ts` and
+`backend/tests/test_export_openapi.py`, plus the `traceability-check` gap reports.
+
+## Architecture narrative
+
+Described in [05 building blocks](../../design/05-building-blocks.md), section
+"Development and verification infrastructure", and in the configuration management plan
+(PLAN-003). Governing decisions: [ADR-0011](../../design/adr/) (process controls).
+
+## Risk relevance
+
+Supports the controls of RISK-007 and RISK-010 through SR-028; it is not itself a hazard
+contributor because it is not deployed.

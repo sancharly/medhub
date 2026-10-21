@@ -1,6 +1,6 @@
 # Gap report — 2026-10-21
 
-Scope: whole project  ·  Records scanned: 314  ·  Errors: 0  ·  Warnings: 133  ·  Safety class: B
+Scope: whole project  ·  Records scanned: 315  ·  Errors: 0  ·  Warnings: 74  ·  Safety class: B
 
 Generated with the `medical-records:traceability-check` procedure (0.3.2) as a throwaway parser. `modified_after_approval` is not computed: only the MedTrace app can compute `approved_digest`.
 
@@ -12,7 +12,7 @@ Generated with the `medical-records:traceability-check` procedure (0.3.2) as a t
 | `nfr` | 9 |
 | `regulatory-requirement` | 11 |
 | `software-requirement` | 39 |
-| `architecture-doc` | 23 |
+| `architecture-doc` | 24 |
 | `task` | 118 |
 | `test-specification` | 13 |
 | `risk` | 11 |
@@ -35,11 +35,9 @@ None.
 |---|---|
 | W1 | 3 |
 | W2 | 10 |
-| W4 | 1 |
-| W5 | 66 |
-| W6 | 4 |
+| W5 | 14 |
 | W7 | 9 |
-| risk_control_unverified | 4 |
+| risk_control_unverified | 2 |
 | soup_anomaly_review_stale | 35 |
 | soup_unintegrated | 1 |
 
@@ -58,77 +56,20 @@ None.
 | W2 | SR-023 | `docs/design-inputs/software-requirements/SR-023-audit-logging-of-security-relevant-events.md` | no TR verifies this SR |
 | W2 | SR-026 | `docs/design-inputs/software-requirements/SR-026-performance-budgets-for-routine-operations.md` | no TR verifies this SR |
 | W2 | SR-031 | `docs/design-inputs/software-requirements/SR-031-web-vulnerability-mitigations.md` | no TR verifies this SR |
-| W4 | RR-011 | `docs/design-inputs/system-requirements/regulatory/RR-011-traceable-version-controlled-development-records.md` | input not decomposed into any SR |
-| W5 | SR-001 | `docs/design-inputs/software-requirements/SR-001-browser-accessible-web-application-over-https.md` | approved but links to RR-003 (in_review) |
-| W5 | SR-001 | `docs/design-inputs/software-requirements/SR-001-browser-accessible-web-application-over-https.md` | approved but links to RISK-005 (in_review) |
+| W5 | ADD-005 | `docs/design-outputs/architecture/ADD-005-api-layer-routers.md` | approved but links to RISK-007 (in_review) |
+| W5 | ADD-012 | `docs/design-outputs/architecture/ADD-012-attachment-service.md` | approved but links to RISK-007 (in_review) |
+| W5 | ADD-015 | `docs/design-outputs/architecture/ADD-015-dicom-module-backend.md` | approved but links to RISK-007 (in_review) |
+| W5 | ADD-016 | `docs/design-outputs/architecture/ADD-016-persistence.md` | approved but links to RISK-007 (in_review) |
 | W5 | SR-001 | `docs/design-inputs/software-requirements/SR-001-browser-accessible-web-application-over-https.md` | approved but links to RISK-010 (in_review) |
-| W5 | SR-001 | `docs/design-inputs/software-requirements/SR-001-browser-accessible-web-application-over-https.md` | approved but links to RISK-011 (in_review) |
-| W5 | SR-002 | `docs/design-inputs/software-requirements/SR-002-email-and-password-authentication.md` | approved but links to RR-003 (in_review) |
-| W5 | SR-003 | `docs/design-inputs/software-requirements/SR-003-unique-user-account-and-profile-view.md` | approved but links to RISK-002 (in_review) |
-| W5 | SR-004 | `docs/design-inputs/software-requirements/SR-004-user-type-assignment.md` | approved but links to RISK-002 (in_review) |
-| W5 | SR-005 | `docs/design-inputs/software-requirements/SR-005-role-based-access-control-enforcement.md` | approved but links to RR-001 (in_review) |
-| W5 | SR-005 | `docs/design-inputs/software-requirements/SR-005-role-based-access-control-enforcement.md` | approved but links to RISK-001 (in_review) |
-| W5 | SR-006 | `docs/design-inputs/software-requirements/SR-006-doctor-access-to-own-patients-clinical.md` | approved but links to RR-001 (in_review) |
-| W5 | SR-006 | `docs/design-inputs/software-requirements/SR-006-doctor-access-to-own-patients-clinical.md` | approved but links to RISK-001 (in_review) |
-| W5 | SR-007 | `docs/design-inputs/software-requirements/SR-007-patient-access-to-own-personal-and.md` | approved but links to RR-001 (in_review) |
-| W5 | SR-007 | `docs/design-inputs/software-requirements/SR-007-patient-access-to-own-personal-and.md` | approved but links to RISK-001 (in_review) |
-| W5 | SR-008 | `docs/design-inputs/software-requirements/SR-008-patient-grant-and-revoke-of-clinical.md` | approved but links to RR-001 (in_review) |
-| W5 | SR-008 | `docs/design-inputs/software-requirements/SR-008-patient-grant-and-revoke-of-clinical.md` | approved but links to RISK-001 (in_review) |
-| W5 | SR-008 | `docs/design-inputs/software-requirements/SR-008-patient-grant-and-revoke-of-clinical.md` | approved but links to RISK-004 (in_review) |
-| W5 | SR-009 | `docs/design-inputs/software-requirements/SR-009-administrative-personnel-non-clinical-data-scope.md` | approved but links to RR-001 (in_review) |
-| W5 | SR-009 | `docs/design-inputs/software-requirements/SR-009-administrative-personnel-non-clinical-data-scope.md` | approved but links to RISK-001 (in_review) |
-| W5 | SR-011 | `docs/design-inputs/software-requirements/SR-011-appointment-visibility.md` | approved but links to RISK-009 (in_review) |
-| W5 | SR-012 | `docs/design-inputs/software-requirements/SR-012-clinical-entry-creation-with-required-fields.md` | approved but links to RISK-002 (in_review) |
-| W5 | SR-013 | `docs/design-inputs/software-requirements/SR-013-clinical-entry-file-attachments.md` | approved but links to RISK-002 (in_review) |
-| W5 | SR-017 | `docs/design-inputs/software-requirements/SR-017-dicom-image-opening-and-rendering.md` | approved but links to RR-009 (in_review) |
-| W5 | SR-017 | `docs/design-inputs/software-requirements/SR-017-dicom-image-opening-and-rendering.md` | approved but links to RISK-003 (in_review) |
-| W5 | SR-018 | `docs/design-inputs/software-requirements/SR-018-dicom-viewer-controls.md` | approved but links to RISK-003 (in_review) |
 | W5 | SR-019 | `docs/design-inputs/software-requirements/SR-019-cross-browser-support.md` | approved but links to RR-010 (in_review) |
-| W5 | SR-019 | `docs/design-inputs/software-requirements/SR-019-cross-browser-support.md` | approved but links to RISK-003 (in_review) |
-| W5 | SR-020 | `docs/design-inputs/software-requirements/SR-020-responsive-layout-across-devices.md` | approved but links to RR-009 (in_review) |
-| W5 | SR-021 | `docs/design-inputs/software-requirements/SR-021-fhir-aligned-data-model.md` | approved but links to RISK-002 (in_review) |
-| W5 | SR-022 | `docs/design-inputs/software-requirements/SR-022-encryption-in-transit-and-at-rest.md` | approved but links to RR-003 (in_review) |
-| W5 | SR-022 | `docs/design-inputs/software-requirements/SR-022-encryption-in-transit-and-at-rest.md` | approved but links to RISK-006 (in_review) |
 | W5 | SR-022 | `docs/design-inputs/software-requirements/SR-022-encryption-in-transit-and-at-rest.md` | approved but links to RISK-007 (in_review) |
-| W5 | SR-022 | `docs/design-inputs/software-requirements/SR-022-encryption-in-transit-and-at-rest.md` | approved but links to RISK-008 (in_review) |
 | W5 | SR-022 | `docs/design-inputs/software-requirements/SR-022-encryption-in-transit-and-at-rest.md` | approved but links to RISK-010 (in_review) |
-| W5 | SR-022 | `docs/design-inputs/software-requirements/SR-022-encryption-in-transit-and-at-rest.md` | approved but links to RISK-011 (in_review) |
-| W5 | SR-023 | `docs/design-inputs/software-requirements/SR-023-audit-logging-of-security-relevant-events.md` | approved but links to RR-004 (in_review) |
-| W5 | SR-023 | `docs/design-inputs/software-requirements/SR-023-audit-logging-of-security-relevant-events.md` | approved but links to RISK-001 (in_review) |
-| W5 | SR-023 | `docs/design-inputs/software-requirements/SR-023-audit-logging-of-security-relevant-events.md` | approved but links to RISK-004 (in_review) |
-| W5 | SR-023 | `docs/design-inputs/software-requirements/SR-023-audit-logging-of-security-relevant-events.md` | approved but links to RISK-005 (in_review) |
-| W5 | SR-023 | `docs/design-inputs/software-requirements/SR-023-audit-logging-of-security-relevant-events.md` | approved but links to RISK-006 (in_review) |
-| W5 | SR-024 | `docs/design-inputs/software-requirements/SR-024-personal-data-erasure.md` | approved but links to RR-002 (in_review) |
-| W5 | SR-024 | `docs/design-inputs/software-requirements/SR-024-personal-data-erasure.md` | approved but links to RR-005 (in_review) |
-| W5 | SR-024 | `docs/design-inputs/software-requirements/SR-024-personal-data-erasure.md` | approved but links to RISK-002 (in_review) |
-| W5 | SR-024 | `docs/design-inputs/software-requirements/SR-024-personal-data-erasure.md` | approved but links to RISK-008 (in_review) |
-| W5 | SR-025 | `docs/design-inputs/software-requirements/SR-025-password-complexity-policy.md` | approved but links to RR-003 (in_review) |
-| W5 | SR-025 | `docs/design-inputs/software-requirements/SR-025-password-complexity-policy.md` | approved but links to RISK-005 (in_review) |
 | W5 | SR-025 | `docs/design-inputs/software-requirements/SR-025-password-complexity-policy.md` | approved but links to RISK-010 (in_review) |
 | W5 | SR-026 | `docs/design-inputs/software-requirements/SR-026-performance-budgets-for-routine-operations.md` | approved but links to RR-010 (in_review) |
 | W5 | SR-026 | `docs/design-inputs/software-requirements/SR-026-performance-budgets-for-routine-operations.md` | approved but links to RISK-007 (in_review) |
-| W5 | SR-027 | `docs/design-inputs/software-requirements/SR-027-usability-controls.md` | approved but links to RR-009 (in_review) |
-| W5 | SR-029 | `docs/design-inputs/software-requirements/SR-029-account-lockout-after-failed-login-attempts.md` | approved but links to RR-003 (in_review) |
-| W5 | SR-029 | `docs/design-inputs/software-requirements/SR-029-account-lockout-after-failed-login-attempts.md` | approved but links to RISK-005 (in_review) |
-| W5 | SR-030 | `docs/design-inputs/software-requirements/SR-030-session-management.md` | approved but links to RR-003 (in_review) |
-| W5 | SR-030 | `docs/design-inputs/software-requirements/SR-030-session-management.md` | approved but links to RISK-005 (in_review) |
-| W5 | SR-031 | `docs/design-inputs/software-requirements/SR-031-web-vulnerability-mitigations.md` | approved but links to RR-003 (in_review) |
-| W5 | SR-031 | `docs/design-inputs/software-requirements/SR-031-web-vulnerability-mitigations.md` | approved but links to RISK-003 (in_review) |
-| W5 | SR-031 | `docs/design-inputs/software-requirements/SR-031-web-vulnerability-mitigations.md` | approved but links to RISK-005 (in_review) |
-| W5 | SR-033 | `docs/design-inputs/software-requirements/SR-033-account-activation-via-email.md` | approved but links to RISK-009 (in_review) |
-| W5 | SR-034 | `docs/design-inputs/software-requirements/SR-034-account-deactivation-and-deletion-by-system.md` | approved but links to RR-002 (in_review) |
-| W5 | SR-035 | `docs/design-inputs/software-requirements/SR-035-patient-notification-and-confirmation-of-scheduled.md` | approved but links to RISK-009 (in_review) |
-| W5 | SR-036 | `docs/design-inputs/software-requirements/SR-036-clinical-data-access-grant-on-appointment.md` | approved but links to RR-001 (in_review) |
-| W5 | SR-036 | `docs/design-inputs/software-requirements/SR-036-clinical-data-access-grant-on-appointment.md` | approved but links to RISK-001 (in_review) |
-| W5 | SR-036 | `docs/design-inputs/software-requirements/SR-036-clinical-data-access-grant-on-appointment.md` | approved but links to RISK-004 (in_review) |
-| W5 | TASK-036 | `docs/design-outputs/tasks/TASK-036-worker-5-year-permanent-erasure.md` | approved but links to RISK-008 (in_review) |
-| W5 | TASK-066 | `docs/design-outputs/tasks/TASK-066-clinical-entry-attachment-endpoints.md` | approved but links to RISK-002 (in_review) |
-| W5 | TASK-118 | `docs/design-outputs/tasks/TASK-118-wire-account-lockout-into-the-login.md` | approved but links to RISK-005 (in_review) |
+| W5 | TASK-001 | `docs/design-outputs/tasks/TASK-001-monorepo-structure-tooling.md` | approved but links to SR-028 (in_review) |
+| W5 | TASK-005 | `docs/design-outputs/tasks/TASK-005-ci-pipeline.md` | approved but links to SR-028 (in_review) |
 | W5 | TASK-132 | `docs/design-outputs/tasks/TASK-132-clinical-entries-view-completeness-remediation.md` | approved but links to TASK-101 (draft) |
-| W6 | TASK-001 | `docs/design-outputs/tasks/TASK-001-monorepo-structure-tooling.md` | links to obsolete SR-028 |
-| W6 | TASK-005 | `docs/design-outputs/tasks/TASK-005-ci-pipeline.md` | links to obsolete SR-028 |
-| W6 | TASK-147 | `docs/design-outputs/tasks/TASK-147-iso-14971-risk-register-bootstrap.md` | links to obsolete SR-028 |
-| W6 | TASK-154 | `docs/design-outputs/tasks/TASK-154-soup-anomaly-list-review.md` | links to obsolete SR-028 |
 | W7 | TASK-001 | `docs/design-outputs/tasks/TASK-001-monorepo-structure-tooling.md` | approved TASK whose SR NFR-006 has no TS |
 | W7 | TASK-003 | `docs/design-outputs/tasks/TASK-003-config-secrets-management.md` | approved TASK whose SR NFR-007 has no TS |
 | W7 | TASK-005 | `docs/design-outputs/tasks/TASK-005-ci-pipeline.md` | approved TASK whose SR NFR-006 has no TS |
@@ -138,10 +79,8 @@ None.
 | W7 | TASK-081 | `docs/design-outputs/tasks/TASK-081-responsive-layout-mui-theme.md` | approved TASK whose SR NFR-003 has no TS |
 | W7 | TASK-083 | `docs/design-outputs/tasks/TASK-083-reusable-confirmation-dialog-for-destructive-actions.md` | approved TASK whose SR NFR-009 has no TS |
 | W7 | TASK-127 | `docs/design-outputs/tasks/TASK-127-surface-the-security-model-in-openapi.md` | approved TASK whose SR NFR-006 has no TS |
-| risk_control_unverified | TASK-111 | `docs/design-outputs/tasks/TASK-111-system-end-to-end-tests-playwright.md` | mitigating element reaches no test-report |
 | risk_control_unverified | TASK-113 | `docs/design-outputs/tasks/TASK-113-security-review-of-auth-session-authz.md` | mitigating element reaches no test-report |
 | risk_control_unverified | TASK-137 | `docs/design-outputs/tasks/TASK-137-capture-client-ip-in-authz-and-consent-audit.md` | mitigating element reaches no test-report |
-| risk_control_unverified | TASK-154 | `docs/design-outputs/tasks/TASK-154-soup-anomaly-list-review.md` | mitigating element reaches no test-report |
 | soup_anomaly_review_stale | SOUP-001 | `docs/soup/SOUP-001-python.md` | anomaly review missing or older than 365 days |
 | soup_anomaly_review_stale | SOUP-002 | `docs/soup/SOUP-002-fastapi.md` | anomaly review missing or older than 365 days |
 | soup_anomaly_review_stale | SOUP-003 | `docs/soup/SOUP-003-starlette.md` | anomaly review missing or older than 365 days |
@@ -210,6 +149,7 @@ None.
 | SR-025 | ADD-006, ADD-019 | TS-001 | TR-001 | RISK-005, RISK-010 |
 | SR-026 | ADD-005, ADD-012, ADD-022 | — | — | RISK-007 |
 | SR-027 | ADD-018 | TS-012 | TR-001 | — |
+| SR-028 | ADD-024 | TS-013 | TR-001 | RISK-007, RISK-010 |
 | SR-029 | ADD-006 | TS-001 | TR-001 | RISK-005 |
 | SR-030 | ADD-006, ADD-019 | TS-001 | TR-001 | RISK-005 |
 | SR-031 | ADD-005, ADD-016, ADD-023 | TS-008, TS-011 | — | RISK-003, RISK-005 |

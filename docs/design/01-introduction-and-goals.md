@@ -22,7 +22,7 @@ High-level requirements driving the architecture (full set in `docs/design-input
 | NFR-001/003/009 / SR-019, 020, 027    | Cross-browser, responsive, usable      | Safari/Firefox/Chrome/Edge; phone/tablet/desktop; minimal training | High     |
 | NFR-002 / SR-021                      | FHIR data governance                   | FHIR R4-aligned model, documented mapping                          | Medium   |
 | NFR-004/007 / SR-022–025, 029–031     | GDPR & cybersecurity                   | Encryption, audit, erasure, password/lockout/session, OWASP        | High     |
-| NFR-005/006 / RR-011                  | MDR/FDA & IEC 62304                    | Traceable, version-controlled, verifiable records                  | High     |
+| NFR-005/006 / SR-028                  | MDR/FDA & IEC 62304                    | Traceable, version-controlled, verifiable records                  | High     |
 | NFR-008 / SR-026                      | Performance                            | Routine ops <3s; DICOM initial render <10s                         | Medium   |
 
 ## Quality Goals

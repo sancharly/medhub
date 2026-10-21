@@ -2,8 +2,8 @@
 id: RISK-007
 type: risk
 title: Clinical information unavailable when needed
-status: approved
-version: "1.1"
+status: in_review
+version: "1.2"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-10-21"
@@ -15,10 +15,6 @@ probability_initial: 2
 severity_residual: 3
 probability_residual: 2
 acceptability: alarp
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-10-21"
-approved_digest: a04f251d018f44c499956c9da605935fc87df23748f4baed0bb1b46698ac90db
-approval_note: self-approved
 links:
   - target: SOUP-020
     relation: relates_to
@@ -68,7 +64,7 @@ occur); the score is severity × P2, the probability that the hazardous situatio
 
 | Measure | Type | Implemented by | Verified by |
 |---|---|---|---|
-| Documented backup, monitoring and deployment procedure | Protective | RR-011, TASK-115 | none yet — release gate |
+| Documented backup, monitoring and deployment procedure | Protective | SR-028, TASK-115 | TR-001, TS-013 |
 | Performance budgets so routine operations stay usable | Design | SR-026 | none yet |
 | Worker retries with backoff and no silent enqueue failures | Protective | TASK-141 | none yet |
 | Object storage dependency declared and verified at startup | Design | PRB-002 resolution | none yet |

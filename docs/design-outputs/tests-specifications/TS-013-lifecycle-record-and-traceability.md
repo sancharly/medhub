@@ -2,8 +2,8 @@
 id: "TS-013"
 type: test-specification
 title: "Lifecycle record and traceability verification"
-status: obsolete
-version: "1.0"
+status: in_review
+version: "1.1"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
 updated: "2026-10-21"
@@ -12,10 +12,6 @@ links:
     relation: verifies
 tags: ["level:review", "class:B"]
 ---
-
-> **Obsolete (2026-10-21).** It verified only SR-028, which is now the regulatory requirement
-> RR-011. That obligation is evidenced by the `traceability-check` gap reports and the release gate
-> of PLAN-001, not by a test specification. Kept below because IDs are never reused.
 
 # TS-013 — Lifecycle record and traceability verification
 
@@ -50,3 +46,7 @@ Exact SOUP versions: the `soup` records in [`../../soup/`](../../soup/).
 ## Notes
 
 This TS verifies the process requirement by review, which IEC 62304 §5.5 accepts as unit verification evidence alongside tests.
+
+## Version history
+
+- 1.1 (2026-10-21) — Restored from `obsolete` together with SR-028. Content unchanged.

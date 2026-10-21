@@ -2,15 +2,11 @@
 id: TP-001
 type: test-plan
 title: Verification plan for the agentic-os migration baseline
-status: approved
-version: "1.0"
+status: in_review
+version: "1.1"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-10-21"
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-10-21"
-approved_digest: db53f32fd75a40aa9146a013a80b362dddd5ceaef11354551fc895aeadfbcab4
-approval_note: self-approved
 links:
   - target: TS-001
     relation: relates_to
@@ -36,6 +32,8 @@ links:
     relation: relates_to
   - target: TS-012
     relation: relates_to
+  - target: TS-013
+    relation: relates_to
 tags:
   - class:B
   - baseline
@@ -51,7 +49,7 @@ a known starting point.
 
 ## Scope
 
-All 38 current software requirements, through [TS-001..TS-012](../../design-outputs/tests-specifications/).
+All 39 software requirements, through [TS-001..TS-013](../../design-outputs/tests-specifications/).
 Software items: every item in [05-building-blocks.md](../../design/05-building-blocks.md).
 
 ## Levels executed (class B)

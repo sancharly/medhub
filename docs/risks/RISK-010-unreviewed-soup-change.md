@@ -2,8 +2,8 @@
 id: RISK-010
 type: risk
 title: Unreviewed SOUP change weakens a verified risk control
-status: approved
-version: "1.1"
+status: in_review
+version: "1.2"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-10-21"
@@ -15,10 +15,6 @@ probability_initial: 2
 severity_residual: 3
 probability_residual: 1
 acceptability: acceptable
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-10-21"
-approved_digest: 7a753189ff00f569b395ab3bcffde793272f70b3a032d5bf4b6ed91d73912dad
-approval_note: self-approved
 links:
   - target: SOUP-001
     relation: relates_to
@@ -128,7 +124,7 @@ occur); the score is severity × P2, the probability that the hazardous situatio
 
 | Measure | Type | Implemented by | Verified by |
 |---|---|---|---|
-| SOUP list with exact versions, required functions and required HW/SW | Design | RR-011, SOUP-001..035 | none yet — release gate (TASK-154) |
+| SOUP list with exact versions, required functions and required HW/SW | Design | SR-028, SOUP-001..035 | TR-001, TS-013 |
 | Every image and dependency pinned to an immutable version | Design | PRB-001 resolution | none yet |
 | Anomaly and advisory review per version, at least yearly and before release | Protective | TASK-154 | none yet |
 | Tests asserting the security headers, encryption and hashing behaviour | Protective | SR-001, SR-022, SR-025 | TR-001, TS-001, TS-008, TS-011 |

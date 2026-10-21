@@ -8,8 +8,6 @@ author: "Carlos Santiago Liceras"
 created: "2026-09-17"
 updated: "2026-10-21"
 links:
-  - target: "RR-011"
-    relation: relates_to
   - target: "RISK-010"
     relation: mitigates
   - target: "SR-028"

@@ -1,23 +1,30 @@
 ---
-id: "RR-011"
+id: RR-011
 type: regulatory-requirement
-title: "Traceable, version-controlled development records"
-status: in_review
-version: "1.0"
-author: "Carlos Santiago Liceras"
+title: Traceable, version-controlled development records
+status: obsolete
+version: "1.1"
+author: Carlos Santiago Liceras
 created: "2026-10-21"
 updated: "2026-10-21"
 links:
-  - target: "NFR-005"
+  - target: NFR-005
     relation: derives_from
-  - target: "NFR-006"
+  - target: NFR-006
     relation: derives_from
-  - target: "RISK-007"
+  - target: RISK-007
     relation: mitigates
-  - target: "RISK-010"
+  - target: RISK-010
     relation: mitigates
-tags: ["iec62304", "regulatory", "supersedes:SR-028"]
+tags:
+  - iec62304
+  - regulatory
+  - supersedes:SR-028
 ---
+
+> **Obsolete — withdrawn (2026-10-21).** Never approved. SR-028 was restored instead: it is the
+> only software requirement realizing RR-006/007/008 and is implemented by TASK-001/005/111/147/154,
+> and its architecture coverage is ADD-024. Kept because design-record IDs are never reused.
 
 # RR-011 — Traceable, version-controlled development records
 

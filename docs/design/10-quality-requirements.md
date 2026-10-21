@@ -14,7 +14,7 @@
 | **Security — transport/at rest** | Inspect traffic and storage                                                   | All traffic TLS; attachments encrypted at rest                   | SR-001, SR-022         |
 | **Safety — DICOM correctness**   | Open a known CT/MRI study                                                     | Correct scaling, default window/level, slice order vs. reference | SR-017                 |
 | **Safety — attribution**         | Doctor creates clinical entry                                                 | Author = authenticated user, not client-supplied                 | SR-012.3               |
-| **Compliance — traceability**    | Audit the design                                                              | Every SR traced UN/NFR→SR→architecture item→test                 | RR-011, NFR-006        |
+| **Compliance — traceability**    | Audit the design                                                              | Every SR traced UN/NFR→SR→architecture item→test                 | SR-028, NFR-006        |
 | **Extensibility**                | Add a new module                                                              | New package + registry entry, no edits to existing modules       | SR-016.1               |
 | **Reach — cross-browser**        | Run core workflows on Safari/Firefox/Chrome/Edge                              | No functional errors, layout intact                              | SR-019                 |
 | **Reach — responsive**           | Core workflows on phone/tablet/desktop                                        | Operable, no horizontal scroll of primary content                | SR-020                 |
