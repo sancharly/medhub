@@ -1,16 +1,16 @@
-# Graph Report - medhub-01  (2026-09-17)
+# Graph Report - medhub-01  (2026-10-21)
 
 ## Corpus Check
-- 659 files · ~247,006 words
+- 701 files · ~264,081 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 5408 nodes · 7938 edges · 824 communities (453 shown, 371 thin omitted)
-- Extraction: 86% EXTRACTED · 14% INFERRED · 0% AMBIGUOUS · INFERRED: 1075 edges (avg confidence: 0.71)
+- 5724 nodes · 8258 edges · 855 communities (485 shown, 370 thin omitted)
+- Extraction: 87% EXTRACTED · 13% INFERRED · 0% AMBIGUOUS · INFERRED: 1075 edges (avg confidence: 0.71)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `be2bbf80`
+- Built from commit: `02cbeb79`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -272,23 +272,63 @@
 - [[_COMMUNITY_Rationale Community|Rationale Community]]
 - [[_COMMUNITY_Rationale Community|Rationale Community]]
 - [[_COMMUNITY_Rationale Community|Rationale Community]]
+- [[_COMMUNITY_TASK-044-clinical-entry-create-list|TASK-044-clinical-entry-create-list.md]]
+- [[_COMMUNITY_TASK-046-attachment-authorized-fetch|TASK-046-attachment-authorized-fetch.md]]
+- [[_COMMUNITY_TASK-110-integration-tests-for-the-seven-runtime|TASK-110-integration-tests-for-the-seven-runtime.md]]
+- [[_COMMUNITY_.deactivate|.deactivate]]
+- [[_COMMUNITY_TS-006 — Appointments and notification verification|TS-006 — Appointments and notification verification]]
+- [[_COMMUNITY_PLAN-002-maintenance-plan|PLAN-002-maintenance-plan.md]]
+- [[_COMMUNITY_SOUP-001 — Python runtime 3.12-slim|SOUP-001 — Python runtime 3.12-slim]]
+- [[_COMMUNITY_SOUP-002 — FastAPI 0.138.0|SOUP-002 — FastAPI 0.138.0]]
+- [[_COMMUNITY_SOUP-003 — Starlette 1.3.1|SOUP-003 — Starlette 1.3.1]]
+- [[_COMMUNITY_SOUP-004 — Uvicorn 0.49.0|SOUP-004 — Uvicorn 0.49.0]]
 - [[_COMMUNITY_Document Community|Document Community]]
+- [[_COMMUNITY_SOUP-005 — Gunicorn 26.0.0|SOUP-005 — Gunicorn 26.0.0]]
+- [[_COMMUNITY_SOUP-006 — Pydantic 2.13.4|SOUP-006 — Pydantic 2.13.4]]
+- [[_COMMUNITY_SOUP-007 — pydantic-settings 2.14.2|SOUP-007 — pydantic-settings 2.14.2]]
 - [[_COMMUNITY_Concept Community|Concept Community]]
 - [[_COMMUNITY_Concept Community|Concept Community]]
 - [[_COMMUNITY_Rationale Community|Rationale Community]]
+- [[_COMMUNITY_SOUP-008 — SQLAlchemy 2.0.51|SOUP-008 — SQLAlchemy 2.0.51]]
 - [[_COMMUNITY_Document Community|Document Community]]
+- [[_COMMUNITY_SOUP-009 — Alembic 1.18.4|SOUP-009 — Alembic 1.18.4]]
+- [[_COMMUNITY_SOUP-010 — psycopg2-binary 2.9.12|SOUP-010 — psycopg2-binary 2.9.12]]
+- [[_COMMUNITY_SOUP-011 — cryptography 49.0.0|SOUP-011 — cryptography 49.0.0]]
+- [[_COMMUNITY_SOUP-012 — argon2-cffi 25.1.0|SOUP-012 — argon2-cffi 25.1.0]]
+- [[_COMMUNITY_SOUP-013 — redis-py 8.0.0|SOUP-013 — redis-py 8.0.0]]
+- [[_COMMUNITY_SOUP-014 — Celery 5.6.3|SOUP-014 — Celery 5.6.3]]
+- [[_COMMUNITY_SOUP-015 — pydicom 3.0.2|SOUP-015 — pydicom 3.0.2]]
+- [[_COMMUNITY_SOUP-016 — fhir.resources 8.2.0|SOUP-016 — fhir.resources 8.2.0]]
+- [[_COMMUNITY_SOUP-017 — python-multipart 0.0.32|SOUP-017 — python-multipart 0.0.32]]
+- [[_COMMUNITY_SOUP-020 — PostgreSQL server 16|SOUP-020 — PostgreSQL server 16]]
+- [[_COMMUNITY_SOUP-021 — Redis server 7-alpine|SOUP-021 — Redis server 7-alpine]]
+- [[_COMMUNITY_SOUP-022 — MinIO object storage latest|SOUP-022 — MinIO object storage latest]]
+- [[_COMMUNITY_SOUP-023 — MinIO client (mc) latest|SOUP-023 — MinIO client (mc) latest]]
+- [[_COMMUNITY_SOUP-024 — nginx alpine|SOUP-024 — nginx alpine]]
 - [[_COMMUNITY_Concept Community|Concept Community]]
+- [[_COMMUNITY_SOUP-025 — React 18.3.1|SOUP-025 — React 18.3.1]]
+- [[_COMMUNITY_SOUP-026 — React DOM 18.3.1|SOUP-026 — React DOM 18.3.1]]
 - [[_COMMUNITY_Rationale Community|Rationale Community]]
 - [[_COMMUNITY_Rationale Community|Rationale Community]]
+- [[_COMMUNITY_SOUP-027 — React Router (react-router-dom) 7.18.0|SOUP-027 — React Router (react-router-dom) 7.18.0]]
+- [[_COMMUNITY_SOUP-028 — TanStack Query (@tanstackreact-query) 5.101.0|SOUP-028 — TanStack Query (@tanstack/react-query) 5.101.0]]
+- [[_COMMUNITY_SOUP-029 — MUI Material (@muimaterial) 9.1.1|SOUP-029 — MUI Material (@mui/material) 9.1.1]]
 - [[_COMMUNITY_Document Community|Document Community]]
 - [[_COMMUNITY_Document Community|Document Community]]
 - [[_COMMUNITY_Document Community|Document Community]]
 - [[_COMMUNITY_Document Community|Document Community]]
 - [[_COMMUNITY_Document Community|Document Community]]
+- [[_COMMUNITY_SOUP-030 — MUI Icons (@muiicons-material) 9.1.1|SOUP-030 — MUI Icons (@mui/icons-material) 9.1.1]]
 - [[_COMMUNITY_Concept Community|Concept Community]]
 - [[_COMMUNITY_Concept Community|Concept Community]]
+- [[_COMMUNITY_SOUP-031 — Emotion (@emotionreact) 11.14.0|SOUP-031 — Emotion (@emotion/react) 11.14.0]]
+- [[_COMMUNITY_SOUP-032 — Emotion styled (@emotionstyled) 11.14.1|SOUP-032 — Emotion styled (@emotion/styled) 11.14.1]]
 - [[_COMMUNITY_Code Community|Code Community]]
+- [[_COMMUNITY_SOUP-033 — openapi-fetch 0.17.0|SOUP-033 — openapi-fetch 0.17.0]]
+- [[_COMMUNITY_SOUP-034 — Fontsource Inter (@fontsource-variableinter) 5.2.8|SOUP-034 — Fontsource Inter (@fontsource-variable/inter) 5.2.8]]
 - [[_COMMUNITY_Code Community|Code Community]]
+- [[_COMMUNITY_SOUP-035 — Fontsource Manrope (@fontsource-variablemanrope) 5.2.8|SOUP-035 — Fontsource Manrope (@fontsource-variable/manrope) 5.2.8]]
+- [[_COMMUNITY_LoginPage.tsx|LoginPage.tsx]]
 - [[_COMMUNITY_Rationale Community|Rationale Community]]
 - [[_COMMUNITY_Concept Community|Concept Community]]
 - [[_COMMUNITY_Concept Community|Concept Community]]
@@ -304,7 +344,6 @@
 - [[_COMMUNITY_Concept Community|Concept Community]]
 - [[_COMMUNITY_api-design|api-design.md]]
 - [[_COMMUNITY_Level 2 — Software units (per item)|Level 2 — Software units (per item)]]
-- [[_COMMUNITY_test_attachment_fetch.py|test_attachment_fetch.py]]
 - [[_COMMUNITY_LockoutService|LockoutService]]
 - [[_COMMUNITY_test_lockout_integration.py|test_lockout_integration.py]]
 - [[_COMMUNITY_08 - Cross-cutting Concepts|08 - Cross-cutting Concepts]]
@@ -313,7 +352,6 @@
 - [[_COMMUNITY_Bring-Up Instructions|Bring-Up Instructions]]
 - [[_COMMUNITY_RouterRegistry|RouterRegistry]]
 - [[_COMMUNITY_ADR-0001 Modular monolith with a runtime pluginmodule mechanism|ADR-0001: Modular monolith with a runtime plugin/module mechanism]]
-- [[_COMMUNITY_ADR-0002 Python + FastAPI for the backend|ADR-0002: Python + FastAPI for the backend]]
 - [[_COMMUNITY_ADR-0003 TypeScript + React (Vite) responsive SPA|ADR-0003: TypeScript + React (Vite) responsive SPA]]
 - [[_COMMUNITY_ADR-0004 PostgreSQL as the primary relational database|ADR-0004: PostgreSQL as the primary relational database]]
 - [[_COMMUNITY_ADR-0005 Backend plugins via Python entry points; frontend modules via dynamic registration + lazy chunks|ADR-0005: Backend plugins via Python entry points; frontend modules via dynamic registration + lazy chunks]]
@@ -327,7 +365,6 @@
 - [[_COMMUNITY_ADR-0013 Account deletion via 5-year anonymized retention with a user-held retrieval code|ADR-0013: Account deletion via 5-year anonymized retention with a user-held retrieval code]]
 - [[_COMMUNITY_Confirmed defects (root causes of basic functionality doesn't work)|Confirmed defects (root causes of "basic functionality doesn't work")]]
 - [[_COMMUNITY_Core endpoints|Core endpoints]]
-- [[_COMMUNITY_Field mappings|Field mappings]]
 - [[_COMMUNITY_SR-001-browser-accessible-web-application-over-https|SR-001-browser-accessible-web-application-over-https.md]]
 - [[_COMMUNITY_SR-002-email-and-password-authentication|SR-002-email-and-password-authentication.md]]
 - [[_COMMUNITY_SR-003-unique-user-account-and-profile-view|SR-003-unique-user-account-and-profile-view.md]]
@@ -375,7 +412,6 @@
 - [[_COMMUNITY_TASK-095-admin-account-management|TASK-095-admin-account-management.md]]
 - [[_COMMUNITY_TASK-096-admin-groups-module-enablement-ui|TASK-096-admin-groups-module-enablement-ui.md]]
 - [[_COMMUNITY_Requirements Traceability Matrix|Requirements Traceability Matrix]]
-- [[_COMMUNITY_Remediation Plan — Code Review 2026-07|Remediation Plan — Code Review 2026-07]]
 - [[_COMMUNITY_Quick Start|Quick Start]]
 - [[_COMMUNITY_CLAUDE|CLAUDE.md]]
 - [[_COMMUNITY_02 - Architecture Constraints|02 - Architecture Constraints]]
@@ -419,12 +455,10 @@
 - [[_COMMUNITY_TASK-034-worker-session-kill-propagation|TASK-034-worker-session-kill-propagation.md]]
 - [[_COMMUNITY_TASK-036-worker-5-year-permanent-erasure|TASK-036-worker-5-year-permanent-erasure.md]]
 - [[_COMMUNITY_TASK-041-group-membership-automatic-manual|TASK-041-group-membership-automatic-manual.md]]
-- [[_COMMUNITY_TASK-042-per-group-module-enablement|TASK-042-per-group-module-enablement.md]]
 - [[_COMMUNITY_TASK-043-moduleaccessguard|TASK-043-moduleaccessguard.md]]
 - [[_COMMUNITY_TASK-045-attachment-upload-minio-pydicom-validation|TASK-045-attachment-upload-minio-pydicom-validation.md]]
 - [[_COMMUNITY_TASK-047-appointment-create|TASK-047-appointment-create.md]]
 - [[_COMMUNITY_TASK-050-appointment-notification-dispatch|TASK-050-appointment-notification-dispatch.md]]
-- [[_COMMUNITY_TASK-051-appointment-visibility-scoping|TASK-051-appointment-visibility-scoping.md]]
 - [[_COMMUNITY_TASK-071-platformservices-facade-sole-phi-path|TASK-071-platformservices-facade-sole-phi-path.md]]
 - [[_COMMUNITY_TASK-081-responsive-layout-mui-theme|TASK-081-responsive-layout-mui-theme.md]]
 - [[_COMMUNITY_TASK-084-error-boundary-toast-rendering-rfc-7807|TASK-084-error-boundary-toast-rendering-rfc-7807.md]]
@@ -438,7 +472,6 @@
 - [[_COMMUNITY_TASK-067-current-user-me-endpoints|TASK-067-current-user-me-endpoints.md]]
 - [[_COMMUNITY_TASK-101-nav-gating-by-get-me-modules|TASK-101-nav-gating-by-get-me-modules.md]]
 - [[_COMMUNITY_TASK-103-dicom-viewer-controls|TASK-103-dicom-viewer-controls.md]]
-- [[_COMMUNITY_03 - Context and Scope|03 - Context and Scope]]
 - [[_COMMUNITY_TASK-111-system-end-to-end-tests-playwright|TASK-111-system-end-to-end-tests-playwright.md]]
 - [[_COMMUNITY_TASK-113-security-review-of-auth-session-authz|TASK-113-security-review-of-auth-session-authz.md]]
 - [[_COMMUNITY_TASK-100-frontend-moduleregistry-frontendmodule-interface-lazy-chunk|TASK-100-frontend-moduleregistry-frontendmodule-interface-lazy-chunk.md]]
@@ -455,8 +488,6 @@
 - [[_COMMUNITY_TASK-132-clinical-entries-view-completeness-remediation|TASK-132-clinical-entries-view-completeness-remediation.md]]
 - [[_COMMUNITY_TASK-133-admin-accounts-view-completeness-remediation|TASK-133-admin-accounts-view-completeness-remediation.md]]
 - [[_COMMUNITY_TASK-134-manual-add-member-ui-for-groups|TASK-134-manual-add-member-ui-for-groups.md]]
-- [[_COMMUNITY_MedHub — Audit Findings (Performance  Security  Simplicity)|MedHub — Audit Findings (Performance / Security / Simplicity)]]
-- [[_COMMUNITY_MedHub Implementation Plan|MedHub Implementation Plan]]
 - [[_COMMUNITY_TASK-118-wire-account-lockout-into-the-login|TASK-118-wire-account-lockout-into-the-login.md]]
 - [[_COMMUNITY_TASK-119-password-policy-errors-as-400-activation|TASK-119-password-policy-errors-as-400-activation.md]]
 - [[_COMMUNITY_TASK-120-wire-admin-non-clinical-projection-into|TASK-120-wire-admin-non-clinical-projection-into.md]]
@@ -812,14 +843,14 @@
 ## Surprising Connections (you probably didn't know these)
 - `test_audit_service_has_no_modify_methods()` --indirect_call--> `AuditService`  [INFERRED]
   backend/tests/audit/test_audit_writer.py → backend/app/audit/service.py
-- `test_get_settings_is_cached()` --calls--> `get_settings()`  [INFERRED]
-  backend/tests/test_config.py → backend/app/core/config.py
 - `test_audit_log_insert_select()` --indirect_call--> `AuditLog`  [INFERRED]
   backend/tests/db/test_models.py → backend/app/db/models/audit.py
 - `test_account_get_by_email_missing_returns_none()` --calls--> `AccountRepository`  [INFERRED]
   backend/tests/db/test_repositories.py → backend/app/db/repositories/account_repo.py
-- `test_anonymized_dataset_get_by_code_hash_missing()` --calls--> `AnonymizedDatasetRepository`  [INFERRED]
-  backend/tests/db/test_repositories.py → backend/app/db/repositories/anonymized_dataset_repo.py
+- `test_audit_repo_has_only_add()` --indirect_call--> `AuditRepository`  [INFERRED]
+  backend/tests/audit/test_audit_writer.py → backend/app/db/repositories/audit_repo.py
+- `app()` --calls--> `create_app()`  [INFERRED]
+  backend/tests/api/test_accounts_router.py → backend/app/main.py
 
 ## Import Cycles
 - None detected.
@@ -833,35 +864,35 @@
 - **Regulatory and Compliance Requirements Chain** — docs_design_inputs_system_requirements_non_functional_nfr_004_gdpr_compliance_nfr_004, docs_design_inputs_system_requirements_non_functional_nfr_005_medical_device_nfr_005, docs_design_inputs_system_requirements_non_functional_nfr_006_iec_62304_nfr_006, docs_design_inputs_system_requirements_non_functional_nfr_007_cybersecurity_nfr_007 [EXTRACTED 1.00]
 - **Production Infrastructure Stack** — service_postgres, service_redis, service_minio, service_nginx, service_backend_fastapi, service_celery_worker, service_frontend_react, infra_docker_compose_topology [EXTRACTED 1.00]
 
-## Communities (824 total, 371 thin omitted)
+## Communities (855 total, 370 thin omitted)
 
 ### Community 0 - "Code Community"
-Cohesion: 0.27
-Nodes (21): _make_account(), UserType, UUID, TASK-027: AuthorizationService tests., 403 error detail must not expose the actor's role name or the action string., _resource(), _svc(), test_admin_can_read_account() (+13 more)
+Cohesion: 0.06
+Nodes (70): AuthorizationError, _make_account(), UserType, UUID, TASK-027: AuthorizationService tests., 403 error detail must not expose the actor's role name or the action string., _resource(), _svc() (+62 more)
 
 ### Community 1 - "Code Community"
-Cohesion: 0.08
-Nodes (38): AuthorizationServiceProtocol, get_platform_services(), Yield a request-scoped PlatformServices wired from FastAPI DI., _get_account_service(), _get_activation_service(), _get_appointment_service(), _get_attachment_service(), _get_account_repo() (+30 more)
+Cohesion: 0.07
+Nodes (38): ActivationTokenStatus, _get_account_service(), Request, SYSADMIN-only: clear lockout counters for an account., resend_activation(), unlock_account(), _get_activation_service(), Activation API router (TASK-061). (+30 more)
 
 ### Community 2 - "Code Community"
-Cohesion: 0.08
-Nodes (25): ApiError, ChangePasswordRequest, apiClient, queryClient, QueryProvider(), QueryProviderProps, App(), ChangePasswordPage() (+17 more)
+Cohesion: 0.10
+Nodes (18): ApiError, apiClient, QueryProvider(), QueryProviderProps, App(), RequireAuth(), CreateGroupForm(), GroupsPage() (+10 more)
 
 ### Community 3 - "Code Community"
-Cohesion: 0.05
-Nodes (37): Build — implementation and unit verification, Class B tailoring (Table A.1), Configuration management (§8) and Git Flow, Design records, Maintenance (§6), Plan — architecture and design, Problem resolution (§9), Purpose (+29 more)
+Cohesion: 0.11
+Nodes (19): Build — implementation and unit verification, Class B tailoring (Table A.1), Configuration management (§8) and Git Flow, Design records, Maintenance (§6), Plan — architecture and design, Problem resolution (§9), Purpose (+11 more)
 
 ### Community 4 - "Code Community"
-Cohesion: 0.09
-Nodes (35): AuditAction, Audit action constants (SR-023)., LoginFailure, LoginService, LoginSuccess, Response, LoginService — full login flow with anti-enumeration (TASK-023).  Flow:   1. Nor, Authenticate a user and return a session on success.          Anti-enumeration: (+27 more)
+Cohesion: 0.08
+Nodes (39): LoginFailure, LoginService, LoginSuccess, Response, LoginService — full login flow with anti-enumeration (TASK-023).  Flow:   1. Nor, Authenticate a user and return a session on success.          Anti-enumeration:, CreateSessionResult, app() (+31 more)
 
 ### Community 5 - "Code Community"
 Cohesion: 0.08
-Nodes (13): MeResponse, patientUser, groupWithMembers, installedModules, doctorMe, newerEntry, olderEntry, appointmentGrant (+5 more)
+Nodes (13): MeResponse, ForcedPasswordGate(), groupWithMembers, installedModules, doctorMe, newerEntry, olderEntry, appointmentGrant (+5 more)
 
 ### Community 6 - "Code Community"
-Cohesion: 0.06
-Nodes (53): _account_sessions_key(), datetime, Redis, UserType, UUID, SessionService — Redis-backed opaque session tokens (TASK-021).  Token: secrets., Look up a session by ID, refresh its sliding TTL, return None if expired/missing, Delete a single session. Idempotent. (+45 more)
+Cohesion: 0.09
+Nodes (42): _account_sessions_key(), Delete a single session. Idempotent., Delete all sessions for an account. Idempotent., _session_key(), TASK-024: LockoutService tests using fakeredis., Email-keyed lock must be enforced even when account_id is None., admin_unlock with email must also delete the email-keyed counter., Unknown accounts still track failures by email key. (+34 more)
 
 ### Community 7 - "Code Community"
 Cohesion: 0.09
@@ -880,16 +911,16 @@ Cohesion: 0.19
 Nodes (27): PasswordPolicyError, PasswordService, Raised when a password violates one or more policy rules. Returns HTTP 400., Argon2id password hashing and policy enforcement., _make_account(), datetime, TASK-020: PasswordService tests., test_check_needs_rehash_fresh_hash_false() (+19 more)
 
 ### Community 11 - "Code Community"
-Cohesion: 0.12
-Nodes (21): issue_csrf_token(), Response, Set the CSRF cookie (not HttpOnly) and return the raw token., get_settings(), get_db(), get_engine(), get_session_factory(), Database session factory and FastAPI dependency. (+13 more)
+Cohesion: 0.08
+Nodes (33): issue_csrf_token(), Response, Set the CSRF cookie (not HttpOnly) and return the raw token., Redis, get_settings(), Application configuration via environment variables.  All secrets are typed as S, Settings, get_db() (+25 more)
 
 ### Community 12 - "Code Community"
 Cohesion: 0.08
 Nodes (23): _auth_as(), _auth_via_session(), client(), _make_account(), _make_session(), UserSession, UserType, Tests for CSRF enforcement middleware (TASK-069a).  Covers: - Middleware rejects (+15 more)
 
 ### Community 13 - "Code Community"
-Cohesion: 0.18
-Nodes (11): app(), _auth_as(), client(), _make_account(), _make_session(), AccountStatus, UserSession, UserType (+3 more)
+Cohesion: 0.09
+Nodes (17): 11 - Risks and Technical Debt, Architectural risks & mitigations, Known technical debt / deferred items (deliberate MVP scope), Constraints, Goals, MedHub goals, Change control (§8.2) and Git Flow, Configuration items (§8.1.1) (+9 more)
 
 ### Community 14 - "Document Community"
 Cohesion: 0.20
@@ -900,12 +931,12 @@ Cohesion: 0.15
 Nodes (28): UnauthenticatedError, ActivationService, issue_activation_token(), UUID, Account activation via 72h token (TASK-032).  Token lifecycle:   issue_activatio, Re-issue an activation token. ADMIN or SYSADMIN only.          Returns the raw t, Generate a token, store its sha256 hash on the account, return the raw token., Activate an account: validate token, set password, set ACTIVE.          Raises U (+20 more)
 
 ### Community 16 - "Code Community"
-Cohesion: 0.10
-Nodes (20): ActivationTokenStatus, ActivationPage(), formatCountdown(), IdleWarningDialog(), IdleWarningDialogProps, LoginPage(), passwordHints, HintItem (+12 more)
+Cohesion: 0.09
+Nodes (24): ActivationTokenStatus, ChangePasswordRequest, queryClient, ActivationPage(), ChangePasswordPage(), formatCountdown(), IdleWarningDialog(), IdleWarningDialogProps (+16 more)
 
 ### Community 17 - "Code Community"
-Cohesion: 0.10
-Nodes (24): ConsentGrant, ConsentGrant, UUID, ConsentGrant repository., Return distinct patient Account rows with an active consent for this doctor., _add_account(), datetime, UserType (+16 more)
+Cohesion: 0.14
+Nodes (23): _add_account(), _now(), datetime, UserType, Repository CRUD round-trip tests (TASK-012)., SR-006 AC-3: the doctor patient-roster query returns only patients with an     a, SR-023.5 immutability: AuditRepository must only expose add()., Parameterized query must not match via SQL injection attempt. (+15 more)
 
 ### Community 18 - "Code Community"
 Cohesion: 0.08
@@ -921,47 +952,51 @@ Nodes (15): configure_logging(), _JsonFormatter, Structured JSON logging configu
 
 ### Community 22 - "Code Community"
 Cohesion: 0.27
-Nodes (9): Appointment, AppointmentRepository, Appointment, UUID, Appointment repository., _now(), test_appointment_add_and_get(), test_list_for_doctor_excludes_other_doctors() (+1 more)
+Nodes (6): Appointment, Appointment model — maps to FHIR Appointment., AppointmentRepository, Appointment, UUID, Appointment repository.
 
 ### Community 23 - "Code Community"
-Cohesion: 0.15
+Cohesion: 0.14
 Nodes (14): GroupModuleEnablement, ModuleRegistry, ModuleRegistry and GroupModuleEnablement models., ModuleRepository, datetime, UUID, ModuleRegistry and GroupModuleEnablement repository., Delete rows whose module_key is not in present_keys. (+6 more)
 
 ### Community 24 - "Code Community"
-Cohesion: 0.26
-Nodes (15): ValidationProblem, _build_svc(), _make_account(), UserType, UUID, TASK-047: AppointmentService create tests., test_admin_can_create_appointment(), test_create_emits_audit() (+7 more)
+Cohesion: 0.35
+Nodes (12): _build_svc(), _make_account(), UserType, UUID, TASK-047: AppointmentService create tests., test_admin_can_create_appointment(), test_create_emits_audit(), test_create_with_non_doctor_account_raises_validation() (+4 more)
 
 ### Community 25 - "Code Community"
 Cohesion: 0.09
 Nodes (25): decrypt(), encrypt(), _get_key(), Encryption-at-rest utilities using AES-256-GCM (SR-022).  Key material comes exc, Decode and validate the operator-managed AES-256 key.      Expects a URL-safe ba, AES-256-GCM encrypt. Returns nonce||ciphertext as URL-safe base64., AES-256-GCM decrypt. Raises cryptography.exceptions.InvalidTag on bad key/cipher, EncryptedString (+17 more)
 
 ### Community 26 - "Code Community"
-Cohesion: 0.13
-Nodes (21): confirm_appointment(), create_appointment(), decline_appointment(), get_appointment(), list_appointments(), UUID, Appointments API router (TASK-047/048/051)., AppointmentCreate (+13 more)
+Cohesion: 0.19
+Nodes (9): Appointment, datetime, UUID, AppointmentService — create, transition, and list appointments (TASK-047/048/049, Patient declines their appointment., List appointments visible to the actor., Get a single appointment. Returns NotFoundError if not visible (SR-011 AC-4)., Create a new appointment. Admin/SysAdmin/Doctor only. (+1 more)
 
 ### Community 27 - "Code Community"
-Cohesion: 0.08
-Nodes (35): NotFoundError, _get_erasure_service(), deactivate_account(), delete_account(), _get_erasure_service(), _get_lifecycle_service(), UUID, Lifecycle (deactivate/reactivate/delete) endpoints (TASK-062). (+27 more)
+Cohesion: 0.09
+Nodes (30): NotFoundError, _get_erasure_service(), deactivate_account(), delete_account(), _get_erasure_service(), UUID, Lifecycle (deactivate/reactivate/delete) endpoints (TASK-062)., reactivate_account() (+22 more)
 
 ### Community 28 - "Document Community"
-Cohesion: 0.22
-Nodes (7): PasswordPolicyViolation, PasswordHistory, PasswordHistory model — stores hashed past passwords to enforce history policy., PasswordHistoryRepository, UUID, PasswordHistory repository., Return the most recent `limit` password history entries for an account.
+Cohesion: 0.19
+Nodes (8): ProblemDetail, PasswordPolicyViolation, PasswordHistory, PasswordHistory model — stores hashed past passwords to enforce history policy., PasswordHistoryRepository, UUID, PasswordHistory repository., Return the most recent `limit` password history entries for an account.
 
 ### Community 29 - "Rationale Community"
-Cohesion: 0.20
-Nodes (10): DICOM validation using pydicom (TASK-045)., Parse and validate a DICOM file. Returns metadata dict.      Raises ValidationPr, validate_dicom(), Tests for DICOM validation (TASK-045)., Non-DICOM bytes raise ValidationProblem., Valid DICOM returns dict with modality, patient_id, study_date., DICOM whose optional tags are None returns None for those fields., test_dicom_with_none_attributes_returns_none_for_absent_fields() (+2 more)
+Cohesion: 0.10
+Nodes (19): ValidationProblem, DICOM validation using pydicom (TASK-045)., Parse and validate a DICOM file. Returns metadata dict.      Raises ValidationPr, validate_dicom(), DICOM helpers — frame extraction and content-type validation., Raise ValidationProblem if content_type is not application/dicom., Return DICOM bytes, optionally extracting a single frame.      If frame is None,, stream_dicom() (+11 more)
+
+### Community 30 - "Document Community"
+Cohesion: 0.18
+Nodes (11): datetime, UserType, UUID, SessionService — Redis-backed opaque session tokens (TASK-021).  Token: secrets., Look up a session by ID, refresh its sliding TTL, return None if expired/missing, Return all active session IDs for an account., Compute the inactivity expiry deadline for a resolved session., Create a new session. Evicts oldest if concurrency cap is exceeded. (+3 more)
 
 ### Community 31 - "Code Community"
-Cohesion: 0.14
-Nodes (13): Group, GroupMembership, Group and GroupMembership models., GroupRepository, Group, UUID, Group and GroupMembership repository., Remove the membership row matching the given source only. (+5 more)
+Cohesion: 0.11
+Nodes (20): Group, GroupMembership, Group and GroupMembership models., GroupRepository, Group, UUID, Group and GroupMembership repository., Remove the membership row matching the given source only. (+12 more)
 
 ### Community 32 - "Code Community"
 Cohesion: 0.20
 Nodes (6): client(), _make_dataset(), Tests for anonymized data retrieval endpoint (TASK-062)., Endpoint must be accessible without a session cookie., Repeated attempts from same IP trigger 429 rate limiting (ADR-0013)., TestAnonymizedRetrieve
 
 ### Community 33 - "Code Community"
-Cohesion: 0.08
-Nodes (49): ConflictError, Appointment, Appointment state machine (TASK-048)., Validate and apply a state transition.      Raises ConflictError if the transiti, transition(), AccountCreate, AccountService, _check_create_permission() (+41 more)
+Cohesion: 0.16
+Nodes (23): ConflictError, AccountCreate, AccountService, _check_create_permission(), UserType, UUID, AccountService — create and profile (TASK-030).  Authorization rules:   - create, Fetch an account, enforcing authz (account:read). (+15 more)
 
 ### Community 34 - "Concept Community"
 Cohesion: 0.08
@@ -976,20 +1011,20 @@ Cohesion: 0.16
 Nodes (10): CreateAccountRequest, AccountList(), AccountsPage(), accounts, accountsResponse, adminMe, sysadminMe, CreateAccountForm() (+2 more)
 
 ### Community 37 - "Code Community"
-Cohesion: 0.17
-Nodes (13): _auth_as(), client(), _make_account(), _make_author_account(), _make_entry(), _make_patient_account(), ClinicalEntry, UserType (+5 more)
+Cohesion: 0.16
+Nodes (14): app(), _auth_as(), client(), _make_account(), _make_author_account(), _make_entry(), _make_patient_account(), ClinicalEntry (+6 more)
 
 ### Community 38 - "Concept Community"
 Cohesion: 0.25
 Nodes (7): Acceptance criteria, Audit verdict (2026-06-29), Definition of Done, Implementation detail, Interfaces to honor, Objective, Tests (write first — TDD, CLAUDE.md §4)
 
 ### Community 39 - "Code Community"
-Cohesion: 0.11
-Nodes (15): Attachment, UUID, AttachmentService — store and fetch file attachments (TASK-045/046)., Fetch attachment bytes. Returns (bytes, content_type, filename)., List attachments for a clinical entry., Upload an attachment for a clinical entry., Decision, UUID (+7 more)
+Cohesion: 0.09
+Nodes (20): Attachment, UUID, AttachmentService — store and fetch file attachments (TASK-045/046)., Fetch attachment bytes. Returns (bytes, content_type, filename)., List attachments for a clinical entry., Upload an attachment for a clinical entry., AuditAction, Audit action constants (SR-023). (+12 more)
 
 ### Community 40 - "Rationale Community"
-Cohesion: 0.08
-Nodes (11): app(), client(), Tests for OpenAPI contract (TASK-068, TASK-068a)., Verify the canonical export module writes valid JSON., TASK-068a: security model must be surfaced per-operation., Every non-public operation must reference cookieAuth., Public operations must not require cookieAuth., POST/PUT/PATCH/DELETE on protected paths must document X-CSRF-Token. (+3 more)
+Cohesion: 0.10
+Nodes (9): app(), client(), Tests for OpenAPI contract (TASK-068, TASK-068a)., TASK-068a: security model must be surfaced per-operation., Every non-public operation must reference cookieAuth., Public operations must not require cookieAuth., POST/PUT/PATCH/DELETE on protected paths must document X-CSRF-Token., TestOpenAPISchema (+1 more)
 
 ### Community 41 - "Code Community"
 Cohesion: 0.20
@@ -1005,19 +1040,19 @@ Nodes (20): Appointment, AppointmentList(), AppointmentListProps, STATUS_SEVERIT
 
 ### Community 44 - "Code Community"
 Cohesion: 0.08
-Nodes (21): main(), Dump the OpenAPI schema to openapi.json.  Usage:     uv run python -m app.export, create_app(), FastAPI, MedHub API application factory., app(), app(), app() (+13 more)
+Nodes (20): main(), Dump the OpenAPI schema to openapi.json.  Usage:     uv run python -m app.export, create_app(), FastAPI, MedHub API application factory., app(), app(), client() (+12 more)
 
 ### Community 47 - "Code Community"
 Cohesion: 0.25
 Nodes (8): _make_account(), UserType, TASK-050/050a: Appointment notification enqueue and resilience tests., create() calls send_appointment_notification.delay(...) after DB commit., If SMTP fails, in-app notification row is still committed with FAILED status., test_create_calls_delay_after_commit(), test_notification_task_email_failure_still_records_in_app(), Exception
 
 ### Community 48 - "Code Community"
-Cohesion: 0.18
-Nodes (11): 1. Visual identity: "Clinical Calm", 2.1 Light scheme, 2.2 Dark scheme, 2. Color tokens, 3. Typography, 4. Shape, elevation, spacing, 5. Token layers → MUI mapping, 6. Contrast verification (WCAG 2.1 AA — SR-038 AC-3) (+3 more)
+Cohesion: 0.09
+Nodes (21): ADR-0014: MUI CSS-variables theming with native colorSchemes for light/dark, Alternatives Considered, Consequences, Context, Decision, Negative, Neutral, Positive (+13 more)
 
 ### Community 49 - "Code Community"
-Cohesion: 0.09
-Nodes (22): ConsentGrantResult, _parse_source(), ConsentGrant, UUID, ConsentService — manages patient→doctor consent grants (TASK-028)., EXISTS query: True if any active grant exists for this doctor/patient pair., Create an active consent grant.          source: "MANUAL" or "APPOINTMENT:{appoi, Deactivate a specific consent grant.          Only the matching source row is de (+14 more)
+Cohesion: 0.15
+Nodes (13): app(), _auth_as(), client(), _make_account(), _make_grant_result(), UserType, UUID, Tests for consent endpoints (TASK-064). (+5 more)
 
 ### Community 50 - "Code Community"
 Cohesion: 0.18
@@ -1028,24 +1063,24 @@ Cohesion: 0.11
 Nodes (22): change_password(), extend_session(), _get_login_service(), login(), logout(), Redis, Request, Response (+14 more)
 
 ### Community 52 - "Code Community"
-Cohesion: 0.12
-Nodes (25): ActivationTokenStatus, create_account(), get_account(), list_accounts(), Redis, Request, UUID, Accounts API router (TASK-061). (+17 more)
+Cohesion: 0.19
+Nodes (17): create_account(), get_account(), list_accounts(), Redis, UUID, Accounts API router (TASK-061)., activate_account(), Activate an account with the provided token and password. (+9 more)
 
 ### Community 53 - "Code Community"
-Cohesion: 0.14
+Cohesion: 0.15
 Nodes (21): Account, add_group_member(), create_doctor(), create_group(), create_patient(), get_engine(), hash_password(), list_users() (+13 more)
 
 ### Community 54 - "Code Community"
-Cohesion: 0.13
-Nodes (15): Attachment, Attachment model — maps to FHIR DocumentReference / Binary., app(), _auth_as(), client(), _make_account(), _make_attachment(), Attachment (+7 more)
+Cohesion: 0.16
+Nodes (12): app(), _auth_as(), client(), _make_account(), _make_attachment(), Attachment, UserType, Tests for attachment endpoints (TASK-066, TASK-066a). (+4 more)
 
 ### Community 55 - "Code Community"
 Cohesion: 0.15
 Nodes (13): app(), _auth_as(), client(), _make_account(), _make_group(), Group, UserType, Tests for groups endpoints (TASK-063). (+5 more)
 
 ### Community 57 - "Code Community"
-Cohesion: 0.17
-Nodes (15): AccountStatus, Account model — maps to FHIR Patient / Practitioner., UserType, AppointmentState, Appointment model — maps to FHIR Appointment., Base, Base classes and mixins for all SQLAlchemy models., TimestampMixin (+7 more)
+Cohesion: 0.13
+Nodes (19): AccountStatus, Account model — maps to FHIR Patient / Practitioner., UserType, AppointmentState, Base, Base classes and mixins for all SQLAlchemy models., TimestampMixin, UUIDMixin (+11 more)
 
 ### Community 58 - "Code Community"
 Cohesion: 0.14
@@ -1064,24 +1099,24 @@ Cohesion: 0.18
 Nodes (10): Harm, Hazard, Hazardous situation, Initial risk, Residual risk, RISK-001 — Clinical data disclosed to a user without authorization or consent, Risk control measures, Risks introduced by controls (+2 more)
 
 ### Community 62 - "Code Community"
-Cohesion: 0.18
-Nodes (10): Harm, Hazard, Hazardous situation, Initial risk, Residual risk, RISK-002 — Clinical information attributed to the wrong patient or author, Risk control measures, Risks introduced by controls (+2 more)
+Cohesion: 0.17
+Nodes (11): ALARP justification, Harm, Hazard, Hazardous situation, Initial risk, Residual risk, RISK-002 — Clinical information attributed to the wrong patient or author, Risk control measures (+3 more)
 
 ### Community 63 - "Rationale Community"
-Cohesion: 0.18
-Nodes (10): Harm, Hazard, Hazardous situation, Initial risk, Residual risk, RISK-003 — DICOM image rendered incorrectly or the wrong study displayed, Risk control measures, Risks introduced by controls (+2 more)
+Cohesion: 0.17
+Nodes (11): ALARP justification, Harm, Hazard, Hazardous situation, Initial risk, Residual risk, RISK-003 — DICOM image rendered incorrectly or the wrong study displayed, Risk control measures (+3 more)
 
 ### Community 64 - "Code Community"
-Cohesion: 0.18
-Nodes (16): CsrfError, Request, CSRF token issuance and validation (TASK-022).  Strategy: double-submit cookie., FastAPI dependency — validate CSRF for state-changing methods., require_csrf(), _csrf_app(), FastAPI, TASK-022: Cookie and CSRF tests. (+8 more)
+Cohesion: 0.16
+Nodes (18): Register all RFC 7807 error handlers on the FastAPI app., register_error_handlers(), CsrfError, Request, CSRF token issuance and validation (TASK-022).  Strategy: double-submit cookie., FastAPI dependency — validate CSRF for state-changing methods., require_csrf(), _csrf_app() (+10 more)
 
 ### Community 65 - "Code Community"
 Cohesion: 0.15
 Nodes (11): app(), _auth_as(), client(), _make_account(), AccountStatus, UserType, Tests for accounts endpoints (TASK-061)., Override get_current_user to return actor directly. (+3 more)
 
 ### Community 66 - "Code Community"
-Cohesion: 0.18
-Nodes (10): Harm, Hazard, Hazardous situation, Initial risk, Residual risk, RISK-004 — Legitimate clinical access wrongly denied or delayed, Risk control measures, Risks introduced by controls (+2 more)
+Cohesion: 0.17
+Nodes (11): ALARP justification, Harm, Hazard, Hazardous situation, Initial risk, Residual risk, RISK-004 — Legitimate clinical access wrongly denied or delayed, Risk control measures (+3 more)
 
 ### Community 67 - "Rationale Community"
 Cohesion: 0.18
@@ -1092,8 +1127,8 @@ Cohesion: 0.18
 Nodes (10): Harm, Hazard, Hazardous situation, Initial risk, Residual risk, RISK-006 — Audit trail incomplete, so a wrong disclosure or entry goes undetected, Risk control measures, Risks introduced by controls (+2 more)
 
 ### Community 69 - "Code Community"
-Cohesion: 0.18
-Nodes (10): Harm, Hazard, Hazardous situation, Initial risk, Residual risk, RISK-007 — Clinical information unavailable when needed, Risk control measures, Risks introduced by controls (+2 more)
+Cohesion: 0.17
+Nodes (11): ALARP justification, Harm, Hazard, Hazardous situation, Initial risk, Residual risk, RISK-007 — Clinical information unavailable when needed, Risk control measures (+3 more)
 
 ### Community 70 - "Code Community"
 Cohesion: 0.18
@@ -1108,8 +1143,8 @@ Cohesion: 0.24
 Nodes (16): can_view_appointment(), Appointment, Appointment visibility rules (TASK-051).  Visibility: actor is the doctor, the p, Return True if the actor is allowed to see the appointment., _make_account(), _make_appointment(), Appointment, UserType (+8 more)
 
 ### Community 73 - "Code Community"
-Cohesion: 0.22
-Nodes (5): DICOMViewerManifest, DICOM Viewer module manifest., Integration tests for DICOM module manifest and boundary (TASK-073)., TestManifestIntegration, TestDICOMManifest
+Cohesion: 0.17
+Nodes (7): PlatformServices, PlatformServices — request-scoped bundle of core services exposed to modules (TA, DICOMViewerManifest, DICOM Viewer module manifest., Integration tests for DICOM module manifest and boundary (TASK-073)., TestManifestIntegration, TestDICOMManifest
 
 ### Community 74 - "Code Community"
 Cohesion: 0.16
@@ -1144,40 +1179,40 @@ Cohesion: 0.18
 Nodes (10): Harm, Hazard, Hazardous situation, Initial risk, Residual risk, RISK-010 — Unreviewed SOUP change weakens a verified risk control, Risk control measures, Risks introduced by controls (+2 more)
 
 ### Community 83 - "Code Community"
-Cohesion: 0.26
-Nodes (16): make_account(), make_doctor(), _now(), datetime, Smoke tests: insert and select one row per entity (TASK-010)., test_account_email_is_stored(), test_account_insert_select(), test_account_user_type_not_null() (+8 more)
+Cohesion: 0.19
+Nodes (18): ClinicalEntry, ClinicalEntry model — maps to FHIR Composition., make_account(), make_doctor(), _now(), datetime, Smoke tests: insert and select one row per entity (TASK-010)., test_account_email_is_stored() (+10 more)
 
 ### Community 84 - "Code Community"
 Cohesion: 0.24
 Nodes (9): _get_authz_service(), get_redis(), get_session_service(), Redis, FastAPI auth/session/authorization dependencies (TASK-025).  Deny-by-default: on, Return a FastAPI dependency that authorises and returns the loaded resource., Placeholder — TASK-027 will provide the real implementation.      Imported lazil, Return a Redis client from the configured URL. (+1 more)
 
 ### Community 85 - "Code Community"
-Cohesion: 0.18
-Nodes (10): Harm, Hazard, Hazardous situation, Initial risk, Residual risk, RISK-011 — Encryption or key management failure exposes or orphans clinical data, Risk control measures, Risks introduced by controls (+2 more)
+Cohesion: 0.17
+Nodes (11): ALARP justification, Harm, Hazard, Hazardous situation, Initial risk, Residual risk, RISK-011 — Encryption or key management failure exposes or orphans clinical data, Risk control measures (+3 more)
 
 ### Community 86 - "Code Community"
 Cohesion: 0.32
 Nodes (15): _build_svc(), _make_account(), _make_entry(), ClinicalEntry, UserType, UUID, TASK-045: AttachmentService store tests., Valid DICOM upload stores dicom_metadata in the attachment row. (+7 more)
 
 ### Community 87 - "Code Community"
-Cohesion: 0.22
-Nodes (5): AuthorizationError, PlatformServices, PlatformServices — request-scoped bundle of core services exposed to modules (TA, Tests for PlatformServices facade (TASK-071)., TestPlatformServicesFacade
+Cohesion: 0.12
+Nodes (17): Build — implementation and unit verification, Class B tailoring (Table A.1), Definition of done for a pull request, Design records, PLAN-001 — Software development plan, Plan — architecture and design, Purpose, Release (§5.8) (+9 more)
 
 ### Community 88 - "Code Community"
-Cohesion: 0.24
-Nodes (6): ClinicalEntry, ClinicalEntry model — maps to FHIR Composition., ClinicalEntry, UUID, ClinicalEntry repository., test_clinical_add_and_list()
+Cohesion: 0.40
+Nodes (3): ClinicalEntry, UUID, ClinicalEntry repository.
 
 ### Community 89 - "Rationale Community"
-Cohesion: 0.20
-Nodes (10): ADR-0014: MUI CSS-variables theming with native colorSchemes for light/dark, Alternatives Considered, Consequences, Context, Decision, Negative, Neutral, Positive (+2 more)
+Cohesion: 0.22
+Nodes (12): Appointment, Appointment state machine (TASK-048)., Validate and apply a state transition.      Raises ConflictError if the transiti, transition(), _make_appointment(), Appointment, TASK-048: Appointment state machine table tests., test_confirmed_to_declined_allowed() (+4 more)
 
 ### Community 91 - "Code Community"
 Cohesion: 0.21
 Nodes (13): _check_rate_limit(), Redis, Request, Anonymized data retrieval endpoint (TASK-062)., Reject the request if the IP has exceeded the retrieval attempt limit., Retrieve anonymized dataset by retrieval code. No session required (ADR-0013)., retrieve_anonymized_data(), AnonymizedRetrieveRequest (+5 more)
 
 ### Community 92 - "Code Community"
-Cohesion: 0.25
-Nodes (12): _author_name(), create_clinical_entry(), list_accessible_patients(), list_clinical_entries(), UUID, Clinical entries API router (TASK-044)., List patients the authenticated doctor has active consent for (TASK-044a)., _CamelModel (+4 more)
+Cohesion: 0.12
+Nodes (21): _author_name(), create_clinical_entry(), _get_account_repo(), list_accessible_patients(), list_clinical_entries(), UUID, Clinical entries API router (TASK-044)., List patients the authenticated doctor has active consent for (TASK-044a). (+13 more)
 
 ### Community 93 - "Code Community"
 Cohesion: 0.24
@@ -1196,8 +1231,8 @@ Cohesion: 0.19
 Nodes (14): _columns(), FHIR mapping verification tests — programmatically check all fields from fhir-ma, Account must have all fields in fhir-mapping.md Account → Patient/Practitioner., Appointment must have all fields in fhir-mapping.md Appointment → Appointment., ClinicalEntry must have all fields in fhir-mapping.md ClinicalEntry → Compositio, Attachment must have all fields in fhir-mapping.md Attachment → DocumentReferenc, ConsentGrant must have all fields in fhir-mapping.md ConsentGrant → Consent., AnonymizedDataset must not expose a 'code' column — only 'code_hash'. (+6 more)
 
 ### Community 97 - "Rationale Community"
-Cohesion: 0.20
-Nodes (10): Anomalies, Blocked cases, Conclusion, Environment, Known residual anomalies (§5.8.2–5.8.3), Requirements NOT verified, Requirements verified, Results (+2 more)
+Cohesion: 0.10
+Nodes (19): Entry criteria, Environment, Exit criteria, Levels executed (class B), Regression strategy, Roles and schedule, Scope, TP-001 — Verification plan (agentic-os migration baseline) (+11 more)
 
 ### Community 98 - "Document Community"
 Cohesion: 0.18
@@ -1212,32 +1247,32 @@ Cohesion: 0.20
 Nodes (9): ASGIApp, CsrfEnforcementMiddleware, Request, Response, Security headers middleware (TASK-069)., Add security headers to every response., Enforce CSRF for all state-changing requests except exempt public paths., SecurityHeadersMiddleware (+1 more)
 
 ### Community 101 - "Code Community"
-Cohesion: 0.10
-Nodes (23): _problem_response(), ProblemDetail, ProblemError, Any, FastAPI, Request, RateLimitedError, RFC 7807 Problem Details error handling (TASK-026).  All HTTP errors returned by (+15 more)
+Cohesion: 0.14
+Nodes (9): _problem_response(), ProblemError, Any, FastAPI, Request, RateLimitedError, RFC 7807 Problem Details error handling (TASK-026).  All HTTP errors returned by, Base RFC 7807 problem error. (+1 more)
 
 ### Community 102 - "Code Community"
 Cohesion: 0.20
 Nodes (3): AppErrorBoundary, Props, State
 
 ### Community 103 - "Code Community"
-Cohesion: 0.22
-Nodes (9): Application configuration via environment variables.  All secrets are typed as S, Settings, TASK-003: Settings and secrets management tests., Missing DATABASE_URL must raise ValidationError (fail-fast)., test_get_settings_is_cached(), test_missing_required_field_raises_validation_error(), test_secret_str_not_revealed_in_repr(), test_settings_loads_with_complete_env() (+1 more)
+Cohesion: 0.35
+Nodes (14): _build_svc(), _make_account(), _make_appointment(), Appointment, UserType, UUID, TASK-048: AppointmentService confirm/decline tests., test_confirm_already_declined_raises_conflict() (+6 more)
 
 ### Community 104 - "Code Community"
-Cohesion: 0.22
-Nodes (9): Acceptance criteria, Conventions inherited by every task (do not repeat per task), Definition of Done, Implementation detail, Interfaces to honor, Objective, Repo layout (reference for all tasks), TASK-NNN — <title> (+1 more)
+Cohesion: 0.30
+Nodes (12): confirm_appointment(), create_appointment(), decline_appointment(), get_appointment(), list_appointments(), UUID, Appointments API router (TASK-047/048/051)., AppointmentCreate (+4 more)
 
 ### Community 105 - "Code Community"
-Cohesion: 0.14
-Nodes (11): DICOM helpers — frame extraction and content-type validation., Raise ValidationProblem if content_type is not application/dicom., Return DICOM bytes, optionally extracting a single frame.      If frame is None,, stream_dicom(), validate_dicom_content_type(), build_router(), APIRouter, DICOM Viewer API router. (+3 more)
+Cohesion: 0.33
+Nodes (5): build_router(), APIRouter, Build and return the DICOM viewer APIRouter. Services are injected per-request v, PlatformServices, RouterRegistry
 
 ### Community 106 - "Code Community"
-Cohesion: 0.22
-Nodes (9): Entry criteria, Environment, Exit criteria, Levels executed (class B), Regression strategy, Roles and schedule, Scope, TP-001 — Verification plan (agentic-os migration baseline) (+1 more)
+Cohesion: 0.24
+Nodes (9): ConsentGrantResult, _parse_source(), ConsentGrant, UUID, ConsentService — manages patient→doctor consent grants (TASK-028)., EXISTS query: True if any active grant exists for this doctor/patient pair., Create an active consent grant.          source: "MANUAL" or "APPOINTMENT:{appoi, Deactivate a specific consent grant.          Only the matching source row is de (+1 more)
 
 ### Community 107 - "Code Community"
-Cohesion: 0.29
-Nodes (7): _get_consent_repo(), list_my_consents(), UUID, Consent API router (TASK-064)., Patient revokes a consent grant they own (SR-008.3/4)., Return unified list of all consent grants for the calling patient (SR-036.7)., revoke_consent()
+Cohesion: 0.14
+Nodes (12): Impact, Observed, PRB-033 — fakeredis is declared as a runtime dependency, Resolution, Safety evaluation, Source, Anomaly list review, Change log (+4 more)
 
 ### Community 108 - "Code Community"
 Cohesion: 0.43
@@ -1252,20 +1287,20 @@ Cohesion: 0.40
 Nodes (12): _build_svc(), _make_account(), Group, UserType, TASK-042: Module enablement tests., test_disable_module_emits_disable_audit(), test_enable_module_emits_audit(), test_non_sysadmin_cannot_set_module_enabled() (+4 more)
 
 ### Community 111 - "Code Community"
-Cohesion: 0.39
-Nodes (7): _build_guard(), TASK-043: ModuleAccessGuard tests., test_group_ids_passed_to_module_repo(), test_module_enabled_in_group_returns_true(), test_module_not_enabled_returns_false(), test_no_memberships_returns_false(), test_unknown_module_key_returns_false()
+Cohesion: 0.15
+Nodes (11): 04 - Solution Strategy, Fundamental decisions, How the top quality goals are achieved, Top-level decomposition, ADD-006 — Authentication & Session (SI-AUTH), Architecture narrative, Interfaces, Requirements implemented (+3 more)
 
 ### Community 112 - "Rationale Community"
-Cohesion: 0.25
-Nodes (8): Anomaly review status, Change log, Development and verification tools (not shipped), Monitoring, Pinning findings (§8.1.2), SOUP items — backend runtime, SOUP items — frontend runtime, SOUP list
+Cohesion: 0.09
+Nodes (20): Anomaly review status, Change log, Development and verification tools (not shipped), Monitoring, Pinning findings (§8.1.2), SOUP items — backend runtime, SOUP items — frontend runtime, SOUP list (+12 more)
 
 ### Community 113 - "Document Community"
 Cohesion: 0.67
 Nodes (3): CI Pipeline (GitHub Actions), Python 3.12 + FastAPI Backend Stack, React + TypeScript + Vite Frontend Stack
 
 ### Community 114 - "Code Community"
-Cohesion: 0.25
-Nodes (7): ADD-005 — API Layer / Routers (SI-API), Architecture narrative, Interfaces, Requirements implemented, Responsibility, Risk relevance, Software units (IEC 62304 §5.4.1)
+Cohesion: 0.10
+Nodes (18): 05 - Building Block View (Software Items & Units), Level 0 — System, Level 1 — Software items, Module boundary note, ADD-005 — API Layer / Routers (SI-API), Architecture narrative, Interfaces, Requirements implemented (+10 more)
 
 ### Community 115 - "Code Community"
 Cohesion: 0.25
@@ -1284,12 +1319,12 @@ Cohesion: 0.25
 Nodes (7): ADD-011 — Clinical Records (SI-CLINICAL), Architecture narrative, Interfaces, Requirements implemented, Responsibility, Risk relevance, Software units (IEC 62304 §5.4.1)
 
 ### Community 119 - "Rationale Community"
-Cohesion: 0.25
-Nodes (7): ADD-012 — Attachment Service (SI-ATTACH), Architecture narrative, Interfaces, Requirements implemented, Responsibility, Risk relevance, Software units (IEC 62304 §5.4.1)
+Cohesion: 0.32
+Nodes (11): _app_with_session_route(), _make_session(), FastAPI, UserSession, UUID, TASK-025: API dependency tests., test_get_current_user_raises_401_for_deactivated_account(), test_get_current_user_raises_401_for_inactive_account() (+3 more)
 
 ### Community 120 - "Code Community"
-Cohesion: 0.25
-Nodes (7): ADD-014 — Module Host / Plugin Registry (SI-MODHOST), Architecture narrative, Interfaces, Requirements implemented, Responsibility, Risk relevance, Software units (IEC 62304 §5.4.1)
+Cohesion: 0.18
+Nodes (11): agentic-os migration — documentation gap analysis, Artifact migration, Disposition detail, Gaps and disposition, How the gap report is produced, Plugin update — 2026-10-21, Result, Result (+3 more)
 
 ### Community 122 - "Code Community"
 Cohesion: 0.25
@@ -1328,8 +1363,8 @@ Cohesion: 0.25
 Nodes (7): Acceptance criteria, Audit verdict (2026-06-29), Definition of Done, Implementation detail, Interfaces to honor, Objective, Tests (write first — TDD, CLAUDE.md §4)
 
 ### Community 132 - "Code Community"
-Cohesion: 0.22
-Nodes (7): ClinicalEntry, datetime, UUID, ClinicalDataService — create and list clinical entries (TASK-044)., Return distinct patients the doctor has active consent for (TASK-044a)., Create a clinical entry. Doctor with consent only., List clinical entries for a patient.          Doctor: requires consent.
+Cohesion: 0.20
+Nodes (10): Inputs to the register, Method, PLAN-005 — Risk management plan, Probability for software failures, Probability (P2) scale (5 levels, matching `probability_max: 5`), Risk level and acceptability, Rules, Scope and responsibilities (+2 more)
 
 ### Community 133 - "Code Community"
 Cohesion: 0.15
@@ -1340,8 +1375,8 @@ Cohesion: 0.36
 Nodes (9): _make_account(), _now(), datetime, Constraint tests (TASK-011): unique, FK, NOT NULL, enum enforcement., test_appointment_nonexistent_fk_rejected(), test_appointment_null_doctor_id_rejected(), test_appointment_null_patient_id_rejected(), test_appointment_null_scheduled_at_rejected() (+1 more)
 
 ### Community 135 - "Code Community"
-Cohesion: 0.19
-Nodes (11): _python_files(), Static guard: no raw SQL string interpolation anywhere in app/ (TASK-012, SR-031, No f-strings used in repository files (risk of SQL injection)., No string concatenation with SQL keywords in repository files., No sqlalchemy text() with % or .format() interpolation., test_no_fstring_sql(), test_no_string_concat_sql(), test_no_text_with_variable_interpolation() (+3 more)
+Cohesion: 0.15
+Nodes (13): Verify the canonical export module writes valid JSON., TestOpenAPIExport, _python_files(), Static guard: no raw SQL string interpolation anywhere in app/ (TASK-012, SR-031, No f-strings used in repository files (risk of SQL injection)., No string concatenation with SQL keywords in repository files., No sqlalchemy text() with % or .format() interpolation., test_no_fstring_sql() (+5 more)
 
 ### Community 136 - "Code Community"
 Cohesion: 0.25
@@ -1376,8 +1411,8 @@ Cohesion: 0.25
 Nodes (7): Acceptance criteria, Audit verdict (2026-06-29), Definition of Done, Implementation detail, Interfaces to honor, Objective, Tests (write first — TDD, CLAUDE.md §4)
 
 ### Community 145 - "Code Community"
-Cohesion: 0.29
-Nodes (3): MedHub — Audit Ledger (Phases 0–7), Summary, Software Development Plan — moved
+Cohesion: 0.22
+Nodes (9): Inputs to the register, Method, Probability for software failures, Probability (P2) scale (5 levels, matching `probability_max: 5`), Risk level and acceptability, Risk management plan, Rules, Scope and responsibilities (+1 more)
 
 ### Community 146 - "Code Community"
 Cohesion: 0.43
@@ -1464,8 +1499,8 @@ Cohesion: 0.29
 Nodes (6): Acceptance criteria, Obligation, Realized by, RR-010 — Medical device software general safety and performance, Source, Summary
 
 ### Community 169 - "Document Community"
-Cohesion: 0.29
-Nodes (6): Acceptance criteria, Definition of Done, Implementation detail, Objective, TASK-154 — First SOUP anomaly-list review, Version history
+Cohesion: 0.25
+Nodes (7): ADD-015 — DICOM Module (backend) (SI-MOD-DICOM-BE), Architecture narrative, Interfaces, Requirements implemented, Responsibility, Risk relevance, Software units (IEC 62304 §5.4.1)
 
 ### Community 171 - "Document Community"
 Cohesion: 0.22
@@ -1516,8 +1551,8 @@ Cohesion: 0.29
 Nodes (6): Acceptance criteria (class B unit level, §5.5.3), Notes, Preconditions and environment, Scope, Test cases, TS-008 — Persistence, FHIR-aligned model and encryption verification
 
 ### Community 184 - "Code Community"
-Cohesion: 0.20
-Nodes (7): UUID, AuditService — server-assigned timestamps, credential scrubbing (SR-023)., Remove credential-like key=value pairs from a string., Persist an immutable audit record.          The timestamp is server-assigned her, _scrub(), AuditLog, AuditLog model — append-only, no FK on actor_id (SR-023).
+Cohesion: 0.33
+Nodes (5): UUID, AuditService — server-assigned timestamps, credential scrubbing (SR-023)., Remove credential-like key=value pairs from a string., Persist an immutable audit record.          The timestamp is server-assigned her, _scrub()
 
 ### Community 185 - "Code Community"
 Cohesion: 0.29
@@ -1536,8 +1571,8 @@ Cohesion: 0.29
 Nodes (6): Acceptance criteria (class B unit level, §5.5.3), Notes, Preconditions and environment, Scope, Test cases, TS-010 — Module host and plugin architecture verification
 
 ### Community 189 - "Code Community"
-Cohesion: 0.20
-Nodes (11): _lockout_id_key(), _lockout_key(), LockoutService, Redis, UUID, LockoutService — rate-limiting failed login attempts via Redis (TASK-024).  Redi, SYSADMIN-only: clear lockout (both id and email keys) and audit the action., Return True if the failure counter >= MAX_FAILURES. (+3 more)
+Cohesion: 0.13
+Nodes (15): _lockout_id_key(), _lockout_key(), LockoutService, Redis, UUID, LockoutService — rate-limiting failed login attempts via Redis (TASK-024).  Redi, SYSADMIN-only: clear lockout (both id and email keys) and audit the action., Return True if the failure counter >= MAX_FAILURES. (+7 more)
 
 ### Community 190 - "Code Community"
 Cohesion: 0.29
@@ -1560,16 +1595,16 @@ Cohesion: 0.50
 Nodes (3): MonkeyPatch, Configure sys.path so both dicom_viewer and app are importable in DICOM module t, _test_settings_env()
 
 ### Community 197 - "Rationale Community"
-Cohesion: 0.29
-Nodes (6): Impact, Observed, PRB-001 — Container images use floating tags, Proposed resolution, Root cause, Safety evaluation
+Cohesion: 0.25
+Nodes (7): ADD-022 — DICOM Viewer Module (frontend) (SI-MOD-DICOM-FE), Architecture narrative, Interfaces, Requirements implemented, Responsibility, Risk relevance, Software units (IEC 62304 §5.4.1)
 
 ### Community 198 - "Code Community"
-Cohesion: 0.18
+Cohesion: 0.20
 Nodes (9): ModuleAccessGuard, UUID, ModuleAccessGuard — checks whether a module is enabled for an account (TASK-043), Return True if any of the account's groups has the module enabled.          Unkn, _make_account(), UserType, Tests for module access gating (TASK-072)., Live read: enabling then disabling the module produces a 403 on next request. (+1 more)
 
 ### Community 199 - "Code Community"
-Cohesion: 0.29
-Nodes (6): Impact, Observed, PRB-002 — boto3 is imported at runtime but declared nowhere, Proposed resolution, Root cause, Safety evaluation
+Cohesion: 0.14
+Nodes (12): Impact, Observed, PRB-002 — boto3 is imported at runtime but declared nowhere, Proposed resolution, Root cause, Safety evaluation, Anomaly list review, Change log (+4 more)
 
 ### Community 200 - "Code Community"
 Cohesion: 0.25
@@ -1629,15 +1664,15 @@ Nodes (6): Impact, Observed, PRB-012 — Retention sweep leaks database sessions
 
 ### Community 227 - "Code Community"
 Cohesion: 0.25
-Nodes (17): _build_svc(), _make_account(), ClinicalEntry, UserType, UUID, TASK-044: ClinicalDataService tests., SR-006 AC-4: roster access is audited with the authorization basis     (TASK-044, SR-012 AC-3: author_doctor_id is always the actor, not from request. (+9 more)
+Nodes (7): Acceptance criteria, Audit verdict (2026-06-29), Definition of Done, Implementation detail, Interfaces to honor, Objective, Tests (write first — TDD, CLAUDE.md §4)
 
 ### Community 228 - "Code Community"
 Cohesion: 0.29
 Nodes (6): Impact, Observed, PRB-013 — Task enqueue failures are swallowed without a log, Resolution, Safety evaluation, Source
 
 ### Community 229 - "Code Community"
-Cohesion: 0.29
-Nodes (16): _build_svc(), _make_account(), Group, UserType, TASK-040: GroupService create_group and list_groups tests., test_admin_cannot_create_group(), test_create_group_blank_name_raises_validation(), test_create_group_duplicate_raises_conflict() (+8 more)
+Cohesion: 0.25
+Nodes (7): Acceptance criteria, Audit verdict (2026-06-29), Definition of Done, Implementation detail, Interfaces to honor, Objective, Tests (write first — TDD, CLAUDE.md §4)
 
 ### Community 230 - "Code Community"
 Cohesion: 0.29
@@ -1723,13 +1758,145 @@ Nodes (6): Impact, Observed, PRB-032 — JSON log formatter drops the request-id
 Cohesion: 0.33
 Nodes (6): get_current_user(), get_session(), Request, UserSession, Extract and validate the session cookie.      Raises UnauthenticatedError (401), Load the Account for the current session.      Defense-in-depth: re-checks that
 
+### Community 265 - "TASK-044-clinical-entry-create-list.md"
+Cohesion: 0.25
+Nodes (7): Acceptance criteria, Audit verdict (2026-06-29), Definition of Done, Implementation detail, Interfaces to honor, Objective, Tests (write first — TDD, CLAUDE.md §4)
+
+### Community 266 - "TASK-046-attachment-authorized-fetch.md"
+Cohesion: 0.25
+Nodes (7): Acceptance criteria, Audit verdict (2026-06-29), Definition of Done, Implementation detail, Interfaces to honor, Objective, Tests (write first — TDD, CLAUDE.md §4)
+
+### Community 267 - "TASK-110-integration-tests-for-the-seven-runtime.md"
+Cohesion: 0.25
+Nodes (7): Acceptance criteria, Definition of Done, Implementation detail, Interfaces to honor, Objective, Tests (write first — TDD, CLAUDE.md §4), Version history
+
+### Community 268 - ".deactivate"
+Cohesion: 0.29
+Nodes (4): UUID, Account deactivate/reactivate lifecycle (TASK-033)., Deactivate an account. SYSADMIN only. Rejects self-deactivation.          Kills, Reactivate a DEACTIVATED account. SYSADMIN only.
+
+### Community 269 - "TS-006 — Appointments and notification verification"
+Cohesion: 0.29
+Nodes (6): Acceptance criteria (class B unit level, §5.5.3), Notes, Preconditions and environment, Scope, Test cases, TS-006 — Appointments and notification verification
+
+### Community 270 - "PLAN-002-maintenance-plan.md"
+Cohesion: 0.29
+Nodes (6): Feedback sources (§6.1 a–b), Maintenance of this plan, PLAN-002 — Software maintenance plan, Process, Scope, SOUP monitoring (§6.1 f)
+
+### Community 271 - "SOUP-001 — Python runtime 3.12-slim"
+Cohesion: 0.29
+Nodes (6): Anomaly list review, Change log, Functional and performance requirements, Monitoring, Required hardware and software environment, SOUP-001 — Python runtime 3.12-slim
+
+### Community 272 - "SOUP-002 — FastAPI 0.138.0"
+Cohesion: 0.29
+Nodes (6): Anomaly list review, Change log, Functional and performance requirements, Monitoring, Required hardware and software environment, SOUP-002 — FastAPI 0.138.0
+
+### Community 273 - "SOUP-003 — Starlette 1.3.1"
+Cohesion: 0.29
+Nodes (6): Anomaly list review, Change log, Functional and performance requirements, Monitoring, Required hardware and software environment, SOUP-003 — Starlette 1.3.1
+
+### Community 274 - "SOUP-004 — Uvicorn 0.49.0"
+Cohesion: 0.29
+Nodes (6): Anomaly list review, Change log, Functional and performance requirements, Monitoring, Required hardware and software environment, SOUP-004 — Uvicorn 0.49.0
+
 ### Community 275 - "Document Community"
 Cohesion: 0.20
 Nodes (9): Acceptance Criteria, Control Measures, Description, Origin Requirement, Potential Risks, Rationale, Risk Analysis, Summary (+1 more)
 
+### Community 276 - "SOUP-005 — Gunicorn 26.0.0"
+Cohesion: 0.29
+Nodes (6): Anomaly list review, Change log, Functional and performance requirements, Monitoring, Required hardware and software environment, SOUP-005 — Gunicorn 26.0.0
+
+### Community 277 - "SOUP-006 — Pydantic 2.13.4"
+Cohesion: 0.29
+Nodes (6): Anomaly list review, Change log, Functional and performance requirements, Monitoring, Required hardware and software environment, SOUP-006 — Pydantic 2.13.4
+
+### Community 278 - "SOUP-007 — pydantic-settings 2.14.2"
+Cohesion: 0.29
+Nodes (6): Anomaly list review, Change log, Functional and performance requirements, Monitoring, Required hardware and software environment, SOUP-007 — pydantic-settings 2.14.2
+
+### Community 282 - "SOUP-008 — SQLAlchemy 2.0.51"
+Cohesion: 0.29
+Nodes (6): Anomaly list review, Change log, Functional and performance requirements, Monitoring, Required hardware and software environment, SOUP-008 — SQLAlchemy 2.0.51
+
+### Community 315 - "SOUP-009 — Alembic 1.18.4"
+Cohesion: 0.29
+Nodes (6): Anomaly list review, Change log, Functional and performance requirements, Monitoring, Required hardware and software environment, SOUP-009 — Alembic 1.18.4
+
+### Community 316 - "SOUP-010 — psycopg2-binary 2.9.12"
+Cohesion: 0.29
+Nodes (6): Anomaly list review, Change log, Functional and performance requirements, Monitoring, Required hardware and software environment, SOUP-010 — psycopg2-binary 2.9.12
+
+### Community 317 - "SOUP-011 — cryptography 49.0.0"
+Cohesion: 0.29
+Nodes (6): Anomaly list review, Change log, Functional and performance requirements, Monitoring, Required hardware and software environment, SOUP-011 — cryptography 49.0.0
+
+### Community 318 - "SOUP-012 — argon2-cffi 25.1.0"
+Cohesion: 0.29
+Nodes (6): Anomaly list review, Change log, Functional and performance requirements, Monitoring, Required hardware and software environment, SOUP-012 — argon2-cffi 25.1.0
+
+### Community 319 - "SOUP-013 — redis-py 8.0.0"
+Cohesion: 0.29
+Nodes (6): Anomaly list review, Change log, Functional and performance requirements, Monitoring, Required hardware and software environment, SOUP-013 — redis-py 8.0.0
+
+### Community 320 - "SOUP-014 — Celery 5.6.3"
+Cohesion: 0.29
+Nodes (6): Anomaly list review, Change log, Functional and performance requirements, Monitoring, Required hardware and software environment, SOUP-014 — Celery 5.6.3
+
+### Community 321 - "SOUP-015 — pydicom 3.0.2"
+Cohesion: 0.29
+Nodes (6): Anomaly list review, Change log, Functional and performance requirements, Monitoring, Required hardware and software environment, SOUP-015 — pydicom 3.0.2
+
+### Community 322 - "SOUP-016 — fhir.resources 8.2.0"
+Cohesion: 0.29
+Nodes (6): Anomaly list review, Change log, Functional and performance requirements, Monitoring, Required hardware and software environment, SOUP-016 — fhir.resources 8.2.0
+
+### Community 323 - "SOUP-017 — python-multipart 0.0.32"
+Cohesion: 0.29
+Nodes (6): Anomaly list review, Change log, Functional and performance requirements, Monitoring, Required hardware and software environment, SOUP-017 — python-multipart 0.0.32
+
+### Community 324 - "SOUP-020 — PostgreSQL server 16"
+Cohesion: 0.29
+Nodes (6): Anomaly list review, Change log, Functional and performance requirements, Monitoring, Required hardware and software environment, SOUP-020 — PostgreSQL server 16
+
+### Community 325 - "SOUP-021 — Redis server 7-alpine"
+Cohesion: 0.29
+Nodes (6): Anomaly list review, Change log, Functional and performance requirements, Monitoring, Required hardware and software environment, SOUP-021 — Redis server 7-alpine
+
+### Community 326 - "SOUP-022 — MinIO object storage latest"
+Cohesion: 0.29
+Nodes (6): Anomaly list review, Change log, Functional and performance requirements, Monitoring, Required hardware and software environment, SOUP-022 — MinIO object storage latest
+
+### Community 327 - "SOUP-023 — MinIO client (mc) latest"
+Cohesion: 0.29
+Nodes (6): Anomaly list review, Change log, Functional and performance requirements, Monitoring, Required hardware and software environment, SOUP-023 — MinIO client (mc) latest
+
+### Community 328 - "SOUP-024 — nginx alpine"
+Cohesion: 0.29
+Nodes (6): Anomaly list review, Change log, Functional and performance requirements, Monitoring, Required hardware and software environment, SOUP-024 — nginx alpine
+
+### Community 330 - "SOUP-025 — React 18.3.1"
+Cohesion: 0.29
+Nodes (6): Anomaly list review, Change log, Functional and performance requirements, Monitoring, Required hardware and software environment, SOUP-025 — React 18.3.1
+
+### Community 331 - "SOUP-026 — React DOM 18.3.1"
+Cohesion: 0.29
+Nodes (6): Anomaly list review, Change log, Functional and performance requirements, Monitoring, Required hardware and software environment, SOUP-026 — React DOM 18.3.1
+
+### Community 334 - "SOUP-027 — React Router (react-router-dom) 7.18.0"
+Cohesion: 0.29
+Nodes (6): Anomaly list review, Change log, Functional and performance requirements, Monitoring, Required hardware and software environment, SOUP-027 — React Router (react-router-dom) 7.18.0
+
+### Community 335 - "SOUP-028 — TanStack Query (@tanstack/react-query) 5.101.0"
+Cohesion: 0.29
+Nodes (6): Anomaly list review, Change log, Functional and performance requirements, Monitoring, Required hardware and software environment, SOUP-028 — TanStack Query (@tanstack/react-query) 5.101.0
+
+### Community 336 - "SOUP-029 — MUI Material (@mui/material) 9.1.1"
+Cohesion: 0.29
+Nodes (6): Anomaly list review, Change log, Functional and performance requirements, Monitoring, Required hardware and software environment, SOUP-029 — MUI Material (@mui/material) 9.1.1
+
 ### Community 337 - "Document Community"
-Cohesion: 0.11
-Nodes (14): Constraints, Goals, MedHub goals, Acceptance criteria (class B unit level, §5.5.3), Notes, Preconditions and environment, Scope, Test cases (+6 more)
+Cohesion: 0.15
+Nodes (10): Coverage, Errors, Gap report — 2026-09-17, Record inventory, Warnings, Coverage, Errors, Gap report — 2026-10-21 (+2 more)
 
 ### Community 338 - "Document Community"
 Cohesion: 0.20
@@ -1743,17 +1910,41 @@ Nodes (9): Acceptance Criteria, Control Measures, Description, Origin Requiremen
 Cohesion: 0.20
 Nodes (9): Acceptance Criteria, Control Measures, Description, Origin Requirement, Potential Risks, Rationale, Risk Analysis, Summary (+1 more)
 
+### Community 342 - "SOUP-030 — MUI Icons (@mui/icons-material) 9.1.1"
+Cohesion: 0.29
+Nodes (6): Anomaly list review, Change log, Functional and performance requirements, Monitoring, Required hardware and software environment, SOUP-030 — MUI Icons (@mui/icons-material) 9.1.1
+
+### Community 345 - "SOUP-031 — Emotion (@emotion/react) 11.14.0"
+Cohesion: 0.29
+Nodes (6): Anomaly list review, Change log, Functional and performance requirements, Monitoring, Required hardware and software environment, SOUP-031 — Emotion (@emotion/react) 11.14.0
+
+### Community 346 - "SOUP-032 — Emotion styled (@emotion/styled) 11.14.1"
+Cohesion: 0.29
+Nodes (6): Anomaly list review, Change log, Functional and performance requirements, Monitoring, Required hardware and software environment, SOUP-032 — Emotion styled (@emotion/styled) 11.14.1
+
+### Community 352 - "SOUP-033 — openapi-fetch 0.17.0"
+Cohesion: 0.29
+Nodes (6): Anomaly list review, Change log, Functional and performance requirements, Monitoring, Required hardware and software environment, SOUP-033 — openapi-fetch 0.17.0
+
+### Community 353 - "SOUP-034 — Fontsource Inter (@fontsource-variable/inter) 5.2.8"
+Cohesion: 0.29
+Nodes (6): Anomaly list review, Change log, Functional and performance requirements, Monitoring, Required hardware and software environment, SOUP-034 — Fontsource Inter (@fontsource-variable/inter) 5.2.8
+
+### Community 355 - "SOUP-035 — Fontsource Manrope (@fontsource-variable/manrope) 5.2.8"
+Cohesion: 0.29
+Nodes (6): Anomaly list review, Change log, Functional and performance requirements, Monitoring, Required hardware and software environment, SOUP-035 — Fontsource Manrope (@fontsource-variable/manrope) 5.2.8
+
+### Community 356 - "LoginPage.tsx"
+Cohesion: 0.38
+Nodes (3): LoginPage(), patientUser, useLogin()
+
 ### Community 375 - "api-design.md"
 Cohesion: 0.22
 Nodes (8): Acceptance criteria, Audit verdict (2026-06-29), Definition of Done, Fix verdict (2026-06-30), Implementation detail, Interfaces to honor, Objective, Tests (write first — TDD, CLAUDE.md §4)
 
 ### Community 380 - "Level 2 — Software units (per item)"
-Cohesion: 0.08
-Nodes (24): 05 - Building Block View (Software Items & Units), Level 0 — System, Level 1 — Software items, Level 2 — Software units (per item), Module boundary note, SI-API, SI-APPT, SI-ATTACH (+16 more)
-
-### Community 382 - "test_attachment_fetch.py"
-Cohesion: 0.31
-Nodes (13): _build_svc(), _make_account(), UserType, TASK-033: Account lifecycle tests., DB flush must happen before session invalidation to avoid inconsistent state., test_deactivate_audits_event(), test_deactivate_flush_called_before_invalidate_all(), test_deactivate_non_sysadmin_raises() (+5 more)
+Cohesion: 0.10
+Nodes (20): Level 2 — Software units (per item), SI-API, SI-APPT, SI-ATTACH, SI-AUDIT, SI-AUTH, SI-AUTHZ, SI-CLINICAL (+12 more)
 
 ### Community 385 - "LockoutService"
 Cohesion: 0.25
@@ -1784,12 +1975,8 @@ Cohesion: 0.22
 Nodes (7): Return a FastAPI dependency that raises AuthorizationError if module not enabled, require_module_enabled(), APIRouter, FastAPI, RouterRegistry — mounts module routers under /api/v1/modules/{module_key} (TASK-, Mount router at /api/v1/modules/{module_key} with module-enablement gate., RouterRegistry
 
 ### Community 431 - "ADR-0001: Modular monolith with a runtime plugin/module mechanism"
-Cohesion: 0.18
-Nodes (10): ADR-0001: Modular monolith with a runtime plugin/module mechanism, Alternatives Considered, Consequences, Context, Decision, Negative, Neutral, Positive (+2 more)
-
-### Community 432 - "ADR-0002: Python + FastAPI for the backend"
-Cohesion: 0.18
-Nodes (10): ADR-0002: Python + FastAPI for the backend, Alternatives Considered, Consequences, Context, Decision, Negative, Neutral, Positive (+2 more)
+Cohesion: 0.08
+Nodes (22): ADR-0001: Modular monolith with a runtime plugin/module mechanism, Alternatives Considered, Consequences, Context, Decision, Negative, Neutral, Positive (+14 more)
 
 ### Community 433 - "ADR-0003: TypeScript + React (Vite) responsive SPA"
 Cohesion: 0.18
@@ -1836,16 +2023,12 @@ Cohesion: 0.18
 Nodes (10): ADR-0013: Account deletion via 5-year anonymized retention with a user-held retrieval code, Alternatives Considered, Consequences, Context, Decision, Negative, Neutral, Positive (+2 more)
 
 ### Community 444 - "Confirmed defects (root causes of "basic functionality doesn't work")"
-Cohesion: 0.20
-Nodes (9): AFTER FIX — `2026-06-29` (backend + frontend images rebuilt), BASELINE (pre-fix) — `2026-06-29`, Confirmed defects (root causes of "basic functionality doesn't work"), F1 — Frontend reads the wrong CSRF cookie name → all protected writes fail from the UI  ★ SHOWSTOPPER, F2 — Doctor patient list endpoint is missing → 404  ★ SHOWSTOPPER / MISSING FUNCTIONALITY, F3 — CSRF enforcement is missing on most mutating routes  ★ SECURITY DEFECT, F4 — `LoginResponse.user` field name inconsistent with the rest of the contract, F5 — No database migration step in the deployment (DEPLOY GAP) (+1 more)
+Cohesion: 0.05
+Nodes (38): Cross-cutting test-quality gap (the audit's central lesson), MedHub — Audit Findings (Performance / Security / Simplicity), Performance, Security, Simplicity / hygiene, MedHub — Audit Ledger (Phases 0–7), Summary, Audit and review history (+30 more)
 
 ### Community 445 - "Core endpoints"
 Cohesion: 0.20
 Nodes (10): Account activation (SI-IDENTITY), Anonymized-dataset retrieval (SI-IDENTITY) — code-authorized, no account/session, Appointments & confirmation (SI-APPT), Authentication & session (SI-AUTH), Clinical records & attachments (SI-CLINICAL, SI-ATTACH), Consent (SI-AUTHZ), Core endpoints, Groups & module enablement (SI-GROUPS) — sysadmin only (+2 more)
-
-### Community 446 - "Field mappings"
-Cohesion: 0.33
-Nodes (6): Account → Patient / Practitioner, Appointment → Appointment, Attachment → DocumentReference / Binary, ClinicalEntry → Composition / DocumentReference, ConsentGrant → Consent, Field mappings
 
 ### Community 448 - "SR-001-browser-accessible-web-application-over-https.md"
 Cohesion: 0.20
@@ -2035,25 +2218,21 @@ Nodes (8): Acceptance criteria, Audit verdict (2026-06-29), Definition of Done, 
 Cohesion: 0.29
 Nodes (6): Acceptance criteria, Definition of Done, Implementation detail, Interfaces to honor, Objective, Tests (write first — TDD, CLAUDE.md §4)
 
-### Community 497 - "Remediation Plan — Code Review 2026-07"
-Cohesion: 0.25
-Nodes (8): Critical path, Phase R0 — Regulatory blockers (start immediately; independent of code phases), Phase R1 — Backend security/robustness (parallelizable, all independent), Phase R2 — Performance / architecture, Phase R3 — Frontend correctness / guards, Phase R4 — Verification tail (gates release), Process action (no task file), Remediation Plan — Code Review 2026-07
-
 ### Community 499 - "Quick Start"
 Cohesion: 0.22
 Nodes (8): Backend, Backend, Development, Frontend, Frontend, Full stack with Docker Compose, MedHub, Quick Start
 
 ### Community 501 - "CLAUDE.md"
 Cohesion: 0.22
-Nodes (7): 1. Think Before Coding, 2. Simplicity First, 3. Surgical Changes, 4. Goal-Driven Execution, 5. Backend/Frontend Contract, 6. graphify, Project configuration
+Nodes (8): Backend/Frontend Contract, Goal-Driven Execution, graphify, Model configuration, Project configuration, Simplicity First, Surgical Changes, Think Before Coding
 
 ### Community 503 - "02 - Architecture Constraints"
 Cohesion: 0.25
 Nodes (7): 02 - Architecture Constraints, Conventions, Dependencies, External Dependencies (SOUP), Internal Dependencies, Organizational Constraints, Technical Constraints
 
 ### Community 504 - "06 - Runtime View"
-Cohesion: 0.08
-Nodes (22): 06 - Runtime View, 6.1 Login with lockout and session creation (SR-002, SR-029, SR-030), 6.2 Doctor views a patient's clinical data (SR-005, SR-006, SR-036), 6.3 Appointment creation, notification, confirmation → consent; decline scoping (SR-010, SR-035, SR-036), 6.4 Open and view DICOM via the plugin module (SR-015, SR-016, SR-017, SR-018, SR-026), 6.5 Account creation, activation and lifecycle (SR-032, SR-033, SR-034), 6.6 Patient revokes manual consent (SR-008), 6.7 Account deletion → anonymized retention, and self-service retrieval (SR-024, SR-034, ADR-0013) (+14 more)
+Cohesion: 0.12
+Nodes (15): 06 - Runtime View, 6.1 Login with lockout and session creation (SR-002, SR-029, SR-030), 6.2 Doctor views a patient's clinical data (SR-005, SR-006, SR-036), 6.3 Appointment creation, notification, confirmation → consent; decline scoping (SR-010, SR-035, SR-036), 6.4 Open and view DICOM via the plugin module (SR-015, SR-016, SR-017, SR-018, SR-026), 6.5 Account creation, activation and lifecycle (SR-032, SR-033, SR-034), 6.6 Patient revokes manual consent (SR-008), 6.7 Account deletion → anonymized retention, and self-service retrieval (SR-024, SR-034, ADR-0013) (+7 more)
 
 ### Community 505 - "NFR-001-browser-compatibility.md"
 Cohesion: 0.25
@@ -2211,10 +2390,6 @@ Nodes (8): Acceptance criteria, Audit verdict (2026-06-29), Definition of Done, 
 Cohesion: 0.25
 Nodes (7): Acceptance criteria, Audit verdict (2026-06-29), Definition of Done, Implementation detail, Interfaces to honor, Objective, Tests (write first — TDD, CLAUDE.md §4)
 
-### Community 550 - "TASK-042-per-group-module-enablement.md"
-Cohesion: 0.25
-Nodes (7): Acceptance criteria, Audit verdict (2026-06-29), Definition of Done, Implementation detail, Interfaces to honor, Objective, Tests (write first — TDD, CLAUDE.md §4)
-
 ### Community 551 - "TASK-043-moduleaccessguard.md"
 Cohesion: 0.25
 Nodes (7): Acceptance criteria, Audit verdict (2026-06-29), Definition of Done, Implementation detail, Interfaces to honor, Objective, Tests (write first — TDD, CLAUDE.md §4)
@@ -2224,14 +2399,10 @@ Cohesion: 0.25
 Nodes (7): Acceptance criteria, Audit verdict (2026-06-29), Definition of Done, Implementation detail, Interfaces to honor, Objective, Tests (write first — TDD, CLAUDE.md §4)
 
 ### Community 555 - "TASK-047-appointment-create.md"
-Cohesion: 0.06
-Nodes (29): 01 - Introduction and Goals, Purpose, Quality Goals, Requirements Overview, Stakeholders, 11 - Risks and Technical Debt, Architectural risks & mitigations, Known technical debt / deferred items (deliberate MVP scope) (+21 more)
+Cohesion: 0.07
+Nodes (24): 01 - Introduction and Goals, Purpose, Quality Goals, Requirements Overview, Stakeholders, 03 - Context and Scope, Business Context, Business Interfaces (+16 more)
 
 ### Community 557 - "TASK-050-appointment-notification-dispatch.md"
-Cohesion: 0.25
-Nodes (7): Acceptance criteria, Audit verdict (2026-06-29), Definition of Done, Implementation detail, Interfaces to honor, Objective, Tests (write first — TDD, CLAUDE.md §4)
-
-### Community 558 - "TASK-051-appointment-visibility-scoping.md"
 Cohesion: 0.25
 Nodes (7): Acceptance criteria, Audit verdict (2026-06-29), Definition of Done, Implementation detail, Interfaces to honor, Objective, Tests (write first — TDD, CLAUDE.md §4)
 
@@ -2240,16 +2411,16 @@ Cohesion: 0.25
 Nodes (7): Acceptance criteria, Audit verdict (2026-06-29), Definition of Done, Implementation detail, Interfaces to honor, Objective, Tests (write first — TDD, CLAUDE.md §4)
 
 ### Community 561 - "TASK-081-responsive-layout-mui-theme.md"
-Cohesion: 0.14
-Nodes (12): 12.1 Internal backend interfaces, 12.2 Internal frontend interfaces, 12.3 Item dependency rules (enforced in review), 12 - Interfaces between Software Items, Module contract (provider: SI-MODHOST; implementer: each module), Acceptance criteria, Audit verdict (2026-06-29), Definition of Done (+4 more)
+Cohesion: 0.25
+Nodes (7): Acceptance criteria, Audit verdict (2026-06-29), Definition of Done, Implementation detail, Interfaces to honor, Objective, Tests (write first — TDD, CLAUDE.md §4)
 
 ### Community 562 - "TASK-084-error-boundary-toast-rendering-rfc-7807.md"
 Cohesion: 0.25
 Nodes (7): Acceptance criteria, Audit verdict (2026-06-29), Definition of Done, Implementation detail, Interfaces to honor, Objective, Tests (write first — TDD, CLAUDE.md §4)
 
 ### Community 563 - "TASK-086-account-activation-set-password-ui.md"
-Cohesion: 0.25
-Nodes (7): Acceptance criteria, Audit verdict (2026-06-29), Definition of Done, Implementation detail, Interfaces to honor, Objective, Tests (write first — TDD, CLAUDE.md §4)
+Cohesion: 0.14
+Nodes (12): 12.1 Internal backend interfaces, 12.2 Internal frontend interfaces, 12.3 Item dependency rules (enforced in review), 12 - Interfaces between Software Items, Module contract (provider: SI-MODHOST; implementer: each module), Acceptance criteria, Audit verdict (2026-06-29), Definition of Done (+4 more)
 
 ### Community 564 - "TASK-087-change-password-ui-with-live-policy.md"
 Cohesion: 0.25
@@ -2286,10 +2457,6 @@ Nodes (6): Acceptance criteria, Definition of Done, Implementation detail, Inter
 ### Community 579 - "TASK-103-dicom-viewer-controls.md"
 Cohesion: 0.29
 Nodes (6): Acceptance criteria, Definition of Done, Implementation detail, Interfaces to honor, Objective, Tests (write first — TDD, CLAUDE.md §4)
-
-### Community 580 - "03 - Context and Scope"
-Cohesion: 0.29
-Nodes (6): 03 - Context and Scope, Business Context, Business Interfaces, Scope, Technical Context, Technical Interfaces
 
 ### Community 581 - "TASK-111-system-end-to-end-tests-playwright.md"
 Cohesion: 0.25
@@ -2354,14 +2521,6 @@ Nodes (5): Acceptance criteria, Definition of Done, Implementation detail, Imple
 ### Community 598 - "TASK-134-manual-add-member-ui-for-groups.md"
 Cohesion: 0.33
 Nodes (5): Acceptance criteria, Definition of Done, Implementation detail, Implementation notes (2026-06-30), Objective
-
-### Community 599 - "MedHub — Audit Findings (Performance / Security / Simplicity)"
-Cohesion: 0.33
-Nodes (5): Cross-cutting test-quality gap (the audit's central lesson), MedHub — Audit Findings (Performance / Security / Simplicity), Performance, Security, Simplicity / hygiene
-
-### Community 600 - "MedHub Implementation Plan"
-Cohesion: 0.50
-Nodes (4): Audit and review history, How to execute a task, MedHub implementation plan, Phase tags
 
 ### Community 607 - "TASK-118-wire-account-lockout-into-the-login.md"
 Cohesion: 0.33
@@ -2436,20 +2595,20 @@ Cohesion: 0.40
 Nodes (4): Acceptance criteria, Definition of Done, Implementation detail, Objective
 
 ### Community 625 - "TASK-147-iso-14971-risk-register-bootstrap.md"
-Cohesion: 0.40
-Nodes (4): Acceptance criteria, Definition of Done, Implementation detail, Objective
+Cohesion: 0.33
+Nodes (5): Acceptance criteria, Definition of Done, Implementation detail, Implementation record, Objective
 
 ### Community 626 - "TASK-148-fix-dangling-remediation-ids-in-traceability-matrix.md"
 Cohesion: 0.40
 Nodes (4): Acceptance criteria, Definition of Done, Implementation detail, Objective
 
 ### Community 634 - "04 - Solution Strategy"
-Cohesion: 0.10
-Nodes (18): 04 - Solution Strategy, Fundamental decisions, How the top quality goals are achieved, Top-level decomposition, ADD-008 — Identity & Account Lifecycle (SI-IDENTITY), Architecture narrative, Interfaces, Requirements implemented (+10 more)
+Cohesion: 0.25
+Nodes (7): ADD-008 — Identity & Account Lifecycle (SI-IDENTITY), Architecture narrative, Interfaces, Requirements implemented, Responsibility, Risk relevance, Software units (IEC 62304 §5.4.1)
 
 ### Community 637 - "TASK-115-deploy-run-documentation-first-sysadmin-bootstrap.md"
-Cohesion: 0.07
-Nodes (24): 07 - Deployment View, MVP topology, Operational notes, ADD-013 — Audit Service (SI-AUDIT), Architecture narrative, Interfaces, Requirements implemented, Responsibility (+16 more)
+Cohesion: 0.10
+Nodes (17): 07 - Deployment View, MVP topology, Operational notes, ADD-012 — Attachment Service (SI-ATTACH), Architecture narrative, Interfaces, Requirements implemented, Responsibility (+9 more)
 
 ### Community 638 - ".check_needs_rehash"
 Cohesion: 0.40
@@ -2460,8 +2619,8 @@ Cohesion: 0.40
 Nodes (4): Files to modify, Objective, Risks, Verification
 
 ### Community 640 - ".list_for_clinical_entry"
-Cohesion: 0.40
-Nodes (3): Attachment, UUID, Attachment repository.
+Cohesion: 0.11
+Nodes (18): AuthorizationServiceProtocol, get_platform_services(), Yield a request-scoped PlatformServices wired from FastAPI DI., _get_attachment_service(), AttachmentService, ObjectStorageClient, ObjectStorageClient — MinIO / S3-compatible object storage (TASK-045).  boto3 is, Upload bytes to object storage with SSE-AES256 server-side encryption. (+10 more)
 
 ### Community 1032 - "TASK-151-theme-mode-toggle-and-persistence.md"
 Cohesion: 0.40
@@ -2476,19 +2635,19 @@ Cohesion: 0.40
 Nodes (4): Files to modify, Objective, Risks, Verification
 
 ## Knowledge Gaps
-- **2497 isolated node(s):** `NotificationChannel`, `NotificationStatus`, `entrypoint.sh script`, `medhub-dicom-viewer`, `medhub-backend` (+2492 more)
+- **2726 isolated node(s):** `NotificationChannel`, `NotificationStatus`, `entrypoint.sh script`, `medhub-dicom-viewer`, `medhub-backend` (+2721 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **371 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **370 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `Account` connect `Code Community` to `Code Community`, `Code Community`, `Code Community`, `Rationale Community`, `Rationale Community`, `Code Community`, `Rationale Community`, `Code Community`, `Rationale Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Rationale Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `test_attachment_fetch.py`?**
-  _High betweenness centrality (0.069) - this node is a cross-community bridge._
-- **Why does `ConsentList()` connect `Code Community` to `Code Community`, `Code Community`?**
+- **Why does `Account` connect `Code Community` to `.list_for_clinical_entry`, `Code Community`, `Code Community`, `Rationale Community`, `Rationale Community`, `Code Community`, `Rationale Community`, `Code Community`, `Rationale Community`, `Code Community`, `Code Community`, `Code Community`, `.deactivate`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Document Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Rationale Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Rationale Community`, `Code Community`?**
   _High betweenness centrality (0.063) - this node is a cross-community bridge._
-- **Why does `ConsentService` connect `Code Community` to `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`?**
-  _High betweenness centrality (0.050) - this node is a cross-community bridge._
+- **Why does `ConsentList()` connect `Code Community` to `Code Community`, `Code Community`?**
+  _High betweenness centrality (0.054) - this node is a cross-community bridge._
+- **Why does `ConsentService` connect `Code Community` to `.list_for_clinical_entry`, `Code Community`, `Code Community`, `Code Community`, `Code Community`, `Code Community`?**
+  _High betweenness centrality (0.043) - this node is a cross-community bridge._
 - **Are the 17 inferred relationships involving `Account` (e.g. with `Base` and `TimestampMixin`) actually correct?**
   _`Account` has 17 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 16 inferred relationships involving `Session` (e.g. with `AuthorizationServiceProtocol` and `LoginFailure`) actually correct?**

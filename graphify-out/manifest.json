@@ -1700,8 +1700,8 @@
     "semantic_hash": "e0b4004ebb98a631f5b81397628789d9"
   },
   "CLAUDE.md": {
-    "mtime": 1789674368.295255,
-    "ast_hash": "5c7f218230f1c0e51a55af016490ace2",
+    "mtime": 1792595351.6625535,
+    "ast_hash": "377339c10852feb3c6605362d12ae2e6",
     "semantic_hash": ""
   },
   "README.md": {
@@ -1715,8 +1715,8 @@
     "semantic_hash": "0bb3cd97ac42618adb9e8cb56228c005"
   },
   "docs/design-inputs/software-requirements/SR-001-browser-accessible-web-application-over-https.md": {
-    "mtime": 1789677795.2823505,
-    "ast_hash": "ab7ace6e3518054f08bb041db8273dee",
+    "mtime": 1792595557.7044675,
+    "ast_hash": "81caebd2cba7ec154dfeab82a592a994",
     "semantic_hash": ""
   },
   "docs/design-inputs/software-requirements/SR-002-email-and-password-authentication.md": {
@@ -1725,38 +1725,38 @@
     "semantic_hash": ""
   },
   "docs/design-inputs/software-requirements/SR-003-unique-user-account-and-profile-view.md": {
-    "mtime": 1789677162.7208295,
-    "ast_hash": "80c921816ef22d5fdea0416e314915c1",
+    "mtime": 1792595557.7047982,
+    "ast_hash": "14d228bf7cd772fd5afe1c8b14fd8f8a",
     "semantic_hash": ""
   },
   "docs/design-inputs/software-requirements/SR-004-user-type-assignment.md": {
-    "mtime": 1789677162.7209475,
-    "ast_hash": "855d70f9f5c474242e069e95d627c817",
+    "mtime": 1792595557.7049606,
+    "ast_hash": "302ab48daeaa15af2e8df8ed417c37e2",
     "semantic_hash": ""
   },
   "docs/design-inputs/software-requirements/SR-005-role-based-access-control-enforcement.md": {
-    "mtime": 1789677795.2828808,
-    "ast_hash": "ce969aca07a7af30eda153eebd43ec9e",
+    "mtime": 1792595557.705209,
+    "ast_hash": "e8d5e7e748dae050a00e8defbe3c743e",
     "semantic_hash": ""
   },
   "docs/design-inputs/software-requirements/SR-006-doctor-access-to-own-patients-clinical.md": {
-    "mtime": 1789677795.2830198,
-    "ast_hash": "262f20aa088150c1466bb374625aba83",
+    "mtime": 1792595557.7054842,
+    "ast_hash": "9805eb27e11bc091e5ed79f1817c26ad",
     "semantic_hash": ""
   },
   "docs/design-inputs/software-requirements/SR-007-patient-access-to-own-personal-and.md": {
-    "mtime": 1789677795.2831647,
-    "ast_hash": "1c4eef51b316fb3588c89841dfeb984d",
+    "mtime": 1792595557.705707,
+    "ast_hash": "e5b185d195b9e1ed00360700fd8f9062",
     "semantic_hash": ""
   },
   "docs/design-inputs/software-requirements/SR-008-patient-grant-and-revoke-of-clinical.md": {
-    "mtime": 1789677795.2832859,
-    "ast_hash": "213d56ea9743a7c16a537c4924673d22",
+    "mtime": 1792595557.7058794,
+    "ast_hash": "aa4b48795f0b14c86804a7deb25fa062",
     "semantic_hash": ""
   },
   "docs/design-inputs/software-requirements/SR-009-administrative-personnel-non-clinical-data-scope.md": {
-    "mtime": 1789677795.2834103,
-    "ast_hash": "1ae6639eed16460663ada1f317a96c79",
+    "mtime": 1792595557.7060118,
+    "ast_hash": "448282198ffcadf0f24850de26f3dbb0",
     "semantic_hash": ""
   },
   "docs/design-inputs/software-requirements/SR-010-appointment-creation.md": {
@@ -1765,18 +1765,18 @@
     "semantic_hash": "cbb42dc06e7b0e6074d4c77fdb07394c"
   },
   "docs/design-inputs/software-requirements/SR-011-appointment-visibility.md": {
-    "mtime": 1789677162.72164,
-    "ast_hash": "ec885fe8a3fd20c786d5ec092ccbec91",
+    "mtime": 1792595557.7061367,
+    "ast_hash": "3a08aeef88938c9b7692d2c285ff3440",
     "semantic_hash": ""
   },
   "docs/design-inputs/software-requirements/SR-012-clinical-entry-creation-with-required-fields.md": {
-    "mtime": 1789677162.7217505,
-    "ast_hash": "f4f9e06e20188a005ebe7e6185d1603e",
+    "mtime": 1792595557.7062545,
+    "ast_hash": "631c0346e5598d3fec32e450e1773e0f",
     "semantic_hash": ""
   },
   "docs/design-inputs/software-requirements/SR-013-clinical-entry-file-attachments.md": {
-    "mtime": 1789677162.7218587,
-    "ast_hash": "8ee687c27e14621d44cbbe6907ab794b",
+    "mtime": 1792595557.7063692,
+    "ast_hash": "03247d60bdb49cda5d430c85c112e09b",
     "semantic_hash": ""
   },
   "docs/design-inputs/software-requirements/SR-014-user-group-management.md": {
@@ -1795,18 +1795,18 @@
     "semantic_hash": "df56a49281c672abd2fa116bf5c9d132"
   },
   "docs/design-inputs/software-requirements/SR-017-dicom-image-opening-and-rendering.md": {
-    "mtime": 1789677795.2835412,
-    "ast_hash": "023b770413df485bda05ab667f22b71b",
+    "mtime": 1792595557.7066555,
+    "ast_hash": "be16722014b294685ecbcbb48789534d",
     "semantic_hash": ""
   },
   "docs/design-inputs/software-requirements/SR-018-dicom-viewer-controls.md": {
-    "mtime": 1789677162.722079,
-    "ast_hash": "a44f163255f35204b1956ec60001f6ea",
+    "mtime": 1792595557.7068331,
+    "ast_hash": "5939d7bfcf1564d5f779a02d7081a50e",
     "semantic_hash": ""
   },
   "docs/design-inputs/software-requirements/SR-019-cross-browser-support.md": {
-    "mtime": 1789677795.2836637,
-    "ast_hash": "1db6a02b03078db1ae5af7a237ba6ae0",
+    "mtime": 1792595557.7070618,
+    "ast_hash": "43ff5e487f601bd4bf7d5db01a29ef2d",
     "semantic_hash": ""
   },
   "docs/design-inputs/software-requirements/SR-020-responsive-layout-across-devices.md": {
@@ -1815,33 +1815,33 @@
     "semantic_hash": ""
   },
   "docs/design-inputs/software-requirements/SR-021-fhir-aligned-data-model.md": {
-    "mtime": 1789677162.7223072,
-    "ast_hash": "0ac448f723470bbf283d901ac10804d5",
+    "mtime": 1792595557.707183,
+    "ast_hash": "81030e1da1ff61c2e664875326d47e98",
     "semantic_hash": ""
   },
   "docs/design-inputs/software-requirements/SR-022-encryption-in-transit-and-at-rest.md": {
-    "mtime": 1789677795.2839086,
-    "ast_hash": "716f8993d9ef6b48ada40bc617b16c64",
+    "mtime": 1792595557.7073147,
+    "ast_hash": "a331042962a35853d674acfa3b607873",
     "semantic_hash": ""
   },
   "docs/design-inputs/software-requirements/SR-023-audit-logging-of-security-relevant-events.md": {
-    "mtime": 1789677795.2840257,
-    "ast_hash": "1dba37235efe8715df8c70e918cfdf1c",
+    "mtime": 1792595557.7074986,
+    "ast_hash": "b974362e852ac4895c0c0d9d5192cf4d",
     "semantic_hash": ""
   },
   "docs/design-inputs/software-requirements/SR-024-personal-data-erasure.md": {
-    "mtime": 1789677795.28426,
-    "ast_hash": "0594aae5bb8304fa8108aa39f943dcd5",
+    "mtime": 1792595557.7076504,
+    "ast_hash": "f845617be893ab1fd7ef1627908d98b8",
     "semantic_hash": ""
   },
   "docs/design-inputs/software-requirements/SR-025-password-complexity-policy.md": {
-    "mtime": 1789677795.284406,
-    "ast_hash": "60643295f1e2cb2d1682a3c3850132db",
+    "mtime": 1792595557.707781,
+    "ast_hash": "c843da33336a5dec5df909ecdd35e3f6",
     "semantic_hash": ""
   },
   "docs/design-inputs/software-requirements/SR-026-performance-budgets-for-routine-operations.md": {
-    "mtime": 1789677795.2845407,
-    "ast_hash": "ad66cb604bb0638ceabf115561ebfb67",
+    "mtime": 1792595557.7078986,
+    "ast_hash": "bd792c0c85f478434a7f2e7c0c80b30a",
     "semantic_hash": ""
   },
   "docs/design-inputs/software-requirements/SR-027-usability-controls.md": {
@@ -1850,23 +1850,23 @@
     "semantic_hash": ""
   },
   "docs/design-inputs/software-requirements/SR-028-traceable-version-controlled-development-records.md": {
-    "mtime": 1789677795.2848125,
-    "ast_hash": "35d370efce3463a4eb59791259934e03",
+    "mtime": 1792595557.7081394,
+    "ast_hash": "d1e342d857fb79b4f20fb138902007fb",
     "semantic_hash": ""
   },
   "docs/design-inputs/software-requirements/SR-029-account-lockout-after-failed-login-attempts.md": {
-    "mtime": 1789677795.2850509,
-    "ast_hash": "5a48c8d7020ddf2f75756ec05978febd",
+    "mtime": 1792595557.708419,
+    "ast_hash": "ec3738e90f32b8e406ba360199465e24",
     "semantic_hash": ""
   },
   "docs/design-inputs/software-requirements/SR-030-session-management.md": {
-    "mtime": 1789677795.285205,
-    "ast_hash": "ee028d1a9e48aec0d7b6c9937581d231",
+    "mtime": 1792595557.7086499,
+    "ast_hash": "f19c6c5a04e3a768443560fe583c66ea",
     "semantic_hash": ""
   },
   "docs/design-inputs/software-requirements/SR-031-web-vulnerability-mitigations.md": {
-    "mtime": 1789677795.2853682,
-    "ast_hash": "41601cb8b4a8b68e17944f6b9c54ae8a",
+    "mtime": 1792595557.709037,
+    "ast_hash": "cd36ffcd73d2b8e51c2183f3369f729a",
     "semantic_hash": ""
   },
   "docs/design-inputs/software-requirements/SR-032-role-constrained-user-account-creation.md": {
@@ -1875,8 +1875,8 @@
     "semantic_hash": "519a180eff9dd0085c806b4f345723cd"
   },
   "docs/design-inputs/software-requirements/SR-033-account-activation-via-email.md": {
-    "mtime": 1789677162.7241178,
-    "ast_hash": "a50ae6588d0d938644231ba8d003eeca",
+    "mtime": 1792595557.709345,
+    "ast_hash": "62c3cbfc2ff7c947748264441e25aabc",
     "semantic_hash": ""
   },
   "docs/design-inputs/software-requirements/SR-034-account-deactivation-and-deletion-by-system.md": {
@@ -1885,13 +1885,13 @@
     "semantic_hash": ""
   },
   "docs/design-inputs/software-requirements/SR-035-patient-notification-and-confirmation-of-scheduled.md": {
-    "mtime": 1789677162.7242653,
-    "ast_hash": "8640c10bfea919bbf1da5fe03e7cab58",
+    "mtime": 1792595557.709637,
+    "ast_hash": "851c0c10d2800b01ef1da4624e875e91",
     "semantic_hash": ""
   },
   "docs/design-inputs/software-requirements/SR-036-clinical-data-access-grant-on-appointment.md": {
-    "mtime": 1789677795.2858703,
-    "ast_hash": "310ebbe4d3d548f7e3c0366b5c4123c6",
+    "mtime": 1792595557.7098923,
+    "ast_hash": "440b5e4363412526f4bd2fa781cac8ca",
     "semantic_hash": ""
   },
   "docs/design-inputs/system-requirements/non-functional/NFR-001-browser-compatibility.md": {
@@ -2120,8 +2120,8 @@
     "semantic_hash": "931b8943da40f0239b616ada7a5b2b09"
   },
   "docs/design-outputs/tasks/TASK-036-worker-5-year-permanent-erasure.md": {
-    "mtime": 1789677162.7247806,
-    "ast_hash": "52436030c865b2cb81920375122987f3",
+    "mtime": 1792595557.7100723,
+    "ast_hash": "056009ddf21818efb8e1ace1a6334226",
     "semantic_hash": ""
   },
   "docs/design-outputs/tasks/TASK-040-group-crud.md": {
@@ -2215,8 +2215,8 @@
     "semantic_hash": "af40655b1901ea1d8f4a635f3299e716"
   },
   "docs/design-outputs/tasks/TASK-066-clinical-entry-attachment-endpoints.md": {
-    "mtime": 1789677162.7251394,
-    "ast_hash": "71c0c1fca36b14b1e5bab2c47de2f8ee",
+    "mtime": 1792595557.710612,
+    "ast_hash": "807336c59c57944b5168f543959c5970",
     "semantic_hash": ""
   },
   "docs/design-outputs/tasks/TASK-067-current-user-me-endpoints.md": {
@@ -2355,13 +2355,13 @@
     "semantic_hash": "0ca866c335ac409b18197b38013d655b"
   },
   "docs/design-outputs/tasks/TASK-110-integration-tests-for-the-seven-runtime.md": {
-    "mtime": 1789677162.7253778,
-    "ast_hash": "a0a1dd0cb443030fc04582407216c3aa",
+    "mtime": 1792595557.7109687,
+    "ast_hash": "ec946727deabcb7c9f28cd709bcbc0d0",
     "semantic_hash": ""
   },
   "docs/design-outputs/tasks/TASK-111-system-end-to-end-tests-playwright.md": {
-    "mtime": 1789677162.725539,
-    "ast_hash": "ce1dc60e8e954ef091aabe66c2306ffc",
+    "mtime": 1792595557.7111712,
+    "ast_hash": "01ef6fabe86cd4ba4dfd838f7a8c34f3",
     "semantic_hash": ""
   },
   "docs/design-outputs/tasks/TASK-112-performance-validation-against-the-budgets.md": {
@@ -2370,8 +2370,8 @@
     "semantic_hash": "baaf27802cb7b78302e0b9d7fca0484f"
   },
   "docs/design-outputs/tasks/TASK-113-security-review-of-auth-session-authz.md": {
-    "mtime": 1789677162.7256985,
-    "ast_hash": "50ee3fafc9f28d5dcb5f3b2b4a6ed58d",
+    "mtime": 1792595557.7113745,
+    "ast_hash": "54aa86751ddc6c69c1d61994d356cb11",
     "semantic_hash": ""
   },
   "docs/design-outputs/tasks/TASK-114-traceability-matrix-completion-task-system-test.md": {
@@ -2380,13 +2380,13 @@
     "semantic_hash": ""
   },
   "docs/design-outputs/tasks/TASK-115-deploy-run-documentation-first-sysadmin-bootstrap.md": {
-    "mtime": 1789677162.725839,
-    "ast_hash": "548795f871042d37842bbc4b16535cc4",
+    "mtime": 1792595557.7115726,
+    "ast_hash": "cf407f395eb31065804c37019237b59e",
     "semantic_hash": ""
   },
   "docs/design-outputs/tasks/TASK-116-clinical-data-re-keying-into-the.md": {
-    "mtime": 1789677162.7260337,
-    "ast_hash": "6a8c3529a2dd946c76e970076177d519",
+    "mtime": 1792595557.7119567,
+    "ast_hash": "a13ff95f9aadc65e83481971414b81e2",
     "semantic_hash": ""
   },
   "docs/design-outputs/tasks/TASK-117-database-migration-on-bring-up-remediation.md": {
@@ -2395,8 +2395,8 @@
     "semantic_hash": ""
   },
   "docs/design-outputs/tasks/TASK-118-wire-account-lockout-into-the-login.md": {
-    "mtime": 1789677162.7262967,
-    "ast_hash": "6fa5298c22f209366c92cdede8d2f99f",
+    "mtime": 1792595557.7123027,
+    "ast_hash": "40a35a4e36c6c946bf04038c166bfde6",
     "semantic_hash": ""
   },
   "docs/design-outputs/tasks/TASK-119-password-policy-errors-as-400-activation.md": {
@@ -2630,13 +2630,13 @@
     "semantic_hash": "1c6fcc2ea0f5f96690c4353e72dae1de"
   },
   "docs/medtrace.yml": {
-    "mtime": 1789674426.222222,
-    "ast_hash": "ea5a3522d3dd84713ef872a845520d2f",
+    "mtime": 1792595251.1453803,
+    "ast_hash": "96a2b44653f50217c93d419cc0622ab6",
     "semantic_hash": ""
   },
   "docs/software-development-plan.md": {
-    "mtime": 1789674971.0608675,
-    "ast_hash": "00188c07f3f7793d087694c6d87c1090",
+    "mtime": 1792595351.6617646,
+    "ast_hash": "7419983510282989d36605aafad0e9ab",
     "semantic_hash": ""
   },
   "docs/specifications/api-design.md": {
@@ -2670,8 +2670,8 @@
     "semantic_hash": ""
   },
   "docs/design-outputs/tasks/TASK-135-true-streaming-attachment-upload-and-download.md": {
-    "mtime": 1789677162.7265365,
-    "ast_hash": "3e35dad515919e818c26a1bc31cb7a11",
+    "mtime": 1792595557.7126403,
+    "ast_hash": "279e8b415dbff0af9622a31364a3151c",
     "semantic_hash": ""
   },
   "docs/design-outputs/tasks/TASK-136-align-async-handlers-with-sync-io-stack.md": {
@@ -2680,13 +2680,13 @@
     "semantic_hash": ""
   },
   "docs/design-outputs/tasks/TASK-137-capture-client-ip-in-authz-and-consent-audit.md": {
-    "mtime": 1789677162.7267406,
-    "ast_hash": "3256ce5075b57bb1c8c60755792cdf2f",
+    "mtime": 1792595557.7127776,
+    "ast_hash": "84f92aea8bf4bc729345898dbf9bfb87",
     "semantic_hash": ""
   },
   "docs/design-outputs/tasks/TASK-138-pii-scrubbing-for-worker-and-notification-logs.md": {
-    "mtime": 1789677162.7268665,
-    "ast_hash": "fe82f2fcd50cc97cf579e3c81ead0811",
+    "mtime": 1792595557.712899,
+    "ast_hash": "397300105611cbc87eaf6e42389a5daa",
     "semantic_hash": ""
   },
   "docs/design-outputs/tasks/TASK-139-csrf-exemption-exact-match-hardening.md": {
@@ -2695,18 +2695,18 @@
     "semantic_hash": ""
   },
   "docs/design-outputs/tasks/TASK-140-auth-config-hygiene-dead-signing-key-lockout-required.md": {
-    "mtime": 1789677162.7269893,
-    "ast_hash": "a2b6af1ca68eb8fdc2670af3e5ddc34b",
+    "mtime": 1792595557.7130208,
+    "ast_hash": "0b594791afcb83928d31b63aa923fdbe",
     "semantic_hash": ""
   },
   "docs/design-outputs/tasks/TASK-141-worker-reliability-retention-sessions-retries-silent-failures.md": {
-    "mtime": 1789677162.7271166,
-    "ast_hash": "0f9b6be38fcccddaf3b5b7f7380341d8",
+    "mtime": 1792595557.7131472,
+    "ast_hash": "c06dcfbedcb3d9cfb430a0114dd2be2b",
     "semantic_hash": ""
   },
   "docs/design-outputs/tasks/TASK-142-frontend-route-level-role-guards.md": {
-    "mtime": 1789677162.7274246,
-    "ast_hash": "7dbcaee830d40e30f2903b32d0dbb5b2",
+    "mtime": 1792595557.7132611,
+    "ast_hash": "c193e1e821280e9171f910b0fe25f2c9",
     "semantic_hash": ""
   },
   "docs/design-outputs/tasks/TASK-143-unify-frontend-api-client-upload-and-problem-types.md": {
@@ -2730,8 +2730,8 @@
     "semantic_hash": ""
   },
   "docs/design-outputs/tasks/TASK-147-iso-14971-risk-register-bootstrap.md": {
-    "mtime": 1789677564.5599408,
-    "ast_hash": "73e304fa422d5d70e42386b0b60175d4",
+    "mtime": 1792595573.1501012,
+    "ast_hash": "09e5ac0e1a3115b5992bd2a8b8d72b5f",
     "semantic_hash": ""
   },
   "docs/design-outputs/tasks/TASK-148-fix-dangling-remediation-ids-in-traceability-matrix.md": {
@@ -2875,18 +2875,18 @@
     "semantic_hash": ""
   },
   "docs/design-inputs/system-requirements/regulatory/RR-006-iec-62304-lifecycle-records-and-traceability.md": {
-    "mtime": 1789677717.8404071,
-    "ast_hash": "019eb93c61c0f3131d37c908d340c770",
+    "mtime": 1792595477.5344064,
+    "ast_hash": "91e5aa7a2bb55758f06cb9591fe2afcf",
     "semantic_hash": ""
   },
   "docs/design-inputs/system-requirements/regulatory/RR-007-risk-management-for-medical-device-software.md": {
-    "mtime": 1789677717.840509,
-    "ast_hash": "0e1c0e6c8b37bfaf00ca6a824231cc0e",
+    "mtime": 1792595477.5348628,
+    "ast_hash": "718d194361279a7117ac4edeae6f2345",
     "semantic_hash": ""
   },
   "docs/design-inputs/system-requirements/regulatory/RR-008-software-of-unknown-provenance-identification-and.md": {
-    "mtime": 1789677717.8406062,
-    "ast_hash": "e97b526ccf92f5949b7b2c2c32c2c39d",
+    "mtime": 1792595477.5352206,
+    "ast_hash": "6a7bf6a84ed8826e0e215dede81474d0",
     "semantic_hash": ""
   },
   "docs/design-inputs/system-requirements/regulatory/RR-009-usability-engineering-for-use-related-risk.md": {
@@ -2895,33 +2895,33 @@
     "semantic_hash": ""
   },
   "docs/design-inputs/system-requirements/regulatory/RR-010-medical-device-software-general-safety-and.md": {
-    "mtime": 1789677717.8408039,
-    "ast_hash": "f2886c61398d29b56023f26b6d9429bf",
+    "mtime": 1792595477.5357873,
+    "ast_hash": "821039efdef148b684d22cc76f1b3a61",
     "semantic_hash": ""
   },
   "docs/design-outputs/architecture/ADD-002-software-development-plan.md": {
-    "mtime": 1789677539.4605956,
-    "ast_hash": "3af2e280055517a4b9fd28d717f4d9c0",
+    "mtime": 1792595351.660027,
+    "ast_hash": "8413ffaac268b998af45b036594fe082",
     "semantic_hash": ""
   },
   "docs/design-outputs/architecture/ADD-003-risk-management-plan.md": {
-    "mtime": 1789677539.4611044,
-    "ast_hash": "382d878551eee4080ab0585ee7f75cc1",
+    "mtime": 1792595351.661013,
+    "ast_hash": "7a53a391472b69cd614cab53b15001e9",
     "semantic_hash": ""
   },
   "docs/design-outputs/architecture/ADD-004-soup-list.md": {
-    "mtime": 1789677539.461759,
-    "ast_hash": "439930e1fcba4561d4e70cadb14ef657",
+    "mtime": 1792595477.5380175,
+    "ast_hash": "e45a970d4a7d853a5670ffb923df45fa",
     "semantic_hash": ""
   },
   "docs/design-outputs/architecture/ADD-005-api-layer-routers.md": {
-    "mtime": 1789677539.4621677,
-    "ast_hash": "8f8eb5ab00e35856a8fa06e5ed8d71f8",
+    "mtime": 1792595445.5851228,
+    "ast_hash": "0c0b472bf7d6444966a39873261d315c",
     "semantic_hash": ""
   },
   "docs/design-outputs/architecture/ADD-006-authentication-and-session.md": {
-    "mtime": 1789677539.4624646,
-    "ast_hash": "4dead0ed5e6d434d6f8c42b9d8f1dc0a",
+    "mtime": 1792595445.6645296,
+    "ast_hash": "8453abb2ec473739ef53bbcb668f220c",
     "semantic_hash": ""
   },
   "docs/design-outputs/architecture/ADD-007-authorization-and-consent.md": {
@@ -2930,8 +2930,8 @@
     "semantic_hash": ""
   },
   "docs/design-outputs/architecture/ADD-008-identity-and-account-lifecycle.md": {
-    "mtime": 1789677539.4629803,
-    "ast_hash": "cab04ac4e4481f2a1da6620439f42f6a",
+    "mtime": 1792595445.7028782,
+    "ast_hash": "8429f634dbfe4a1d39548d6488c1daa4",
     "semantic_hash": ""
   },
   "docs/design-outputs/architecture/ADD-009-groups-and-module-enablement.md": {
@@ -2940,63 +2940,63 @@
     "semantic_hash": ""
   },
   "docs/design-outputs/architecture/ADD-010-appointments-and-notifications.md": {
-    "mtime": 1789677539.4634807,
-    "ast_hash": "17f2a2b1bb062cd009502524cf718474",
+    "mtime": 1792595445.7224748,
+    "ast_hash": "0a50d1a3f20312d51e4050b5aa7cb01e",
     "semantic_hash": ""
   },
   "docs/design-outputs/architecture/ADD-011-clinical-records.md": {
-    "mtime": 1789677539.463763,
-    "ast_hash": "0ff8b12f34c39984901a8a486faf320f",
+    "mtime": 1792595445.780584,
+    "ast_hash": "d48f4a7b69500c9b1a0e37aead449fc1",
     "semantic_hash": ""
   },
   "docs/design-outputs/architecture/ADD-012-attachment-service.md": {
-    "mtime": 1789677539.4640906,
-    "ast_hash": "a712b3ea3146eb4f04908881778552b7",
+    "mtime": 1792595445.7415674,
+    "ast_hash": "5f20166e6a8162c97aa122b2228d8037",
     "semantic_hash": ""
   },
   "docs/design-outputs/architecture/ADD-013-audit-service.md": {
-    "mtime": 1789677539.4643793,
-    "ast_hash": "69523ec95e67a6c2d7d12abcae99669b",
+    "mtime": 1792595445.646575,
+    "ast_hash": "b87b424f352733837f6dd7bb64f894d6",
     "semantic_hash": ""
   },
   "docs/design-outputs/architecture/ADD-014-module-host-plugin-registry.md": {
-    "mtime": 1789677539.464693,
-    "ast_hash": "a5c88e5a826a18d2607a2a68fc39fb3f",
+    "mtime": 1792595445.608185,
+    "ast_hash": "ec17cfb6b030c95c9b8cdfeb7fba1eaf",
     "semantic_hash": ""
   },
   "docs/design-outputs/architecture/ADD-015-dicom-module-backend.md": {
-    "mtime": 1789677539.4649842,
-    "ast_hash": "61539508480b8d8fdf5e90fd4011718f",
+    "mtime": 1792595445.7616065,
+    "ast_hash": "e21bb8b086f651388a71d9c779a6c52a",
     "semantic_hash": ""
   },
   "docs/design-outputs/architecture/ADD-016-persistence.md": {
-    "mtime": 1789677539.4652526,
-    "ast_hash": "0931b53dfaa10a2e5d390c3f2143687b",
+    "mtime": 1792595445.6271877,
+    "ast_hash": "8c806434ee0a9d045c1dc0c6ebf38cf2",
     "semantic_hash": ""
   },
   "docs/design-outputs/architecture/ADD-017-async-worker.md": {
-    "mtime": 1789677539.465538,
-    "ast_hash": "e4aa2dcb8b34769f62e1a97b0a165276",
+    "mtime": 1792595445.683398,
+    "ast_hash": "5427b86e037f8d81efeb0b6d2b4ed018",
     "semantic_hash": ""
   },
   "docs/design-outputs/architecture/ADD-018-frontend-app-shell.md": {
-    "mtime": 1789677539.4658332,
-    "ast_hash": "069e4c79b02b1da5120e8fbc5375c221",
+    "mtime": 1792595445.799176,
+    "ast_hash": "105795e7688debc3b5eaf762e609af81",
     "semantic_hash": ""
   },
   "docs/design-outputs/architecture/ADD-019-frontend-auth-session-ui.md": {
-    "mtime": 1789677539.466089,
-    "ast_hash": "aa709944a608cf7e62326e1c30f6edd4",
+    "mtime": 1792595445.818905,
+    "ast_hash": "ded0385bab70164837a1e0265ca8b611",
     "semantic_hash": ""
   },
   "docs/design-outputs/architecture/ADD-020-frontend-core-views.md": {
-    "mtime": 1789677539.466359,
-    "ast_hash": "d1fd550670dda88a066d195a65730eef",
+    "mtime": 1792595445.8388135,
+    "ast_hash": "b1f350f34bb3d1e42e3a54a4e354d7ea",
     "semantic_hash": ""
   },
   "docs/design-outputs/architecture/ADD-021-frontend-module-registry.md": {
-    "mtime": 1789677539.4666243,
-    "ast_hash": "2f332b8b0c29fd8649d54309dc87d118",
+    "mtime": 1792595445.8589926,
+    "ast_hash": "0c2df24d61681dbd1da8340210a4f94c",
     "semantic_hash": ""
   },
   "docs/design-outputs/architecture/ADD-022-dicom-viewer-module-frontend.md": {
@@ -3005,243 +3005,243 @@
     "semantic_hash": ""
   },
   "docs/design-outputs/architecture/ADD-023-frontend-api-client.md": {
-    "mtime": 1789677539.4671316,
-    "ast_hash": "43ce679effcb614bcfe8e72fd5d99b55",
+    "mtime": 1792595445.8778393,
+    "ast_hash": "aabeb638f7bd7aec2d4ec09288cef2b3",
     "semantic_hash": ""
   },
   "docs/design-outputs/tasks/TASK-154-soup-anomaly-list-review.md": {
-    "mtime": 1789677162.7275493,
-    "ast_hash": "6fff23ed291c53dd301b4597ad528f0b",
+    "mtime": 1792595557.7133763,
+    "ast_hash": "3fbe55af32bd2b6d2f33b906a6a195f1",
     "semantic_hash": ""
   },
   "docs/design-outputs/tests-specifications/TS-001-authentication-password-policy-lockout-and-session.md": {
-    "mtime": 1789678824.243615,
-    "ast_hash": "20f904bc979532c7fb6c51b3c6147eba",
+    "mtime": 1792595477.5311348,
+    "ast_hash": "3ae197f9a22338abd199b607656a5521",
     "semantic_hash": ""
   },
   "docs/design-outputs/tests-specifications/TS-002-authorization-consent-and-visibility.md": {
-    "mtime": 1789678824.2437875,
-    "ast_hash": "36322c441c4fe2a8935df56dfa707838",
+    "mtime": 1792595477.5322132,
+    "ast_hash": "39d33c2df595c76bef07b782ee587c40",
     "semantic_hash": ""
   },
   "docs/design-outputs/tests-specifications/TS-003-identity-account-creation-activation-and-lifecycle.md": {
-    "mtime": 1789678824.243906,
-    "ast_hash": "81e236d36258980fd60bf9fcdf25608c",
+    "mtime": 1792595477.5319064,
+    "ast_hash": "fe50948ab239061f45e6e2f3b2a3f0ab",
     "semantic_hash": ""
   },
   "docs/design-outputs/tests-specifications/TS-004-personal-data-erasure-and-retention.md": {
-    "mtime": 1789678824.2440236,
-    "ast_hash": "895d9d4401aa37685d07005ff099028a",
+    "mtime": 1792595477.529836,
+    "ast_hash": "fd458a277049751131879f4633cb4da1",
     "semantic_hash": ""
   },
   "docs/design-outputs/tests-specifications/TS-005-groups-and-per-group-module-enablement.md": {
-    "mtime": 1789678824.244129,
-    "ast_hash": "871cbd8246eed05d62b70b8d645758f8",
+    "mtime": 1792595477.5302005,
+    "ast_hash": "b15c97291484d4881a1926fa71e794d0",
     "semantic_hash": ""
   },
   "docs/design-outputs/tests-specifications/TS-006-appointments-and-notification.md": {
-    "mtime": 1789678824.2442224,
-    "ast_hash": "f818e1314b5110090be211a485b4944e",
+    "mtime": 1792595477.5294063,
+    "ast_hash": "5a3cd030778188d09c3ee1a6059ec6ea",
     "semantic_hash": ""
   },
   "docs/design-outputs/tests-specifications/TS-007-clinical-entries-and-attachment.md": {
-    "mtime": 1789678824.2443254,
-    "ast_hash": "e18a0e42dbd86b371e1d5f0142ac970f",
+    "mtime": 1792595477.532411,
+    "ast_hash": "00a0079d7884422cf94c9c5cf69a3d33",
     "semantic_hash": ""
   },
   "docs/design-outputs/tests-specifications/TS-008-persistence-fhir-aligned-model-and-encryption.md": {
-    "mtime": 1789678824.2444155,
-    "ast_hash": "3ce3fa19d25445ebad235d0cea44e24e",
+    "mtime": 1792595477.5316162,
+    "ast_hash": "1e139dad510f344fec239323f38b1dbc",
     "semantic_hash": ""
   },
   "docs/design-outputs/tests-specifications/TS-009-audit-logging.md": {
-    "mtime": 1789678824.2445064,
-    "ast_hash": "3cb8a6490d865681bf29d32f55765953",
+    "mtime": 1792595477.5306714,
+    "ast_hash": "c1b787082a090d3b57728b49e736973e",
     "semantic_hash": ""
   },
   "docs/design-outputs/tests-specifications/TS-010-module-host-and-plugin-architecture.md": {
-    "mtime": 1789678824.2445948,
-    "ast_hash": "13fc0cb4f67f452a89ffca111b51e048",
+    "mtime": 1792595477.5304015,
+    "ast_hash": "e4a50eebce644fd951bbd88b62aeca69",
     "semantic_hash": ""
   },
   "docs/design-outputs/tests-specifications/TS-011-transport-security-csrf-and-error-contract.md": {
-    "mtime": 1789678824.2446856,
-    "ast_hash": "732bf2bacef409b54e4ae06e7a09491a",
+    "mtime": 1792595477.5325537,
+    "ast_hash": "a0f426d8a6434e84605e25d7c77a6002",
     "semantic_hash": ""
   },
   "docs/design-outputs/tests-specifications/TS-012-usability-responsiveness-and-theming.md": {
-    "mtime": 1789678824.2447782,
-    "ast_hash": "3d940c8cfa6855321e9f0b0f465e82ba",
+    "mtime": 1792595477.5288408,
+    "ast_hash": "b01560f83fdb4a99d480bf00abfd4f7d",
     "semantic_hash": ""
   },
   "docs/design-outputs/tests-specifications/TS-013-lifecycle-record-and-traceability.md": {
-    "mtime": 1789678824.2448752,
-    "ast_hash": "a3c1d64ec6e91652a569e03a8ab6973f",
+    "mtime": 1792595477.5313766,
+    "ast_hash": "f4976e777adf844bfd1dd54f102cc5be",
     "semantic_hash": ""
   },
   "docs/problem-reports/PRB-001-floating-container-image-tags.md": {
-    "mtime": 1789675150.8496754,
-    "ast_hash": "b25e1237cf12ecb252137eaebbe3087b",
+    "mtime": 1792595568.4898648,
+    "ast_hash": "4735902dd228d551aa85bb039125119d",
     "semantic_hash": ""
   },
   "docs/problem-reports/PRB-002-undeclared-boto3-dependency.md": {
-    "mtime": 1789675150.8521671,
-    "ast_hash": "4a04a38e65eae84ef250ffc76d96cbd3",
+    "mtime": 1792595568.4942217,
+    "ast_hash": "17cb777d57d867f8aad9acb81902b41d",
     "semantic_hash": ""
   },
   "docs/problem-reports/PRB-003-csrf-exemption-prefix-matching.md": {
-    "mtime": 1789677353.414353,
-    "ast_hash": "b72242cdc11c70ebd258f3312e96b695",
+    "mtime": 1792595568.4970348,
+    "ast_hash": "9d8c8023e2a27973560544c7ef0f5f01",
     "semantic_hash": ""
   },
   "docs/problem-reports/PRB-004-ciphertext-envelope-without-key-id.md": {
-    "mtime": 1789677353.4144838,
-    "ast_hash": "e205e2858db5aedbb3bf073f06dc7b62",
+    "mtime": 1792595568.4998572,
+    "ast_hash": "1a93571d0345d8121560875180773527",
     "semantic_hash": ""
   },
   "docs/problem-reports/PRB-005-audit-append-only-by-convention.md": {
-    "mtime": 1789677353.4145901,
-    "ast_hash": "6a6d1d1215732ff63c31f37831e8c207",
+    "mtime": 1792595568.502382,
+    "ast_hash": "3624220de3fc0c2986b528cdd61f3057",
     "semantic_hash": ""
   },
   "docs/problem-reports/PRB-006-dicom-decompression-bomb.md": {
-    "mtime": 1789677353.414679,
-    "ast_hash": "1506dcee0664d342073216b1ce41e819",
+    "mtime": 1792595568.5052106,
+    "ast_hash": "5426ae711783b12ea6a25d52b55269f2",
     "semantic_hash": ""
   },
   "docs/problem-reports/PRB-007-container-runs-as-root-insecure-defaults.md": {
-    "mtime": 1789677353.414768,
-    "ast_hash": "78915a4ebea8a70ab2c7fc086208a4be",
+    "mtime": 1792595568.507764,
+    "ast_hash": "fdbcbe5129c8815f317c8fe3bc23ec91",
     "semantic_hash": ""
   },
   "docs/problem-reports/PRB-008-attachment-upload-buffers-whole-body.md": {
-    "mtime": 1789677353.4148552,
-    "ast_hash": "aba067272fb7d3b618b6dcf9257f8010",
+    "mtime": 1792595568.510726,
+    "ast_hash": "49ab4b8ae1bf71620412c87044d8b212",
     "semantic_hash": ""
   },
   "docs/problem-reports/PRB-009-async-handlers-block-event-loop.md": {
-    "mtime": 1789677353.4149384,
-    "ast_hash": "d60491e1e85e2c50f7d589bd14461238",
+    "mtime": 1792595568.5134666,
+    "ast_hash": "6e6f374e80d9aa81359c281e50fda73b",
     "semantic_hash": ""
   },
   "docs/problem-reports/PRB-010-authz-audit-without-source-ip.md": {
-    "mtime": 1789677378.8794827,
-    "ast_hash": "67531d36c63a35c857fe768883a071d5",
+    "mtime": 1792595568.5162487,
+    "ast_hash": "20c377530e6acd688c72b9d4a2204647",
     "semantic_hash": ""
   },
   "docs/problem-reports/PRB-011-worker-logs-emit-email-addresses.md": {
-    "mtime": 1789677353.4151049,
-    "ast_hash": "fe8c8ff0d02bc0c7e8489f2c8ce5d670",
+    "mtime": 1792595568.5189729,
+    "ast_hash": "72fb53abac0fce63bb4f8e7aaadca67b",
     "semantic_hash": ""
   },
   "docs/problem-reports/PRB-012-retention-sweep-session-leak-no-retry.md": {
-    "mtime": 1789677353.415196,
-    "ast_hash": "d3663d79ea18e24b20c3d7e6f40aa1aa",
+    "mtime": 1792595568.5214899,
+    "ast_hash": "e246d8405c14ca664dbb4b48fb076594",
     "semantic_hash": ""
   },
   "docs/problem-reports/PRB-013-silent-enqueue-failure.md": {
-    "mtime": 1789677353.415281,
-    "ast_hash": "2e0c2320b367b6419134d1b3d364add8",
+    "mtime": 1792595568.5241458,
+    "ast_hash": "c5badd4014eebba34fbc09122b3ffea2",
     "semantic_hash": ""
   },
   "docs/problem-reports/PRB-014-no-route-level-role-guards.md": {
-    "mtime": 1789677353.415367,
-    "ast_hash": "8df2380930c55cdb93a2d72820c557e4",
+    "mtime": 1792595568.526712,
+    "ast_hash": "8cf607253a0a80aa0e2fe88494f1edb5",
     "semantic_hash": ""
   },
   "docs/problem-reports/PRB-015-stale-module-gating-cache.md": {
-    "mtime": 1789677353.4154541,
-    "ast_hash": "d6db79e4725ac533ba4c1d6c7c14e1c9",
+    "mtime": 1792595568.5303867,
+    "ast_hash": "1a78ae9a5ae6f6b547af1dfb6a8efd69",
     "semantic_hash": ""
   },
   "docs/problem-reports/PRB-016-me-query-retry-and-session-ttl-drift.md": {
-    "mtime": 1789677353.4155455,
-    "ast_hash": "f953694a82853b9f7c76ad17d164e23e",
+    "mtime": 1792595568.533177,
+    "ast_hash": "e2f5335176ebec32196dcbbd97bc324e",
     "semantic_hash": ""
   },
   "docs/problem-reports/PRB-017-untested-security-relevant-frontend-units.md": {
-    "mtime": 1789677353.4156249,
-    "ast_hash": "f19c217f8804e799b25699f6a0a62fd3",
+    "mtime": 1792595568.5360787,
+    "ast_hash": "7a04c2dda2a47a4b7cf5b82fcbfd81c5",
     "semantic_hash": ""
   },
   "docs/problem-reports/PRB-018-dead-session-signing-key-optional-lockout.md": {
-    "mtime": 1789677353.4157147,
-    "ast_hash": "0c8447eabede7038500d1bd8d4a474db",
+    "mtime": 1792595568.5387318,
+    "ast_hash": "066838c907236767181ac22aa4ed5ee7",
     "semantic_hash": ""
   },
   "docs/problem-reports/PRB-019-duplicate-upload-path-and-handwritten-problem-type.md": {
-    "mtime": 1789677353.4157958,
-    "ast_hash": "40aff81f37866b9d871f61a036f07755",
+    "mtime": 1792595568.5417,
+    "ast_hash": "308c7e05aa8cc8306c6f010ad99019a6",
     "semantic_hash": ""
   },
   "docs/problem-reports/PRB-020-no-code-splitting.md": {
-    "mtime": 1789677353.4158835,
-    "ast_hash": "3ce32ffddd9eda1dd25d66cc18f4e98d",
+    "mtime": 1792595568.5442445,
+    "ast_hash": "77975feb4c97447bdedcce4c6a386b79",
     "semantic_hash": ""
   },
   "docs/problem-reports/PRB-021-missing-indexes-on-authz-lookups.md": {
-    "mtime": 1789677353.4159734,
-    "ast_hash": "055f6cdfb52f942f6684b891d7323fb9",
+    "mtime": 1792595568.5468361,
+    "ast_hash": "5611eae76a78a65093ad8755ba14b702",
     "semantic_hash": ""
   },
   "docs/problem-reports/PRB-022-activation-token-full-scan.md": {
-    "mtime": 1789677353.4160647,
-    "ast_hash": "23d1ffaa4bd8b3d7282d6b640da8adb7",
+    "mtime": 1792595568.5498595,
+    "ast_hash": "d36bc1fddb87d858261c3279fe1fdfaf",
     "semantic_hash": ""
   },
   "docs/problem-reports/PRB-023-non-atomic-session-cap-eviction.md": {
-    "mtime": 1789677353.4161448,
-    "ast_hash": "6f1695ee29d41adaafae9b966aef4f35",
+    "mtime": 1792595568.5524447,
+    "ast_hash": "8f3eefc3638ad43c118c7ece65e7cbcf",
     "semantic_hash": ""
   },
   "docs/problem-reports/PRB-024-group-membership-n-plus-one.md": {
-    "mtime": 1789677353.4162292,
-    "ast_hash": "939c4eab229dd6270c985d8bf3e74a64",
+    "mtime": 1792595568.5550933,
+    "ast_hash": "0735aba14251820d1c724e78486be220",
     "semantic_hash": ""
   },
   "docs/problem-reports/PRB-025-idle-timer-not-debounced.md": {
-    "mtime": 1789677353.416307,
-    "ast_hash": "0c4e39a2821c0c0cdfa5864357673ed1",
+    "mtime": 1792595568.5575943,
+    "ast_hash": "73afd0dad298f0d72c0d591c9804dca3",
     "semantic_hash": ""
   },
   "docs/problem-reports/PRB-026-authz-logic-in-persistence-layer.md": {
-    "mtime": 1789677353.4163911,
-    "ast_hash": "cf6bbab74be993447e095a27bd8edbfd",
+    "mtime": 1792595568.5602567,
+    "ast_hash": "bbcfe8b702af5c8f3d90e13ca8deedbd",
     "semantic_hash": ""
   },
   "docs/problem-reports/PRB-027-direct-role-comparisons-bypass-authz.md": {
-    "mtime": 1789677378.8799834,
-    "ast_hash": "1c39849ca340ec5aba59fa5de045da1c",
+    "mtime": 1792595568.5629582,
+    "ast_hash": "46c546e2c2df0205730aca425390be12",
     "semantic_hash": ""
   },
   "docs/problem-reports/PRB-028-semver-regex-accepts-trailing-garbage.md": {
-    "mtime": 1789677353.416554,
-    "ast_hash": "7abd442226989ba96b5c2aaa604b8f10",
+    "mtime": 1792595568.565878,
+    "ast_hash": "50054e85f47d9c0ad07d2da2aaaece36",
     "semantic_hash": ""
   },
   "docs/problem-reports/PRB-029-rate-limit-keyed-on-proxy-ip.md": {
-    "mtime": 1789677353.4167812,
-    "ast_hash": "a3becd4be56f8bd57aff4d8289ca40db",
+    "mtime": 1792595568.5688508,
+    "ast_hash": "a98bdea520074df43f1be4db0c011bee",
     "semantic_hash": ""
   },
   "docs/problem-reports/PRB-030-module-boundary-test-too-narrow.md": {
-    "mtime": 1789677353.4170144,
-    "ast_hash": "abb377bd430ae9003c606a411ba71d7d",
+    "mtime": 1792595568.5715377,
+    "ast_hash": "4ad61689760123e6acd0198ce5b677ab",
     "semantic_hash": ""
   },
   "docs/problem-reports/PRB-031-destructive-dialog-autofocuses-confirm.md": {
-    "mtime": 1789677353.4171143,
-    "ast_hash": "490f8d9a5444bb9294798bf82663311d",
+    "mtime": 1792595568.5741146,
+    "ast_hash": "ee5128b727f26e43c73747a5882120bf",
     "semantic_hash": ""
   },
   "docs/problem-reports/PRB-032-json-logger-drops-request-id.md": {
-    "mtime": 1789677353.4172106,
-    "ast_hash": "7b6e1d5928c33432dbf1742350aef301",
+    "mtime": 1792595568.5770109,
+    "ast_hash": "0be4da1064e1885654cf13e5011fda61",
     "semantic_hash": ""
   },
   "docs/reports/agentic-os-gap-analysis.md": {
-    "mtime": 1789678947.2116663,
-    "ast_hash": "2aa7dd4658d16de629d9e754e69fa991",
+    "mtime": 1792595656.9015388,
+    "ast_hash": "32fc28d2520908aeceb29c8e42702084",
     "semantic_hash": ""
   },
   "docs/reports/gap-report-2026-09-17.md": {
@@ -3250,58 +3250,58 @@
     "semantic_hash": ""
   },
   "docs/risks/RISK-001-unauthorized-clinical-data-disclosure.md": {
-    "mtime": 1789677378.8803499,
-    "ast_hash": "5686898ed38c6c3db03e512949fc2bd5",
+    "mtime": 1792595557.678213,
+    "ast_hash": "54b8f9fd860112fa2ddc51ada2709cc3",
     "semantic_hash": ""
   },
   "docs/risks/RISK-002-clinical-data-misattribution.md": {
-    "mtime": 1789676166.9563937,
-    "ast_hash": "5e613445fec691a6354b4afae004d236",
+    "mtime": 1792595557.67934,
+    "ast_hash": "e37af3ec241879bf736b2ff70fec43ea",
     "semantic_hash": ""
   },
   "docs/risks/RISK-003-incorrect-dicom-rendering.md": {
-    "mtime": 1789676166.956492,
-    "ast_hash": "e0c6f6ef709c2d0c575e2aa1c22142a4",
+    "mtime": 1792595557.6803155,
+    "ast_hash": "fbd87b38c04a95c89f1ac00f6885ac4e",
     "semantic_hash": ""
   },
   "docs/risks/RISK-004-legitimate-clinical-access-denied.md": {
-    "mtime": 1789676166.9565847,
-    "ast_hash": "157161e5c31feb5956db07f3cf599a28",
+    "mtime": 1792595557.6798987,
+    "ast_hash": "fae558552fbfa0f62295c7e0a1011112",
     "semantic_hash": ""
   },
   "docs/risks/RISK-005-account-takeover.md": {
-    "mtime": 1789677378.8805766,
-    "ast_hash": "948bc49652ecca8ed8400b8296656b8e",
+    "mtime": 1792595557.6797397,
+    "ast_hash": "7f1f8b6f6690d39af9bc8a38ae9cf094",
     "semantic_hash": ""
   },
   "docs/risks/RISK-006-incomplete-audit-trail.md": {
-    "mtime": 1789677378.8807685,
-    "ast_hash": "a254f85ccb0420fc3abccee6bbeb8d72",
+    "mtime": 1792595557.679587,
+    "ast_hash": "2a12489bd2671198a52fdd5f35097748",
     "semantic_hash": ""
   },
   "docs/risks/RISK-007-clinical-information-unavailable.md": {
-    "mtime": 1789676166.9568796,
-    "ast_hash": "b2bf69bd96d97fba2d331c5ed3b92d6d",
+    "mtime": 1792595557.6790562,
+    "ast_hash": "406cf3b291eb7a7148b9f97b8eb1fb62",
     "semantic_hash": ""
   },
   "docs/risks/RISK-008-personal-data-lifecycle-failure.md": {
-    "mtime": 1789676166.956989,
-    "ast_hash": "4d1d5853da71cff2ecb73bcc9957b574",
+    "mtime": 1792595557.6787932,
+    "ast_hash": "163a12fef3c94e572ae60c4318f16271",
     "semantic_hash": ""
   },
   "docs/risks/RISK-009-notification-not-delivered.md": {
-    "mtime": 1789676166.9570787,
-    "ast_hash": "6c459d2b8dbae3c6413c7ab3ce838a1c",
+    "mtime": 1792595557.6778204,
+    "ast_hash": "617c537625d5073f37833495ee98c81e",
     "semantic_hash": ""
   },
   "docs/risks/RISK-010-unreviewed-soup-change.md": {
-    "mtime": 1789676166.957178,
-    "ast_hash": "7c666be604cd59e6e3a3f83e60d8d687",
+    "mtime": 1792595557.678493,
+    "ast_hash": "15d94e0da4e137294d052a3044dbe1a9",
     "semantic_hash": ""
   },
   "docs/risks/RISK-011-encryption-key-management-failure.md": {
-    "mtime": 1789676166.9572682,
-    "ast_hash": "e4b025e94ccb678ea8b61a0a6e761732",
+    "mtime": 1792595557.680072,
+    "ast_hash": "9bd02a2b699550a8af6225b75bb4152c",
     "semantic_hash": ""
   },
   "docs/templates/task.md": {
@@ -3310,13 +3310,223 @@
     "semantic_hash": ""
   },
   "docs/test-plans-reports/plans/TP-001-verification-plan-migration-baseline.md": {
-    "mtime": 1789678893.2927272,
-    "ast_hash": "0e63e479b8aed491c1d4bdeb6d9f0490",
+    "mtime": 1792595477.5331,
+    "ast_hash": "e0ccc9971e4e7fe08a5fc31e6a38b7e9",
     "semantic_hash": ""
   },
   "docs/test-plans-reports/reports/TR-001-verification-report-migration-baseline.md": {
-    "mtime": 1789678893.2929041,
-    "ast_hash": "0d99052c4556f8816bf3f1003c43e4e6",
+    "mtime": 1792595477.533631,
+    "ast_hash": "c340fc8aca2f290ce536ce714bef5301",
+    "semantic_hash": ""
+  },
+  "docs/plans/PLAN-001-software-development-plan.md": {
+    "mtime": 1792595339.3909009,
+    "ast_hash": "df5f990079fed1ac69b9130a97f7f70b",
+    "semantic_hash": ""
+  },
+  "docs/plans/PLAN-002-maintenance-plan.md": {
+    "mtime": 1792595339.3913276,
+    "ast_hash": "475d81446e10fc4e2c327bc7df38815d",
+    "semantic_hash": ""
+  },
+  "docs/plans/PLAN-003-configuration-management-plan.md": {
+    "mtime": 1792595339.3916233,
+    "ast_hash": "f4b40898c3ec1c7f7803da4bce9fb48b",
+    "semantic_hash": ""
+  },
+  "docs/plans/PLAN-004-problem-resolution-plan.md": {
+    "mtime": 1792595339.3918865,
+    "ast_hash": "85fe51b41a1593f5d1341bcf5737a165",
+    "semantic_hash": ""
+  },
+  "docs/plans/PLAN-005-risk-management-plan.md": {
+    "mtime": 1792595339.392177,
+    "ast_hash": "946efbef7b8da716c309019a0aab33a4",
+    "semantic_hash": ""
+  },
+  "docs/problem-reports/PRB-033-fakeredis-shipped-as-runtime-dependency.md": {
+    "mtime": 1792595568.579986,
+    "ast_hash": "63218f3c0001da0a21697432d513f14e",
+    "semantic_hash": ""
+  },
+  "docs/reports/gap-report-2026-10-21.md": {
+    "mtime": 1792595639.0144548,
+    "ast_hash": "fa567a6811f221ae8c820c402be066ed",
+    "semantic_hash": ""
+  },
+  "docs/soup/SOUP-001-python.md": {
+    "mtime": 1792595433.8435147,
+    "ast_hash": "6b7dea94daa712e050fa7f6fcc41b480",
+    "semantic_hash": ""
+  },
+  "docs/soup/SOUP-002-fastapi.md": {
+    "mtime": 1792595433.8436494,
+    "ast_hash": "43ce6815d6266ee7ddb5ace33f38bf85",
+    "semantic_hash": ""
+  },
+  "docs/soup/SOUP-003-starlette.md": {
+    "mtime": 1792595433.8437374,
+    "ast_hash": "fd82cbc9ae10e12804319174cedbd0c4",
+    "semantic_hash": ""
+  },
+  "docs/soup/SOUP-004-uvicorn.md": {
+    "mtime": 1792595433.8438275,
+    "ast_hash": "37eb16cc13d5a0e15b644efc545623bf",
+    "semantic_hash": ""
+  },
+  "docs/soup/SOUP-005-gunicorn.md": {
+    "mtime": 1792595433.843911,
+    "ast_hash": "920c65f07c035c77d3d806023ffc59f0",
+    "semantic_hash": ""
+  },
+  "docs/soup/SOUP-006-pydantic.md": {
+    "mtime": 1792595433.8439956,
+    "ast_hash": "6a3ad791c7dad96e86969615d58933b9",
+    "semantic_hash": ""
+  },
+  "docs/soup/SOUP-007-pydantic-settings.md": {
+    "mtime": 1792595433.844081,
+    "ast_hash": "29b616e1ba37aad43ce6c241f90cd081",
+    "semantic_hash": ""
+  },
+  "docs/soup/SOUP-008-sqlalchemy.md": {
+    "mtime": 1792595433.844155,
+    "ast_hash": "c073c07a5b04e5b7c1522fce86627851",
+    "semantic_hash": ""
+  },
+  "docs/soup/SOUP-009-alembic.md": {
+    "mtime": 1792595433.8442304,
+    "ast_hash": "30bc554928ace20751f60621c2d36b6f",
+    "semantic_hash": ""
+  },
+  "docs/soup/SOUP-010-psycopg2-binary.md": {
+    "mtime": 1792595433.8443062,
+    "ast_hash": "11cd6a01f8c7c71c0e0b5cc463fc000a",
+    "semantic_hash": ""
+  },
+  "docs/soup/SOUP-011-cryptography.md": {
+    "mtime": 1792595433.8443873,
+    "ast_hash": "177061728100b483b9dd705581aa5c55",
+    "semantic_hash": ""
+  },
+  "docs/soup/SOUP-012-argon2-cffi.md": {
+    "mtime": 1792595433.8444624,
+    "ast_hash": "3cf5adcd5871e2ef44ac6f9b25dec97f",
+    "semantic_hash": ""
+  },
+  "docs/soup/SOUP-013-redis-py.md": {
+    "mtime": 1792595433.8445394,
+    "ast_hash": "b3fd6d0ccff6f8dca5f0a5624cc94384",
+    "semantic_hash": ""
+  },
+  "docs/soup/SOUP-014-celery.md": {
+    "mtime": 1792595433.8446107,
+    "ast_hash": "7dfa7572f461ff155331dd8674d0b9d8",
+    "semantic_hash": ""
+  },
+  "docs/soup/SOUP-015-pydicom.md": {
+    "mtime": 1792595433.844687,
+    "ast_hash": "a43ee1c1b067e80680e5234d74caa8b5",
+    "semantic_hash": ""
+  },
+  "docs/soup/SOUP-016-fhir-resources.md": {
+    "mtime": 1792595433.8447585,
+    "ast_hash": "2d5b6aac074ca5c5fd8c357fde678fc1",
+    "semantic_hash": ""
+  },
+  "docs/soup/SOUP-017-python-multipart.md": {
+    "mtime": 1792595433.844829,
+    "ast_hash": "03a03aaa9cf465e82b6f506ca7555058",
+    "semantic_hash": ""
+  },
+  "docs/soup/SOUP-018-fakeredis.md": {
+    "mtime": 1792595433.8449051,
+    "ast_hash": "23afd10a07884f6221150e4a54479c58",
+    "semantic_hash": ""
+  },
+  "docs/soup/SOUP-019-boto3.md": {
+    "mtime": 1792595433.8449833,
+    "ast_hash": "4b1f40c6c2232897813f73ff423e1406",
+    "semantic_hash": ""
+  },
+  "docs/soup/SOUP-020-postgresql.md": {
+    "mtime": 1792595433.8450592,
+    "ast_hash": "1f8487ea12000e14c913f43afeb643a0",
+    "semantic_hash": ""
+  },
+  "docs/soup/SOUP-021-redis-server.md": {
+    "mtime": 1792595433.8451462,
+    "ast_hash": "b450df7b199b342929fabc91cdd2cc4d",
+    "semantic_hash": ""
+  },
+  "docs/soup/SOUP-022-minio.md": {
+    "mtime": 1792595433.8452175,
+    "ast_hash": "ec3f11bff393af189307965aa1f3192b",
+    "semantic_hash": ""
+  },
+  "docs/soup/SOUP-023-minio-client.md": {
+    "mtime": 1792595433.84529,
+    "ast_hash": "fc9a4eabe1093db9be79dc3ee3b9bd84",
+    "semantic_hash": ""
+  },
+  "docs/soup/SOUP-024-nginx.md": {
+    "mtime": 1792595433.84537,
+    "ast_hash": "c29cb131d67f1abe08f2e1b436d77635",
+    "semantic_hash": ""
+  },
+  "docs/soup/SOUP-025-react.md": {
+    "mtime": 1792595433.8454487,
+    "ast_hash": "1265882c070b807d8b7dc9aca1276732",
+    "semantic_hash": ""
+  },
+  "docs/soup/SOUP-026-react-dom.md": {
+    "mtime": 1792595433.845538,
+    "ast_hash": "e3662caa036bceb132fae592eb249330",
+    "semantic_hash": ""
+  },
+  "docs/soup/SOUP-027-react-router.md": {
+    "mtime": 1792595433.8456137,
+    "ast_hash": "11c52f1e4d46adc5509bd075f8179408",
+    "semantic_hash": ""
+  },
+  "docs/soup/SOUP-028-tanstack-query.md": {
+    "mtime": 1792595433.8456953,
+    "ast_hash": "1d6952a93bb8c35e9800f8d6c6bddc45",
+    "semantic_hash": ""
+  },
+  "docs/soup/SOUP-029-mui-material.md": {
+    "mtime": 1792595433.8457818,
+    "ast_hash": "1bb0d2e9c88f7315372434c32b623f6d",
+    "semantic_hash": ""
+  },
+  "docs/soup/SOUP-030-mui-icons.md": {
+    "mtime": 1792595433.8458664,
+    "ast_hash": "0541303c2f56b84298430e311d87d6d9",
+    "semantic_hash": ""
+  },
+  "docs/soup/SOUP-031-emotion-react.md": {
+    "mtime": 1792595433.845998,
+    "ast_hash": "1aedf6aee4e6b5b3d92cf2c692e09be5",
+    "semantic_hash": ""
+  },
+  "docs/soup/SOUP-032-emotion-styled.md": {
+    "mtime": 1792595433.8460891,
+    "ast_hash": "41f3792f883a5686e2b5b6730cf621c3",
+    "semantic_hash": ""
+  },
+  "docs/soup/SOUP-033-openapi-fetch.md": {
+    "mtime": 1792595433.8461804,
+    "ast_hash": "f15ec366d04d716408e344c18eb05cce",
+    "semantic_hash": ""
+  },
+  "docs/soup/SOUP-034-font-inter.md": {
+    "mtime": 1792595433.846395,
+    "ast_hash": "f5e87102e8ff4275170b9ee8cc48e42c",
+    "semantic_hash": ""
+  },
+  "docs/soup/SOUP-035-font-manrope.md": {
+    "mtime": 1792595433.8467383,
+    "ast_hash": "63570b42e58765365c3aeac5e8d6502b",
     "semantic_hash": ""
   }
 }
