@@ -1,16 +1,22 @@
 ---
-id: "RR-005"
+id: RR-005
 type: regulatory-requirement
-title: "Storage limitation for retained clinical datasets"
-status: in_review
+title: Storage limitation for retained clinical datasets
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-09-17"
+updated: "2026-10-21"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: a0ee4f72c0c666ed52731d984e209bae8f0bd33c469942fe15cd6c3e09302a77
+approval_note: self-approved
 links:
-  - target: "UN-005"
+  - target: UN-005
     relation: derives_from
-tags: ["gdpr", "privacy"]
+tags:
+  - gdpr
+  - privacy
 ---
 
 # RR-005 — Storage limitation for retained clinical datasets

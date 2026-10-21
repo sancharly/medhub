@@ -1,16 +1,23 @@
 ---
-id: "SOUP-010"
+id: SOUP-010
 type: soup
-title: "psycopg2-binary"
-status: in_review
+title: psycopg2-binary
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-10-21"
 updated: "2026-10-21"
-manufacturer: "Daniele Varrazzo"
-soup_version: "2.9.12"
+manufacturer: Daniele Varrazzo
+soup_version: 2.9.12
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: ec621ed124a34bd7c097b9c99c9bd527ed9904f501790efce51772acaec8876b
+approval_note: self-approved
 links: []
-tags: ["soup", "layer:backend", "class:B"]
+tags:
+  - soup
+  - layer:backend
+  - class:B
 ---
 
 # SOUP-010 — psycopg2-binary 2.9.12

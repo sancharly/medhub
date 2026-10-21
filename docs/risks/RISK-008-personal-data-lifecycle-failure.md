@@ -1,24 +1,30 @@
 ---
-id: "RISK-008"
+id: RISK-008
 type: risk
-title: "Personal data retained, copied or erased contrary to its lawful basis"
-status: in_review
+title: Personal data retained, copied or erased contrary to its lawful basis
+status: approved
 version: "1.1"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-10-21"
 hazard: "PHI or PII living outside the controlled lifecycle: retained past its basis, copied into logs, or erased while still clinically or legally needed."
-cause: "Worker logs write email addresses as structured fields, a retention sweep fails silently, or an erasure drops clinical data instead of anonymizing it → personal data exists in an uncontrolled copy, or required data is gone → the obligation in SR-024 and the GDPR requirement cannot be met."
-harm: "Privacy harm to the patient and a regulatory breach; in the erase-too-much direction, loss of clinical history."
+cause: Worker logs write email addresses as structured fields, a retention sweep fails silently, or an erasure drops clinical data instead of anonymizing it → personal data exists in an uncontrolled copy, or required data is gone → the obligation in SR-024 and the GDPR requirement cannot be met.
+harm: Privacy harm to the patient and a regulatory breach; in the erase-too-much direction, loss of clinical history.
 severity_initial: 2
 probability_initial: 3
 severity_residual: 2
 probability_residual: 2
 acceptability: acceptable
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: 7846d5df679855e214f9ab11c073b018a274038d6f918f46762986707c5af895
+approval_note: self-approved
 links:
-  - target: "SOUP-014"
+  - target: SOUP-014
     relation: relates_to
-tags: ["hazard:privacy", "class:B"]
+tags:
+  - hazard:privacy
+  - class:B
 ---
 
 # RISK-008 — Personal data retained, copied or erased contrary to its lawful basis

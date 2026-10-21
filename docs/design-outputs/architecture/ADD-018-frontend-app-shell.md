@@ -1,44 +1,51 @@
 ---
-id: "ADD-018"
+id: ADD-018
 type: architecture-doc
-title: "Frontend App Shell (SI-FE-SHELL)"
-status: in_review
+title: Frontend App Shell (SI-FE-SHELL)
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-10-21"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: 2515329500ed87035090a5647f65b7f496a19eabffe99336b5acb8cba6972499
+approval_note: self-approved
 links:
-  - target: "SR-001"
+  - target: SR-001
     relation: implements
-  - target: "SR-019"
+  - target: SR-019
     relation: implements
-  - target: "SR-020"
+  - target: SR-020
     relation: implements
-  - target: "SR-027"
+  - target: SR-027
     relation: implements
-  - target: "RISK-002"
+  - target: RISK-002
     relation: relates_to
-  - target: "SOUP-024"
+  - target: SOUP-024
     relation: relates_to
-  - target: "SOUP-025"
+  - target: SOUP-025
     relation: relates_to
-  - target: "SOUP-026"
+  - target: SOUP-026
     relation: relates_to
-  - target: "SOUP-027"
+  - target: SOUP-027
     relation: relates_to
-  - target: "SOUP-029"
+  - target: SOUP-029
     relation: relates_to
-  - target: "SOUP-030"
+  - target: SOUP-030
     relation: relates_to
-  - target: "SOUP-031"
+  - target: SOUP-031
     relation: relates_to
-  - target: "SOUP-032"
+  - target: SOUP-032
     relation: relates_to
-  - target: "SOUP-034"
+  - target: SOUP-034
     relation: relates_to
-  - target: "SOUP-035"
+  - target: SOUP-035
     relation: relates_to
-tags: ["software-item:SI-FE-SHELL", "class:B", "layer:frontend"]
+tags:
+  - software-item:SI-FE-SHELL
+  - class:B
+  - layer:frontend
 ---
 
 # ADD-018 — Frontend App Shell (SI-FE-SHELL)

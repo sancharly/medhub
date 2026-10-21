@@ -1,15 +1,21 @@
 ---
-id: "PLAN-005"
+id: PLAN-005
 type: lifecycle-plan
-title: "Risk management plan (ISO 14971 x IEC 62304 §7)"
-status: in_review
+title: Risk management plan (ISO 14971 x IEC 62304 §7)
+status: approved
 version: "2.1"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-10-21"
 updated: "2026-10-21"
 plan_kind: risk-management
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: b6af1d8cb912f30387ad88d4ac321fc28ee634080b26adf456fbd2a02b72c5cf
+approval_note: self-approved
 links: []
-tags: ["regulatory", "class:B"]
+tags:
+  - regulatory
+  - class:B
 ---
 
 # PLAN-005 — Risk management plan

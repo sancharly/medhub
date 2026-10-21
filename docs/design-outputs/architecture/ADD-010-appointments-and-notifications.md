@@ -1,28 +1,35 @@
 ---
-id: "ADD-010"
+id: ADD-010
 type: architecture-doc
-title: "Appointments & Notifications (SI-APPT)"
-status: in_review
+title: Appointments & Notifications (SI-APPT)
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-10-21"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: 9f8da8dc7f3ff770a1963d0fb35eed4d6b3049af6da2ff0b76b7348dd7a1a365
+approval_note: self-approved
 links:
-  - target: "SR-010"
+  - target: SR-010
     relation: implements
-  - target: "SR-011"
+  - target: SR-011
     relation: implements
-  - target: "SR-035"
+  - target: SR-035
     relation: implements
-  - target: "SR-036"
+  - target: SR-036
     relation: implements
-  - target: "RISK-009"
+  - target: RISK-009
     relation: relates_to
-  - target: "RISK-004"
+  - target: RISK-004
     relation: relates_to
-  - target: "SOUP-014"
+  - target: SOUP-014
     relation: relates_to
-tags: ["software-item:SI-APPT", "class:B", "layer:backend"]
+tags:
+  - software-item:SI-APPT
+  - class:B
+  - layer:backend
 ---
 
 # ADD-010 — Appointments & Notifications (SI-APPT)

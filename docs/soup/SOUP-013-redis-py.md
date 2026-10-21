@@ -1,16 +1,23 @@
 ---
-id: "SOUP-013"
+id: SOUP-013
 type: soup
-title: "redis-py"
-status: in_review
+title: redis-py
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-10-21"
 updated: "2026-10-21"
-manufacturer: "Redis Ltd."
-soup_version: "8.0.0"
+manufacturer: Redis Ltd.
+soup_version: 8.0.0
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: aaf55c00f1ae849af1fd7e436ccefc32dcfe4515c5c71707d68c033beb5320ae
+approval_note: self-approved
 links: []
-tags: ["soup", "layer:backend", "class:B"]
+tags:
+  - soup
+  - layer:backend
+  - class:B
 ---
 
 # SOUP-013 — redis-py 8.0.0

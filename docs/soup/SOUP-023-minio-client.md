@@ -1,16 +1,23 @@
 ---
-id: "SOUP-023"
+id: SOUP-023
 type: soup
-title: "MinIO client (mc)"
-status: in_review
+title: MinIO client (mc)
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-10-21"
 updated: "2026-10-21"
-manufacturer: "MinIO, Inc."
-soup_version: "latest"
+manufacturer: MinIO, Inc.
+soup_version: latest
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: 98ec36c4c76266236df6265be9e95ff55a044fcd6d3255d1916dd43b87398517
+approval_note: self-approved
 links: []
-tags: ["soup", "layer:infrastructure", "class:B"]
+tags:
+  - soup
+  - layer:infrastructure
+  - class:B
 ---
 
 # SOUP-023 — MinIO client (mc) latest

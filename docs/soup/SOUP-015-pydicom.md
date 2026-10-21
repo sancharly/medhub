@@ -1,16 +1,23 @@
 ---
-id: "SOUP-015"
+id: SOUP-015
 type: soup
-title: "pydicom"
-status: in_review
+title: pydicom
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-10-21"
 updated: "2026-10-21"
-manufacturer: "pydicom contributors"
-soup_version: "3.0.2"
+manufacturer: pydicom contributors
+soup_version: 3.0.2
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: 1e2b34fe813ebd9777b1b4ef291bceea0a9a37b5ff983772256f295eff76d648
+approval_note: self-approved
 links: []
-tags: ["soup", "layer:backend", "class:B"]
+tags:
+  - soup
+  - layer:backend
+  - class:B
 ---
 
 # SOUP-015 — pydicom 3.0.2

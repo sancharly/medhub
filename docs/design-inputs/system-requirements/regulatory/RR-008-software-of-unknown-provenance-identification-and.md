@@ -1,14 +1,20 @@
 ---
-id: "RR-008"
+id: RR-008
 type: regulatory-requirement
-title: "Software of unknown provenance identification and monitoring"
-status: in_review
+title: Software of unknown provenance identification and monitoring
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-10-21"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: 4b2e32b184d7522910a06563b1350f7e12b73e5efbfc52572f5bc841b79900a0
+approval_note: self-approved
 links: []
-tags: ["iec62304", "regulatory"]
+tags:
+  - iec62304
+  - regulatory
 ---
 
 # RR-008 — Software of unknown provenance identification and monitoring

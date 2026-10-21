@@ -1,16 +1,23 @@
 ---
-id: "SOUP-019"
+id: SOUP-019
 type: soup
-title: "boto3"
-status: in_review
+title: boto3
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-10-21"
 updated: "2026-10-21"
-manufacturer: "Amazon Web Services"
-soup_version: "undeclared"
+manufacturer: Amazon Web Services
+soup_version: undeclared
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: 7c62c112f2a6e1a975bbf34404949688630589060b37f7a879d231ca7b8c78fe
+approval_note: self-approved
 links: []
-tags: ["soup", "layer:backend", "class:B"]
+tags:
+  - soup
+  - layer:backend
+  - class:B
 ---
 
 # SOUP-019 — boto3 undeclared

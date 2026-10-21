@@ -1,16 +1,22 @@
 ---
-id: "RR-009"
+id: RR-009
 type: regulatory-requirement
-title: "Usability engineering for use-related risk"
-status: in_review
+title: Usability engineering for use-related risk
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-09-17"
+updated: "2026-10-21"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: c208278760f2c550dc66779064c1b529f2c7a9c1ebb40480a12f84f2f7a910bf
+approval_note: self-approved
 links:
-  - target: "UN-003"
+  - target: UN-003
     relation: derives_from
-tags: ["iec62366", "regulatory"]
+tags:
+  - iec62366
+  - regulatory
 ---
 
 # RR-009 — Usability engineering for use-related risk

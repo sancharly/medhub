@@ -1,16 +1,23 @@
 ---
-id: "SOUP-026"
+id: SOUP-026
 type: soup
-title: "React DOM"
-status: in_review
+title: React DOM
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-10-21"
 updated: "2026-10-21"
-manufacturer: "Meta Platforms"
-soup_version: "18.3.1"
+manufacturer: Meta Platforms
+soup_version: 18.3.1
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: 6762caea1e2d601e6a508aaec95a881f056f095c386151201612ead479184f19
+approval_note: self-approved
 links: []
-tags: ["soup", "layer:frontend", "class:B"]
+tags:
+  - soup
+  - layer:frontend
+  - class:B
 ---
 
 # SOUP-026 — React DOM 18.3.1

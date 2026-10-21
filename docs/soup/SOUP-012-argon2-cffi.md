@@ -1,16 +1,23 @@
 ---
-id: "SOUP-012"
+id: SOUP-012
 type: soup
-title: "argon2-cffi"
-status: in_review
+title: argon2-cffi
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-10-21"
 updated: "2026-10-21"
-manufacturer: "Hynek Schlawack"
-soup_version: "25.1.0"
+manufacturer: Hynek Schlawack
+soup_version: 25.1.0
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: 2c2d57a764d6d94c9436090ac0b68f30cd0e46cd0f09c69d7e1427772997c73e
+approval_note: self-approved
 links: []
-tags: ["soup", "layer:backend", "class:B"]
+tags:
+  - soup
+  - layer:backend
+  - class:B
 ---
 
 # SOUP-012 — argon2-cffi 25.1.0

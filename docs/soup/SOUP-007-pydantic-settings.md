@@ -1,16 +1,23 @@
 ---
-id: "SOUP-007"
+id: SOUP-007
 type: soup
-title: "pydantic-settings"
-status: in_review
+title: pydantic-settings
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-10-21"
 updated: "2026-10-21"
-manufacturer: "Pydantic Services"
-soup_version: "2.14.2"
+manufacturer: Pydantic Services
+soup_version: 2.14.2
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: f4c2795acccad2f2f3ca31b9647d08e316d6e04dc5f13c667e64b0a64b5747fe
+approval_note: self-approved
 links: []
-tags: ["soup", "layer:backend", "class:B"]
+tags:
+  - soup
+  - layer:backend
+  - class:B
 ---
 
 # SOUP-007 — pydantic-settings 2.14.2

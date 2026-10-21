@@ -1,16 +1,22 @@
 ---
-id: "RR-004"
+id: RR-004
 type: regulatory-requirement
 title: "Accountability: auditability of access to health data"
-status: in_review
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-09-17"
+updated: "2026-10-21"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: b8385780c1baeee42600edb7f0a23f6c3d8a6a47dd78e825a5ffaed6f6f399a2
+approval_note: self-approved
 links:
-  - target: "UN-005"
+  - target: UN-005
     relation: derives_from
-tags: ["gdpr", "security"]
+tags:
+  - gdpr
+  - security
 ---
 
 # RR-004 — Accountability: auditability of access to health data

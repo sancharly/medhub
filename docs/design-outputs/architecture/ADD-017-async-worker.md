@@ -1,32 +1,39 @@
 ---
-id: "ADD-017"
+id: ADD-017
 type: architecture-doc
-title: "Async Worker (SI-WORKER)"
-status: in_review
+title: Async Worker (SI-WORKER)
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-10-21"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: 2e748a74acfb339ce77e07ff023cbd72c4b6dd21fa335dbf18b494e8a9d474ad
+approval_note: self-approved
 links:
-  - target: "SR-024"
+  - target: SR-024
     relation: implements
-  - target: "SR-033"
+  - target: SR-033
     relation: implements
-  - target: "SR-034"
+  - target: SR-034
     relation: implements
-  - target: "SR-035"
+  - target: SR-035
     relation: implements
-  - target: "RISK-008"
+  - target: RISK-008
     relation: relates_to
-  - target: "RISK-009"
+  - target: RISK-009
     relation: relates_to
-  - target: "SOUP-013"
+  - target: SOUP-013
     relation: relates_to
-  - target: "SOUP-014"
+  - target: SOUP-014
     relation: relates_to
-  - target: "SOUP-021"
+  - target: SOUP-021
     relation: relates_to
-tags: ["software-item:SI-WORKER", "class:B", "layer:backend"]
+tags:
+  - software-item:SI-WORKER
+  - class:B
+  - layer:backend
 ---
 
 # ADD-017 — Async Worker (SI-WORKER)

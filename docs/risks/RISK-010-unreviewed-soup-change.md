@@ -1,92 +1,98 @@
 ---
-id: "RISK-010"
+id: RISK-010
 type: risk
-title: "Unreviewed SOUP change weakens a verified risk control"
-status: in_review
+title: Unreviewed SOUP change weakens a verified risk control
+status: approved
 version: "1.1"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-10-21"
-hazard: "A third-party component changing behaviour in a way that disables or weakens a control that a risk record depends on."
-cause: "A floating image tag (`nginx:alpine`, `minio/minio:latest`) or an unreviewed library upgrade pulls a new version → TLS/HSTS headers, server-side encryption, password hashing or query parameterization behave differently → a control that a RISK record claims is verified no longer holds, with no test failing."
+hazard: A third-party component changing behaviour in a way that disables or weakens a control that a risk record depends on.
+cause: A floating image tag (`nginx:alpine`, `minio/minio:latest`) or an unreviewed library upgrade pulls a new version → TLS/HSTS headers, server-side encryption, password hashing or query parameterization behave differently → a control that a RISK record claims is verified no longer holds, with no test failing.
 harm: "Indirect: re-enables the harms of RISK-001, RISK-005 or RISK-008."
 severity_initial: 3
 probability_initial: 2
 severity_residual: 3
 probability_residual: 1
 acceptability: acceptable
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: 7a753189ff00f569b395ab3bcffde793272f70b3a032d5bf4b6ed91d73912dad
+approval_note: self-approved
 links:
-  - target: "SOUP-001"
+  - target: SOUP-001
     relation: relates_to
-  - target: "SOUP-002"
+  - target: SOUP-002
     relation: relates_to
-  - target: "SOUP-003"
+  - target: SOUP-003
     relation: relates_to
-  - target: "SOUP-004"
+  - target: SOUP-004
     relation: relates_to
-  - target: "SOUP-005"
+  - target: SOUP-005
     relation: relates_to
-  - target: "SOUP-006"
+  - target: SOUP-006
     relation: relates_to
-  - target: "SOUP-007"
+  - target: SOUP-007
     relation: relates_to
-  - target: "SOUP-008"
+  - target: SOUP-008
     relation: relates_to
-  - target: "SOUP-009"
+  - target: SOUP-009
     relation: relates_to
-  - target: "SOUP-010"
+  - target: SOUP-010
     relation: relates_to
-  - target: "SOUP-011"
+  - target: SOUP-011
     relation: relates_to
-  - target: "SOUP-012"
+  - target: SOUP-012
     relation: relates_to
-  - target: "SOUP-013"
+  - target: SOUP-013
     relation: relates_to
-  - target: "SOUP-014"
+  - target: SOUP-014
     relation: relates_to
-  - target: "SOUP-015"
+  - target: SOUP-015
     relation: relates_to
-  - target: "SOUP-016"
+  - target: SOUP-016
     relation: relates_to
-  - target: "SOUP-017"
+  - target: SOUP-017
     relation: relates_to
-  - target: "SOUP-018"
+  - target: SOUP-018
     relation: relates_to
-  - target: "SOUP-019"
+  - target: SOUP-019
     relation: relates_to
-  - target: "SOUP-020"
+  - target: SOUP-020
     relation: relates_to
-  - target: "SOUP-021"
+  - target: SOUP-021
     relation: relates_to
-  - target: "SOUP-022"
+  - target: SOUP-022
     relation: relates_to
-  - target: "SOUP-023"
+  - target: SOUP-023
     relation: relates_to
-  - target: "SOUP-024"
+  - target: SOUP-024
     relation: relates_to
-  - target: "SOUP-025"
+  - target: SOUP-025
     relation: relates_to
-  - target: "SOUP-026"
+  - target: SOUP-026
     relation: relates_to
-  - target: "SOUP-027"
+  - target: SOUP-027
     relation: relates_to
-  - target: "SOUP-028"
+  - target: SOUP-028
     relation: relates_to
-  - target: "SOUP-029"
+  - target: SOUP-029
     relation: relates_to
-  - target: "SOUP-030"
+  - target: SOUP-030
     relation: relates_to
-  - target: "SOUP-031"
+  - target: SOUP-031
     relation: relates_to
-  - target: "SOUP-032"
+  - target: SOUP-032
     relation: relates_to
-  - target: "SOUP-033"
+  - target: SOUP-033
     relation: relates_to
-  - target: "SOUP-034"
+  - target: SOUP-034
     relation: relates_to
-  - target: "SOUP-035"
+  - target: SOUP-035
     relation: relates_to
-tags: ["hazard:soup", "class:B"]
+tags:
+  - hazard:soup
+  - class:B
 ---
 
 # RISK-010 — Unreviewed SOUP change weakens a verified risk control

@@ -1,28 +1,34 @@
 ---
-id: "TS-002"
+id: TS-002
 type: test-specification
-title: "Authorization, consent and visibility verification"
-status: in_review
+title: Authorization, consent and visibility verification
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-10-21"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: ca6ff81fcff47d088be8c6fd91fd973a3a3b8e04eb6080c0b7cd2ce7cb150335
+approval_note: self-approved
 links:
-  - target: "SR-005"
+  - target: SR-005
     relation: verifies
-  - target: "SR-006"
+  - target: SR-006
     relation: verifies
-  - target: "SR-007"
+  - target: SR-007
     relation: verifies
-  - target: "SR-008"
+  - target: SR-008
     relation: verifies
-  - target: "SR-009"
+  - target: SR-009
     relation: verifies
-  - target: "SR-011"
+  - target: SR-011
     relation: verifies
-  - target: "SR-036"
+  - target: SR-036
     relation: verifies
-tags: ["level:unit", "class:B"]
+tags:
+  - level:unit
+  - class:B
 ---
 
 # TS-002 — Authorization, consent and visibility verification

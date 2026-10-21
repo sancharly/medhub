@@ -1,16 +1,22 @@
 ---
-id: "TS-004"
+id: TS-004
 type: test-specification
-title: "Personal data erasure and retention verification"
-status: in_review
+title: Personal data erasure and retention verification
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-10-21"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: 7793e8ee7f3dcf5e545ff8db0b5f86c2d04756e1a6e39f7a4c48a3594f255ee3
+approval_note: self-approved
 links:
-  - target: "SR-024"
+  - target: SR-024
     relation: verifies
-tags: ["level:unit", "class:B"]
+tags:
+  - level:unit
+  - class:B
 ---
 
 # TS-004 — Personal data erasure and retention verification

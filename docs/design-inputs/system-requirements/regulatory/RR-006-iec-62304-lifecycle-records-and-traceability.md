@@ -1,14 +1,20 @@
 ---
-id: "RR-006"
+id: RR-006
 type: regulatory-requirement
-title: "IEC 62304 lifecycle records and traceability"
-status: in_review
+title: IEC 62304 lifecycle records and traceability
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-10-21"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: 30ddda066593b3d7054381ff48e10c0a681716067ed0a4326af7638ba6b88493
+approval_note: self-approved
 links: []
-tags: ["iec62304", "regulatory"]
+tags:
+  - iec62304
+  - regulatory
 ---
 
 # RR-006 — IEC 62304 lifecycle records and traceability

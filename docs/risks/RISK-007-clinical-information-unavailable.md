@@ -1,32 +1,38 @@
 ---
-id: "RISK-007"
+id: RISK-007
 type: risk
-title: "Clinical information unavailable when needed"
-status: in_review
+title: Clinical information unavailable when needed
+status: approved
 version: "1.1"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-10-21"
-hazard: "The application, its database, its object storage or its workers unavailable, or attachments unreadable."
-cause: "Single-host outage, database or MinIO failure, exhausted connection pool from a session leak, a missing storage SDK (PRB-002), or an encryption key rotation that makes old rows unreadable → the clinician cannot open the record → they proceed without it or wait."
-harm: "Delayed care; decisions made without available history. No direct physical harm from the software itself."
+hazard: The application, its database, its object storage or its workers unavailable, or attachments unreadable.
+cause: Single-host outage, database or MinIO failure, exhausted connection pool from a session leak, a missing storage SDK (PRB-002), or an encryption key rotation that makes old rows unreadable → the clinician cannot open the record → they proceed without it or wait.
+harm: Delayed care; decisions made without available history. No direct physical harm from the software itself.
 severity_initial: 3
 probability_initial: 2
 severity_residual: 3
 probability_residual: 2
 acceptability: alarp
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: a04f251d018f44c499956c9da605935fc87df23748f4baed0bb1b46698ac90db
+approval_note: self-approved
 links:
-  - target: "SOUP-020"
+  - target: SOUP-020
     relation: relates_to
-  - target: "SOUP-022"
+  - target: SOUP-022
     relation: relates_to
-  - target: "SOUP-019"
+  - target: SOUP-019
     relation: relates_to
-  - target: "SOUP-014"
+  - target: SOUP-014
     relation: relates_to
-  - target: "SOUP-021"
+  - target: SOUP-021
     relation: relates_to
-tags: ["hazard:availability", "class:B"]
+tags:
+  - hazard:availability
+  - class:B
 ---
 
 # RISK-007 — Clinical information unavailable when needed

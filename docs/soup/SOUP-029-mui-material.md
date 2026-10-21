@@ -1,16 +1,23 @@
 ---
-id: "SOUP-029"
+id: SOUP-029
 type: soup
-title: "MUI Material (@mui/material)"
-status: in_review
+title: MUI Material (@mui/material)
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-10-21"
 updated: "2026-10-21"
-manufacturer: "MUI"
-soup_version: "9.1.1"
+manufacturer: MUI
+soup_version: 9.1.1
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: fb1fb08e80557f7f9b9f5461d610726b6089e3330a2f984db31142fb2e16998e
+approval_note: self-approved
 links: []
-tags: ["soup", "layer:frontend", "class:B"]
+tags:
+  - soup
+  - layer:frontend
+  - class:B
 ---
 
 # SOUP-029 — MUI Material (@mui/material) 9.1.1

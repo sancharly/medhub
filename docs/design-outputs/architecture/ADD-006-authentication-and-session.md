@@ -1,34 +1,41 @@
 ---
-id: "ADD-006"
+id: ADD-006
 type: architecture-doc
-title: "Authentication & Session (SI-AUTH)"
-status: in_review
+title: Authentication & Session (SI-AUTH)
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-10-21"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: f71027d7f85e02833e3f43fd71b256aa9b64e4b56bc8305687d8fd856a6aedf6
+approval_note: self-approved
 links:
-  - target: "SR-002"
+  - target: SR-002
     relation: implements
-  - target: "SR-025"
+  - target: SR-025
     relation: implements
-  - target: "SR-029"
+  - target: SR-029
     relation: implements
-  - target: "SR-030"
+  - target: SR-030
     relation: implements
-  - target: "SR-034"
+  - target: SR-034
     relation: implements
-  - target: "RISK-005"
+  - target: RISK-005
     relation: relates_to
-  - target: "SOUP-011"
+  - target: SOUP-011
     relation: relates_to
-  - target: "SOUP-012"
+  - target: SOUP-012
     relation: relates_to
-  - target: "SOUP-013"
+  - target: SOUP-013
     relation: relates_to
-  - target: "SOUP-021"
+  - target: SOUP-021
     relation: relates_to
-tags: ["software-item:SI-AUTH", "class:B", "layer:backend"]
+tags:
+  - software-item:SI-AUTH
+  - class:B
+  - layer:backend
 ---
 
 # ADD-006 — Authentication & Session (SI-AUTH)

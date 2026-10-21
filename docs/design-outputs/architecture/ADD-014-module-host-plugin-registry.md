@@ -1,20 +1,27 @@
 ---
-id: "ADD-014"
+id: ADD-014
 type: architecture-doc
-title: "Module Host / Plugin Registry (SI-MODHOST)"
-status: in_review
+title: Module Host / Plugin Registry (SI-MODHOST)
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-10-21"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: 8a18ec8efc1eea7d17f72fe74187ce6e1e88e25935d30eb7662f750e1627b5e9
+approval_note: self-approved
 links:
-  - target: "SR-016"
+  - target: SR-016
     relation: implements
-  - target: "RISK-004"
+  - target: RISK-004
     relation: relates_to
-  - target: "SOUP-002"
+  - target: SOUP-002
     relation: relates_to
-tags: ["software-item:SI-MODHOST", "class:B", "layer:backend"]
+tags:
+  - software-item:SI-MODHOST
+  - class:B
+  - layer:backend
 ---
 
 # ADD-014 — Module Host / Plugin Registry (SI-MODHOST)

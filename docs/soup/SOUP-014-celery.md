@@ -1,16 +1,23 @@
 ---
-id: "SOUP-014"
+id: SOUP-014
 type: soup
-title: "Celery"
-status: in_review
+title: Celery
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-10-21"
 updated: "2026-10-21"
-manufacturer: "Celery project"
-soup_version: "5.6.3"
+manufacturer: Celery project
+soup_version: 5.6.3
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: fe6c58f385f6c69a3575ff4288c8c489662693f3f3d221a5a6a77f12a9fda47e
+approval_note: self-approved
 links: []
-tags: ["soup", "layer:backend", "class:B"]
+tags:
+  - soup
+  - layer:backend
+  - class:B
 ---
 
 # SOUP-014 — Celery 5.6.3

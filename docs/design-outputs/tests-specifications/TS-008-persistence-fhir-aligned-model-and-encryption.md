@@ -1,20 +1,26 @@
 ---
-id: "TS-008"
+id: TS-008
 type: test-specification
-title: "Persistence, FHIR-aligned model and encryption verification"
-status: in_review
+title: Persistence, FHIR-aligned model and encryption verification
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-10-21"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: 426fec957f28b2953c0d69485369d4db27657097ab53573a75f7014ca53e5b90
+approval_note: self-approved
 links:
-  - target: "SR-021"
+  - target: SR-021
     relation: verifies
-  - target: "SR-022"
+  - target: SR-022
     relation: verifies
-  - target: "SR-031"
+  - target: SR-031
     relation: verifies
-tags: ["level:unit", "class:B"]
+tags:
+  - level:unit
+  - class:B
 ---
 
 # TS-008 — Persistence, FHIR-aligned model and encryption verification

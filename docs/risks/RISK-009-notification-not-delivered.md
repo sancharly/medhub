@@ -1,26 +1,32 @@
 ---
-id: "RISK-009"
+id: RISK-009
 type: risk
-title: "Appointment or activation notification not delivered"
-status: in_review
+title: Appointment or activation notification not delivered
+status: approved
 version: "1.1"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-10-21"
-hazard: "A patient never learns about an appointment, or cannot activate their account, because a notification was not delivered."
-cause: "A dead broker, a swallowed enqueue exception, an email provider rejection, or an expired activation token with no resend → no notification reaches the patient → they miss the appointment or cannot access their data."
-harm: "Missed or delayed care; frustration and extra administrative work. No direct physical harm."
+hazard: A patient never learns about an appointment, or cannot activate their account, because a notification was not delivered.
+cause: A dead broker, a swallowed enqueue exception, an email provider rejection, or an expired activation token with no resend → no notification reaches the patient → they miss the appointment or cannot access their data.
+harm: Missed or delayed care; frustration and extra administrative work. No direct physical harm.
 severity_initial: 2
 probability_initial: 3
 severity_residual: 2
 probability_residual: 2
 acceptability: acceptable
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: 6d31e69ce1996676d0f77253544d2fa14c9520a748ead273d3707a7a8da7025f
+approval_note: self-approved
 links:
-  - target: "SOUP-014"
+  - target: SOUP-014
     relation: relates_to
-  - target: "SOUP-021"
+  - target: SOUP-021
     relation: relates_to
-tags: ["hazard:denial-of-care", "class:B"]
+tags:
+  - hazard:denial-of-care
+  - class:B
 ---
 
 # RISK-009 — Appointment or activation notification not delivered

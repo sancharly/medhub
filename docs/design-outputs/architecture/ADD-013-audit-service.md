@@ -1,20 +1,27 @@
 ---
-id: "ADD-013"
+id: ADD-013
 type: architecture-doc
-title: "Audit Service (SI-AUDIT)"
-status: in_review
+title: Audit Service (SI-AUDIT)
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-10-21"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: 959c30f3db95c5968f52f34575aa619df8d8d5feb588a803047f0d245b44a4e7
+approval_note: self-approved
 links:
-  - target: "SR-023"
+  - target: SR-023
     relation: implements
-  - target: "RISK-006"
+  - target: RISK-006
     relation: relates_to
-  - target: "SOUP-008"
+  - target: SOUP-008
     relation: relates_to
-tags: ["software-item:SI-AUDIT", "class:B", "layer:backend"]
+tags:
+  - software-item:SI-AUDIT
+  - class:B
+  - layer:backend
 ---
 
 # ADD-013 — Audit Service (SI-AUDIT)

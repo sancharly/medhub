@@ -1,16 +1,23 @@
 ---
-id: "SOUP-020"
+id: SOUP-020
 type: soup
-title: "PostgreSQL server"
-status: in_review
+title: PostgreSQL server
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-10-21"
 updated: "2026-10-21"
-manufacturer: "PostgreSQL Global Development Group"
+manufacturer: PostgreSQL Global Development Group
 soup_version: "16"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: 0fb5bbfd3286bb65b48ee8e84b32e9662da866a55a8f453a6d3c80e26d0df930
+approval_note: self-approved
 links: []
-tags: ["soup", "layer:infrastructure", "class:B"]
+tags:
+  - soup
+  - layer:infrastructure
+  - class:B
 ---
 
 # SOUP-020 — PostgreSQL server 16

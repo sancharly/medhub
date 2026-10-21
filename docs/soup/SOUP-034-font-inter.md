@@ -1,16 +1,23 @@
 ---
-id: "SOUP-034"
+id: SOUP-034
 type: soup
-title: "Fontsource Inter (@fontsource-variable/inter)"
-status: in_review
+title: Fontsource Inter (@fontsource-variable/inter)
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-10-21"
 updated: "2026-10-21"
-manufacturer: "Fontsource"
-soup_version: "5.2.8"
+manufacturer: Fontsource
+soup_version: 5.2.8
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: 0b6a7293e796f6f26b1e93439a0f1119157e8773100430d88738bbc10bdb3d5e
+approval_note: self-approved
 links: []
-tags: ["soup", "layer:frontend", "class:B"]
+tags:
+  - soup
+  - layer:frontend
+  - class:B
 ---
 
 # SOUP-034 — Fontsource Inter (@fontsource-variable/inter) 5.2.8

@@ -1,16 +1,23 @@
 ---
-id: "SOUP-024"
+id: SOUP-024
 type: soup
-title: "nginx"
-status: in_review
+title: nginx
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-10-21"
 updated: "2026-10-21"
-manufacturer: "F5, Inc. / nginx authors"
-soup_version: "alpine"
+manufacturer: F5, Inc. / nginx authors
+soup_version: alpine
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: c03895889d651f650b6329fd0c1a8c16bd476b37e938641b679d4aa266f2df7e
+approval_note: self-approved
 links: []
-tags: ["soup", "layer:infrastructure", "class:B"]
+tags:
+  - soup
+  - layer:infrastructure
+  - class:B
 ---
 
 # SOUP-024 — nginx alpine

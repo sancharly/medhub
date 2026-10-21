@@ -1,22 +1,29 @@
 ---
-id: "ADD-023"
+id: ADD-023
 type: architecture-doc
-title: "Frontend API Client (SI-FE-APICLIENT)"
-status: in_review
+title: Frontend API Client (SI-FE-APICLIENT)
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-10-21"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: a001598efce923cd320fde0d1ee7d3ca5962493c1050016a108979637a98357a
+approval_note: self-approved
 links:
-  - target: "SR-031"
+  - target: SR-031
     relation: implements
-  - target: "RISK-005"
+  - target: RISK-005
     relation: relates_to
-  - target: "SOUP-028"
+  - target: SOUP-028
     relation: relates_to
-  - target: "SOUP-033"
+  - target: SOUP-033
     relation: relates_to
-tags: ["software-item:SI-FE-APICLIENT", "class:B", "layer:frontend"]
+tags:
+  - software-item:SI-FE-APICLIENT
+  - class:B
+  - layer:frontend
 ---
 
 # ADD-023 — Frontend API Client (SI-FE-APICLIENT)

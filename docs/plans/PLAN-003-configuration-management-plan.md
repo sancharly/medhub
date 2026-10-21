@@ -1,15 +1,21 @@
 ---
-id: "PLAN-003"
+id: PLAN-003
 type: lifecycle-plan
-title: "Software configuration management plan"
-status: in_review
+title: Software configuration management plan
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-10-21"
 updated: "2026-10-21"
 plan_kind: configuration-management
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: b3b7032ad26acec9dc30d31515db7823cdc6430cab90cf52c625369dc541de42
+approval_note: self-approved
 links: []
-tags: ["regulatory", "class:B"]
+tags:
+  - regulatory
+  - class:B
 ---
 
 # PLAN-003 — Software configuration management plan

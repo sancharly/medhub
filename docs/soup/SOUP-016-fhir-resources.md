@@ -1,16 +1,23 @@
 ---
-id: "SOUP-016"
+id: SOUP-016
 type: soup
-title: "fhir.resources"
-status: in_review
+title: fhir.resources
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-10-21"
 updated: "2026-10-21"
-manufacturer: "Md Nazrul Islam (nazrulworld)"
-soup_version: "8.2.0"
+manufacturer: Md Nazrul Islam (nazrulworld)
+soup_version: 8.2.0
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: ce57ec04ba1ca9783ad151bb6bd46b1fbe813a0055059cbead453196d273c520
+approval_note: self-approved
 links: []
-tags: ["soup", "layer:backend", "class:B"]
+tags:
+  - soup
+  - layer:backend
+  - class:B
 ---
 
 # SOUP-016 — fhir.resources 8.2.0

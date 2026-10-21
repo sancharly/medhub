@@ -1,30 +1,37 @@
 ---
-id: "ADD-019"
+id: ADD-019
 type: architecture-doc
-title: "Frontend Auth/Session UI (SI-FE-AUTH)"
-status: in_review
+title: Frontend Auth/Session UI (SI-FE-AUTH)
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-10-21"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: 2237e15c3ac4029bc5e984b54c38ca720d191a80fbb2043b55872dd05da1d2ed
+approval_note: self-approved
 links:
-  - target: "SR-002"
+  - target: SR-002
     relation: implements
-  - target: "SR-025"
+  - target: SR-025
     relation: implements
-  - target: "SR-030"
+  - target: SR-030
     relation: implements
-  - target: "SR-033"
+  - target: SR-033
     relation: implements
-  - target: "RISK-005"
+  - target: RISK-005
     relation: relates_to
-  - target: "SOUP-025"
+  - target: SOUP-025
     relation: relates_to
-  - target: "SOUP-027"
+  - target: SOUP-027
     relation: relates_to
-  - target: "SOUP-028"
+  - target: SOUP-028
     relation: relates_to
-tags: ["software-item:SI-FE-AUTH", "class:B", "layer:frontend"]
+tags:
+  - software-item:SI-FE-AUTH
+  - class:B
+  - layer:frontend
 ---
 
 # ADD-019 — Frontend Auth/Session UI (SI-FE-AUTH)

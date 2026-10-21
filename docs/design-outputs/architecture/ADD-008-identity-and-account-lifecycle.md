@@ -1,32 +1,39 @@
 ---
-id: "ADD-008"
+id: ADD-008
 type: architecture-doc
-title: "Identity & Account Lifecycle (SI-IDENTITY)"
-status: in_review
+title: Identity & Account Lifecycle (SI-IDENTITY)
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-10-21"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: 308b20cc1e02026ef1966aefd5a03d706768854ba2f07a0d1986227fec5683a6
+approval_note: self-approved
 links:
-  - target: "SR-003"
+  - target: SR-003
     relation: implements
-  - target: "SR-004"
+  - target: SR-004
     relation: implements
-  - target: "SR-024"
+  - target: SR-024
     relation: implements
-  - target: "SR-032"
+  - target: SR-032
     relation: implements
-  - target: "SR-033"
+  - target: SR-033
     relation: implements
-  - target: "SR-034"
+  - target: SR-034
     relation: implements
-  - target: "RISK-002"
+  - target: RISK-002
     relation: relates_to
-  - target: "RISK-008"
+  - target: RISK-008
     relation: relates_to
-  - target: "SOUP-014"
+  - target: SOUP-014
     relation: relates_to
-tags: ["software-item:SI-IDENTITY", "class:B", "layer:backend"]
+tags:
+  - software-item:SI-IDENTITY
+  - class:B
+  - layer:backend
 ---
 
 # ADD-008 — Identity & Account Lifecycle (SI-IDENTITY)

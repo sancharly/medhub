@@ -1,24 +1,31 @@
 ---
-id: "ADD-015"
+id: ADD-015
 type: architecture-doc
-title: "DICOM Module (backend) (SI-MOD-DICOM-BE)"
-status: in_review
+title: DICOM Module (backend) (SI-MOD-DICOM-BE)
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-10-21"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: 932b347cbe0afa09864fc298c9b94e60f92a8d01d78a427227b7d6df34adaa14
+approval_note: self-approved
 links:
-  - target: "SR-016"
+  - target: SR-016
     relation: implements
-  - target: "SR-017"
+  - target: SR-017
     relation: implements
-  - target: "RISK-003"
+  - target: RISK-003
     relation: relates_to
-  - target: "RISK-007"
+  - target: RISK-007
     relation: relates_to
-  - target: "SOUP-015"
+  - target: SOUP-015
     relation: relates_to
-tags: ["software-item:SI-MOD-DICOM-BE", "class:B", "layer:backend"]
+tags:
+  - software-item:SI-MOD-DICOM-BE
+  - class:B
+  - layer:backend
 ---
 
 # ADD-015 — DICOM Module (backend) (SI-MOD-DICOM-BE)

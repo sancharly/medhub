@@ -1,36 +1,43 @@
 ---
-id: "ADD-007"
+id: ADD-007
 type: architecture-doc
-title: "Authorization & Consent (SI-AUTHZ)"
-status: in_review
+title: Authorization & Consent (SI-AUTHZ)
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-09-17"
+updated: "2026-10-21"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: a8368ae86c077bdd5d9e88b2dbdaa8c5ed8065d0816ebf26970c4af4f944e184
+approval_note: self-approved
 links:
-  - target: "SR-004"
+  - target: SR-004
     relation: implements
-  - target: "SR-005"
+  - target: SR-005
     relation: implements
-  - target: "SR-006"
+  - target: SR-006
     relation: implements
-  - target: "SR-007"
+  - target: SR-007
     relation: implements
-  - target: "SR-008"
+  - target: SR-008
     relation: implements
-  - target: "SR-009"
+  - target: SR-009
     relation: implements
-  - target: "SR-011"
+  - target: SR-011
     relation: implements
-  - target: "SR-015"
+  - target: SR-015
     relation: implements
-  - target: "SR-036"
+  - target: SR-036
     relation: implements
-  - target: "RISK-001"
+  - target: RISK-001
     relation: relates_to
-  - target: "RISK-004"
+  - target: RISK-004
     relation: relates_to
-tags: ["software-item:SI-AUTHZ", "class:B", "layer:backend"]
+tags:
+  - software-item:SI-AUTHZ
+  - class:B
+  - layer:backend
 ---
 
 # ADD-007 — Authorization & Consent (SI-AUTHZ)

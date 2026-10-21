@@ -1,24 +1,31 @@
 ---
-id: "ADD-021"
+id: ADD-021
 type: architecture-doc
-title: "Frontend Module Registry (SI-FE-MODREG)"
-status: in_review
+title: Frontend Module Registry (SI-FE-MODREG)
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-10-21"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: 9a5127755e294f583cadc043730a587b007dd4633d1fe1fb896a03cef0769b5e
+approval_note: self-approved
 links:
-  - target: "SR-015"
+  - target: SR-015
     relation: implements
-  - target: "SR-016"
+  - target: SR-016
     relation: implements
-  - target: "RISK-004"
+  - target: RISK-004
     relation: relates_to
-  - target: "SOUP-025"
+  - target: SOUP-025
     relation: relates_to
-  - target: "SOUP-027"
+  - target: SOUP-027
     relation: relates_to
-tags: ["software-item:SI-FE-MODREG", "class:B", "layer:frontend"]
+tags:
+  - software-item:SI-FE-MODREG
+  - class:B
+  - layer:frontend
 ---
 
 # ADD-021 — Frontend Module Registry (SI-FE-MODREG)

@@ -1,16 +1,23 @@
 ---
-id: "SOUP-006"
+id: SOUP-006
 type: soup
-title: "Pydantic"
-status: in_review
+title: Pydantic
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-10-21"
 updated: "2026-10-21"
-manufacturer: "Pydantic Services"
-soup_version: "2.13.4"
+manufacturer: Pydantic Services
+soup_version: 2.13.4
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: 8ba012ad7d49d9aebf1540a6fae20ab35782ed3a027a9c2dc670342994f0921b
+approval_note: self-approved
 links: []
-tags: ["soup", "layer:backend", "class:B"]
+tags:
+  - soup
+  - layer:backend
+  - class:B
 ---
 
 # SOUP-006 — Pydantic 2.13.4

@@ -1,26 +1,32 @@
 ---
-id: "RISK-001"
+id: RISK-001
 type: risk
-title: "Clinical data disclosed to a user without authorization or consent"
-status: in_review
+title: Clinical data disclosed to a user without authorization or consent
+status: approved
 version: "1.1"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-10-21"
-hazard: "Protected health information reaching a person who has neither a role-based right nor the patient's consent to see it."
-cause: "A defect or misconfiguration in the authorization or consent evaluation (a route missing the `AuthorizationService` dependency, a wrong consent union, an admin projection not applied) → the API returns clinical data or PII to the caller → the caller reads information about a patient who never granted access."
+hazard: Protected health information reaching a person who has neither a role-based right nor the patient's consent to see it.
+cause: A defect or misconfiguration in the authorization or consent evaluation (a route missing the `AuthorizationService` dependency, a wrong consent union, an admin projection not applied) → the API returns clinical data or PII to the caller → the caller reads information about a patient who never granted access.
 harm: "Privacy harm: loss of confidentiality of health data, loss of trust, potential social or employment consequences for the patient; a reportable GDPR breach. No direct physical injury."
 severity_initial: 2
 probability_initial: 4
 severity_residual: 2
 probability_residual: 2
 acceptability: acceptable
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: 0771e308f61e06f46e0be506395f419db4d3818fa8cb519577a95fedb9eb86fc
+approval_note: self-approved
 links:
-  - target: "SOUP-002"
+  - target: SOUP-002
     relation: relates_to
-  - target: "SOUP-003"
+  - target: SOUP-003
     relation: relates_to
-tags: ["hazard:privacy", "class:B"]
+tags:
+  - hazard:privacy
+  - class:B
 ---
 
 # RISK-001 — Clinical data disclosed to a user without authorization or consent

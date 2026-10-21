@@ -1,24 +1,31 @@
 ---
-id: "ADD-011"
+id: ADD-011
 type: architecture-doc
-title: "Clinical Records (SI-CLINICAL)"
-status: in_review
+title: Clinical Records (SI-CLINICAL)
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-10-21"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: 511518ee6f119ef6615f6efdb1e4e9e566635dbea32a5f55424ef77f44d4d48c
+approval_note: self-approved
 links:
-  - target: "SR-006"
+  - target: SR-006
     relation: implements
-  - target: "SR-007"
+  - target: SR-007
     relation: implements
-  - target: "SR-012"
+  - target: SR-012
     relation: implements
-  - target: "RISK-002"
+  - target: RISK-002
     relation: relates_to
-  - target: "SOUP-016"
+  - target: SOUP-016
     relation: relates_to
-tags: ["software-item:SI-CLINICAL", "class:B", "layer:backend"]
+tags:
+  - software-item:SI-CLINICAL
+  - class:B
+  - layer:backend
 ---
 
 # ADD-011 — Clinical Records (SI-CLINICAL)

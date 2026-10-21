@@ -1,26 +1,32 @@
 ---
-id: "RISK-006"
+id: RISK-006
 type: risk
-title: "Audit trail incomplete, so a wrong disclosure or entry goes undetected"
-status: in_review
+title: Audit trail incomplete, so a wrong disclosure or entry goes undetected
+status: approved
 version: "1.1"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-10-21"
-hazard: "Security-relevant or clinical-data events not recorded, or recorded without the information needed to reconstruct them."
-cause: "A code path bypasses `AuditService`, the client IP is not captured, the scrub drops needed context, or the log store is writable → an incident cannot be reconstructed → a wrong disclosure or falsified entry is never noticed or corrected."
+hazard: Security-relevant or clinical-data events not recorded, or recorded without the information needed to reconstruct them.
+cause: A code path bypasses `AuditService`, the client IP is not captured, the scrub drops needed context, or the log store is writable → an incident cannot be reconstructed → a wrong disclosure or falsified entry is never noticed or corrected.
 harm: "Indirect: the harms of RISK-001/002/005 persist uncorrected, and the legal obligation to notify cannot be met."
 severity_initial: 2
 probability_initial: 3
 severity_residual: 2
 probability_residual: 2
 acceptability: acceptable
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: ef4be0ebfb357daebfdb2a2710c42b762e8ba2b7a0b8b2ba643d0e82da549321
+approval_note: self-approved
 links:
-  - target: "SOUP-008"
+  - target: SOUP-008
     relation: relates_to
-  - target: "SOUP-020"
+  - target: SOUP-020
     relation: relates_to
-tags: ["hazard:detectability", "class:B"]
+tags:
+  - hazard:detectability
+  - class:B
 ---
 
 # RISK-006 — Audit trail incomplete, so a wrong disclosure or entry goes undetected

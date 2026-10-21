@@ -1,22 +1,28 @@
 ---
-id: "TS-001"
+id: TS-001
 type: test-specification
-title: "Authentication, password policy, lockout and session verification"
-status: in_review
+title: Authentication, password policy, lockout and session verification
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-10-21"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: 72ad039802329c30e54f26cd6b11fea5463990b3ff8038b4af22614116b1cbcd
+approval_note: self-approved
 links:
-  - target: "SR-002"
+  - target: SR-002
     relation: verifies
-  - target: "SR-025"
+  - target: SR-025
     relation: verifies
-  - target: "SR-029"
+  - target: SR-029
     relation: verifies
-  - target: "SR-030"
+  - target: SR-030
     relation: verifies
-tags: ["level:unit", "class:B"]
+tags:
+  - level:unit
+  - class:B
 ---
 
 # TS-001 — Authentication, password policy, lockout and session verification

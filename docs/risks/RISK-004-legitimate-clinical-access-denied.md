@@ -1,22 +1,28 @@
 ---
-id: "RISK-004"
+id: RISK-004
 type: risk
-title: "Legitimate clinical access wrongly denied or delayed"
-status: in_review
+title: Legitimate clinical access wrongly denied or delayed
+status: approved
 version: "1.1"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-10-21"
-hazard: "A clinician with a legitimate care relationship cannot reach the patient's clinical data when needed."
-cause: "An over-restrictive or mis-scoped consent evaluation (a declined appointment revoking a grant from another source, a per-source union computed wrongly, a module guard denying an enabled module) → the API denies the request → the clinician proceeds without the available history."
-harm: "Care based on incomplete information, or delayed care while access is sorted out; recoverable in most workflows."
+hazard: A clinician with a legitimate care relationship cannot reach the patient's clinical data when needed.
+cause: An over-restrictive or mis-scoped consent evaluation (a declined appointment revoking a grant from another source, a per-source union computed wrongly, a module guard denying an enabled module) → the API denies the request → the clinician proceeds without the available history.
+harm: Care based on incomplete information, or delayed care while access is sorted out; recoverable in most workflows.
 severity_initial: 3
 probability_initial: 3
 severity_residual: 3
 probability_residual: 2
 acceptability: alarp
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: 161eec8d4b01d48eb0572564e8aa490dd878c6fcc3f393eee5eb2416fdf768b6
+approval_note: self-approved
 links: []
-tags: ["hazard:denial-of-care", "class:B"]
+tags:
+  - hazard:denial-of-care
+  - class:B
 ---
 
 # RISK-004 — Legitimate clinical access wrongly denied or delayed

@@ -1,28 +1,35 @@
 ---
-id: "RISK-011"
+id: RISK-011
 type: risk
-title: "Encryption or key management failure exposes or orphans clinical data"
-status: in_review
+title: Encryption or key management failure exposes or orphans clinical data
+status: approved
 version: "1.1"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-10-21"
-hazard: "Encrypted clinical fields exposed in clear, or made permanently unreadable."
-cause: "The ciphertext envelope carries no key identifier or version → a key rotation cannot tell which key decrypts which row → old rows fail to decrypt (data lost) or rotation is avoided altogether (a compromised key stays in use). Separately, a misconfigured storage endpoint could store attachments without server-side encryption."
-harm: "Delayed care from lost history, or privacy harm from exposure."
+hazard: Encrypted clinical fields exposed in clear, or made permanently unreadable.
+cause: The ciphertext envelope carries no key identifier or version → a key rotation cannot tell which key decrypts which row → old rows fail to decrypt (data lost) or rotation is avoided altogether (a compromised key stays in use). Separately, a misconfigured storage endpoint could store attachments without server-side encryption.
+harm: Delayed care from lost history, or privacy harm from exposure.
 severity_initial: 3
 probability_initial: 2
 severity_residual: 3
 probability_residual: 2
 acceptability: alarp
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: ea34a481516cff3fe1324458f0951b663280c7ecdb131579d55336370a28c71b
+approval_note: self-approved
 links:
-  - target: "SOUP-011"
+  - target: SOUP-011
     relation: relates_to
-  - target: "SOUP-022"
+  - target: SOUP-022
     relation: relates_to
-  - target: "SOUP-019"
+  - target: SOUP-019
     relation: relates_to
-tags: ["hazard:privacy", "hazard:availability", "class:B"]
+tags:
+  - hazard:privacy
+  - hazard:availability
+  - class:B
 ---
 
 # RISK-011 — Encryption or key management failure exposes or orphans clinical data

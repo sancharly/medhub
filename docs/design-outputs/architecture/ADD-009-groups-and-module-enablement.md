@@ -1,20 +1,27 @@
 ---
-id: "ADD-009"
+id: ADD-009
 type: architecture-doc
-title: "Groups & Module Enablement (SI-GROUPS)"
-status: in_review
+title: Groups & Module Enablement (SI-GROUPS)
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-09-17"
+updated: "2026-10-21"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: 7ee140ae3189c94a0bff439293587ead0de43543cab42a32a3cc838294a6122a
+approval_note: self-approved
 links:
-  - target: "SR-014"
+  - target: SR-014
     relation: implements
-  - target: "SR-015"
+  - target: SR-015
     relation: implements
-  - target: "RISK-004"
+  - target: RISK-004
     relation: relates_to
-tags: ["software-item:SI-GROUPS", "class:B", "layer:backend"]
+tags:
+  - software-item:SI-GROUPS
+  - class:B
+  - layer:backend
 ---
 
 # ADD-009 — Groups & Module Enablement (SI-GROUPS)

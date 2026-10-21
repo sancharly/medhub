@@ -1,26 +1,33 @@
 ---
-id: "TASK-147"
+id: TASK-147
 type: task
-title: "ISO 14971 risk register bootstrap"
-status: in_review
+title: ISO 14971 risk register bootstrap
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-07-07"
 updated: "2026-10-21"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: 5aac0e0b1725c3d8bf46341d689d6df06a63d9c694edddfe79e9ea40216dc9c0
+approval_note: self-approved
 links:
-  - target: "RR-011"
+  - target: RR-011
     relation: relates_to
-  - target: "SR-028"
+  - target: SR-028
     relation: implements
-  - target: "NFR-005"
+  - target: NFR-005
     relation: implements
-  - target: "NFR-006"
+  - target: NFR-006
     relation: implements
-  - target: "NFR-004"
+  - target: NFR-004
     relation: relates_to
-  - target: "NFR-007"
+  - target: NFR-007
     relation: relates_to
-tags: ["phase:review-2026-07", "severity:high", "regulatory"]
+tags:
+  - phase:review-2026-07
+  - severity:high
+  - regulatory
 ---
 
 - **Phase:** Review 2026-07 — regulatory blockers

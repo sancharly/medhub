@@ -1,72 +1,78 @@
 ---
-id: "TR-001"
+id: TR-001
 type: test-report
-title: "Verification report for the agentic-os migration baseline"
-status: in_review
+title: Verification report for the agentic-os migration baseline
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-10-21"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: 32b8fbbf0ab499adda7af6cbb9a4fcfceb30f318ee7ed0b37fe7b975e626cf3b
+approval_note: self-approved
 links:
-  - target: "SR-001"
+  - target: SR-001
     relation: verifies
-  - target: "SR-002"
+  - target: SR-002
     relation: verifies
-  - target: "SR-005"
+  - target: SR-005
     relation: verifies
-  - target: "SR-006"
+  - target: SR-006
     relation: verifies
-  - target: "SR-007"
+  - target: SR-007
     relation: verifies
-  - target: "SR-008"
+  - target: SR-008
     relation: verifies
-  - target: "SR-009"
+  - target: SR-009
     relation: verifies
-  - target: "SR-011"
+  - target: SR-011
     relation: verifies
-  - target: "SR-012"
+  - target: SR-012
     relation: verifies
-  - target: "SR-013"
+  - target: SR-013
     relation: verifies
-  - target: "SR-014"
+  - target: SR-014
     relation: verifies
-  - target: "SR-015"
+  - target: SR-015
     relation: verifies
-  - target: "SR-016"
+  - target: SR-016
     relation: verifies
-  - target: "SR-020"
+  - target: SR-020
     relation: verifies
-  - target: "SR-022"
+  - target: SR-022
     relation: verifies
-  - target: "SR-024"
+  - target: SR-024
     relation: verifies
-  - target: "SR-025"
+  - target: SR-025
     relation: verifies
-  - target: "SR-027"
+  - target: SR-027
     relation: verifies
-  - target: "SR-029"
+  - target: SR-029
     relation: verifies
-  - target: "SR-030"
+  - target: SR-030
     relation: verifies
-  - target: "SR-032"
+  - target: SR-032
     relation: verifies
-  - target: "SR-033"
+  - target: SR-033
     relation: verifies
-  - target: "SR-034"
+  - target: SR-034
     relation: verifies
-  - target: "SR-035"
+  - target: SR-035
     relation: verifies
-  - target: "SR-036"
+  - target: SR-036
     relation: verifies
-  - target: "SR-037"
+  - target: SR-037
     relation: verifies
-  - target: "SR-038"
+  - target: SR-038
     relation: verifies
-  - target: "SR-039"
+  - target: SR-039
     relation: verifies
-  - target: "TP-001"
+  - target: TP-001
     relation: relates_to
-tags: ["class:B", "baseline"]
+tags:
+  - class:B
+  - baseline
 ---
 
 # TR-001 — Verification report (agentic-os migration baseline)

@@ -1,42 +1,49 @@
 ---
-id: "ADD-016"
+id: ADD-016
 type: architecture-doc
-title: "Persistence (SI-PERSIST)"
-status: in_review
+title: Persistence (SI-PERSIST)
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-10-21"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: 77b359a15d293cff2c6642fc16bcea2ef3727709a91a3437410b675ede3aa3af
+approval_note: self-approved
 links:
-  - target: "SR-003"
+  - target: SR-003
     relation: implements
-  - target: "SR-004"
+  - target: SR-004
     relation: implements
-  - target: "SR-021"
+  - target: SR-021
     relation: implements
-  - target: "SR-022"
+  - target: SR-022
     relation: implements
-  - target: "SR-031"
+  - target: SR-031
     relation: implements
-  - target: "RISK-002"
+  - target: RISK-002
     relation: relates_to
-  - target: "RISK-007"
+  - target: RISK-007
     relation: relates_to
-  - target: "RISK-011"
+  - target: RISK-011
     relation: relates_to
-  - target: "SOUP-006"
+  - target: SOUP-006
     relation: relates_to
-  - target: "SOUP-008"
+  - target: SOUP-008
     relation: relates_to
-  - target: "SOUP-009"
+  - target: SOUP-009
     relation: relates_to
-  - target: "SOUP-010"
+  - target: SOUP-010
     relation: relates_to
-  - target: "SOUP-011"
+  - target: SOUP-011
     relation: relates_to
-  - target: "SOUP-020"
+  - target: SOUP-020
     relation: relates_to
-tags: ["software-item:SI-PERSIST", "class:B", "layer:backend"]
+tags:
+  - software-item:SI-PERSIST
+  - class:B
+  - layer:backend
 ---
 
 # ADD-016 — Persistence (SI-PERSIST)

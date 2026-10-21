@@ -1,56 +1,63 @@
 ---
-id: "ADD-020"
+id: ADD-020
 type: architecture-doc
-title: "Frontend Core Views (SI-FE-CORE)"
-status: in_review
+title: Frontend Core Views (SI-FE-CORE)
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-10-21"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: fcdca7c7a01b9aa510d16a15c6748876c486bd0271b42eb42c634b14311cad02
+approval_note: self-approved
 links:
-  - target: "SR-003"
+  - target: SR-003
     relation: implements
-  - target: "SR-004"
+  - target: SR-004
     relation: implements
-  - target: "SR-005"
+  - target: SR-005
     relation: implements
-  - target: "SR-006"
+  - target: SR-006
     relation: implements
-  - target: "SR-007"
+  - target: SR-007
     relation: implements
-  - target: "SR-008"
+  - target: SR-008
     relation: implements
-  - target: "SR-009"
+  - target: SR-009
     relation: implements
-  - target: "SR-010"
+  - target: SR-010
     relation: implements
-  - target: "SR-011"
+  - target: SR-011
     relation: implements
-  - target: "SR-012"
+  - target: SR-012
     relation: implements
-  - target: "SR-013"
+  - target: SR-013
     relation: implements
-  - target: "SR-014"
+  - target: SR-014
     relation: implements
-  - target: "SR-015"
+  - target: SR-015
     relation: implements
-  - target: "SR-016"
+  - target: SR-016
     relation: implements
-  - target: "SR-035"
+  - target: SR-035
     relation: implements
-  - target: "SR-036"
+  - target: SR-036
     relation: implements
-  - target: "RISK-002"
+  - target: RISK-002
     relation: relates_to
-  - target: "RISK-001"
+  - target: RISK-001
     relation: relates_to
-  - target: "SOUP-025"
+  - target: SOUP-025
     relation: relates_to
-  - target: "SOUP-028"
+  - target: SOUP-028
     relation: relates_to
-  - target: "SOUP-029"
+  - target: SOUP-029
     relation: relates_to
-tags: ["software-item:SI-FE-CORE", "class:B", "layer:frontend"]
+tags:
+  - software-item:SI-FE-CORE
+  - class:B
+  - layer:frontend
 ---
 
 # ADD-020 — Frontend Core Views (SI-FE-CORE)

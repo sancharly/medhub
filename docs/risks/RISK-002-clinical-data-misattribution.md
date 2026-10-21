@@ -1,28 +1,34 @@
 ---
-id: "RISK-002"
+id: RISK-002
 type: risk
-title: "Clinical information attributed to the wrong patient or author"
-status: in_review
+title: Clinical information attributed to the wrong patient or author
+status: approved
 version: "1.1"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-10-21"
-hazard: "A clinical entry, attachment or image associated with the wrong patient or the wrong author."
-cause: "An identifier handling defect (a wrong foreign key after erasure re-keying, an attachment listed from a stale cache instead of the server, `authorName` populated from the viewer rather than the author) → the UI presents the entry under a patient or author it does not belong to → a clinician reads it as that patient's history."
-harm: "Wrong or delayed treatment based on incorrect history; in the worst case a harmful intervention. Serious injury is conceivable but not a direct consequence of the software alone."
+hazard: A clinical entry, attachment or image associated with the wrong patient or the wrong author.
+cause: An identifier handling defect (a wrong foreign key after erasure re-keying, an attachment listed from a stale cache instead of the server, `authorName` populated from the viewer rather than the author) → the UI presents the entry under a patient or author it does not belong to → a clinician reads it as that patient's history.
+harm: Wrong or delayed treatment based on incorrect history; in the worst case a harmful intervention. Serious injury is conceivable but not a direct consequence of the software alone.
 severity_initial: 4
 probability_initial: 3
 severity_residual: 4
 probability_residual: 2
 acceptability: alarp
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: 06371b7d07335afed4262aa306fd695ff10f7e5aeff569ba91b2e6b6ef1d5d13
+approval_note: self-approved
 links:
-  - target: "SOUP-008"
+  - target: SOUP-008
     relation: relates_to
-  - target: "SOUP-020"
+  - target: SOUP-020
     relation: relates_to
-  - target: "SOUP-016"
+  - target: SOUP-016
     relation: relates_to
-tags: ["hazard:data-integrity", "class:B"]
+tags:
+  - hazard:data-integrity
+  - class:B
 ---
 
 # RISK-002 — Clinical information attributed to the wrong patient or author

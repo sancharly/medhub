@@ -1,36 +1,43 @@
 ---
-id: "ADD-012"
+id: ADD-012
 type: architecture-doc
-title: "Attachment Service (SI-ATTACH)"
-status: in_review
+title: Attachment Service (SI-ATTACH)
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-10-21"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: eed5e2ab07ff63d9d2c78632f1d7aaa8579dc047bede4e373dd205f89ea97736
+approval_note: self-approved
 links:
-  - target: "SR-013"
+  - target: SR-013
     relation: implements
-  - target: "SR-022"
+  - target: SR-022
     relation: implements
-  - target: "SR-026"
+  - target: SR-026
     relation: implements
-  - target: "RISK-002"
+  - target: RISK-002
     relation: relates_to
-  - target: "RISK-007"
+  - target: RISK-007
     relation: relates_to
-  - target: "RISK-011"
+  - target: RISK-011
     relation: relates_to
-  - target: "SOUP-015"
+  - target: SOUP-015
     relation: relates_to
-  - target: "SOUP-017"
+  - target: SOUP-017
     relation: relates_to
-  - target: "SOUP-019"
+  - target: SOUP-019
     relation: relates_to
-  - target: "SOUP-022"
+  - target: SOUP-022
     relation: relates_to
-  - target: "SOUP-023"
+  - target: SOUP-023
     relation: relates_to
-tags: ["software-item:SI-ATTACH", "class:B", "layer:backend"]
+tags:
+  - software-item:SI-ATTACH
+  - class:B
+  - layer:backend
 ---
 
 # ADD-012 — Attachment Service (SI-ATTACH)

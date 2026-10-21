@@ -1,16 +1,23 @@
 ---
-id: "SOUP-033"
+id: SOUP-033
 type: soup
-title: "openapi-fetch"
-status: in_review
+title: openapi-fetch
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-10-21"
 updated: "2026-10-21"
-manufacturer: "Drew Powers"
-soup_version: "0.17.0"
+manufacturer: Drew Powers
+soup_version: 0.17.0
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: b4a291448d630aea4b98964d15a75e20603fe8ea68006803b244988ccdbdc361
+approval_note: self-approved
 links: []
-tags: ["soup", "layer:frontend", "class:B"]
+tags:
+  - soup
+  - layer:frontend
+  - class:B
 ---
 
 # SOUP-033 — openapi-fetch 0.17.0

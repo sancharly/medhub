@@ -1,46 +1,53 @@
 ---
-id: "ADD-005"
+id: ADD-005
 type: architecture-doc
-title: "API Layer / Routers (SI-API)"
-status: in_review
+title: API Layer / Routers (SI-API)
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-10-21"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: 03e60d9718baa3c4e987c9defecd7f38a65c3745b814ea8954cf78a050d95f2d
+approval_note: self-approved
 links:
-  - target: "SR-001"
+  - target: SR-001
     relation: implements
-  - target: "SR-008"
+  - target: SR-008
     relation: implements
-  - target: "SR-026"
+  - target: SR-026
     relation: implements
-  - target: "SR-031"
+  - target: SR-031
     relation: implements
-  - target: "RISK-001"
+  - target: RISK-001
     relation: relates_to
-  - target: "RISK-005"
+  - target: RISK-005
     relation: relates_to
-  - target: "RISK-007"
+  - target: RISK-007
     relation: relates_to
-  - target: "SOUP-001"
+  - target: SOUP-001
     relation: relates_to
-  - target: "SOUP-002"
+  - target: SOUP-002
     relation: relates_to
-  - target: "SOUP-003"
+  - target: SOUP-003
     relation: relates_to
-  - target: "SOUP-004"
+  - target: SOUP-004
     relation: relates_to
-  - target: "SOUP-005"
+  - target: SOUP-005
     relation: relates_to
-  - target: "SOUP-006"
+  - target: SOUP-006
     relation: relates_to
-  - target: "SOUP-007"
+  - target: SOUP-007
     relation: relates_to
-  - target: "SOUP-017"
+  - target: SOUP-017
     relation: relates_to
-  - target: "SOUP-024"
+  - target: SOUP-024
     relation: relates_to
-tags: ["software-item:SI-API", "class:B", "layer:backend"]
+tags:
+  - software-item:SI-API
+  - class:B
+  - layer:backend
 ---
 
 # ADD-005 — API Layer / Routers (SI-API)

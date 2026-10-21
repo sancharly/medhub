@@ -1,14 +1,21 @@
 ---
-id: "RR-007"
+id: RR-007
 type: regulatory-requirement
-title: "Risk management for medical device software"
-status: in_review
+title: Risk management for medical device software
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-10-21"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: bf0afc919545089605ea601991606217dea34889cc5664b468615b84638632f5
+approval_note: self-approved
 links: []
-tags: ["iso14971", "iec62304", "regulatory"]
+tags:
+  - iso14971
+  - iec62304
+  - regulatory
 ---
 
 # RR-007 — Risk management for medical device software

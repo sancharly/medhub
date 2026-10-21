@@ -1,15 +1,21 @@
 ---
-id: "PLAN-001"
+id: PLAN-001
 type: lifecycle-plan
-title: "Software development plan (IEC 62304, software safety class B)"
-status: in_review
+title: Software development plan (IEC 62304, software safety class B)
+status: approved
 version: "3.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-10-21"
 updated: "2026-10-21"
 plan_kind: development
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: 4b9bbdcfc084671846bf725c18ded6be76a2476a6f0cc8da1d9eadb15ff07557
+approval_note: self-approved
 links: []
-tags: ["regulatory", "class:B"]
+tags:
+  - regulatory
+  - class:B
 ---
 
 # PLAN-001 — Software development plan

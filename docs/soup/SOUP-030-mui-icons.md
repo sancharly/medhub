@@ -1,16 +1,23 @@
 ---
-id: "SOUP-030"
+id: SOUP-030
 type: soup
-title: "MUI Icons (@mui/icons-material)"
-status: in_review
+title: MUI Icons (@mui/icons-material)
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-10-21"
 updated: "2026-10-21"
-manufacturer: "MUI"
-soup_version: "9.1.1"
+manufacturer: MUI
+soup_version: 9.1.1
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: 7a5321640b9b7280e6a634e8f5d04549234d4f65c960309541d70b5cd9a9cccd
+approval_note: self-approved
 links: []
-tags: ["soup", "layer:frontend", "class:B"]
+tags:
+  - soup
+  - layer:frontend
+  - class:B
 ---
 
 # SOUP-030 — MUI Icons (@mui/icons-material) 9.1.1

@@ -1,16 +1,23 @@
 ---
-id: "SOUP-001"
+id: SOUP-001
 type: soup
-title: "Python runtime"
-status: in_review
+title: Python runtime
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-10-21"
 updated: "2026-10-21"
-manufacturer: "Python Software Foundation"
-soup_version: "3.12-slim"
+manufacturer: Python Software Foundation
+soup_version: 3.12-slim
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: 31c960446c4db9c4ca1767245888d03c819ba004f97d8f57a780bb82f8fa4c83
+approval_note: self-approved
 links: []
-tags: ["soup", "layer:backend", "class:B"]
+tags:
+  - soup
+  - layer:backend
+  - class:B
 ---
 
 # SOUP-001 — Python runtime 3.12-slim

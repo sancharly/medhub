@@ -1,16 +1,23 @@
 ---
-id: "SOUP-028"
+id: SOUP-028
 type: soup
-title: "TanStack Query (@tanstack/react-query)"
-status: in_review
+title: TanStack Query (@tanstack/react-query)
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-10-21"
 updated: "2026-10-21"
-manufacturer: "Tanner Linsley / TanStack"
-soup_version: "5.101.0"
+manufacturer: Tanner Linsley / TanStack
+soup_version: 5.101.0
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: e237abbdd85a941812254c4580d727bb0f64d9c874ea69b2933433849400d037
+approval_note: self-approved
 links: []
-tags: ["soup", "layer:frontend", "class:B"]
+tags:
+  - soup
+  - layer:frontend
+  - class:B
 ---
 
 # SOUP-028 — TanStack Query (@tanstack/react-query) 5.101.0

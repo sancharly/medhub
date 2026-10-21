@@ -1,16 +1,22 @@
 ---
-id: "RR-001"
+id: RR-001
 type: regulatory-requirement
-title: "Lawful basis and data minimization for processing health data"
-status: in_review
+title: Lawful basis and data minimization for processing health data
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-09-17"
+updated: "2026-10-21"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: 78d43651796ce6718c4c7d9e024e30b3a5df4d2dfaef796396ccae1d655bccee
+approval_note: self-approved
 links:
-  - target: "UN-005"
+  - target: UN-005
     relation: derives_from
-tags: ["gdpr", "privacy"]
+tags:
+  - gdpr
+  - privacy
 ---
 
 # RR-001 — Lawful basis and data minimization for processing health data

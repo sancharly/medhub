@@ -1,16 +1,23 @@
 ---
-id: "SOUP-017"
+id: SOUP-017
 type: soup
-title: "python-multipart"
-status: in_review
+title: python-multipart
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-10-21"
 updated: "2026-10-21"
-manufacturer: "Andrew Dunham / Kludex"
-soup_version: "0.0.32"
+manufacturer: Andrew Dunham / Kludex
+soup_version: 0.0.32
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: 2702ac147fad14e86a621b04594f7648dc4726862976bf9bc0ff4bd684a762f6
+approval_note: self-approved
 links: []
-tags: ["soup", "layer:backend", "class:B"]
+tags:
+  - soup
+  - layer:backend
+  - class:B
 ---
 
 # SOUP-017 — python-multipart 0.0.32

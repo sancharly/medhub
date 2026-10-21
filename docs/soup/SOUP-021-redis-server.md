@@ -1,16 +1,23 @@
 ---
-id: "SOUP-021"
+id: SOUP-021
 type: soup
-title: "Redis server"
-status: in_review
+title: Redis server
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-10-21"
 updated: "2026-10-21"
-manufacturer: "Redis Ltd."
-soup_version: "7-alpine"
+manufacturer: Redis Ltd.
+soup_version: 7-alpine
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: 27044965ba94229801eaa832099a11597ed6d7f566c50a4adc230bf294fc8752
+approval_note: self-approved
 links: []
-tags: ["soup", "layer:infrastructure", "class:B"]
+tags:
+  - soup
+  - layer:infrastructure
+  - class:B
 ---
 
 # SOUP-021 — Redis server 7-alpine

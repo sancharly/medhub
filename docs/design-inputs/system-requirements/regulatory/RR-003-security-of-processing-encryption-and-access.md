@@ -1,16 +1,22 @@
 ---
-id: "RR-003"
+id: RR-003
 type: regulatory-requirement
 title: "Security of processing: encryption and access control"
-status: in_review
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-09-17"
+updated: "2026-10-21"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: 162345b4b871fb9d1590510c4cf6c746ddf40970c3ace28842afc0a13d5cf894
+approval_note: self-approved
 links:
-  - target: "UN-005"
+  - target: UN-005
     relation: derives_from
-tags: ["gdpr", "security"]
+tags:
+  - gdpr
+  - security
 ---
 
 # RR-003 — Security of processing: encryption and access control

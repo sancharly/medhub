@@ -1,16 +1,23 @@
 ---
-id: "SOUP-032"
+id: SOUP-032
 type: soup
-title: "Emotion styled (@emotion/styled)"
-status: in_review
+title: Emotion styled (@emotion/styled)
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-10-21"
 updated: "2026-10-21"
-manufacturer: "Emotion contributors"
-soup_version: "11.14.1"
+manufacturer: Emotion contributors
+soup_version: 11.14.1
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: 4f9acc18b07442226eff4beb0d864c06485c03f82bd753e9c51e9ad6e4d28071
+approval_note: self-approved
 links: []
-tags: ["soup", "layer:frontend", "class:B"]
+tags:
+  - soup
+  - layer:frontend
+  - class:B
 ---
 
 # SOUP-032 — Emotion styled (@emotion/styled) 11.14.1

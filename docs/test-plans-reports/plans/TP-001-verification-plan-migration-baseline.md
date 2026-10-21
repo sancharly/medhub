@@ -1,38 +1,44 @@
 ---
-id: "TP-001"
+id: TP-001
 type: test-plan
-title: "Verification plan for the agentic-os migration baseline"
-status: in_review
+title: Verification plan for the agentic-os migration baseline
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-10-21"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: db53f32fd75a40aa9146a013a80b362dddd5ceaef11354551fc895aeadfbcab4
+approval_note: self-approved
 links:
-  - target: "TS-001"
+  - target: TS-001
     relation: relates_to
-  - target: "TS-002"
+  - target: TS-002
     relation: relates_to
-  - target: "TS-003"
+  - target: TS-003
     relation: relates_to
-  - target: "TS-004"
+  - target: TS-004
     relation: relates_to
-  - target: "TS-005"
+  - target: TS-005
     relation: relates_to
-  - target: "TS-006"
+  - target: TS-006
     relation: relates_to
-  - target: "TS-007"
+  - target: TS-007
     relation: relates_to
-  - target: "TS-008"
+  - target: TS-008
     relation: relates_to
-  - target: "TS-009"
+  - target: TS-009
     relation: relates_to
-  - target: "TS-010"
+  - target: TS-010
     relation: relates_to
-  - target: "TS-011"
+  - target: TS-011
     relation: relates_to
-  - target: "TS-012"
+  - target: TS-012
     relation: relates_to
-tags: ["class:B", "baseline"]
+tags:
+  - class:B
+  - baseline
 ---
 
 # TP-001 — Verification plan (agentic-os migration baseline)

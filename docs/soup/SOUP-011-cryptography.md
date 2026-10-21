@@ -1,16 +1,23 @@
 ---
-id: "SOUP-011"
+id: SOUP-011
 type: soup
-title: "cryptography"
-status: in_review
+title: cryptography
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-10-21"
 updated: "2026-10-21"
-manufacturer: "Python Cryptographic Authority (PyCA)"
-soup_version: "49.0.0"
+manufacturer: Python Cryptographic Authority (PyCA)
+soup_version: 49.0.0
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: 62078ac17a49e0c127ee3901ca7774133011398840d01766f1ff5571aadf2e41
+approval_note: self-approved
 links: []
-tags: ["soup", "layer:backend", "class:B"]
+tags:
+  - soup
+  - layer:backend
+  - class:B
 ---
 
 # SOUP-011 — cryptography 49.0.0

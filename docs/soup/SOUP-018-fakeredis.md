@@ -1,16 +1,23 @@
 ---
-id: "SOUP-018"
+id: SOUP-018
 type: soup
-title: "fakeredis"
-status: in_review
+title: fakeredis
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-10-21"
 updated: "2026-10-21"
-manufacturer: "fakeredis contributors"
-soup_version: "2.36.2"
+manufacturer: fakeredis contributors
+soup_version: 2.36.2
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: a3be98d09164927e8d33e4828f84d23ca6a10b11c2761ea75a30af771d3a3d45
+approval_note: self-approved
 links: []
-tags: ["soup", "layer:backend", "class:B"]
+tags:
+  - soup
+  - layer:backend
+  - class:B
 ---
 
 # SOUP-018 — fakeredis 2.36.2

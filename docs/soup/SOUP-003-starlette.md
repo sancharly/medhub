@@ -1,16 +1,23 @@
 ---
-id: "SOUP-003"
+id: SOUP-003
 type: soup
-title: "Starlette"
-status: in_review
+title: Starlette
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-10-21"
 updated: "2026-10-21"
-manufacturer: "Encode"
-soup_version: "1.3.1"
+manufacturer: Encode
+soup_version: 1.3.1
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: 396754468774098d3d9d95bd3ceca3a6b9d743a5745cd697cd090acdae9bb35a
+approval_note: self-approved
 links: []
-tags: ["soup", "layer:backend", "class:B"]
+tags:
+  - soup
+  - layer:backend
+  - class:B
 ---
 
 # SOUP-003 — Starlette 1.3.1

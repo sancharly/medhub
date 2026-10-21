@@ -1,16 +1,22 @@
 ---
-id: "TS-009"
+id: TS-009
 type: test-specification
-title: "Audit logging verification"
-status: in_review
+title: Audit logging verification
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-10-21"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: c0da9ec556d9bf897d0f5427386036b22700d32b9139ceade13869435e8792c7
+approval_note: self-approved
 links:
-  - target: "SR-023"
+  - target: SR-023
     relation: verifies
-tags: ["level:unit", "class:B"]
+tags:
+  - level:unit
+  - class:B
 ---
 
 # TS-009 — Audit logging verification

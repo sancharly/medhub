@@ -1,16 +1,22 @@
 ---
-id: "TS-010"
+id: TS-010
 type: test-specification
-title: "Module host and plugin architecture verification"
-status: in_review
+title: Module host and plugin architecture verification
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-10-21"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: bdf7acb97a0f962c0d736d7a6f75a0fe32d3c8cfd82ac0cdc8dbcb016720ddd2
+approval_note: self-approved
 links:
-  - target: "SR-016"
+  - target: SR-016
     relation: verifies
-tags: ["level:unit", "class:B"]
+tags:
+  - level:unit
+  - class:B
 ---
 
 # TS-010 — Module host and plugin architecture verification

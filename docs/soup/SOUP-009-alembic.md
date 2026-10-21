@@ -1,16 +1,23 @@
 ---
-id: "SOUP-009"
+id: SOUP-009
 type: soup
-title: "Alembic"
-status: in_review
+title: Alembic
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-10-21"
 updated: "2026-10-21"
-manufacturer: "SQLAlchemy authors"
-soup_version: "1.18.4"
+manufacturer: SQLAlchemy authors
+soup_version: 1.18.4
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: b325166a18aa69ce2d6085c46e7ccfcddc49dd7b8fe818e37a71dbdc85260fad
+approval_note: self-approved
 links: []
-tags: ["soup", "layer:backend", "class:B"]
+tags:
+  - soup
+  - layer:backend
+  - class:B
 ---
 
 # SOUP-009 — Alembic 1.18.4

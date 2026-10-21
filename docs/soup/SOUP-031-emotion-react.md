@@ -1,16 +1,23 @@
 ---
-id: "SOUP-031"
+id: SOUP-031
 type: soup
-title: "Emotion (@emotion/react)"
-status: in_review
+title: Emotion (@emotion/react)
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-10-21"
 updated: "2026-10-21"
-manufacturer: "Emotion contributors"
-soup_version: "11.14.0"
+manufacturer: Emotion contributors
+soup_version: 11.14.0
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: ca00adb4a9d85abbfd74fb32b5ed1f67555a2a0d05be21435953ebe6afbaa478
+approval_note: self-approved
 links: []
-tags: ["soup", "layer:frontend", "class:B"]
+tags:
+  - soup
+  - layer:frontend
+  - class:B
 ---
 
 # SOUP-031 — Emotion (@emotion/react) 11.14.0

@@ -1,24 +1,30 @@
 ---
-id: "TS-003"
+id: TS-003
 type: test-specification
-title: "Identity, account creation, activation and lifecycle verification"
-status: in_review
+title: Identity, account creation, activation and lifecycle verification
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-10-21"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: 896e4ddeeda285f0a8eee628c135a5f2e718d19bdca7bfcae21d70ec981de51c
+approval_note: self-approved
 links:
-  - target: "SR-003"
+  - target: SR-003
     relation: verifies
-  - target: "SR-004"
+  - target: SR-004
     relation: verifies
-  - target: "SR-032"
+  - target: SR-032
     relation: verifies
-  - target: "SR-033"
+  - target: SR-033
     relation: verifies
-  - target: "SR-034"
+  - target: SR-034
     relation: verifies
-tags: ["level:unit", "class:B"]
+tags:
+  - level:unit
+  - class:B
 ---
 
 # TS-003 — Identity, account creation, activation and lifecycle verification

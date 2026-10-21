@@ -1,16 +1,23 @@
 ---
-id: "SOUP-008"
+id: SOUP-008
 type: soup
-title: "SQLAlchemy"
-status: in_review
+title: SQLAlchemy
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-10-21"
 updated: "2026-10-21"
-manufacturer: "SQLAlchemy authors"
-soup_version: "2.0.51"
+manufacturer: SQLAlchemy authors
+soup_version: 2.0.51
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: a4d3e7aa7f757b3c47ac5dd41f1b213bc65b79d02d351fed5e48e3487c7cc832
+approval_note: self-approved
 links: []
-tags: ["soup", "layer:backend", "class:B"]
+tags:
+  - soup
+  - layer:backend
+  - class:B
 ---
 
 # SOUP-008 — SQLAlchemy 2.0.51

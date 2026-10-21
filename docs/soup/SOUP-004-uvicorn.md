@@ -1,16 +1,23 @@
 ---
-id: "SOUP-004"
+id: SOUP-004
 type: soup
-title: "Uvicorn"
-status: in_review
+title: Uvicorn
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-10-21"
 updated: "2026-10-21"
-manufacturer: "Encode"
-soup_version: "0.49.0"
+manufacturer: Encode
+soup_version: 0.49.0
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: eded8ad6cd179c700f0127311f6f2d9b25543c7abe89496808ac5e9ccb4469a2
+approval_note: self-approved
 links: []
-tags: ["soup", "layer:backend", "class:B"]
+tags:
+  - soup
+  - layer:backend
+  - class:B
 ---
 
 # SOUP-004 — Uvicorn 0.49.0

@@ -1,32 +1,38 @@
 ---
-id: "RISK-005"
+id: RISK-005
 type: risk
-title: "Account takeover leading to disclosure or falsified clinical records"
-status: in_review
+title: Account takeover leading to disclosure or falsified clinical records
+status: approved
 version: "1.1"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-10-21"
 hazard: "An attacker acting as a legitimate user: reading PHI, or writing clinical entries as a clinician."
-cause: "Credential stuffing, brute force, a stolen session token, or a CSRF-able mutating endpoint → the attacker authenticates or rides an authenticated session → they read or write clinical data under someone else's identity."
-harm: "Wrong clinical decisions from falsified data, plus privacy harm. Recoverable if detected via the audit trail."
+cause: Credential stuffing, brute force, a stolen session token, or a CSRF-able mutating endpoint → the attacker authenticates or rides an authenticated session → they read or write clinical data under someone else's identity.
+harm: Wrong clinical decisions from falsified data, plus privacy harm. Recoverable if detected via the audit trail.
 severity_initial: 3
 probability_initial: 2
 severity_residual: 3
 probability_residual: 1
 acceptability: acceptable
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: 90c61d56ba38af469a3311448b8c97945aa5f45dc174b1495fa4a699efbca1d3
+approval_note: self-approved
 links:
-  - target: "SOUP-012"
+  - target: SOUP-012
     relation: relates_to
-  - target: "SOUP-021"
+  - target: SOUP-021
     relation: relates_to
-  - target: "SOUP-013"
+  - target: SOUP-013
     relation: relates_to
-  - target: "SOUP-003"
+  - target: SOUP-003
     relation: relates_to
-  - target: "SOUP-024"
+  - target: SOUP-024
     relation: relates_to
-tags: ["hazard:security", "class:B"]
+tags:
+  - hazard:security
+  - class:B
 ---
 
 # RISK-005 — Account takeover leading to disclosure or falsified clinical records

@@ -1,15 +1,21 @@
 ---
-id: "PLAN-004"
+id: PLAN-004
 type: lifecycle-plan
-title: "Software problem resolution plan"
-status: in_review
+title: Software problem resolution plan
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-10-21"
 updated: "2026-10-21"
 plan_kind: problem-resolution
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: a723c1eb74b6e94b59ca794ee85b99ffd92e7bcb6f529f2efe60f5f0f42238b8
+approval_note: self-approved
 links: []
-tags: ["regulatory", "class:B"]
+tags:
+  - regulatory
+  - class:B
 ---
 
 # PLAN-004 — Software problem resolution plan

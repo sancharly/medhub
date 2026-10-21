@@ -1,18 +1,24 @@
 ---
-id: "TS-006"
+id: TS-006
 type: test-specification
-title: "Appointments and notification verification"
-status: in_review
+title: Appointments and notification verification
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-10-21"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: 2c6c6b1935149d7e2c6feb5e7e91a41537e17fbe8bc5a2071767b35ffb3c57d0
+approval_note: self-approved
 links:
-  - target: "SR-010"
+  - target: SR-010
     relation: verifies
-  - target: "SR-035"
+  - target: SR-035
     relation: verifies
-tags: ["level:unit", "class:B"]
+tags:
+  - level:unit
+  - class:B
 ---
 
 # TS-006 — Appointments and notification verification

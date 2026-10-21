@@ -1,16 +1,23 @@
 ---
-id: "SOUP-005"
+id: SOUP-005
 type: soup
-title: "Gunicorn"
-status: in_review
+title: Gunicorn
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-10-21"
 updated: "2026-10-21"
-manufacturer: "Benoit Chesneau"
-soup_version: "26.0.0"
+manufacturer: Benoit Chesneau
+soup_version: 26.0.0
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: bb1245c7d1a8a043a160c68ffd108735494187588652c8273bb3fc85b45db4bf
+approval_note: self-approved
 links: []
-tags: ["soup", "layer:backend", "class:B"]
+tags:
+  - soup
+  - layer:backend
+  - class:B
 ---
 
 # SOUP-005 — Gunicorn 26.0.0

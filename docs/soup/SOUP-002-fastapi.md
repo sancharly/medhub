@@ -1,16 +1,23 @@
 ---
-id: "SOUP-002"
+id: SOUP-002
 type: soup
-title: "FastAPI"
-status: in_review
+title: FastAPI
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-10-21"
 updated: "2026-10-21"
-manufacturer: "Sebastián Ramírez (tiangolo)"
-soup_version: "0.138.0"
+manufacturer: Sebastián Ramírez (tiangolo)
+soup_version: 0.138.0
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: 9641ace7e5754d87ef15ee4bc508ad87e9f19443163832c78c92a977575c6f7d
+approval_note: self-approved
 links: []
-tags: ["soup", "layer:backend", "class:B"]
+tags:
+  - soup
+  - layer:backend
+  - class:B
 ---
 
 # SOUP-002 — FastAPI 0.138.0
