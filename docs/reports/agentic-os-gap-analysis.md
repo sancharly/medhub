@@ -155,3 +155,11 @@ record is met instead by **ADD-024**, the development and verification infrastru
 toolchain, OpenAPI contract export) that implements SR-028. RR-011 is `obsolete` (withdrawn, never
 approved); TS-013 is back in review. Result: **315 records, 0 errors**, and the remaining findings
 are the ones listed in the table above plus 14 W5 for the records awaiting re-approval.
+
+**Full local run (2026-10-21).** With Docker available, the whole backend suite ran including the
+40 real-database cases (495 passed, 0 errors), and the frontend suite and static checks passed
+again. Recorded as **TR-002**, which verifies 35 of 39 SRs; only SR-017/018 (DICOM viewer), SR-019
+(browser matrix) and SR-026 (performance) remain unverified. The checker's W7 now considers only
+software-requirement targets (it was also counting NFRs). Result: **316 records, 0 errors, 45
+findings** — 35 of them the pending SOUP anomaly review (TASK-154).
+
