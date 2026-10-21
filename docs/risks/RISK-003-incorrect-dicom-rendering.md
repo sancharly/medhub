@@ -3,10 +3,18 @@ id: "RISK-003"
 type: risk
 title: "DICOM image rendered incorrectly or the wrong study displayed"
 status: in_review
-version: "1.0"
+version: "1.1"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
 updated: "2026-10-21"
+hazard: "An imaging study displayed with wrong pixel data, wrong window/level, wrong orientation or laterality, or belonging to another study."
+cause: "A defect in DICOM parsing, frame selection, transfer-syntax handling or viewport state (or a browser-specific rendering quirk) → the viewer shows an image that does not faithfully represent the acquired data → the clinician interprets it as the patient's image."
+harm: "Missed or wrong diagnosis leading to wrong or delayed treatment."
+severity_initial: 4
+probability_initial: 3
+severity_residual: 4
+probability_residual: 2
+acceptability: alarp
 links:
   - target: "SOUP-015"
     relation: relates_to
@@ -37,29 +45,31 @@ SI-MOD-DICOM-BE (pydicom parsing, frame endpoint), SI-MOD-DICOM-FE (viewport, co
 
 ## Initial risk
 
-| Severity | Probability (P2) | Risk level (per ADD-003) |
-|---|---|---|
-| 4 — Serious (misinterpretation of imaging) | 3 — Occasional | 12 — ALARP (12) |
-
-P1 (probability of the software fault itself) is taken as 1 per ADD-003: the fault is assumed to occur.
+Severity 4 — Serious (misinterpretation of imaging) — × probability 3 (Occasional) → **alarp** per `risk_matrix` in
+`docs/medtrace.yml` ([PLAN-005](../plans/PLAN-005-risk-management-plan.md)). Following the plan's software
+convention, P1 — the probability of the software fault itself — is taken as 1 (the fault is assumed to
+occur); the score is severity × P2, the probability that the hazardous situation leads to the harm.
 
 ## Risk control measures
 
 | Measure | Type | Implemented by | Verified by |
 |---|---|---|---|
-| Render only from the authoritative DICOM object served by the backend, no client-side re-encoding | Design | SR-017 | TS (Release stage) |
-| Explicit, tested viewer controls for window/level, zoom, pan and series navigation | Design | SR-018 | TS (Release stage) |
-| Verification against reference images per supported browser each release | Protective | SR-019, TASK-111 | TP/TR (Release stage) |
-| Metadata (patient, study, series) displayed alongside the image so a mismatch is visible | Information for safety | SR-017 | TS (Release stage) |
-| Size and decompression limits on the frame endpoint so a malformed object fails loudly | Protective | SR-031, TASK-135 | TS (Review stage) |
+| Render only from the authoritative DICOM object served by the backend, no client-side re-encoding | Design | SR-017 | none yet |
+| Explicit, tested viewer controls for window/level, zoom, pan and series navigation | Design | SR-018 | none yet |
+| Verification against reference images per supported browser each release | Protective | SR-019, TASK-111 | TS-012 |
+| Metadata (patient, study, series) displayed alongside the image so a mismatch is visible | Information for safety | SR-017 | none yet |
+| Size and decompression limits on the frame endpoint so a malformed object fails loudly | Protective | SR-031, TASK-135 | TS-008, TS-011 |
 
 ## Residual risk
 
-| Severity | Probability (P2) | Risk level | Acceptable? | Decided by / date |
-|---|---|---|---|---|
-| 4 — Serious (misinterpretation of imaging) | 2 — Remote | 8 — ALARP (8) | **pending human decision** | — |
+Severity 4 (unchanged — controls reduce probability, not severity) × probability 2
+(Remote) → **alarp**, derived from `risk_matrix`. **The DICOM viewer is not implemented yet** (SR-017/SR-018 belong to the unfinished frontend module phase), so this risk is currently theoretical but its controls are unverified. It must be re-scored, and its verification completed, before any release that ships the viewer.
 
-**The DICOM viewer is not implemented yet** (SR-017/SR-018 belong to the unfinished frontend module phase), so this risk is currently theoretical but its controls are unverified. It must be re-scored, and its verification completed, before any release that ships the viewer.
+**Decided by:** pending — the owner's acceptance is the approval of this record.
+
+## ALARP justification
+
+Severity is fixed by the clinical use of imaging. Probability is reduced to Remote by rendering only the authoritative object, showing patient/study identity next to the image, and verifying against reference images per browser; MedHub is a viewer for consultation, not a diagnostic workstation, so the clinician confirms findings on the acquiring system when it matters. Further reduction would require diagnostic-grade display certification, out of the intended use. **The viewer is not implemented yet**: this justification must be re-assessed, with the controls verified, before the release that ships it.
 
 ## Risks introduced by controls
 

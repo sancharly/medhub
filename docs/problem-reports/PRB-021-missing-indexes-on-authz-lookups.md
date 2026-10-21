@@ -3,11 +3,11 @@ id: "PRB-021"
 type: problem-report
 title: "Authorization lookups have no supporting indexes"
 status: open
-criticality: major
 version: "1.0"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
-updated: "2026-09-17"
+updated: "2026-10-21"
+criticality: major
 links: []
 tags: ["performance", "hazard:availability"]
 ---

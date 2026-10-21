@@ -3,10 +3,18 @@ id: "RISK-004"
 type: risk
 title: "Legitimate clinical access wrongly denied or delayed"
 status: in_review
-version: "1.0"
+version: "1.1"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
-updated: "2026-09-17"
+updated: "2026-10-21"
+hazard: "A clinician with a legitimate care relationship cannot reach the patient's clinical data when needed."
+cause: "An over-restrictive or mis-scoped consent evaluation (a declined appointment revoking a grant from another source, a per-source union computed wrongly, a module guard denying an enabled module) → the API denies the request → the clinician proceeds without the available history."
+harm: "Care based on incomplete information, or delayed care while access is sorted out; recoverable in most workflows."
+severity_initial: 3
+probability_initial: 3
+severity_residual: 3
+probability_residual: 2
+acceptability: alarp
 links: []
 tags: ["hazard:denial-of-care", "class:B"]
 ---
@@ -35,28 +43,30 @@ SI-AUTHZ (`U-AUTHZ-Consent`, `U-AUTHZ-ApptVisibility`, `U-AUTHZ-ModuleGuard`), S
 
 ## Initial risk
 
-| Severity | Probability (P2) | Risk level (per ADD-003) |
-|---|---|---|
-| 3 — Moderate (care delayed) | 3 — Occasional | 9 — ALARP (9) |
-
-P1 (probability of the software fault itself) is taken as 1 per ADD-003: the fault is assumed to occur.
+Severity 3 — Moderate (care delayed) — × probability 3 (Occasional) → **alarp** per `risk_matrix` in
+`docs/medtrace.yml` ([PLAN-005](../plans/PLAN-005-risk-management-plan.md)). Following the plan's software
+convention, P1 — the probability of the software fault itself — is taken as 1 (the fault is assumed to
+occur); the score is severity × P2, the probability that the hazardous situation leads to the harm.
 
 ## Risk control measures
 
 | Measure | Type | Implemented by | Verified by |
 |---|---|---|---|
-| Grants modelled per source and combined as a union, so one revocation cannot strip another grant | Design | SR-008, SR-036 | TS (Review stage) |
-| Explicit tests for the documented consent cases A/B/C | Protective | SR-036, TASK-113 | TS (Review stage) |
-| Denials are audited with the reason, so a wrong denial is diagnosable | Protective | SR-023 | TS (Review stage) |
-| Patient-facing consent UI shows exactly who has access | Information for safety | SR-008 | TS (Review stage) |
+| Grants modelled per source and combined as a union, so one revocation cannot strip another grant | Design | SR-008, SR-036 | TR-001, TS-002 |
+| Explicit tests for the documented consent cases A/B/C | Protective | SR-036, TASK-113 | TR-001, TS-002 |
+| Denials are audited with the reason, so a wrong denial is diagnosable | Protective | SR-023 | TS-009 |
+| Patient-facing consent UI shows exactly who has access | Information for safety | SR-008 | TR-001, TS-002 |
 
 ## Residual risk
 
-| Severity | Probability (P2) | Risk level | Acceptable? | Decided by / date |
-|---|---|---|---|---|
-| 3 — Moderate (care delayed) | 2 — Remote | 6 — ALARP (6) | **pending human decision** | — |
+Severity 3 (unchanged — controls reduce probability, not severity) × probability 2
+(Remote) → **alarp**, derived from `risk_matrix`. Residual ALARP. MedHub is not the only route to clinical information (the treating institution's own records remain), which is what keeps probability and severity from being higher.
 
-Residual ALARP. MedHub is not the only route to clinical information (the treating institution's own records remain), which is what keeps probability and severity from being higher.
+**Decided by:** pending — the owner's acceptance is the approval of this record.
+
+## ALARP justification
+
+A denial is visible and recoverable — the clinician knows the data is withheld and can obtain it through the treating institution — and MedHub is not the only route to the information. Probability is reduced to Remote by per-source consent grants combined as a union and by audited denials. Loosening the policy further would raise RISK-001 (unauthorized disclosure), which is the larger harm; the deny-by-default trade-off is deliberate.
 
 ## Risks introduced by controls
 

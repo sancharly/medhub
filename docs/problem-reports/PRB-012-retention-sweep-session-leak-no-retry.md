@@ -3,11 +3,11 @@ id: "PRB-012"
 type: problem-report
 title: "Retention sweep leaks database sessions and never retries"
 status: open
-criticality: major
 version: "1.0"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
-updated: "2026-09-17"
+updated: "2026-10-21"
+criticality: major
 links: []
 tags: ["correctness", "hazard:availability"]
 ---

@@ -3,11 +3,11 @@ id: "PRB-030"
 type: problem-report
 title: "Module boundary test denies only two import substrings"
 status: open
-criticality: minor
 version: "1.0"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
-updated: "2026-09-17"
+updated: "2026-10-21"
+criticality: minor
 links: []
 tags: ["verification"]
 ---

@@ -3,7 +3,7 @@ id: "TASK-154"
 type: task
 title: "First SOUP anomaly-list review"
 status: draft
-version: "1.1"
+version: "1.2"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
 updated: "2026-10-21"
@@ -12,7 +12,7 @@ links:
     relation: mitigates
   - target: "SR-028"
     relation: implements
-tags: ["soup", "regulatory", "phase:9-integration-system-testing-compliance"]
+tags: ["soup", "regulatory", "phase:9-integration-system-testing-compliance", "control:protective"]
 ---
 
 # TASK-154 — First SOUP anomaly-list review
@@ -60,3 +60,5 @@ establishes the cadence recorded in the list's Monitoring section.
 
 - 1.1 (2026-09-17) — Added `mitigates` link to RISK-010 (risk register bootstrap, TASK-147). Traceability only: the requirement content is
   unchanged, so the existing approval stands.
+- 1.2 (2026-10-21) — Tagged `control:protective` (type of the risk control it implements,
+  medical-records 0.3.2). Traceability only: the content is unchanged, so the existing approval stands.

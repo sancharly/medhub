@@ -3,11 +3,11 @@ id: "PRB-013"
 type: problem-report
 title: "Task enqueue failures are swallowed without a log"
 status: open
-criticality: major
 version: "1.0"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
-updated: "2026-09-17"
+updated: "2026-10-21"
+criticality: major
 links: []
 tags: ["correctness", "hazard:denial-of-care"]
 ---

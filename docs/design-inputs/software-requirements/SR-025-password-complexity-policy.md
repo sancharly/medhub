@@ -3,10 +3,10 @@ id: "SR-025"
 type: software-requirement
 title: "Password complexity policy"
 status: approved
-version: "1.3"
+version: "1.4"
 author: "Carlos Santiago Liceras"
 created: "2026-07-07"
-updated: "2026-09-17"
+updated: "2026-10-21"
 links:
   - target: "RR-003"
     relation: satisfies
@@ -16,7 +16,7 @@ links:
     relation: mitigates
   - target: "NFR-007"
     relation: derives_from
-tags: []
+tags: ["control:design", "control:protective"]
 ---
 
 ## Summary
@@ -71,3 +71,5 @@ Version 1.1 - Requirement split from combined SR-025; scope narrowed to password
 - 1.3 (2026-09-17) — Added `satisfies` link to RR-003 (regulatory requirements
   extracted from the NFRs with clause citations). Traceability only: the requirement content is
   unchanged, so the existing approval stands.
+- 1.4 (2026-10-21) — Tagged `control:design`, `control:protective` (type of the risk control it implements,
+  medical-records 0.3.2). Traceability only: the content is unchanged, so the existing approval stands.

@@ -3,10 +3,10 @@ id: "TASK-135"
 type: task
 title: "True streaming attachment upload and download"
 status: draft
-version: "1.1"
+version: "1.2"
 author: "Carlos Santiago Liceras"
 created: "2026-07-07"
-updated: "2026-09-17"
+updated: "2026-10-21"
 links:
   - target: "RISK-003"
     relation: mitigates
@@ -18,7 +18,7 @@ links:
     relation: relates_to
   - target: "TASK-125"
     relation: relates_to
-tags: ["phase:review-2026-07", "severity:high", "remediation-of:TASK-125"]
+tags: ["phase:review-2026-07", "severity:high", "remediation-of:TASK-125", "control:protective"]
 ---
 
 - **Phase:** Review 2026-07 — backend security/robustness
@@ -68,3 +68,5 @@ criterion was not met; this task restores it.
 
 - 1.1 (2026-09-17) — Added `mitigates` link to RISK-003 (risk register bootstrap, TASK-147). Traceability only: the requirement content is
   unchanged, so the existing approval stands.
+- 1.2 (2026-10-21) — Tagged `control:protective` (type of the risk control it implements,
+  medical-records 0.3.2). Traceability only: the content is unchanged, so the existing approval stands.

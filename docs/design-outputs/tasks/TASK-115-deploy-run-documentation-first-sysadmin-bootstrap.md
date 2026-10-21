@@ -3,10 +3,10 @@ id: "TASK-115"
 type: task
 title: "Deploy/run documentation + first-sysadmin bootstrap"
 status: draft
-version: "1.1"
+version: "1.2"
 author: "Carlos Santiago Liceras"
 created: "2026-07-07"
-updated: "2026-09-17"
+updated: "2026-10-21"
 links:
   - target: "RISK-007"
     relation: mitigates
@@ -24,7 +24,7 @@ links:
     relation: relates_to
   - target: "TASK-032"
     relation: relates_to
-tags: ["phase:9-integration-system-testing-compliance"]
+tags: ["phase:9-integration-system-testing-compliance", "control:information", "control:protective"]
 ---
 
 - **Phase:** 9 — Integration, system testing, compliance hardening
@@ -90,3 +90,5 @@ This task must **not**: modify the dev plan, README task index/template, or requ
 
 - 1.1 (2026-09-17) — Added `mitigates` link to RISK-007, RISK-011 (risk register bootstrap, TASK-147). Traceability only: the requirement content is
   unchanged, so the existing approval stands.
+- 1.2 (2026-10-21) — Tagged `control:information`, `control:protective` (type of the risk control it implements,
+  medical-records 0.3.2). Traceability only: the content is unchanged, so the existing approval stands.

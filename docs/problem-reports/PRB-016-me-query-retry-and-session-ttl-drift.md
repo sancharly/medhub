@@ -3,11 +3,11 @@ id: "PRB-016"
 type: problem-report
 title: "The `me` query is issued from nine places with inconsistent retry and a hard-coded session TTL"
 status: open
-criticality: major
 version: "1.0"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
-updated: "2026-09-17"
+updated: "2026-10-21"
+criticality: major
 links: []
 tags: ["correctness", "hazard:availability"]
 ---

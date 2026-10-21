@@ -3,11 +3,11 @@ id: "PRB-010"
 type: problem-report
 title: "Authorization and consent audit records carry no source IP"
 status: open
-criticality: major
 version: "1.0"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
-updated: "2026-09-17"
+updated: "2026-10-21"
+criticality: major
 links: []
 tags: ["security", "hazard:detectability"]
 ---

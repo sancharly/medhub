@@ -3,11 +3,11 @@ id: "PRB-007"
 type: problem-report
 title: "Runtime container runs as root and Compose ships insecure default secrets"
 status: open
-criticality: major
 version: "1.0"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
-updated: "2026-09-17"
+updated: "2026-10-21"
+criticality: major
 links: []
 tags: ["security", "configuration-management"]
 ---

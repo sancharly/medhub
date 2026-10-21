@@ -2,7 +2,7 @@
 id: "TASK-147"
 type: task
 title: "ISO 14971 risk register bootstrap"
-status: draft
+status: in_review
 version: "1.0"
 author: "Carlos Santiago Liceras"
 created: "2026-07-07"
@@ -25,7 +25,7 @@ tags: ["phase:review-2026-07", "severity:high", "regulatory"]
 - **Implements:** NFR-005 (MDR/FDA), NFR-006 (IEC 62304 process)
 - **Depends on:** —
 - **Branch:** `doc/risk-register`
-- **Status:** Not started
+- **Status:** Implemented on `doc/agentic-os-migration` — handed to review
 - **Source:** `docs/reports/CODE-REVIEW-2026-07.md` — finding W (High, regulatory)
 
 ## Objective
@@ -63,3 +63,9 @@ file. This blocks any release claim.
 - [ ] Records pass the design-record-structure conventions (frontmatter lint)
 - [ ] TASK-114 scope note updated to include the risk column
 - [ ] Reviewed/approved status transition recorded per document control convention
+
+## Implementation record
+
+- 2026-10-21 — Implemented: PLAN-005 (risk management plan, approved acceptability bands as
+  `risk_matrix` in `docs/medtrace.yml`), RISK-001..011 with scored frontmatter, `mitigates` links and
+  `control:*` tags on the implementing SRs/TASKs. `draft → in_review` for QA/owner review.

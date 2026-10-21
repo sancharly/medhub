@@ -3,11 +3,11 @@ id: "PRB-014"
 type: problem-report
 title: "Frontend mounts every route for any authenticated user"
 status: open
-criticality: major
 version: "1.0"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
-updated: "2026-09-17"
+updated: "2026-10-21"
+criticality: major
 links: []
 tags: ["security", "hazard:privacy"]
 ---

@@ -3,11 +3,11 @@ id: "PRB-006"
 type: problem-report
 title: "DICOM frame endpoint decodes pixel data with no size or decompression bound"
 status: open
-criticality: major
 version: "1.0"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
-updated: "2026-09-17"
+updated: "2026-10-21"
+criticality: major
 links: []
 tags: ["security", "hazard:availability"]
 ---

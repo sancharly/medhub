@@ -3,10 +3,18 @@ id: "RISK-010"
 type: risk
 title: "Unreviewed SOUP change weakens a verified risk control"
 status: in_review
-version: "1.0"
+version: "1.1"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
 updated: "2026-10-21"
+hazard: "A third-party component changing behaviour in a way that disables or weakens a control that a risk record depends on."
+cause: "A floating image tag (`nginx:alpine`, `minio/minio:latest`) or an unreviewed library upgrade pulls a new version → TLS/HSTS headers, server-side encryption, password hashing or query parameterization behave differently → a control that a RISK record claims is verified no longer holds, with no test failing."
+harm: "Indirect: re-enables the harms of RISK-001, RISK-005 or RISK-008."
+severity_initial: 3
+probability_initial: 2
+severity_residual: 3
+probability_residual: 1
+acceptability: acceptable
 links:
   - target: "SOUP-001"
     relation: relates_to
@@ -101,33 +109,31 @@ Indirect: re-enables the harms of RISK-001, RISK-005 or RISK-008.
 
 ## Software items involved
 
-All items; specifically nginx, MinIO, cryptography, argon2-cffi, SQLAlchemy, Redis, pydicom (see ADD-004).
+All items; specifically nginx, MinIO, cryptography, argon2-cffi, SQLAlchemy, Redis, pydicom (SOUP-001..035).
 
 ## Initial risk
 
-| Severity | Probability (P2) | Risk level (per ADD-003) |
-|---|---|---|
-| 3 — Moderate (a control silently stops working) | 2 — Remote | 6 — ALARP (6) |
-
-P1 (probability of the software fault itself) is taken as 1 per ADD-003: the fault is assumed to occur.
+Severity 3 — Moderate (a control silently stops working) — × probability 2 (Remote) → **alarp** per `risk_matrix` in
+`docs/medtrace.yml` ([PLAN-005](../plans/PLAN-005-risk-management-plan.md)). Following the plan's software
+convention, P1 — the probability of the software fault itself — is taken as 1 (the fault is assumed to
+occur); the score is severity × P2, the probability that the hazardous situation leads to the harm.
 
 ## Risk control measures
 
 | Measure | Type | Implemented by | Verified by |
 |---|---|---|---|
-| SOUP list with exact versions, required functions and required HW/SW | Design | SR-028, ADD-004 | TR (Release stage) |
-| Every image and dependency pinned to an immutable version | Design | PRB-001 resolution | TR (Release stage) |
-| Anomaly and advisory review per version, at least yearly and before release | Protective | TASK-154 | TR (Release stage) |
-| Tests asserting the security headers, encryption and hashing behaviour | Protective | SR-001, SR-022, SR-025 | TS (Review stage) |
+| SOUP list with exact versions, required functions and required HW/SW | Design | SR-028, SOUP-001..035 | TR-001, TS-013 |
+| Every image and dependency pinned to an immutable version | Design | PRB-001 resolution | none yet |
+| Anomaly and advisory review per version, at least yearly and before release | Protective | TASK-154 | none yet |
+| Tests asserting the security headers, encryption and hashing behaviour | Protective | SR-001, SR-022, SR-025 | TR-001, TS-001, TS-008, TS-011 |
 
 ## Residual risk
 
-| Severity | Probability (P2) | Risk level | Acceptable? | Decided by / date |
-|---|---|---|---|---|
-| 3 — Moderate (a control silently stops working) | 1 — Improbable | 3 — Acceptable (3) | **pending human decision** | — |
+Severity 3 (unchanged — controls reduce probability, not severity) × probability 1
+(Improbable) → **acceptable**, derived from `risk_matrix`. Residual assumes PRB-001 is closed and TASK-154 has been run at least once. Neither is true today, so the current probability is the initial one.
 
-Residual assumes PRB-001 is closed and TASK-154 has been run at least once. Neither is true today, so the current probability is the initial one.
+**Decided by:** pending — the owner's acceptance is the approval of this record.
 
 ## Risks introduced by controls
 
-Pinning delays security patches; the monitoring cadence in ADD-004 is the counterweight.
+Pinning delays security patches; the monitoring cadence in PLAN-002 is the counterweight.

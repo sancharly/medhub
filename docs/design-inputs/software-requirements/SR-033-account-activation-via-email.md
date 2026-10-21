@@ -3,10 +3,10 @@ id: "SR-033"
 type: software-requirement
 title: "Account activation via email"
 status: approved
-version: "1.1"
+version: "1.2"
 author: "Carlos Santiago Liceras"
 created: "2026-07-07"
-updated: "2026-09-17"
+updated: "2026-10-21"
 links:
   - target: "RISK-009"
     relation: mitigates
@@ -14,7 +14,7 @@ links:
     relation: derives_from
   - target: "NFR-007"
     relation: derives_from
-tags: []
+tags: ["control:protective"]
 ---
 
 ## Summary
@@ -66,3 +66,5 @@ Email-based activation serves two security purposes: it verifies that the regist
 
 - 1.1 (2026-09-17) — Added `mitigates` link to RISK-009 (risk register bootstrap, TASK-147). Traceability only: the requirement content is
   unchanged, so the existing approval stands.
+- 1.2 (2026-10-21) — Tagged `control:protective` (type of the risk control it implements,
+  medical-records 0.3.2). Traceability only: the content is unchanged, so the existing approval stands.

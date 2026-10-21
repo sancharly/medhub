@@ -3,11 +3,11 @@ id: "PRB-026"
 type: problem-report
 title: "Role-based authorization is embedded in the persistence layer"
 status: open
-criticality: major
 version: "1.0"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
-updated: "2026-09-17"
+updated: "2026-10-21"
+criticality: major
 links: []
 tags: ["correctness", "hazard:privacy"]
 ---

@@ -3,11 +3,11 @@ id: "PRB-004"
 type: problem-report
 title: "Ciphertext envelope carries no key identifier, so key rotation cannot be performed safely"
 status: open
-criticality: major
 version: "1.0"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
-updated: "2026-09-17"
+updated: "2026-10-21"
+criticality: major
 links: []
 tags: ["security", "hazard:availability"]
 ---

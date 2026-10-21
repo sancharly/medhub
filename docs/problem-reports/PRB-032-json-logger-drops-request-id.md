@@ -3,11 +3,11 @@ id: "PRB-032"
 type: problem-report
 title: "JSON log formatter drops the request-id field it promises"
 status: open
-criticality: minor
 version: "1.0"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
-updated: "2026-09-17"
+updated: "2026-10-21"
+criticality: minor
 links: []
 tags: ["correctness"]
 ---

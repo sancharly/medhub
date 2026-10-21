@@ -3,11 +3,11 @@ id: "PRB-017"
 type: problem-report
 title: "Security-relevant frontend units have no unit tests"
 status: open
-criticality: major
 version: "1.0"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
-updated: "2026-09-17"
+updated: "2026-10-21"
+criticality: major
 links: []
 tags: ["verification", "regulatory"]
 ---

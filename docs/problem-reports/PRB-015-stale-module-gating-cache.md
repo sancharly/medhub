@@ -3,11 +3,11 @@ id: "PRB-015"
 type: problem-report
 title: "Module list query is never invalidated, so DICOM gating goes stale"
 status: open
-criticality: major
 version: "1.0"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
-updated: "2026-09-17"
+updated: "2026-10-21"
+criticality: major
 links: []
 tags: ["correctness", "hazard:denial-of-care"]
 ---

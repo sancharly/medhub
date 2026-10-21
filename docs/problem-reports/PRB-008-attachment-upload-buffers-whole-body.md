@@ -3,11 +3,11 @@ id: "PRB-008"
 type: problem-report
 title: "Attachment upload and download buffer the whole object in memory"
 status: open
-criticality: major
 version: "1.0"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
-updated: "2026-09-17"
+updated: "2026-10-21"
+criticality: major
 links: []
 tags: ["performance", "hazard:availability"]
 ---

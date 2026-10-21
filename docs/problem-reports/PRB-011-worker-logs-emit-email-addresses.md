@@ -3,11 +3,11 @@ id: "PRB-011"
 type: problem-report
 title: "Worker logs emit email addresses, bypassing audit scrubbing"
 status: open
-criticality: major
 version: "1.0"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
-updated: "2026-09-17"
+updated: "2026-10-21"
+criticality: major
 links: []
 tags: ["privacy", "hazard:privacy"]
 ---

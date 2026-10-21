@@ -3,10 +3,10 @@ id: "SR-009"
 type: software-requirement
 title: "Administrative personnel non-clinical data scope"
 status: approved
-version: "1.2"
+version: "1.3"
 author: "Carlos Santiago Liceras"
 created: "2026-07-07"
-updated: "2026-09-17"
+updated: "2026-10-21"
 links:
   - target: "RR-001"
     relation: satisfies
@@ -16,7 +16,7 @@ links:
     relation: derives_from
   - target: "NFR-004"
     relation: derives_from
-tags: []
+tags: ["control:design"]
 ---
 
 ## Summary
@@ -59,3 +59,5 @@ Least-privilege access for administrative staff enforces confidentiality and GDP
 - 1.2 (2026-09-17) — Added `satisfies` link to RR-001 (regulatory requirements
   extracted from the NFRs with clause citations). Traceability only: the requirement content is
   unchanged, so the existing approval stands.
+- 1.3 (2026-10-21) — Tagged `control:design` (type of the risk control it implements,
+  medical-records 0.3.2). Traceability only: the content is unchanged, so the existing approval stands.

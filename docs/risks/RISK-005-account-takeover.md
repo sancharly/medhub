@@ -3,10 +3,18 @@ id: "RISK-005"
 type: risk
 title: "Account takeover leading to disclosure or falsified clinical records"
 status: in_review
-version: "1.0"
+version: "1.1"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
 updated: "2026-10-21"
+hazard: "An attacker acting as a legitimate user: reading PHI, or writing clinical entries as a clinician."
+cause: "Credential stuffing, brute force, a stolen session token, or a CSRF-able mutating endpoint → the attacker authenticates or rides an authenticated session → they read or write clinical data under someone else's identity."
+harm: "Wrong clinical decisions from falsified data, plus privacy harm. Recoverable if detected via the audit trail."
+severity_initial: 3
+probability_initial: 2
+severity_residual: 3
+probability_residual: 1
+acceptability: acceptable
 links:
   - target: "SOUP-012"
     relation: relates_to
@@ -45,31 +53,29 @@ SI-AUTH (`U-AUTH-Login`, session store), SI-API (CSRF, security headers), SI-FE-
 
 ## Initial risk
 
-| Severity | Probability (P2) | Risk level (per ADD-003) |
-|---|---|---|
-| 3 — Moderate (wrong data or disclosure) | 2 — Remote | 6 — ALARP (6) |
-
-P1 (probability of the software fault itself) is taken as 1 per ADD-003: the fault is assumed to occur.
+Severity 3 — Moderate (wrong data or disclosure) — × probability 2 (Remote) → **alarp** per `risk_matrix` in
+`docs/medtrace.yml` ([PLAN-005](../plans/PLAN-005-risk-management-plan.md)). Following the plan's software
+convention, P1 — the probability of the software fault itself — is taken as 1 (the fault is assumed to
+occur); the score is severity × P2, the probability that the hazardous situation leads to the harm.
 
 ## Risk control measures
 
 | Measure | Type | Implemented by | Verified by |
 |---|---|---|---|
-| Argon2id hashing with timing parity, and a password complexity policy | Design | SR-025 | TS (Review stage) |
-| Account lockout after failed attempts, wired into the login path | Protective | SR-029, TASK-118, TASK-140 | TS (Review stage) |
-| Opaque server-side sessions with absolute and idle expiry, revocable | Design | SR-030 | TS (Review stage) |
-| CSRF enforcement on every mutating route, security headers, TLS/HSTS | Design | SR-031, SR-001 | TS (Review stage) |
-| Audit trail of security-relevant events for detection | Protective | SR-023 | TS (Review stage) |
+| Argon2id hashing with timing parity, and a password complexity policy | Design | SR-025 | TR-001, TS-001 |
+| Account lockout after failed attempts, wired into the login path | Protective | SR-029, TASK-118, TASK-140 | TR-001, TS-001 |
+| Opaque server-side sessions with absolute and idle expiry, revocable | Design | SR-030 | TR-001, TS-001 |
+| CSRF enforcement on every mutating route, security headers, TLS/HSTS | Design | SR-031, SR-001 | TR-001, TS-008, TS-011 |
+| Audit trail of security-relevant events for detection | Protective | SR-023 | TS-009 |
 
 ## Residual risk
 
-| Severity | Probability (P2) | Risk level | Acceptable? | Decided by / date |
-|---|---|---|---|---|
-| 3 — Moderate (wrong data or disclosure) | 1 — Improbable | 3 — Acceptable (3) | **pending human decision** | — |
-
-App-wide CSRF enforcement and the lockout wiring are in place (TASK-128, TASK-118). Residual still
+Severity 3 (unchanged — controls reduce probability, not severity) × probability 1
+(Improbable) → **acceptable**, derived from `risk_matrix`. App-wide CSRF enforcement and the lockout wiring are in place (TASK-128, TASK-118). Residual still
 depends on PRB-003 (exemptions matched by prefix), PRB-018 (lockout parameter made required) and
 PRB-023 (non-atomic session-cap eviction) being closed.
+
+**Decided by:** pending — the owner's acceptance is the approval of this record.
 
 ## Risks introduced by controls
 

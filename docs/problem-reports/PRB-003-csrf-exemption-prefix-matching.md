@@ -3,11 +3,11 @@ id: "PRB-003"
 type: problem-report
 title: "CSRF exemption list matches by prefix, so future sibling routes are silently exempt"
 status: open
-criticality: major
 version: "1.0"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
-updated: "2026-09-17"
+updated: "2026-10-21"
+criticality: major
 links: []
 tags: ["security", "hazard:security"]
 ---

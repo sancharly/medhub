@@ -3,11 +3,11 @@ id: "PRB-029"
 type: problem-report
 title: "Rate limiting is keyed on the proxy address"
 status: open
-criticality: minor
 version: "1.0"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
-updated: "2026-09-17"
+updated: "2026-10-21"
+criticality: minor
 links: []
 tags: ["security"]
 ---

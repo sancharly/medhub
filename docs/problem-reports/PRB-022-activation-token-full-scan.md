@@ -3,11 +3,11 @@ id: "PRB-022"
 type: problem-report
 title: "Activation token validation scans the whole account table"
 status: open
-criticality: major
 version: "1.0"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
-updated: "2026-09-17"
+updated: "2026-10-21"
+criticality: major
 links: []
 tags: ["performance"]
 ---

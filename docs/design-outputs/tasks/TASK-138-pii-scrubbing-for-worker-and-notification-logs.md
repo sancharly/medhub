@@ -3,10 +3,10 @@ id: "TASK-138"
 type: task
 title: "PII scrubbing for worker and notification logs"
 status: draft
-version: "1.1"
+version: "1.2"
 author: "Carlos Santiago Liceras"
 created: "2026-07-07"
-updated: "2026-09-17"
+updated: "2026-10-21"
 links:
   - target: "RISK-008"
     relation: mitigates
@@ -18,7 +18,7 @@ links:
     relation: implements
   - target: "TASK-031"
     relation: relates_to
-tags: ["phase:review-2026-07", "severity:medium"]
+tags: ["phase:review-2026-07", "severity:medium", "control:protective"]
 ---
 
 - **Phase:** Review 2026-07 — backend security/robustness
@@ -61,3 +61,5 @@ retention/erasure machinery (SR-024 erasure cannot reach log archives).
 
 - 1.1 (2026-09-17) — Added `mitigates` link to RISK-008 (risk register bootstrap, TASK-147). Traceability only: the requirement content is
   unchanged, so the existing approval stands.
+- 1.2 (2026-10-21) — Tagged `control:protective` (type of the risk control it implements,
+  medical-records 0.3.2). Traceability only: the content is unchanged, so the existing approval stands.

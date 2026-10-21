@@ -3,11 +3,11 @@ id: "PRB-002"
 type: problem-report
 title: "boto3 is imported at runtime but declared nowhere, so attachment storage fails"
 status: open
-criticality: major
 version: "1.0"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
 updated: "2026-10-21"
+criticality: major
 links: []
 tags: ["soup", "configuration-management"]
 ---

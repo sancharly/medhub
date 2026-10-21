@@ -3,10 +3,10 @@ id: "TASK-140"
 type: task
 title: "Auth config hygiene: remove dead session_signing_key, make lockout_svc required"
 status: draft
-version: "1.1"
+version: "1.2"
 author: "Carlos Santiago Liceras"
 created: "2026-07-07"
-updated: "2026-09-17"
+updated: "2026-10-21"
 links:
   - target: "RISK-005"
     relation: mitigates
@@ -18,7 +18,7 @@ links:
     relation: relates_to
   - target: "TASK-003"
     relation: relates_to
-tags: ["phase:review-2026-07", "severity:low"]
+tags: ["phase:review-2026-07", "severity:low", "control:protective"]
 ---
 
 - **Phase:** Review 2026-07 — backend security/robustness
@@ -64,3 +64,5 @@ Two hygiene items with security-adjacent weight:
 
 - 1.1 (2026-09-17) — Added `mitigates` link to RISK-005 (risk register bootstrap, TASK-147). Traceability only: the requirement content is
   unchanged, so the existing approval stands.
+- 1.2 (2026-10-21) — Tagged `control:protective` (type of the risk control it implements,
+  medical-records 0.3.2). Traceability only: the content is unchanged, so the existing approval stands.

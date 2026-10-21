@@ -3,11 +3,11 @@ id: "PRB-019"
 type: problem-report
 title: "Upload bypasses the shared request helper and `ProblemError` is hand-written in a generated file"
 status: open
-criticality: minor
 version: "1.0"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
-updated: "2026-09-17"
+updated: "2026-10-21"
+criticality: minor
 links: []
 tags: ["correctness"]
 ---

@@ -3,11 +3,11 @@ id: "PRB-005"
 type: problem-report
 title: "Audit log is append-only by convention rather than by the database, and its scrub is pattern-limited"
 status: open
-criticality: major
 version: "1.0"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
-updated: "2026-09-17"
+updated: "2026-10-21"
+criticality: major
 links: []
 tags: ["security", "hazard:detectability"]
 ---

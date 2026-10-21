@@ -3,11 +3,11 @@ id: "PRB-028"
 type: problem-report
 title: "Module version regex accepts trailing garbage"
 status: open
-criticality: minor
 version: "1.0"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
-updated: "2026-09-17"
+updated: "2026-10-21"
+criticality: minor
 links: []
 tags: ["security"]
 ---

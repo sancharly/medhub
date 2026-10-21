@@ -3,11 +3,11 @@ id: "PRB-024"
 type: problem-report
 title: "Group membership lookup issues one query per membership"
 status: open
-criticality: minor
 version: "1.0"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
-updated: "2026-09-17"
+updated: "2026-10-21"
+criticality: minor
 links: []
 tags: ["performance"]
 ---

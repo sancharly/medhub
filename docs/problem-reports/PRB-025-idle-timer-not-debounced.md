@@ -3,11 +3,11 @@ id: "PRB-025"
 type: problem-report
 title: "Idle timer resets on every mouse and scroll event"
 status: open
-criticality: minor
 version: "1.0"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
-updated: "2026-09-17"
+updated: "2026-10-21"
+criticality: minor
 links: []
 tags: ["performance"]
 ---

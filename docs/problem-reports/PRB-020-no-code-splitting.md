@@ -3,11 +3,11 @@ id: "PRB-020"
 type: problem-report
 title: "No route-level code splitting, so the bundle cannot absorb the DICOM viewer"
 status: open
-criticality: minor
 version: "1.0"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
-updated: "2026-09-17"
+updated: "2026-10-21"
+criticality: minor
 links: []
 tags: ["performance"]
 ---

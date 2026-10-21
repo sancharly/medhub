@@ -3,10 +3,10 @@ id: "TASK-116"
 type: task
 title: "Clinical data re-keying into the anonymized dataset (remediation)"
 status: draft
-version: "1.1"
+version: "1.2"
 author: "Carlos Santiago Liceras"
 created: "2026-07-07"
-updated: "2026-09-17"
+updated: "2026-10-21"
 links:
   - target: "RISK-002"
     relation: mitigates
@@ -22,7 +22,7 @@ links:
     relation: relates_to
   - target: "TASK-044"
     relation: relates_to
-tags: ["phase:9-integration-system-testing-compliance"]
+tags: ["phase:9-integration-system-testing-compliance", "control:design", "control:protective"]
 ---
 
 - **Phase:** 9 — Integration, system testing, compliance hardening
@@ -239,3 +239,5 @@ Each test names the SR-024/ADR-0013 requirement it verifies.
 
 - 1.1 (2026-09-17) — Added `mitigates` link to RISK-002, RISK-008 (risk register bootstrap, TASK-147). Traceability only: the requirement content is
   unchanged, so the existing approval stands.
+- 1.2 (2026-10-21) — Tagged `control:design`, `control:protective` (type of the risk control it implements,
+  medical-records 0.3.2). Traceability only: the content is unchanged, so the existing approval stands.

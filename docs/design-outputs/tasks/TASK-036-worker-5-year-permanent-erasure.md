@@ -3,10 +3,10 @@ id: "TASK-036"
 type: task
 title: "Worker: 5-year permanent erasure"
 status: approved
-version: "1.1"
+version: "1.2"
 author: "Carlos Santiago Liceras"
 created: "2026-07-07"
-updated: "2026-09-17"
+updated: "2026-10-21"
 links:
   - target: "RISK-008"
     relation: mitigates
@@ -14,7 +14,7 @@ links:
     relation: implements
   - target: "TASK-035"
     relation: relates_to
-tags: ["audit-verified", "phase:2-auth-session-authorization-identity"]
+tags: ["audit-verified", "phase:2-auth-session-authorization-identity", "control:design"]
 ---
 
 - **Phase:** 2 — Auth, session, authorization, identity, worker base
@@ -115,3 +115,5 @@ Distilled from SR-024.4 / ADR-0013:
 
 - 1.1 (2026-09-17) — Added `mitigates` link to RISK-008 (risk register bootstrap, TASK-147). Traceability only: the requirement content is
   unchanged, so the existing approval stands.
+- 1.2 (2026-10-21) — Tagged `control:design` (type of the risk control it implements,
+  medical-records 0.3.2). Traceability only: the content is unchanged, so the existing approval stands.
