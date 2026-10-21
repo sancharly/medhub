@@ -6,7 +6,7 @@ status: in_review
 version: "1.0"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
-updated: "2026-09-17"
+updated: "2026-10-21"
 links: []
 tags: ["iso14971", "iec62304", "regulatory"]
 ---
@@ -34,4 +34,4 @@ The project shall maintain a risk management file: a plan defining severity, pro
 
 ## Realized by
 
-ADD-003, RISK-001..RISK-011. Task: TASK-147.
+PLAN-005, the `risk_matrix` in `docs/medtrace.yml`, RISK-001..RISK-011. Task: TASK-147.

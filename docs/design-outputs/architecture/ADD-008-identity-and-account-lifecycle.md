@@ -6,7 +6,7 @@ status: in_review
 version: "1.0"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
-updated: "2026-09-17"
+updated: "2026-10-21"
 links:
   - target: "SR-003"
     relation: implements
@@ -23,6 +23,8 @@ links:
   - target: "RISK-002"
     relation: relates_to
   - target: "RISK-008"
+    relation: relates_to
+  - target: "SOUP-014"
     relation: relates_to
 tags: ["software-item:SI-IDENTITY", "class:B", "layer:backend"]
 ---

@@ -6,7 +6,7 @@ status: in_review
 version: "1.0"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
-updated: "2026-09-17"
+updated: "2026-10-21"
 links:
   - target: "SR-001"
     relation: implements
@@ -21,6 +21,24 @@ links:
   - target: "RISK-005"
     relation: relates_to
   - target: "RISK-007"
+    relation: relates_to
+  - target: "SOUP-001"
+    relation: relates_to
+  - target: "SOUP-002"
+    relation: relates_to
+  - target: "SOUP-003"
+    relation: relates_to
+  - target: "SOUP-004"
+    relation: relates_to
+  - target: "SOUP-005"
+    relation: relates_to
+  - target: "SOUP-006"
+    relation: relates_to
+  - target: "SOUP-007"
+    relation: relates_to
+  - target: "SOUP-017"
+    relation: relates_to
+  - target: "SOUP-024"
     relation: relates_to
 tags: ["software-item:SI-API", "class:B", "layer:backend"]
 ---

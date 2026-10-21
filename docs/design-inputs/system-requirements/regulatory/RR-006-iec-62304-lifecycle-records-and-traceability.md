@@ -6,7 +6,7 @@ status: in_review
 version: "1.0"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
-updated: "2026-09-17"
+updated: "2026-10-21"
 links: []
 tags: ["iec62304", "regulatory"]
 ---
@@ -34,4 +34,4 @@ The project shall maintain a software development plan, a classified safety clas
 
 ## Realized by
 
-SR-028. Records: ADD-002, ADD-003, ADD-004, the record set under `docs/`. Skill: `medical-records:traceability-check`.
+SR-028. Records: PLAN-001..005, SOUP-001..035, the record set under `docs/`. Skill: `medical-records:traceability-check`.

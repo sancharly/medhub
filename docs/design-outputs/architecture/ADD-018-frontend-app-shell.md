@@ -6,7 +6,7 @@ status: in_review
 version: "1.0"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
-updated: "2026-09-17"
+updated: "2026-10-21"
 links:
   - target: "SR-001"
     relation: implements
@@ -17,6 +17,26 @@ links:
   - target: "SR-027"
     relation: implements
   - target: "RISK-002"
+    relation: relates_to
+  - target: "SOUP-024"
+    relation: relates_to
+  - target: "SOUP-025"
+    relation: relates_to
+  - target: "SOUP-026"
+    relation: relates_to
+  - target: "SOUP-027"
+    relation: relates_to
+  - target: "SOUP-029"
+    relation: relates_to
+  - target: "SOUP-030"
+    relation: relates_to
+  - target: "SOUP-031"
+    relation: relates_to
+  - target: "SOUP-032"
+    relation: relates_to
+  - target: "SOUP-034"
+    relation: relates_to
+  - target: "SOUP-035"
     relation: relates_to
 tags: ["software-item:SI-FE-SHELL", "class:B", "layer:frontend"]
 ---

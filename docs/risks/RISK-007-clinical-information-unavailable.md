@@ -6,8 +6,18 @@ status: in_review
 version: "1.0"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
-updated: "2026-09-17"
-links: []
+updated: "2026-10-21"
+links:
+  - target: "SOUP-020"
+    relation: relates_to
+  - target: "SOUP-022"
+    relation: relates_to
+  - target: "SOUP-019"
+    relation: relates_to
+  - target: "SOUP-014"
+    relation: relates_to
+  - target: "SOUP-021"
+    relation: relates_to
 tags: ["hazard:availability", "class:B"]
 ---
 

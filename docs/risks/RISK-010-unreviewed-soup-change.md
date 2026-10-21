@@ -6,8 +6,78 @@ status: in_review
 version: "1.0"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
-updated: "2026-09-17"
-links: []
+updated: "2026-10-21"
+links:
+  - target: "SOUP-001"
+    relation: relates_to
+  - target: "SOUP-002"
+    relation: relates_to
+  - target: "SOUP-003"
+    relation: relates_to
+  - target: "SOUP-004"
+    relation: relates_to
+  - target: "SOUP-005"
+    relation: relates_to
+  - target: "SOUP-006"
+    relation: relates_to
+  - target: "SOUP-007"
+    relation: relates_to
+  - target: "SOUP-008"
+    relation: relates_to
+  - target: "SOUP-009"
+    relation: relates_to
+  - target: "SOUP-010"
+    relation: relates_to
+  - target: "SOUP-011"
+    relation: relates_to
+  - target: "SOUP-012"
+    relation: relates_to
+  - target: "SOUP-013"
+    relation: relates_to
+  - target: "SOUP-014"
+    relation: relates_to
+  - target: "SOUP-015"
+    relation: relates_to
+  - target: "SOUP-016"
+    relation: relates_to
+  - target: "SOUP-017"
+    relation: relates_to
+  - target: "SOUP-018"
+    relation: relates_to
+  - target: "SOUP-019"
+    relation: relates_to
+  - target: "SOUP-020"
+    relation: relates_to
+  - target: "SOUP-021"
+    relation: relates_to
+  - target: "SOUP-022"
+    relation: relates_to
+  - target: "SOUP-023"
+    relation: relates_to
+  - target: "SOUP-024"
+    relation: relates_to
+  - target: "SOUP-025"
+    relation: relates_to
+  - target: "SOUP-026"
+    relation: relates_to
+  - target: "SOUP-027"
+    relation: relates_to
+  - target: "SOUP-028"
+    relation: relates_to
+  - target: "SOUP-029"
+    relation: relates_to
+  - target: "SOUP-030"
+    relation: relates_to
+  - target: "SOUP-031"
+    relation: relates_to
+  - target: "SOUP-032"
+    relation: relates_to
+  - target: "SOUP-033"
+    relation: relates_to
+  - target: "SOUP-034"
+    relation: relates_to
+  - target: "SOUP-035"
+    relation: relates_to
 tags: ["hazard:soup", "class:B"]
 ---
 

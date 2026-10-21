@@ -6,7 +6,7 @@ status: in_review
 version: "1.0"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
-updated: "2026-09-17"
+updated: "2026-10-21"
 links:
   - target: "SR-001"
     relation: verifies
@@ -92,7 +92,8 @@ tags: ["class:B", "baseline"]
 - Static tools: `ruff` 0.15.18, `black` 26.5.1, `mypy` 2.1.0, `eslint` 8.57.1, `tsc` 5.9.3.
 - **No Docker daemon was available on the execution host**, so every testcontainers case errored at
   setup (`docker.errors.DockerException`).
-- SOUP versions: [ADD-004](../../design-outputs/architecture/ADD-004-soup-list.md).
+- SOUP versions: the `soup` records in [`../../soup/`](../../soup/) (same versions as the
+  run; the list moved from ADD-004 on 2026-10-21).
 
 ## Results
 
@@ -153,7 +154,7 @@ validation (SR-026) need the system-test tasks TASK-111 and TASK-112.
 Not applicable: this report is a verification baseline, not a release. A release report must
 evaluate every problem report still open at that point and state why any remaining anomaly does not
 contribute to unacceptable risk, against the criteria in
-[ADD-003](../../design-outputs/architecture/ADD-003-risk-management-plan.md).
+[PLAN-005](../../plans/PLAN-005-risk-management-plan.md).
 
 ## Conclusion
 

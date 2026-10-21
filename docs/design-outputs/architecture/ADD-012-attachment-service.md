@@ -6,7 +6,7 @@ status: in_review
 version: "1.0"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
-updated: "2026-09-17"
+updated: "2026-10-21"
 links:
   - target: "SR-013"
     relation: implements
@@ -19,6 +19,16 @@ links:
   - target: "RISK-007"
     relation: relates_to
   - target: "RISK-011"
+    relation: relates_to
+  - target: "SOUP-015"
+    relation: relates_to
+  - target: "SOUP-017"
+    relation: relates_to
+  - target: "SOUP-019"
+    relation: relates_to
+  - target: "SOUP-022"
+    relation: relates_to
+  - target: "SOUP-023"
     relation: relates_to
 tags: ["software-item:SI-ATTACH", "class:B", "layer:backend"]
 ---

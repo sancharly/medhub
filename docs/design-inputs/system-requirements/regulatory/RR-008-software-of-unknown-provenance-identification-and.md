@@ -6,7 +6,7 @@ status: in_review
 version: "1.0"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
-updated: "2026-09-17"
+updated: "2026-10-21"
 links: []
 tags: ["iec62304", "regulatory"]
 ---
@@ -33,4 +33,4 @@ The project shall maintain a SOUP list recording title, manufacturer and exact v
 
 ## Realized by
 
-ADD-004. Problem reports: PRB-001, PRB-002. Task: TASK-154. Risk: RISK-010.
+SOUP-001..SOUP-035 (one record per component). Problem reports: PRB-001, PRB-002, PRB-033. Task: TASK-154. Risk: RISK-010.

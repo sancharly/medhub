@@ -6,7 +6,7 @@ status: in_review
 version: "1.0"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
-updated: "2026-09-17"
+updated: "2026-10-21"
 links:
   - target: "TS-001"
     relation: relates_to
@@ -63,7 +63,7 @@ Software items: every item in [05-building-blocks.md](../../design/05-building-b
 
 Backend: Python 3.12, dependencies per `backend/uv.lock`. Frontend: Node 20, dependencies per
 `frontend/package-lock.json`. Exact SOUP versions in
-[ADD-004](../../design-outputs/architecture/ADD-004-soup-list.md). Real-database cases require a
+the `soup` records in [`../../soup/`](../../soup/). Real-database cases require a
 PostgreSQL 16 container via testcontainers and therefore a running Docker daemon.
 
 ## Entry criteria

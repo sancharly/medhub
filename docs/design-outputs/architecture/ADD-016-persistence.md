@@ -6,7 +6,7 @@ status: in_review
 version: "1.0"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
-updated: "2026-09-17"
+updated: "2026-10-21"
 links:
   - target: "SR-003"
     relation: implements
@@ -23,6 +23,18 @@ links:
   - target: "RISK-007"
     relation: relates_to
   - target: "RISK-011"
+    relation: relates_to
+  - target: "SOUP-006"
+    relation: relates_to
+  - target: "SOUP-008"
+    relation: relates_to
+  - target: "SOUP-009"
+    relation: relates_to
+  - target: "SOUP-010"
+    relation: relates_to
+  - target: "SOUP-011"
+    relation: relates_to
+  - target: "SOUP-020"
     relation: relates_to
 tags: ["software-item:SI-PERSIST", "class:B", "layer:backend"]
 ---

@@ -6,7 +6,7 @@ status: in_review
 version: "1.0"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
-updated: "2026-09-17"
+updated: "2026-10-21"
 links:
   - target: "SR-002"
     relation: implements
@@ -17,6 +17,12 @@ links:
   - target: "SR-033"
     relation: implements
   - target: "RISK-005"
+    relation: relates_to
+  - target: "SOUP-025"
+    relation: relates_to
+  - target: "SOUP-027"
+    relation: relates_to
+  - target: "SOUP-028"
     relation: relates_to
 tags: ["software-item:SI-FE-AUTH", "class:B", "layer:frontend"]
 ---

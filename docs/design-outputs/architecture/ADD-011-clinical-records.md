@@ -6,7 +6,7 @@ status: in_review
 version: "1.0"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
-updated: "2026-09-17"
+updated: "2026-10-21"
 links:
   - target: "SR-006"
     relation: implements
@@ -15,6 +15,8 @@ links:
   - target: "SR-012"
     relation: implements
   - target: "RISK-002"
+    relation: relates_to
+  - target: "SOUP-016"
     relation: relates_to
 tags: ["software-item:SI-CLINICAL", "class:B", "layer:backend"]
 ---

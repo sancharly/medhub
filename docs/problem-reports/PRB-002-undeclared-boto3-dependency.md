@@ -7,7 +7,7 @@ criticality: major
 version: "1.0"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
-updated: "2026-09-17"
+updated: "2026-10-21"
 links: []
 tags: ["soup", "configuration-management"]
 ---
@@ -30,8 +30,8 @@ in the SOUP list.
   path that depends on it are non-functional in a real deployment**. Unit tests pass because they
   substitute a fake storage client.
 - **IEC 62304 §8.1.2**: a SOUP item that is not declared has no title/manufacturer/version record
-  and cannot be version-controlled or anomaly-reviewed. It is the one row of
-  [ADD-004](../design-outputs/architecture/ADD-004-soup-list.md) with no version.
+  and cannot be version-controlled or anomaly-reviewed. Its record,
+  [SOUP-019](../soup/SOUP-019-boto3.md), is the one with no version.
 
 ## Root cause
 
@@ -48,7 +48,7 @@ information; assessed in the RISK register as an availability contribution, not 
 ## Proposed resolution
 
 Declare `boto3` with a pinned lower bound in `backend/pyproject.toml`, refresh `uv.lock`, record the
-locked version in ADD-004, and add a smoke check that instantiates `ObjectStorageClient` against
+locked version in SOUP-019, and add a smoke check that instantiates `ObjectStorageClient` against
 the MinIO service in CI so a missing SDK fails the build rather than a user request. Alternatively,
 keep it optional but declare an extra and fail fast at application startup when object storage is
 configured. Requires a CR that links `resolves` → PRB-002.

@@ -6,7 +6,7 @@ status: in_review
 version: "1.0"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
-updated: "2026-09-17"
+updated: "2026-10-21"
 links:
   - target: "SR-016"
     relation: implements
@@ -15,6 +15,8 @@ links:
   - target: "RISK-003"
     relation: relates_to
   - target: "RISK-007"
+    relation: relates_to
+  - target: "SOUP-015"
     relation: relates_to
 tags: ["software-item:SI-MOD-DICOM-BE", "class:B", "layer:backend"]
 ---

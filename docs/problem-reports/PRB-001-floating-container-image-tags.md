@@ -7,7 +7,7 @@ criticality: major
 version: "1.0"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
-updated: "2026-09-17"
+updated: "2026-10-21"
 links: []
 tags: ["soup", "regulatory", "configuration-management"]
 ---
@@ -28,8 +28,8 @@ Two identical `docker compose up` runs on different days can therefore produce d
 ## Impact
 
 - **IEC 62304 §8.1.2** requires each SOUP item to carry a unique designation (exact version).
-  `latest` and `alpine` are not versions, so [ADD-004](../design-outputs/architecture/ADD-004-soup-list.md)
-  cannot state what is actually deployed.
+  `latest` and `alpine` are not versions, so the container SOUP records (SOUP-001, SOUP-020..024 in
+  [`../soup/`](../soup/)) cannot state what is actually deployed.
 - **§5.8.5–5.8.7** require the released software to be reproducible and archived. A floating tag
   breaks that claim for a release.
 - **§7.1.2** anomaly review is meaningless against a version that can change without notice, and a
@@ -52,6 +52,6 @@ referenced there rather than duplicating the analysis.
 ## Proposed resolution
 
 Pin every image to an immutable digest (`image@sha256:…`) or at minimum a full patch version, in
-`infra/docker-compose.yml` and both Dockerfiles; record the pinned versions in ADD-004; and add a
+`infra/docker-compose.yml` and both Dockerfiles; record the pinned versions in each image's `soup` record (`soup_version`); and add a
 CI check that fails when an image reference has no digest or patch version. Requires a CR that
 links `resolves` → PRB-001.

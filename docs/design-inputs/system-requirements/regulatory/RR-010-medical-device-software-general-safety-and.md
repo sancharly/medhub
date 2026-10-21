@@ -6,7 +6,7 @@ status: in_review
 version: "1.0"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
-updated: "2026-09-17"
+updated: "2026-10-21"
 links: []
 tags: ["mdr", "fda", "regulatory"]
 ---
@@ -34,4 +34,4 @@ The project shall define the intended use and the software safety class, verify 
 
 ## Realized by
 
-SR-028, SR-026, SR-019. Records: ADD-002, the test plan and report records. Problem report: PRB-001.
+SR-028, SR-026, SR-019. Records: PLAN-001, the test plan and report records. Problem report: PRB-001.

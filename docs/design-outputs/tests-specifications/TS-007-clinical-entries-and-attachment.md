@@ -6,7 +6,7 @@ status: in_review
 version: "1.0"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
-updated: "2026-09-17"
+updated: "2026-10-21"
 links:
   - target: "SR-012"
     relation: verifies
@@ -29,7 +29,7 @@ Build: branch `doc/agentic-os-migration`, commit `40401a1`. Backend Python 3.12 
 dependencies locked in `backend/uv.lock`; frontend Node 20 with `frontend/package-lock.json`.
 Unit and service tests run with no external services (in-memory repositories and a fake object store). Tests marked *real DB* require a
 PostgreSQL 16 container through testcontainers and therefore a working Docker daemon.
-Exact SOUP versions: [ADD-004](../architecture/ADD-004-soup-list.md).
+Exact SOUP versions: the `soup` records in [`../../soup/`](../../soup/).
 
 ## Test cases
 
