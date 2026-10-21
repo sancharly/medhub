@@ -24,7 +24,7 @@ IEC 62304 §5.5 requires unit verification for class B software. These units imp
 
 ## Safety evaluation
 
-Contributes to RISK-005, RISK-004 and RISK-001 indirectly: an unverified control is not a control (ADD-003).
+Contributes to RISK-005, RISK-004 and RISK-001 indirectly: an unverified control is not a control (PLAN-005).
 
 ## Resolution
 
