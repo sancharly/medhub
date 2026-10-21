@@ -1,6 +1,6 @@
 # Gap report — 2026-10-21
 
-Scope: whole project  ·  Records scanned: 313  ·  Errors: 0  ·  Warnings: 133  ·  Safety class: B
+Scope: whole project  ·  Records scanned: 314  ·  Errors: 0  ·  Warnings: 133  ·  Safety class: B
 
 Generated with the `medical-records:traceability-check` procedure (0.3.2) as a throwaway parser. `modified_after_approval` is not computed: only the MedTrace app can compute `approved_digest`.
 
@@ -10,7 +10,7 @@ Generated with the `medical-records:traceability-check` procedure (0.3.2) as a t
 |---|---|
 | `user-need` | 15 |
 | `nfr` | 9 |
-| `regulatory-requirement` | 10 |
+| `regulatory-requirement` | 11 |
 | `software-requirement` | 39 |
 | `architecture-doc` | 23 |
 | `task` | 118 |
@@ -35,12 +35,13 @@ None.
 |---|---|
 | W1 | 3 |
 | W2 | 10 |
-| W5 | 72 |
+| W4 | 1 |
+| W5 | 66 |
+| W6 | 4 |
 | W7 | 9 |
-| risk_control_unverified | 2 |
+| risk_control_unverified | 4 |
 | soup_anomaly_review_stale | 35 |
 | soup_unintegrated | 1 |
-| sr_without_architecture | 1 |
 
 | Check | Element | File | Problem |
 |---|---|---|---|
@@ -57,6 +58,7 @@ None.
 | W2 | SR-023 | `docs/design-inputs/software-requirements/SR-023-audit-logging-of-security-relevant-events.md` | no TR verifies this SR |
 | W2 | SR-026 | `docs/design-inputs/software-requirements/SR-026-performance-budgets-for-routine-operations.md` | no TR verifies this SR |
 | W2 | SR-031 | `docs/design-inputs/software-requirements/SR-031-web-vulnerability-mitigations.md` | no TR verifies this SR |
+| W4 | RR-011 | `docs/design-inputs/system-requirements/regulatory/RR-011-traceable-version-controlled-development-records.md` | input not decomposed into any SR |
 | W5 | SR-001 | `docs/design-inputs/software-requirements/SR-001-browser-accessible-web-application-over-https.md` | approved but links to RR-003 (in_review) |
 | W5 | SR-001 | `docs/design-inputs/software-requirements/SR-001-browser-accessible-web-application-over-https.md` | approved but links to RISK-005 (in_review) |
 | W5 | SR-001 | `docs/design-inputs/software-requirements/SR-001-browser-accessible-web-application-over-https.md` | approved but links to RISK-010 (in_review) |
@@ -106,12 +108,6 @@ None.
 | W5 | SR-026 | `docs/design-inputs/software-requirements/SR-026-performance-budgets-for-routine-operations.md` | approved but links to RR-010 (in_review) |
 | W5 | SR-026 | `docs/design-inputs/software-requirements/SR-026-performance-budgets-for-routine-operations.md` | approved but links to RISK-007 (in_review) |
 | W5 | SR-027 | `docs/design-inputs/software-requirements/SR-027-usability-controls.md` | approved but links to RR-009 (in_review) |
-| W5 | SR-028 | `docs/design-inputs/software-requirements/SR-028-traceable-version-controlled-development-records.md` | approved but links to RR-006 (in_review) |
-| W5 | SR-028 | `docs/design-inputs/software-requirements/SR-028-traceable-version-controlled-development-records.md` | approved but links to RR-007 (in_review) |
-| W5 | SR-028 | `docs/design-inputs/software-requirements/SR-028-traceable-version-controlled-development-records.md` | approved but links to RR-008 (in_review) |
-| W5 | SR-028 | `docs/design-inputs/software-requirements/SR-028-traceable-version-controlled-development-records.md` | approved but links to RR-010 (in_review) |
-| W5 | SR-028 | `docs/design-inputs/software-requirements/SR-028-traceable-version-controlled-development-records.md` | approved but links to RISK-007 (in_review) |
-| W5 | SR-028 | `docs/design-inputs/software-requirements/SR-028-traceable-version-controlled-development-records.md` | approved but links to RISK-010 (in_review) |
 | W5 | SR-029 | `docs/design-inputs/software-requirements/SR-029-account-lockout-after-failed-login-attempts.md` | approved but links to RR-003 (in_review) |
 | W5 | SR-029 | `docs/design-inputs/software-requirements/SR-029-account-lockout-after-failed-login-attempts.md` | approved but links to RISK-005 (in_review) |
 | W5 | SR-030 | `docs/design-inputs/software-requirements/SR-030-session-management.md` | approved but links to RR-003 (in_review) |
@@ -129,6 +125,10 @@ None.
 | W5 | TASK-066 | `docs/design-outputs/tasks/TASK-066-clinical-entry-attachment-endpoints.md` | approved but links to RISK-002 (in_review) |
 | W5 | TASK-118 | `docs/design-outputs/tasks/TASK-118-wire-account-lockout-into-the-login.md` | approved but links to RISK-005 (in_review) |
 | W5 | TASK-132 | `docs/design-outputs/tasks/TASK-132-clinical-entries-view-completeness-remediation.md` | approved but links to TASK-101 (draft) |
+| W6 | TASK-001 | `docs/design-outputs/tasks/TASK-001-monorepo-structure-tooling.md` | links to obsolete SR-028 |
+| W6 | TASK-005 | `docs/design-outputs/tasks/TASK-005-ci-pipeline.md` | links to obsolete SR-028 |
+| W6 | TASK-147 | `docs/design-outputs/tasks/TASK-147-iso-14971-risk-register-bootstrap.md` | links to obsolete SR-028 |
+| W6 | TASK-154 | `docs/design-outputs/tasks/TASK-154-soup-anomaly-list-review.md` | links to obsolete SR-028 |
 | W7 | TASK-001 | `docs/design-outputs/tasks/TASK-001-monorepo-structure-tooling.md` | approved TASK whose SR NFR-006 has no TS |
 | W7 | TASK-003 | `docs/design-outputs/tasks/TASK-003-config-secrets-management.md` | approved TASK whose SR NFR-007 has no TS |
 | W7 | TASK-005 | `docs/design-outputs/tasks/TASK-005-ci-pipeline.md` | approved TASK whose SR NFR-006 has no TS |
@@ -138,8 +138,10 @@ None.
 | W7 | TASK-081 | `docs/design-outputs/tasks/TASK-081-responsive-layout-mui-theme.md` | approved TASK whose SR NFR-003 has no TS |
 | W7 | TASK-083 | `docs/design-outputs/tasks/TASK-083-reusable-confirmation-dialog-for-destructive-actions.md` | approved TASK whose SR NFR-009 has no TS |
 | W7 | TASK-127 | `docs/design-outputs/tasks/TASK-127-surface-the-security-model-in-openapi.md` | approved TASK whose SR NFR-006 has no TS |
+| risk_control_unverified | TASK-111 | `docs/design-outputs/tasks/TASK-111-system-end-to-end-tests-playwright.md` | mitigating element reaches no test-report |
 | risk_control_unverified | TASK-113 | `docs/design-outputs/tasks/TASK-113-security-review-of-auth-session-authz.md` | mitigating element reaches no test-report |
 | risk_control_unverified | TASK-137 | `docs/design-outputs/tasks/TASK-137-capture-client-ip-in-authz-and-consent-audit.md` | mitigating element reaches no test-report |
+| risk_control_unverified | TASK-154 | `docs/design-outputs/tasks/TASK-154-soup-anomaly-list-review.md` | mitigating element reaches no test-report |
 | soup_anomaly_review_stale | SOUP-001 | `docs/soup/SOUP-001-python.md` | anomaly review missing or older than 365 days |
 | soup_anomaly_review_stale | SOUP-002 | `docs/soup/SOUP-002-fastapi.md` | anomaly review missing or older than 365 days |
 | soup_anomaly_review_stale | SOUP-003 | `docs/soup/SOUP-003-starlette.md` | anomaly review missing or older than 365 days |
@@ -176,7 +178,6 @@ None.
 | soup_anomaly_review_stale | SOUP-034 | `docs/soup/SOUP-034-font-inter.md` | anomaly review missing or older than 365 days |
 | soup_anomaly_review_stale | SOUP-035 | `docs/soup/SOUP-035-font-manrope.md` | anomaly review missing or older than 365 days |
 | soup_unintegrated | SOUP-018 | `docs/soup/SOUP-018-fakeredis.md` | no architecture element links this SOUP |
-| sr_without_architecture | SR-028 | `docs/design-inputs/software-requirements/SR-028-traceable-version-controlled-development-records.md` | SR not reached from any ADD |
 
 ## Coverage
 
@@ -209,7 +210,6 @@ None.
 | SR-025 | ADD-006, ADD-019 | TS-001 | TR-001 | RISK-005, RISK-010 |
 | SR-026 | ADD-005, ADD-012, ADD-022 | — | — | RISK-007 |
 | SR-027 | ADD-018 | TS-012 | TR-001 | — |
-| SR-028 | — | TS-013 | TR-001 | RISK-007, RISK-010 |
 | SR-029 | ADD-006 | TS-001 | TR-001 | RISK-005 |
 | SR-030 | ADD-006, ADD-019 | TS-001 | TR-001 | RISK-005 |
 | SR-031 | ADD-005, ADD-016, ADD-023 | TS-008, TS-011 | — | RISK-003, RISK-005 |

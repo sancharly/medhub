@@ -147,8 +147,10 @@ Corrections found while moving the data: `fhir.resources` is locked at 8.2.0 (AD
 | `soup_unintegrated` | 1 | SOUP-018 `fakeredis`: no item uses it (PRB-033) |
 | `sr_without_architecture` | 1 | SR-028 (traceable, version-controlled records) was covered by ADD-002/003, which are now plans. It is a process requirement that no software item implements; see the note below |
 
-**SR-028 needs a decision.** Under class B every SR must be reached from an architecture record, and
-this finding becomes an error in release scope. The options are to add an architecture record for
-the development and CI tooling (OpenAPI export, CI pipeline, record checks) that implements SR-028,
-or to restate SR-028 as a regulatory requirement satisfied by the plans. Both change approved
-records, so this decision is the owner's.
+**Owner decisions (2026-10-21).** SR-028 was restated as the regulatory requirement **RR-011**
+(SR-028 and TS-013 are now `obsolete`), which removes `sr_without_architecture`. PLAN-005's band
+summary was aligned with `risk_matrix`, which governs. After those changes: **314 records, 0
+errors**. New, expected findings: W4 on RR-011 (satisfied by the plans, not by an SR), W6 on
+TASK-001/005/147/154 (process tasks still implementing the obsolete SR-028 — the contract requires a
+TASK to implement an SR and none fits process work), and `risk_control_unverified` on TASK-111 and
+TASK-154 (their only verified SR was SR-028).
