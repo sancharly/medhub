@@ -3,11 +3,17 @@ id: "TASK-113"
 type: task
 title: "Security review of auth/session/authz + dependency vulnerability scan"
 status: draft
-version: "1.0"
+version: "1.2"
 author: "Carlos Santiago Liceras"
 created: "2026-07-07"
-updated: "2026-07-07"
+updated: "2026-10-21"
 links:
+  - target: "RISK-001"
+    relation: mitigates
+  - target: "RISK-004"
+    relation: mitigates
+  - target: "RISK-006"
+    relation: mitigates
   - target: "SR-031"
     relation: implements
   - target: "NFR-007"
@@ -24,7 +30,7 @@ links:
     relation: relates_to
   - target: "SR-030"
     relation: relates_to
-tags: ["phase:9-integration-system-testing-compliance"]
+tags: ["phase:9-integration-system-testing-compliance", "control:protective"]
 ---
 
 - **Phase:** 9 — Integration, system testing, compliance hardening
@@ -89,3 +95,10 @@ This is a review-and-scan task; its "tests" are the automated checks the review 
 - [ ] Audit events: N/A (review artifact; verifies that audited actions are audited)
 - [ ] Traceability matrix rows updated (SR-031, NFR-007 → TASK-113 → review record + evidence checks)
 - [ ] **Security review completed and signed** — this task **is** the SR-031.6 gate; the record is the deliverable
+
+## Version history
+
+- 1.1 (2026-09-17) — Added `mitigates` link to RISK-001, RISK-004, RISK-006 (risk register bootstrap, TASK-147). Traceability only: the requirement content is
+  unchanged, so the existing approval stands.
+- 1.2 (2026-10-21) — Tagged `control:protective` (type of the risk control it implements,
+  medical-records 0.3.2). Traceability only: the content is unchanged, so the existing approval stands.

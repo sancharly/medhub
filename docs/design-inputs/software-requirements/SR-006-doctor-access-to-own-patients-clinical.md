@@ -3,14 +3,18 @@ id: "SR-006"
 type: software-requirement
 title: "Doctor access to own patients' clinical data"
 status: approved
-version: "1.0"
+version: "1.3"
 author: "Carlos Santiago Liceras"
 created: "2026-07-07"
-updated: "2026-07-07"
+updated: "2026-10-21"
 links:
+  - target: "RR-001"
+    relation: satisfies
+  - target: "RISK-001"
+    relation: mitigates
   - target: "UN-004"
     relation: derives_from
-tags: []
+tags: ["control:design"]
 ---
 
 ## Summary
@@ -47,3 +51,13 @@ Scoping doctor access to their own patients enforces patient confidentiality whi
 
 - Enforce via the central authorization mechanism (SR-005) using care relationships and consent (SR-008).
 - Cover with automated negative tests; record access in the audit log (SR-023).
+
+## Version history
+
+- 1.1 (2026-09-17) — Added `mitigates` link to RISK-001 (risk register bootstrap, TASK-147). Traceability only: the requirement content is
+  unchanged, so the existing approval stands.
+- 1.2 (2026-09-17) — Added `satisfies` link to RR-001 (regulatory requirements
+  extracted from the NFRs with clause citations). Traceability only: the requirement content is
+  unchanged, so the existing approval stands.
+- 1.3 (2026-10-21) — Tagged `control:design` (type of the risk control it implements,
+  medical-records 0.3.2). Traceability only: the content is unchanged, so the existing approval stands.

@@ -123,6 +123,13 @@ Diagram: [`../specifications/diagram-building-blocks.puml`](../specifications/di
 ### SI-FE-APICLIENT
 - `U-FEAPI-Client` — generated typed client; cookie/CSRF handling (SR-031.3).
 
+## Development and verification infrastructure (not deployed)
+
+`SI-DEVINFRA` — the CI pipeline (`.github/workflows/ci.yml`), the toolchain configuration and lock
+files, and the OpenAPI contract export. It is part of the repository and gates every merge, but it
+is not deployed and no runtime item depends on it. Units: `U-INF-CIPipeline`, `U-INF-Toolchain`,
+`U-INF-ContractExport` (SR-028). Design record: ADD-024.
+
 ## Module boundary note
 
 Items `SI-MOD-DICOM-BE` and `SI-MOD-DICOM-FE` are **modules** added through the plugin mechanism (SI-MODHOST / SI-FE-MODREG). They demonstrate SR-016: they are separate packages, touch PHI only via `PlatformServices`, and require no edits to other items. Future modules follow the same shape.

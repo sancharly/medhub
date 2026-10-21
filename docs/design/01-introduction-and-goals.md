@@ -6,7 +6,8 @@ MedHub is a regulated medical web application that acts as a central hub for Pro
 
 ## Requirements Overview
 
-High-level requirements driving the architecture (full set in `docs/design-inputs/`; full mapping in [traceability-matrix.md](traceability-matrix.md)).
+High-level requirements driving the architecture (full set in `docs/design-inputs/`; the requirement-to-architecture mapping is carried by the
+`implements` links of the architecture records in [`../design-outputs/architecture/`](../design-outputs/architecture/)).
 
 | ID                                    | Requirement                            | Description                                                        | Priority |
 |---------------------------------------|----------------------------------------|--------------------------------------------------------------------|----------|

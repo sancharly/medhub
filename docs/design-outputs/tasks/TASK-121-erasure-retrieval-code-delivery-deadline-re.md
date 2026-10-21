@@ -6,7 +6,7 @@ status: approved
 version: "1.0"
 author: "Carlos Santiago Liceras"
 created: "2026-07-07"
-updated: "2026-07-07"
+updated: "2026-09-17"
 links:
   - target: "SR-024"
     relation: implements
@@ -16,7 +16,7 @@ links:
     relation: relates_to
   - target: "TASK-031"
     relation: relates_to
-tags: ["phase:2-auth-identity", "remediation-of:TASK-035", "original-id:TASK-035a"]
+tags: ["phase:2-auth-session-authorization-identity", "remediation-of:TASK-035", "original-id:TASK-035a"]
 ---
 
 - **Phase:** 2 — Auth & identity

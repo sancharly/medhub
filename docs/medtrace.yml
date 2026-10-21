@@ -1,6 +1,13 @@
-safety_class: C
-classification_rationale: Med hub is not a medical device
-no_soup: true
+safety_class: B
+classification_rationale: "MedHub centralizes PHI and clinical data (clinical entries, DICOM attachments, consent) and presents it to clinicians for use in care, without controlling therapy or diagnosis itself. A software failure — data attributed to the wrong patient, an incorrect DICOM render, or a stale consent state — can contribute to a wrong clinical decision, so non-serious injury is possible and serious injury is not a foreseeable direct result: IEC 62304:2006+A1:2015 §4.3 class B. The product is developed under IEC 62304 and the MDR/FDA design-control expectations recorded in NFR-005 and NFR-006."
+no_soup: false
+allow_self_approval: true
 soup_anomaly_max_age_days: 365
 severity_max: 5
 probability_max: 5
+risk_matrix:
+  - ["acceptable", "acceptable", "acceptable", "acceptable", "alarp"]
+  - ["acceptable", "acceptable", "alarp", "alarp", "alarp"]
+  - ["acceptable", "alarp", "alarp", "alarp", "unacceptable"]
+  - ["acceptable", "alarp", "alarp", "unacceptable", "unacceptable"]
+  - ["alarp", "unacceptable", "unacceptable", "unacceptable", "unacceptable"]

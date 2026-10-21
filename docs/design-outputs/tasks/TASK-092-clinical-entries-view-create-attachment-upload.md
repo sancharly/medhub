@@ -116,4 +116,5 @@ name for every entry, resolved server-side and returned as `authorName` on `Clin
 TASK-066b (2026-06-30) closed the two backend gaps TASK-092a had documented as out of its frontend-only
 scope: attachments are now listed via `GET /clinical-entries/{entry_id}/attachments` (so they persist
 across reloads instead of living only in the TanStack Query cache), and `authorName` is populated for
-every author, not just the viewer. See `docs/implementation-plan/phase-4-api-layer/TASK-066b-attachment-listing-author-name.md`.
+every author, not just the viewer. See [TASK-066](TASK-066-clinical-entry-attachment-endpoints.md), which TASK-066b was folded into
+during the MedTrace record migration.

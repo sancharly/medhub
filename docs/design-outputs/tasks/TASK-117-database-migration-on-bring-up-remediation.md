@@ -6,7 +6,7 @@ status: approved
 version: "1.0"
 author: "Carlos Santiago Liceras"
 created: "2026-07-07"
-updated: "2026-07-07"
+updated: "2026-09-17"
 links:
   - target: "SR-001"
     relation: implements
@@ -18,7 +18,7 @@ links:
     relation: relates_to
   - target: "TASK-011"
     relation: relates_to
-tags: ["phase:0-foundation", "remediation-of:TASK-004", "original-id:TASK-004a"]
+tags: ["phase:0-foundation-toolchain", "remediation-of:TASK-004", "original-id:TASK-004a"]
 ---
 
 - **Phase:** 0 — Foundation

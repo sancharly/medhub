@@ -4,7 +4,32 @@ Behavioral guidelines to reduce common LLM coding mistakes. Merge with project-s
 
 **Tradeoff:** These guidelines bias toward caution over speed. For trivial tasks, use judgment.
 
-## 1. Think Before Coding
+## Project configuration
+
+sdlc-extensions:
+  - medical-records:iec62304-sdlc
+software-safety-class: B
+docs-root: docs/
+arc42-root: docs/design/
+arc42-sections: 1-8, 10-12
+
+Agents and skills come from the [agentic-os](https://github.com/sancharly/agentic-os) plugins
+(`core-engineering`, `medical-records`, `web-fullstack`, `design-studio`), enabled in
+`.claude/settings.json`. Never hand-edit an installed plugin copy — change it in agentic-os,
+bump the bundle version and reinstall. `/ship-feature` drives the pipeline; the
+`medical-records:iec62304-sdlc` overlay above turns on the IEC 62304 stages, records and gates.
+
+Notes on the settings above:
+
+- **arc42 section 9** (architecture decisions) is the ADR log in `docs/design/adr/`, which is
+  why it is excluded from `arc42-sections`. Sections 1-8 and 10-12 use the canonical filenames.
+- **`docs/medtrace.yml`** mirrors `software-safety-class` for the MedTrace desktop app. The two
+  must stay in sync: change both or neither. The plugins read `medtrace.yml` first and stop if
+  the two differ; it also holds the approved `risk_matrix`.
+- **`docs/plans/`** holds only `lifecycle-plan` records (PLAN-001..005). Under the overlay a
+  feature's plan is its TASK records: never write a free-standing `docs/plans/<feature>.md`.
+
+## Think Before Coding
 
 **Don't assume. Don't hide confusion. Surface tradeoffs.**
 
@@ -15,7 +40,7 @@ Before implementing:
 - If a simpler approach exists, say so. Push back when warranted.
 - If something is unclear, stop. Name what's confusing. Ask.
 
-## 2. Simplicity First
+## Simplicity First
 
 **Minimum code that solves the problem. Nothing speculative.**
 
@@ -27,7 +52,7 @@ Before implementing:
 
 Ask yourself: "Would a senior engineer say this is overcomplicated?" If yes, simplify.
 
-## 3. Surgical Changes
+## Surgical Changes
 
 **Touch only what you must. Clean up only your own mess.**
 
@@ -45,7 +70,7 @@ When your changes create orphans:
 
 The test: Every changed line should trace directly to the user's request.
 
-## 4. Goal-Driven Execution
+## Goal-Driven Execution
 
 **Define success criteria. Loop until verified.**
 
@@ -65,7 +90,14 @@ For multi-step tasks, state a brief plan:
 
 Strong success criteria let you loop independently. Weak criteria ("make it work") require constant clarification.
 
-## 5. Backend/Frontend Contract
+## Model configuration
+
+Use the following models for each sub-agent (if none specified, inherit from orchestrator):
+
+- software-developer: Sonnet 5.5
+- document-writer: Sonnet 5.5
+
+## Backend/Frontend Contract
 
 **The OpenAPI schema is the source of truth. Never hand-write types.**
 
@@ -83,7 +115,7 @@ CI enforces this: the `openapi-lint` job regenerates `openapi.ts` after exportin
 
 **UserType enum values are uppercase**: `"PATIENT"`, `"DOCTOR"`, `"ADMIN"`, `"SYSADMIN"`. Use these constants everywhere in the frontend.
 
-## 6. graphify
+## graphify
 
 This project has a knowledge graph at graphify-out/ with god nodes, community structure, and cross-file relationships.
 

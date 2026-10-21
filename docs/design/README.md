@@ -18,13 +18,19 @@ This folder contains the MedHub software architecture and design, following the 
 | 10 Quality Requirements                         | [10-quality-requirements.md](10-quality-requirements.md)         |
 | 11 Risks and Technical Debt                     | [11-risks-and-technical-debt.md](11-risks-and-technical-debt.md) |
 | 12 Interfaces between software items            | [12-interfaces.md](12-interfaces.md)                             |
-| Requirements traceability matrix                | [traceability-matrix.md](traceability-matrix.md)                 |
+
+Section 9 (Architecture Decisions) is kept as the ADR log in [`adr/`](adr/) rather than a
+canonical `09-*.md` file, which is why the project declares `arc42-sections: 1-8, 10-12` in its
+configuration block (see [`../../CLAUDE.md`](../../CLAUDE.md)). Requirement traceability is carried
+by the `links` in each design record and reported by `traceability-check` in
+[`../reports/`](../reports/) — there is no hand-maintained matrix.
 
 ## Related artifacts
 
-- ADRs: [`adr/`](adr/)
+- ADRs (arc42 section 9): [`adr/`](adr/)
 - UML diagrams (PlantUML): [`../specifications/`](../specifications/)
 - API & interface design: [`../specifications/api-design.md`](../specifications/api-design.md)
 - FHIR mapping: [`../specifications/fhir-mapping.md`](../specifications/fhir-mapping.md)
+- Architecture records (ADD, one per software item): [`../design-outputs/architecture/`](../design-outputs/architecture/)
 
 > Diagrams are authored in PlantUML under `docs/specifications/*.puml` and referenced from the relevant sections.

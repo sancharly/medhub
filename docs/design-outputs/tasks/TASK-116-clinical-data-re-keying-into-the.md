@@ -3,11 +3,15 @@ id: "TASK-116"
 type: task
 title: "Clinical data re-keying into the anonymized dataset (remediation)"
 status: draft
-version: "1.0"
+version: "1.2"
 author: "Carlos Santiago Liceras"
 created: "2026-07-07"
-updated: "2026-07-07"
+updated: "2026-10-21"
 links:
+  - target: "RISK-002"
+    relation: mitigates
+  - target: "RISK-008"
+    relation: mitigates
   - target: "SR-024"
     relation: implements
   - target: "TASK-121"
@@ -18,7 +22,7 @@ links:
     relation: relates_to
   - target: "TASK-044"
     relation: relates_to
-tags: ["phase:9-integration-system-testing-compliance"]
+tags: ["phase:9-integration-system-testing-compliance", "control:design", "control:protective"]
 ---
 
 - **Phase:** 9 — Integration, system testing, compliance hardening
@@ -222,10 +226,18 @@ Each test names the SR-024/ADR-0013 requirement it verifies.
 - [ ] Lint + type-check pass (`ruff`, `mypy`)
 - [ ] Real-DB-backed tests (not mock-only for `ClinicalRepository`/`AttachmentRepository`) cover every
   positive/negative case above; full backend suite green
-- [ ] Traceability matrix row added (ADR-0013 / SR-024 → TASK-116 → tests) in
-  `docs/design/traceability-matrix.md`
+- [ ] Traceability is carried by this record's own `links` (ADR-0013 / SR-024 → TASK-116 → the TS
+  that verifies it) and shows no error in the `traceability-check` gap report
 - [ ] Security review completed — confirm no identifier leakage via the negative-assertion tests above
 - [ ] **Once this task's acceptance criteria and Definition of Done are met, TASK-035a's deferred
   acceptance-criteria checkbox — "Clinical data is anonymized/re-keyed into the dataset (not silently
-  dropped)" — is checked off in `docs/implementation-plan/phase-2-auth-identity/TASK-035a-erasure-retrieval-delivery.md`,
-  and TASK-035a's entry is re-confirmed as fully Completed with no remaining deferred items.**
+  dropped)" — is checked off in [TASK-035](TASK-035-erasure-anonymize-retrieval-code.md), which TASK-035a was
+  folded into during the MedTrace record migration, and that record is re-confirmed as complete with
+  no remaining deferred items.**
+
+## Version history
+
+- 1.1 (2026-09-17) — Added `mitigates` link to RISK-002, RISK-008 (risk register bootstrap, TASK-147). Traceability only: the requirement content is
+  unchanged, so the existing approval stands.
+- 1.2 (2026-10-21) — Tagged `control:design`, `control:protective` (type of the risk control it implements,
+  medical-records 0.3.2). Traceability only: the content is unchanged, so the existing approval stands.

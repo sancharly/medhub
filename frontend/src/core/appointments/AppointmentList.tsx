@@ -2,16 +2,16 @@ import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import Chip from "@mui/material/Chip";
 import type { Appointment } from "../../api/generated/types";
 import { PatientActions } from "./PatientActions";
+import { StatusPill, type StatusPillSeverity } from "../theme/StatusPill";
 
 interface AppointmentListProps {
   appointments: Appointment[];
   isPatient: boolean;
 }
 
-const STATUS_COLOR: Record<string, "default" | "success" | "error" | "warning"> = {
+const STATUS_SEVERITY: Record<string, StatusPillSeverity> = {
   PENDING: "warning",
   CONFIRMED: "success",
   DECLINED: "error",
@@ -34,10 +34,9 @@ export function AppointmentList({ appointments, isPatient }: AppointmentListProp
                 {new Date(appt.scheduledAt).toLocaleString()}
               </Typography>
             </Box>
-            <Chip
+            <StatusPill
               label={appt.state}
-              color={STATUS_COLOR[appt.state] ?? "default"}
-              size="small"
+              severity={STATUS_SEVERITY[appt.state] ?? "info"}
             />
           </Box>
           {isPatient && <PatientActions appointment={appt} />}

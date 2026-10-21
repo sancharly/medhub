@@ -23,7 +23,7 @@ This section summarizes the fundamental decisions; each is detailed in an ADR ([
 
 - **Security & privacy (G1):** one deny-by-default `AuthorizationService` on every request (SR-005); per-source consent (SR-036); encryption everywhere (SR-022); hardened auth/session (SR-025/029/030); OWASP middleware (SR-031); append-only audit (SR-023). Modules cannot bypass this because they access PHI only through platform services (ADR-0005).
 - **Safety / correctness (G2):** vetted Cornerstone3D rendering verified against reference images (SR-017); consent evaluated as an explicit, transactional per-source union so declining one appointment never strips other access (SR-036); clinical-entry author derived from session, not client (SR-012).
-- **Compliance & traceability (G3):** Arc42 doc + ADRs + UML + traceability matrix, all version-controlled; security-review gate before merging auth/session code (SR-031.6, SR-028).
+- **Compliance & traceability (G3):** Arc42 doc + ADRs + UML + design records with frontmatter links, all version-controlled; security-review gate before merging auth/session code (SR-031.6, SR-028).
 - **Extensibility (G4):** module contract + registry; new module = new package + registry entry, zero edits to existing modules (SR-016).
 - **Usability & reach (G5):** responsive component library, consistent navigation, confirmation on destructive actions, clear errors (SR-020, SR-027); standards-based tech for cross-browser (SR-019).
 

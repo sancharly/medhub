@@ -3,11 +3,13 @@ id: "TASK-111"
 type: task
 title: "System / end-to-end tests (Playwright) + cross-browser pass"
 status: draft
-version: "1.0"
+version: "1.2"
 author: "Carlos Santiago Liceras"
 created: "2026-07-07"
-updated: "2026-07-07"
+updated: "2026-10-21"
 links:
+  - target: "RISK-003"
+    relation: mitigates
   - target: "SR-028"
     relation: implements
   - target: "SR-019"
@@ -18,7 +20,7 @@ links:
     relation: relates_to
   - target: "TASK-004"
     relation: relates_to
-tags: ["phase:9-integration-system-testing-compliance"]
+tags: ["phase:9-integration-system-testing-compliance", "control:protective"]
 ---
 
 - **Phase:** 9 — Integration, system testing, compliance hardening
@@ -86,3 +88,10 @@ This task is the system-test suite itself. Each spec is written to the SR accept
 - [ ] Audit events: N/A at the UI layer (asserted at integration level in TASK-110)
 - [ ] Traceability matrix rows updated (functional SRs + SR-019/028 → TASK-111 → tagged tests) — consumed by TASK-114
 - [ ] Security review N/A (no auth/session implementation; this suite verifies it)
+
+## Version history
+
+- 1.1 (2026-09-17) — Added `mitigates` link to RISK-003 (risk register bootstrap, TASK-147). Traceability only: the requirement content is
+  unchanged, so the existing approval stands.
+- 1.2 (2026-10-21) — Tagged `control:protective` (type of the risk control it implements,
+  medical-records 0.3.2). Traceability only: the content is unchanged, so the existing approval stands.

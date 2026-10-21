@@ -3,6 +3,32 @@
 
 <head>
   <meta charset="UTF-8" />
+  <!--
+    No-flash color-scheme init (SR-039 AC-6, ADR-0014). Reads the mode MUI's
+    useColorScheme() persists, resolves it, and sets the color-scheme attribute
+    + background-color on <html> before the bundle loads. The storage key,
+    attribute names, and background hex values must match the constants
+    exported from frontend/src/core/theme/theme.ts — kept in sync via
+    frontend/src/core/theme/theme.test.ts.
+  -->
+  <script>
+    (function () {
+      try {
+        var storedMode = window.localStorage.getItem("mui-mode");
+        var isDark =
+          storedMode === "dark" ||
+          (storedMode !== "light" &&
+            window.matchMedia &&
+            window.matchMedia("(prefers-color-scheme: dark)").matches);
+        var root = document.documentElement;
+        root.setAttribute(isDark ? "data-dark" : "data-light", "");
+        root.style.colorScheme = isDark ? "dark" : "light";
+        root.style.backgroundColor = isDark ? "#0E131B" : "#F4F6FB";
+      } catch (e) {
+        /* localStorage/matchMedia unavailable — fall back to CSS defaults */
+      }
+    })();
+  </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MedHub</title>
 </head>

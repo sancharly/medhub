@@ -17,6 +17,7 @@ This folder records the significant architecture decisions for MedHub. One decis
 | [ADR-0011](0011-security-compliance-approach.md)          | Defense-in-depth: TLS, encryption at rest, OWASP controls, append-only audit log                 | Accepted |
 | [ADR-0012](0012-authentication-session-mechanism.md)      | Server-side opaque session tokens in hardened cookies                                            | Accepted |
 | [ADR-0013](0013-account-deletion-anonymized-retention.md) | Account deletion via 5-year anonymized retention with a user-held retrieval code                 | Accepted |
+| [ADR-0014](0014-mui-css-variables-theming.md)             | Design-token theming via MUI CSS variables + native light/dark colorSchemes                      | Accepted |
 
 ## Trade-off summary
 

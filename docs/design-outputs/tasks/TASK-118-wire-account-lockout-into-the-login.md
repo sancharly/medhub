@@ -3,18 +3,20 @@ id: "TASK-118"
 type: task
 title: "Wire account lockout into the login flow (remediation)"
 status: approved
-version: "1.0"
+version: "1.2"
 author: "Carlos Santiago Liceras"
 created: "2026-07-07"
-updated: "2026-07-07"
+updated: "2026-10-21"
 links:
+  - target: "RISK-005"
+    relation: mitigates
   - target: "SR-029"
     relation: implements
   - target: "TASK-024"
     relation: relates_to
   - target: "TASK-023"
     relation: relates_to
-tags: ["phase:2-auth-identity", "remediation-of:TASK-024", "original-id:TASK-024a"]
+tags: ["phase:2-auth-session-authorization-identity", "remediation-of:TASK-024", "original-id:TASK-024a", "control:protective"]
 ---
 
 - **Phase:** 2 — Auth & identity
@@ -57,3 +59,10 @@ wired login path. Wire it, and reconcile the two parallel counters (account-id k
 - [x] OpenAPI regenerated (unlock endpoint)
 - [x] Traceability row updated (SR-029 → TASK-024a → tests)
 - [x] Security review completed (SR-031.6)
+
+## Version history
+
+- 1.1 (2026-09-17) — Added `mitigates` link to RISK-005 (risk register bootstrap, TASK-147). Traceability only: the requirement content is
+  unchanged, so the existing approval stands.
+- 1.2 (2026-10-21) — Tagged `control:protective` (type of the risk control it implements,
+  medical-records 0.3.2). Traceability only: the content is unchanged, so the existing approval stands.

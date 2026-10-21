@@ -3,11 +3,13 @@ id: "TASK-110"
 type: task
 title: "Integration tests for the seven runtime flows"
 status: draft
-version: "1.0"
+version: "1.2"
 author: "Carlos Santiago Liceras"
 created: "2026-07-07"
-updated: "2026-07-07"
+updated: "2026-10-21"
 links:
+  - target: "RISK-002"
+    relation: mitigates
   - target: "SR-002"
     relation: implements
   - target: "SR-005"
@@ -70,7 +72,7 @@ links:
     relation: relates_to
   - target: "TASK-014"
     relation: relates_to
-tags: ["phase:9-integration-system-testing-compliance"]
+tags: ["phase:9-integration-system-testing-compliance", "control:protective"]
 ---
 
 - **Phase:** 9 — Integration, system testing, compliance hardening
@@ -136,3 +138,10 @@ This task **is** test code; the "test-first" discipline is that each flow test i
 - [ ] Audit events asserted for security-relevant actions in every flow (SR-023)
 - [ ] Traceability matrix rows updated (each §06 flow's SRs → TASK-110 → the named test)
 - [ ] Security review N/A here (no new auth/session code; auth/session code review is TASK-113)
+
+## Version history
+
+- 1.1 (2026-09-17) — Added `mitigates` link to RISK-002 (risk register bootstrap, TASK-147). Traceability only: the requirement content is
+  unchanged, so the existing approval stands.
+- 1.2 (2026-10-21) — Tagged `control:protective` (type of the risk control it implements,
+  medical-records 0.3.2). Traceability only: the content is unchanged, so the existing approval stands.

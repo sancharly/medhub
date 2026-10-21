@@ -3,14 +3,16 @@ id: "SR-011"
 type: software-requirement
 title: "Appointment visibility"
 status: approved
-version: "1.0"
+version: "1.2"
 author: "Carlos Santiago Liceras"
 created: "2026-07-07"
-updated: "2026-07-07"
+updated: "2026-10-21"
 links:
+  - target: "RISK-009"
+    relation: mitigates
   - target: "UN-007"
     relation: derives_from
-tags: []
+tags: ["control:design"]
 ---
 
 ## Summary
@@ -46,3 +48,10 @@ Scoped visibility ensures participants can prepare for encounters while preventi
 
 - Enforce visibility through the central authorization mechanism (SR-005).
 - Cover with tests for participant and non-participant access.
+
+## Version history
+
+- 1.1 (2026-09-17) — Added `mitigates` link to RISK-009 (risk register bootstrap, TASK-147). Traceability only: the requirement content is
+  unchanged, so the existing approval stands.
+- 1.2 (2026-10-21) — Tagged `control:design` (type of the risk control it implements,
+  medical-records 0.3.2). Traceability only: the content is unchanged, so the existing approval stands.

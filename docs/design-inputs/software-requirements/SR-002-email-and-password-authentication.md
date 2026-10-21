@@ -3,11 +3,13 @@ id: "SR-002"
 type: software-requirement
 title: "Email and password authentication"
 status: approved
-version: "1.0"
+version: "1.1"
 author: "Carlos Santiago Liceras"
 created: "2026-07-07"
-updated: "2026-07-07"
+updated: "2026-09-17"
 links:
+  - target: "RR-003"
+    relation: satisfies
   - target: "UN-002"
     relation: derives_from
   - target: "NFR-007"
@@ -49,3 +51,9 @@ Authentication is the foundation of access control and data protection required 
 
 - Use a vetted authentication library and salted hashing; generic error messages to avoid user enumeration.
 - Credential strength and lockout are reinforced by SR-025.
+
+## Version history
+
+- 1.1 (2026-09-17) — Added `satisfies` link to RR-003 (regulatory requirements
+  extracted from the NFRs with clause citations). Traceability only: the requirement content is
+  unchanged, so the existing approval stands.

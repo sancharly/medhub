@@ -2,6 +2,8 @@ import Box from "@mui/material/Box";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
+import { ModeToggle } from "../theme/ModeToggle";
+import { SignOutButton } from "./SignOutButton";
 
 export interface AppLayoutProps {
   navigation: React.ReactNode;
@@ -19,9 +21,11 @@ export function AppLayout({ navigation, children }: AppLayoutProps) {
         aria-label="header"
       >
         <Toolbar>
-          <Typography variant="h6" noWrap>
+          <Typography variant="h6" noWrap sx={{ flexGrow: 1 }}>
             MedHub
           </Typography>
+          <ModeToggle />
+          <SignOutButton />
         </Toolbar>
       </AppBar>
 

@@ -20,5 +20,11 @@
         ]
       }
     ]
+  },
+  "enabledPlugins": {
+    "medical-records@agentic-os": true,
+    "core-engineering@agentic-os": true,
+    "web-fullstack@agentic-os": true,
+    "design-studio@agentic-os": true
   }
 }

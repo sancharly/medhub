@@ -3,11 +3,13 @@ id: "SR-027"
 type: software-requirement
 title: "Usability controls"
 status: approved
-version: "1.0"
+version: "1.1"
 author: "Carlos Santiago Liceras"
 created: "2026-07-07"
-updated: "2026-07-07"
+updated: "2026-09-17"
 links:
+  - target: "RR-009"
+    relation: satisfies
   - target: "NFR-009"
     relation: derives_from
 tags: []
@@ -47,3 +49,9 @@ Usability controls reduce user error and support safe operation, consistent with
 
 - Apply consistent UI patterns, confirmation dialogs, and clear error messages; verify through usability review and system testing.
 - Confirmation requirement supports SR-008 (revoke) and SR-024 (erasure).
+
+## Version history
+
+- 1.1 (2026-09-17) — Added `satisfies` link to RR-009 (regulatory requirements
+  extracted from the NFRs with clause citations). Traceability only: the requirement content is
+  unchanged, so the existing approval stands.

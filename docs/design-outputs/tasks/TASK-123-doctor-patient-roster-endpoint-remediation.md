@@ -6,7 +6,7 @@ status: approved
 version: "1.0"
 author: "Carlos Santiago Liceras"
 created: "2026-07-07"
-updated: "2026-07-07"
+updated: "2026-09-17"
 links:
   - target: "SR-006"
     relation: implements
@@ -20,7 +20,7 @@ links:
     relation: relates_to
   - target: "TASK-028"
     relation: relates_to
-tags: ["phase:3-domain-services-api-surface", "remediation-of:TASK-044", "original-id:TASK-044a"]
+tags: ["phase:3-domain-services", "remediation-of:TASK-044", "original-id:TASK-044a"]
 ---
 
 - **Phase:** 3 — Domain services (+ API surface in phase 4)

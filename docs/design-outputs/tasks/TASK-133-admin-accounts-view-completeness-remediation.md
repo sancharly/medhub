@@ -6,7 +6,7 @@ status: approved
 version: "1.0"
 author: "Carlos Santiago Liceras"
 created: "2026-07-07"
-updated: "2026-07-07"
+updated: "2026-09-17"
 links:
   - target: "SR-032"
     relation: implements
@@ -16,7 +16,7 @@ links:
     relation: relates_to
   - target: "TASK-121"
     relation: relates_to
-tags: ["phase:7-frontend-core", "remediation-of:TASK-095", "original-id:TASK-095a"]
+tags: ["phase:7-frontend-core-views", "remediation-of:TASK-095", "original-id:TASK-095a"]
 ---
 
 - **Phase:** 7 — Frontend core

@@ -3,16 +3,20 @@ id: "SR-017"
 type: software-requirement
 title: "DICOM image opening and rendering"
 status: approved
-version: "1.0"
+version: "1.3"
 author: "Carlos Santiago Liceras"
 created: "2026-07-07"
-updated: "2026-07-07"
+updated: "2026-10-21"
 links:
+  - target: "RR-009"
+    relation: satisfies
+  - target: "RISK-003"
+    relation: mitigates
   - target: "UN-011"
     relation: derives_from
   - target: "NFR-005"
     relation: derives_from
-tags: []
+tags: ["control:design", "control:information"]
 ---
 
 ## Summary
@@ -50,3 +54,13 @@ Correct rendering of medical images is safety-critical; as a viewing function it
 
 - Use a vetted DICOM parsing/rendering approach; verify rendering correctness with reference images during system testing.
 - Gate access via SR-005/SR-015; viewer controls provided by SR-018.
+
+## Version history
+
+- 1.1 (2026-09-17) — Added `mitigates` link to RISK-003 (risk register bootstrap, TASK-147). Traceability only: the requirement content is
+  unchanged, so the existing approval stands.
+- 1.2 (2026-09-17) — Added `satisfies` link to RR-009 (regulatory requirements
+  extracted from the NFRs with clause citations). Traceability only: the requirement content is
+  unchanged, so the existing approval stands.
+- 1.3 (2026-10-21) — Tagged `control:design`, `control:information` (type of the risk control it implements,
+  medical-records 0.3.2). Traceability only: the content is unchanged, so the existing approval stands.
