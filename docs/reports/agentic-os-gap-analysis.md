@@ -113,3 +113,42 @@ specifications exist — and 1 × W5, TASK-132 approved while linking to the dra
 throwaway (kept in the session scratchpad, not committed) and implements checks E1–E10 and W1–W7
 from the skill, including the target *type* of every required link. Re-run it before each release
 and commit the report to `docs/reports/`.
+
+## Plugin update — 2026-10-21
+
+The project's plugins moved to core-engineering 0.4.0, medical-records 0.3.2, web-fullstack 0.2.0
+and design-studio 0.2.0. The record contract changed between medical-records 0.2.0 (what the
+September work was written against) and 0.3.2. The new gap report is
+[gap-report-2026-10-21.md](gap-report-2026-10-21.md).
+
+| Contract change (0.2.0 → 0.3.2) | What was done |
+|---|---|
+| New `lifecycle-plan` type with `plan_kind`; class B needs development, maintenance, configuration-management, problem-resolution and risk-management plans | PLAN-001..005 in `docs/plans/`; ADD-002 and ADD-003 marked `obsolete` with pointers |
+| New `soup` type, one record per runtime component, linked from the ADD that uses it and from a RISK; development tooling is not SOUP | SOUP-001..035 at their locked versions, linked from ADD-005..023 and RISK-001..011; ADD-004 marked `obsolete` |
+| RISK scores move into frontmatter, `acceptability` is derived from `risk_matrix`, ALARP needs a justification, controls are tagged by type | RISK-001..011 migrated with the approved scores unchanged; five ALARP justifications written; 42 SRs/TASKs tagged `control:*` |
+| The risk matrix is read from `medtrace.yml`; without it a ratio rule applies that differs from the approved bands | Approved bands encoded as `risk_matrix`. The table in the approved plan set S1×P5 to ALARP although the score bands make it acceptable; the table was kept and the exception is written down in PLAN-005 |
+| `criticality` moves to the type-specific position after `updated` | All PRB records reordered |
+| `traceability-check` adds type-specific field checks (E4) and class-gated rules | Parser rewritten; the result is below |
+
+Corrections found while moving the data: `fhir.resources` is locked at 8.2.0 (ADD-004 had recorded
+`fhir-core`'s 1.1.8), and `fakeredis` is a test fake declared as a runtime dependency —
+**PRB-033**. TASK-147 (risk register bootstrap) was handed to review.
+
+### Result
+
+**313 records, 0 errors, 133 warnings and class-gated findings.**
+
+| Finding | Count | Why it is open |
+|---|---|---|
+| W5 | 72 | Approved records linking to records that await the owner's approval |
+| `soup_anomaly_review_stale` | 35 | No SOUP item has an anomaly review yet — TASK-154. Blocks release, not development |
+| W2 / W1 / W7 | 10 / 3 / 9 | The SRs TR-001 does not verify: Docker-blocked cases, the DICOM viewer, the browser matrix, performance |
+| `risk_control_unverified` | 2 | TASK-113 and TASK-137 implement risk controls whose SRs no test report reaches yet |
+| `soup_unintegrated` | 1 | SOUP-018 `fakeredis`: no item uses it (PRB-033) |
+| `sr_without_architecture` | 1 | SR-028 (traceable, version-controlled records) was covered by ADD-002/003, which are now plans. It is a process requirement that no software item implements; see the note below |
+
+**SR-028 needs a decision.** Under class B every SR must be reached from an architecture record, and
+this finding becomes an error in release scope. The options are to add an architecture record for
+the development and CI tooling (OpenAPI export, CI pipeline, record checks) that implements SR-028,
+or to restate SR-028 as a regulatory requirement satisfied by the plans. Both change approved
+records, so this decision is the owner's.
