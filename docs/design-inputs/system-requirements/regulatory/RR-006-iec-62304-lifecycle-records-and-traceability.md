@@ -34,4 +34,4 @@ The project shall maintain a software development plan, a classified safety clas
 
 ## Realized by
 
-SR-028. Records: PLAN-001..005, SOUP-001..035, the record set under `docs/`. Skill: `medical-records:traceability-check`.
+RR-011 (formerly SR-028). Records: PLAN-001..005, SOUP-001..035, the record set under `docs/`. Skill: `medical-records:traceability-check`.

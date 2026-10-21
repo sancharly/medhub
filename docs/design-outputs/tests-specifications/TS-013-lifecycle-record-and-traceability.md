@@ -2,7 +2,7 @@
 id: "TS-013"
 type: test-specification
 title: "Lifecycle record and traceability verification"
-status: in_review
+status: obsolete
 version: "1.0"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
@@ -12,6 +12,10 @@ links:
     relation: verifies
 tags: ["level:review", "class:B"]
 ---
+
+> **Obsolete (2026-10-21).** It verified only SR-028, which is now the regulatory requirement
+> RR-011. That obligation is evidenced by the `traceability-check` gap reports and the release gate
+> of PLAN-001, not by a test specification. Kept below because IDs are never reused.
 
 # TS-013 — Lifecycle record and traceability verification
 

@@ -34,4 +34,4 @@ The project shall define the intended use and the software safety class, verify 
 
 ## Realized by
 
-SR-028, SR-026, SR-019. Records: PLAN-001, the test plan and report records. Problem report: PRB-001.
+SR-026, SR-019, and RR-011 (formerly SR-028). Records: PLAN-001, the test plan and report records. Problem report: PRB-001.

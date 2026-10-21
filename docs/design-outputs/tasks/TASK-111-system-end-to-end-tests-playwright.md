@@ -10,8 +10,8 @@ updated: "2026-10-21"
 links:
   - target: "RISK-003"
     relation: mitigates
-  - target: "SR-028"
-    relation: implements
+  - target: "RR-011"
+    relation: relates_to
   - target: "SR-019"
     relation: implements
   - target: "TASK-102"
@@ -25,7 +25,7 @@ tags: ["phase:9-integration-system-testing-compliance", "control:protective"]
 
 - **Phase:** 9 — Integration, system testing, compliance hardening
 - **Software item / unit:** (system-level) — full stack via the SPA against the running backend
-- **Implements:** SR-028 (AC-4 every SR traced to at least one system test), SR-019 (AC-1/2/3 cross-browser, layout intact, documented pass per release); exercises the acceptance criteria of every functional SR; ADR-0003 (browser matrix), ADR-0008 (WebGL DICOM)
+- **Implements:** RR-011 (AC-4 every SR traced to at least one system test — formerly SR-028), SR-019 (AC-1/2/3 cross-browser, layout intact, documented pass per release); exercises the acceptance criteria of every functional SR; ADR-0003 (browser matrix), ADR-0008 (WebGL DICOM)
 - **Depends on:** TASK-102 (DICOM viewport), TASK-103 (viewer controls), TASK-090–096 (all frontend core views) must be merged first; runs against the full deployed stack (TASK-004)
 - **Branch:** `enabler-story/system-e2e-tests`
 - **Status:** Not started

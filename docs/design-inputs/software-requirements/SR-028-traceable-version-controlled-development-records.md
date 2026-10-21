@@ -2,7 +2,7 @@
 id: "SR-028"
 type: software-requirement
 title: "Traceable, version-controlled development records"
-status: approved
+status: obsolete
 version: "1.3"
 author: "Carlos Santiago Liceras"
 created: "2026-07-07"
@@ -26,6 +26,11 @@ links:
     relation: derives_from
 tags: ["control:design", "control:protective"]
 ---
+
+> **Obsolete (2026-10-21).** Restated as the regulatory requirement
+> [RR-011](../system-requirements/regulatory/RR-011-traceable-version-controlled-development-records.md)
+> by the owner's decision: it is a process obligation satisfied by the lifecycle plans, not something a
+> software item implements. Kept unchanged below because design-record IDs are never reused.
 
 ## Summary
 

@@ -32,8 +32,6 @@ links:
     relation: relates_to
   - target: "TS-012"
     relation: relates_to
-  - target: "TS-013"
-    relation: relates_to
 tags: ["class:B", "baseline"]
 ---
 
@@ -47,7 +45,7 @@ a known starting point.
 
 ## Scope
 
-All 39 software requirements, through [TS-001..TS-013](../../design-outputs/tests-specifications/).
+All 38 current software requirements, through [TS-001..TS-012](../../design-outputs/tests-specifications/).
 Software items: every item in [05-building-blocks.md](../../design/05-building-blocks.md).
 
 ## Levels executed (class B)

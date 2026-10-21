@@ -44,8 +44,6 @@ links:
     relation: verifies
   - target: "SR-027"
     relation: verifies
-  - target: "SR-028"
-    relation: verifies
   - target: "SR-029"
     relation: verifies
   - target: "SR-030"
@@ -128,7 +126,10 @@ none of them is `critical`, and none was created by this verification.
 
 ## Requirements verified
 
-29 of 39 software requirements are verified by this report: SR-001, SR-002, SR-005, SR-006, SR-007, SR-008, SR-009, SR-011, SR-012, SR-013, SR-014, SR-015, SR-016, SR-020, SR-022, SR-024, SR-025, SR-027, SR-028, SR-029, SR-030, SR-032, SR-033, SR-034, SR-035, SR-036, SR-037, SR-038, SR-039.
+28 of the 38 current software requirements are verified by this report: SR-001, SR-002, SR-005, SR-006, SR-007, SR-008, SR-009, SR-011, SR-012, SR-013, SR-014, SR-015, SR-016, SR-020, SR-022, SR-024, SR-025, SR-027, SR-029, SR-030, SR-032, SR-033, SR-034, SR-035, SR-036, SR-037, SR-038, SR-039.
+
+SR-028 was verified by this report until 2026-10-21, when it was restated as the regulatory
+requirement RR-011; its evidence is the record set and the gap reports rather than a test case.
 
 ## Requirements NOT verified
 
@@ -159,7 +160,7 @@ contribute to unacceptable risk, against the criteria in
 ## Conclusion
 
 The implemented software passes every executable verification case at unit and service level, with
-clean static verification. It is **not** release-verified: 10 of 39 software requirements remain
+clean static verification. It is **not** release-verified: 10 of the 38 current software requirements remain
 unverified for the reasons above, and system-level testing has not been performed. The record set
 itself passes `traceability-check` with zero errors (see
 [`../../reports/`](../../reports/)).

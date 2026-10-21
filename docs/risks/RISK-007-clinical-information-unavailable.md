@@ -62,7 +62,7 @@ occur); the score is severity × P2, the probability that the hazardous situatio
 
 | Measure | Type | Implemented by | Verified by |
 |---|---|---|---|
-| Documented backup, monitoring and deployment procedure | Protective | SR-028, TASK-115 | TR-001, TS-013 |
+| Documented backup, monitoring and deployment procedure | Protective | RR-011, TASK-115 | none yet — release gate |
 | Performance budgets so routine operations stay usable | Design | SR-026 | none yet |
 | Worker retries with backoff and no silent enqueue failures | Protective | TASK-141 | none yet |
 | Object storage dependency declared and verified at startup | Design | PRB-002 resolution | none yet |

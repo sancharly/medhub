@@ -6,8 +6,10 @@ status: in_review
 version: "1.0"
 author: "Carlos Santiago Liceras"
 created: "2026-07-07"
-updated: "2026-09-17"
+updated: "2026-10-21"
 links:
+  - target: "RR-011"
+    relation: relates_to
   - target: "SR-028"
     relation: implements
   - target: "NFR-005"
