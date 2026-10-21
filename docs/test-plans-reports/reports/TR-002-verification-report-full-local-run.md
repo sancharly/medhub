@@ -1,88 +1,94 @@
 ---
-id: "TR-002"
+id: TR-002
 type: test-report
-title: "Verification report for the full local run with the real-database suite"
-status: in_review
+title: Verification report for the full local run with the real-database suite
+status: approved
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-10-21"
 updated: "2026-10-21"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: 6893e8b236941cf1f5dbd2719bcff6ce948a1abbf1245d7764e28c0a9e5ca463
+approval_note: self-approved
 links:
-  - target: "SR-001"
+  - target: SR-001
     relation: verifies
-  - target: "SR-002"
+  - target: SR-002
     relation: verifies
-  - target: "SR-003"
+  - target: SR-003
     relation: verifies
-  - target: "SR-004"
+  - target: SR-004
     relation: verifies
-  - target: "SR-005"
+  - target: SR-005
     relation: verifies
-  - target: "SR-006"
+  - target: SR-006
     relation: verifies
-  - target: "SR-007"
+  - target: SR-007
     relation: verifies
-  - target: "SR-008"
+  - target: SR-008
     relation: verifies
-  - target: "SR-009"
+  - target: SR-009
     relation: verifies
-  - target: "SR-010"
+  - target: SR-010
     relation: verifies
-  - target: "SR-011"
+  - target: SR-011
     relation: verifies
-  - target: "SR-012"
+  - target: SR-012
     relation: verifies
-  - target: "SR-013"
+  - target: SR-013
     relation: verifies
-  - target: "SR-014"
+  - target: SR-014
     relation: verifies
-  - target: "SR-015"
+  - target: SR-015
     relation: verifies
-  - target: "SR-016"
+  - target: SR-016
     relation: verifies
-  - target: "SR-020"
+  - target: SR-020
     relation: verifies
-  - target: "SR-021"
+  - target: SR-021
     relation: verifies
-  - target: "SR-022"
+  - target: SR-022
     relation: verifies
-  - target: "SR-023"
+  - target: SR-023
     relation: verifies
-  - target: "SR-024"
+  - target: SR-024
     relation: verifies
-  - target: "SR-025"
+  - target: SR-025
     relation: verifies
-  - target: "SR-027"
+  - target: SR-027
     relation: verifies
-  - target: "SR-028"
+  - target: SR-028
     relation: verifies
-  - target: "SR-029"
+  - target: SR-029
     relation: verifies
-  - target: "SR-030"
+  - target: SR-030
     relation: verifies
-  - target: "SR-031"
+  - target: SR-031
     relation: verifies
-  - target: "SR-032"
+  - target: SR-032
     relation: verifies
-  - target: "SR-033"
+  - target: SR-033
     relation: verifies
-  - target: "SR-034"
+  - target: SR-034
     relation: verifies
-  - target: "SR-035"
+  - target: SR-035
     relation: verifies
-  - target: "SR-036"
+  - target: SR-036
     relation: verifies
-  - target: "SR-037"
+  - target: SR-037
     relation: verifies
-  - target: "SR-038"
+  - target: SR-038
     relation: verifies
-  - target: "SR-039"
+  - target: SR-039
     relation: verifies
-  - target: "TP-001"
+  - target: TP-001
     relation: relates_to
-  - target: "TR-001"
+  - target: TR-001
     relation: relates_to
-tags: ["class:B", "baseline"]
+tags:
+  - class:B
+  - baseline
 ---
 
 # TR-002 — Verification report (full local run with the real-database suite)
