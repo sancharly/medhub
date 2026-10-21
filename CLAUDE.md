@@ -26,7 +26,7 @@ Notes on the settings above:
 - **`docs/medtrace.yml`** mirrors `software-safety-class` for the MedTrace desktop app. The two
   must stay in sync: change both or neither.
 
-## 1. Think Before Coding
+## Think Before Coding
 
 **Don't assume. Don't hide confusion. Surface tradeoffs.**
 
@@ -37,7 +37,7 @@ Before implementing:
 - If a simpler approach exists, say so. Push back when warranted.
 - If something is unclear, stop. Name what's confusing. Ask.
 
-## 2. Simplicity First
+## Simplicity First
 
 **Minimum code that solves the problem. Nothing speculative.**
 
@@ -49,7 +49,7 @@ Before implementing:
 
 Ask yourself: "Would a senior engineer say this is overcomplicated?" If yes, simplify.
 
-## 3. Surgical Changes
+## Surgical Changes
 
 **Touch only what you must. Clean up only your own mess.**
 
@@ -67,7 +67,7 @@ When your changes create orphans:
 
 The test: Every changed line should trace directly to the user's request.
 
-## 4. Goal-Driven Execution
+## Goal-Driven Execution
 
 **Define success criteria. Loop until verified.**
 
@@ -87,7 +87,14 @@ For multi-step tasks, state a brief plan:
 
 Strong success criteria let you loop independently. Weak criteria ("make it work") require constant clarification.
 
-## 5. Backend/Frontend Contract
+## Model configuration
+
+Use the following models for each sub-agent (if none specified, inherit from orchestrator):
+
+- software-developer: Sonnet 5.5
+- document-writer: Sonnet 5.5
+
+## Backend/Frontend Contract
 
 **The OpenAPI schema is the source of truth. Never hand-write types.**
 
@@ -105,7 +112,7 @@ CI enforces this: the `openapi-lint` job regenerates `openapi.ts` after exportin
 
 **UserType enum values are uppercase**: `"PATIENT"`, `"DOCTOR"`, `"ADMIN"`, `"SYSADMIN"`. Use these constants everywhere in the frontend.
 
-## 6. graphify
+## graphify
 
 This project has a knowledge graph at graphify-out/ with god nodes, community structure, and cross-file relationships.
 
