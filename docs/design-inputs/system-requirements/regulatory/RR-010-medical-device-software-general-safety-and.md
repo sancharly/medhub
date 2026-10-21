@@ -2,11 +2,15 @@
 id: RR-010
 type: regulatory-requirement
 title: Medical device software general safety and performance
-status: in_review
+status: approved
 version: "1.1"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-10-21"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: 4b988b26f6f3a57e39510389c58936284575aa00fca5a63d2aafc4dcde8e55a7
+approval_note: self-approved
 links: []
 tags:
   - mdr

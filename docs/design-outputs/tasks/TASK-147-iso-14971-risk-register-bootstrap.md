@@ -2,11 +2,15 @@
 id: TASK-147
 type: task
 title: ISO 14971 risk register bootstrap
-status: in_review
+status: approved
 version: "1.1"
 author: Carlos Santiago Liceras
 created: "2026-07-07"
 updated: "2026-10-21"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: 5f4da493b2a9524f58d2329417179c07774a4ee79f213b4e70ef118a611460d1
+approval_note: self-approved
 links:
   - target: SR-028
     relation: implements

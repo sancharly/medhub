@@ -3,19 +3,11 @@ id: RR-011
 type: regulatory-requirement
 title: Traceable, version-controlled development records
 status: obsolete
-version: "1.1"
+version: "1.2"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
 updated: "2026-10-21"
-links:
-  - target: NFR-005
-    relation: derives_from
-  - target: NFR-006
-    relation: derives_from
-  - target: RISK-007
-    relation: mitigates
-  - target: RISK-010
-    relation: mitigates
+links: []
 tags:
   - iec62304
   - regulatory

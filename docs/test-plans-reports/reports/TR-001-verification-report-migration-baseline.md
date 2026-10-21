@@ -2,11 +2,15 @@
 id: TR-001
 type: test-report
 title: Verification report for the agentic-os migration baseline
-status: in_review
+status: approved
 version: "1.1"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-10-21"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: 7f8ed3f796947776c7434e29a834b6aa7b434c6e246937814e12a2b7bab3746d
+approval_note: self-approved
 links:
   - target: SR-001
     relation: verifies

@@ -2,11 +2,15 @@
 id: SR-028
 type: software-requirement
 title: Traceable, version-controlled development records
-status: in_review
+status: approved
 version: "1.4"
 author: Carlos Santiago Liceras
 created: "2026-07-07"
 updated: "2026-10-21"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: 5915a99ba057b662f759cb8e9fc24845d407baef59063b376724af253a99096d
+approval_note: self-approved
 links:
   - target: RR-006
     relation: satisfies

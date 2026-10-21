@@ -2,11 +2,15 @@
 id: TP-001
 type: test-plan
 title: Verification plan for the agentic-os migration baseline
-status: in_review
+status: approved
 version: "1.1"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-10-21"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-21"
+approved_digest: 8bc87389769391a84ce8e30c92de81a68d2451e45d4fc00ee8c7fb78e5063048
+approval_note: self-approved
 links:
   - target: TS-001
     relation: relates_to
