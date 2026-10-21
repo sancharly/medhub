@@ -3,7 +3,7 @@ id: "PLAN-005"
 type: lifecycle-plan
 title: "Risk management plan (ISO 14971 x IEC 62304 §7)"
 status: in_review
-version: "2.0"
+version: "2.1"
 author: "Carlos Santiago Liceras"
 created: "2026-10-21"
 updated: "2026-10-21"
@@ -89,13 +89,14 @@ rather than a quiet acceptance.
 
 ## Risk level and acceptability
 
-Risk level = severity × probability, banded as:
+The matrix below — encoded as `risk_matrix` in `docs/medtrace.yml` — is the acceptability policy.
+Summarized by score (severity × probability):
 
-| Band | Score | Meaning | Required action |
+| Band | Cells | Meaning | Required action |
 |---|---|---|---|
-| **Unacceptable** | ≥ 15, or any severity 5 with probability ≥ 2 | Must not ship | Add controls until the band changes; a release is blocked |
-| **ALARP** | 6–14, or severity 5 with probability 1 | Acceptable only with controls in place and a documented justification | Controls implemented and verified; residual risk explicitly accepted by the human; benefit/risk argument recorded |
-| **Acceptable** | ≤ 5 | Acceptable as is | Record the reasoning; no control required beyond existing practice |
+| **Unacceptable** | score ≥ 15, or severity 5 with probability ≥ 2 | Must not ship | Add controls until the band changes; a release is blocked |
+| **ALARP** | score 6–14, plus S5 × P1 and S1 × P5 | Acceptable only with controls in place and a documented justification | Controls implemented and verified; residual risk explicitly accepted by the human; benefit/risk argument recorded |
+| **Acceptable** | score ≤ 5, except S1 × P5 | Acceptable as is | Record the reasoning; no control required beyond existing practice |
 
 Matrix (S = severity, P = probability; U = unacceptable, A = ALARP, ✓ = acceptable):
 
@@ -107,11 +108,9 @@ Matrix (S = severity, P = probability; U = unacceptable, A = ALARP, ✓ = accept
 | **2** | ✓ | ✓ | A | A | A |
 | **1** | ✓ | ✓ | ✓ | ✓ | A |
 
-**Source of truth.** The matrix above is encoded as `risk_matrix` in `docs/medtrace.yml`, which
-`risk-management`, `traceability-check` and the MedTrace app read; this section is its
-explanation. One cell is set by the table rather than by the score bands: **S1 × P5 is ALARP**
-(the bands alone would make that score of 5 acceptable). If the two ever disagree,
-`risk_matrix` wins and this section is corrected.
+**Source of truth.** `risk_matrix` in `docs/medtrace.yml` is authoritative: `risk-management`,
+`traceability-check` and the MedTrace app all derive acceptability from it, and this section only
+explains it. If the two ever disagree, `risk_matrix` wins and this section is corrected.
 
 Each RISK record carries `severity_initial`, `probability_initial`, `severity_residual`,
 `probability_residual` and `acceptability` in its frontmatter. `acceptability` is derived from
@@ -147,3 +146,4 @@ whole register rather than risk by risk.
 |---|---|---|
 | 1.0 | 2026-09-17 | ADD-003; acceptability criteria approved by the owner |
 | 2.0 | 2026-10-21 | Re-issued as a `lifecycle-plan` record for medical-records 0.3.2; matrix moved to `risk_matrix` in `docs/medtrace.yml`; scores moved into RISK frontmatter |
+| 2.1 | 2026-10-21 | Band summary aligned with `risk_matrix` (S1 × P5 is ALARP), on the owner's decision that the matrix governs |
