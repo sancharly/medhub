@@ -2,11 +2,11 @@
 id: "ADD-002"
 type: architecture-doc
 title: "Software development plan (IEC 62304, software safety class B)"
-status: in_review
+status: obsolete
 version: "2.0"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
-updated: "2026-09-17"
+updated: "2026-10-21"
 links:
   - target: "SR-028"
     relation: implements
@@ -14,6 +14,10 @@ links:
     relation: relates_to
 tags: ["sdp", "regulatory", "class:B"]
 ---
+
+> **Obsolete (2026-10-21).** Superseded by [PLAN-001](../../plans/PLAN-001-software-development-plan.md). Since medical-records 0.3.2,
+> lifecycle plans are `lifecycle-plan` records in `docs/plans/`, not `architecture-doc` records.
+> This element is kept, unchanged below, because design-record IDs are never deleted or reused.
 
 # Software Development Plan
 

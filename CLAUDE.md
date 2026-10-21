@@ -24,7 +24,10 @@ Notes on the settings above:
 - **arc42 section 9** (architecture decisions) is the ADR log in `docs/design/adr/`, which is
   why it is excluded from `arc42-sections`. Sections 1-8 and 10-12 use the canonical filenames.
 - **`docs/medtrace.yml`** mirrors `software-safety-class` for the MedTrace desktop app. The two
-  must stay in sync: change both or neither.
+  must stay in sync: change both or neither. The plugins read `medtrace.yml` first and stop if
+  the two differ; it also holds the approved `risk_matrix`.
+- **`docs/plans/`** holds only `lifecycle-plan` records (PLAN-001..005). Under the overlay a
+  feature's plan is its TASK records: never write a free-standing `docs/plans/<feature>.md`.
 
 ## Think Before Coding
 
