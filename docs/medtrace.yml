@@ -5,3 +5,9 @@ allow_self_approval: true
 soup_anomaly_max_age_days: 365
 severity_max: 5
 probability_max: 5
+risk_matrix:
+  - ["acceptable", "acceptable", "acceptable", "acceptable", "alarp"]
+  - ["acceptable", "acceptable", "alarp", "alarp", "alarp"]
+  - ["acceptable", "alarp", "alarp", "alarp", "unacceptable"]
+  - ["acceptable", "alarp", "alarp", "unacceptable", "unacceptable"]
+  - ["alarp", "unacceptable", "unacceptable", "unacceptable", "unacceptable"]
