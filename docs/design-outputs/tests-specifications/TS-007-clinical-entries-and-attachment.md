@@ -2,11 +2,15 @@
 id: TS-007
 type: test-specification
 title: Clinical entries and attachment verification
-status: in_review
+status: approved
 version: "1.1"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-10-22"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-22"
+approved_digest: be3d595a8da4d6f43a6f26a4c63c6c912e1af954353960cb9e2ab60e46be8fd2
+approval_note: self-approved
 links:
   - target: SR-012
     relation: verifies

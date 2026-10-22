@@ -2,13 +2,17 @@
 id: SOUP-019
 type: soup
 title: boto3
-status: in_review
+status: approved
 version: "1.1"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
 updated: "2026-10-22"
 manufacturer: Amazon Web Services
-soup_version: "1.43.117"
+soup_version: 1.43.117
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-22"
+approved_digest: 3cd7e459f725f657bd715cdb6dd761f9cf10c0e81ee517fcadf06c06abb85019
+approval_note: self-approved
 links: []
 tags:
   - soup
