@@ -22,6 +22,10 @@ The tools that build and verify MedHub are referenced by moving versions:
   `actions/setup-python@v5`, `actions/setup-node@v4`), `python-version: "3.12"` and
   `node-version: "20"` without a patch version.
 - `backend/Dockerfile`: `pip install uv` with no version.
+- `.github/workflows/ci.yml`: `pip install uv` with no version in the backend-quality,
+  backend-tests and openapi-lint jobs. Since CR-001 (TASK-158) the backend-quality job runs
+  `uv lock --check`, so a uv release that changes the lock format would fail CI with no code change
+  (fails safe, but can block merges).
 
 ## Impact
 

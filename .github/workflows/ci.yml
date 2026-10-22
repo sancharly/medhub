@@ -22,6 +22,10 @@ jobs:
       - name: Install uv
         run: pip install uv
 
+      - name: Check the lock file is current
+        working-directory: backend
+        run: uv lock --check
+
       - name: Install dependencies
         working-directory: backend
         run: uv sync --frozen
@@ -207,7 +211,7 @@ jobs:
         run: docker build -t medhub-backend:ci ./backend
 
       - name: Check production dependency set
-        run: docker run --rm --entrypoint python medhub-backend:ci -c "import boto3"
+        run: docker run --rm --entrypoint python medhub-backend:ci -c "import importlib.util, sys; import boto3; sys.exit(importlib.util.find_spec('fakeredis') is not None)"
 
       - name: Build frontend image
         run: docker build -t medhub-frontend:ci ./frontend

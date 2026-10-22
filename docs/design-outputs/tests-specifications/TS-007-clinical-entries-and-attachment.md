@@ -27,9 +27,9 @@ Levels: unit, integration.
 
 ## Preconditions and environment
 
-Build: branch `doc/agentic-os-migration`, commit `40401a1`. Backend Python 3.12 with the
+Build: branch `bug/soup-pinning` (CR-001), which holds `backend/tests/test_object_storage.py` (TC-007.5). Backend Python 3.12 with the
 dependencies locked in `backend/uv.lock`; frontend Node 20 with `frontend/package-lock.json`.
-Unit and service tests run with no external services (in-memory repositories and a fake object store). Tests marked *real DB* require a
+Unit and service tests run with no external services (in-memory repositories and a fake object store). TC-007.5 builds the real boto3 S3 client from the locked SDK; no object-storage service is needed. Tests marked *real DB* require a
 PostgreSQL 16 container through testcontainers and therefore a working Docker daemon.
 Exact SOUP versions: the `soup` records in [`../../soup/`](../../soup/).
 
@@ -56,4 +56,6 @@ Streaming upload and download (TASK-135) is open; TC-007.2 verifies the limit, n
 ## Version history
 
 - 1.1 (2026-10-22) — CR-001 (TASK-157, PRB-002): test case TC-007.5 for SR-013 AC-3, so a missing
-  object-storage SDK fails the build. Test cases TC-007.1 to TC-007.4 unchanged.
+  object-storage SDK fails the build. Test cases TC-007.1 to TC-007.4 unchanged. TASK-158 (QA
+  follow-up of TASK-157): preconditions name `bug/soup-pinning` as the build of TC-007.5 and state
+  that TC-007.5 builds the real boto3 S3 client and needs no object-storage service.

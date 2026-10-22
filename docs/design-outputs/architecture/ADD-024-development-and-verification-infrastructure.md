@@ -36,8 +36,11 @@ it can reach `main` (SR-028). It is part of the repository and runs on every pul
   `container: <ref>` reference lacks `@sha256:<64 hex>` (an empty `image:` value also fails); it ignores a `FROM` of an earlier stage and `FROM scratch`
   (SR-028 AC-5, CR-001 AC-3). The `build` job ("Docker Build") builds the backend image, which
   installs with `uv sync --frozen --no-dev`, and then runs the step "Check production dependency
-  set": `docker run --rm --entrypoint python medhub-backend:ci -c "import boto3"`. It fails the
-  build when the production dependency set lacks the object-storage SDK (SR-028 AC-5, CR-001 AC-8).
+  set": `docker run --rm --entrypoint python medhub-backend:ci -c "import importlib.util, sys; import boto3; sys.exit(importlib.util.find_spec('fakeredis') is not None)"`.
+  It fails the build when the production dependency set lacks the object-storage SDK or contains
+  `fakeredis`, which only the tests use (SR-028 AC-5, CR-001 AC-8, AC-9). The `backend-quality`
+  job runs `uv lock --check` before it installs, so a manifest edit that is not re-locked fails
+  the pull request (SR-028 AC-5).
 - `U-INF-Toolchain` — the monorepo toolchain configuration: `backend/pyproject.toml` tool sections,
   `.pre-commit-config.yaml`, the frontend ESLint and TypeScript configuration, and the lock files
   that pin every dependency (SR-028 AC-1).
@@ -68,8 +71,9 @@ approvals — are defined by the lifecycle plans ([PLAN-001](../../plans/PLAN-00
 [TS-013](../tests-specifications/TS-013-lifecycle-record-and-traceability.md):
 `backend/tests/test_toolchain.py`, `frontend/tests/toolchain.test.ts` and
 `backend/tests/test_export_openapi.py`, `infra/check_image_pins.py` with
-`infra/tests/test_check_image_pins.py` (TC-013.5, TC-013.6), `uv lock --check` and the Docker Build
-step "Check production dependency set" (TC-013.7, TC-013.8), plus the `traceability-check` gap
+`infra/tests/test_check_image_pins.py` (TC-013.5, TC-013.6), `uv lock --check` (the `backend-quality`
+step "Check the lock file is current") and the Docker Build step "Check production dependency set"
+(TC-013.7, TC-013.8), plus the `traceability-check` gap
 reports.
 
 ## Architecture narrative
@@ -90,4 +94,6 @@ contributor because it is not deployed.
   (`infra/check_image_pins.py`, SR-028 AC-5); CI service containers are the Compose-pinned PostgreSQL
   and Redis references; verification lists TC-013.5 and TC-013.6. TASK-157 adds the step "Check
   production dependency set" to the Docker Build job (`import boto3` in the built backend image,
-  TC-013.8) and lists TC-013.7. TASK-158 extends the same step.
+  TC-013.8) and lists TC-013.7. TASK-158 extends the same step with the absence of `fakeredis`
+  (PRB-033, CR-001 AC-9) and adds the `backend-quality` step "Check the lock file is current"
+  (`uv lock --check`, TC-013.7).

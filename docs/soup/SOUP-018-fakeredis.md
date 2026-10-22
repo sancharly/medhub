@@ -2,17 +2,13 @@
 id: SOUP-018
 type: soup
 title: fakeredis
-status: approved
-version: "1.0"
+status: obsolete
+version: "1.1"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
-updated: "2026-10-21"
+updated: "2026-10-22"
 manufacturer: fakeredis contributors
 soup_version: 2.36.2
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-10-21"
-approved_digest: a3be98d09164927e8d33e4828f84d23ca6a10b11c2761ea75a30af771d3a3d45
-approval_note: self-approved
 links: []
 tags:
   - soup
@@ -22,11 +18,11 @@ tags:
 
 # SOUP-018 — fakeredis 2.36.2
 
-> Misdeclared dependency, tracked as PRB-033; this record exists because the package is shipped.
+> No longer shipped: moved to the `dev` dependency group (PRB-033, CR-001). Development tooling that is not shipped is not SOUP.
 
 ## Functional and performance requirements
 
-None: no software item uses it. It is declared as a runtime dependency in `backend/pyproject.toml` but imported only by tests, so it ships in the production image without being relied on.
+None: no software item uses it. It was declared as a runtime dependency in `backend/pyproject.toml` but is imported only by tests. It is now in the `dev` dependency group and is not part of the production image.
 
 ## Required hardware and software environment
 
@@ -34,9 +30,7 @@ Python 3.12.
 
 ## Anomaly list review
 
-**Not yet performed.** No published anomaly list, release notes or advisory database has been
-reviewed for this exact version, so `anomaly_review` is absent. The first review is TASK-154; until
-it lands this item fails the release gate's SOUP check.
+Not required: the record is obsolete, so no anomaly-list review is made for it (TASK-154 skips it).
 
 ## Monitoring
 
@@ -48,3 +42,4 @@ accountable. Hazard-relevant anomalies go to `risk-management`; defects affectin
 
 - 2026-10-21 — Record created at the locked/declared version when the SOUP list moved from
   ADD-004 to one `soup` record per component (medical-records 0.3.2).
+- 2026-10-22 — removed from the runtime dependency set (dev group only); record obsolete; PRB-033, CR-001

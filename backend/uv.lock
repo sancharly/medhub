@@ -961,7 +961,6 @@ dependencies = [
     { name = "boto3" },
     { name = "celery" },
     { name = "cryptography" },
-    { name = "fakeredis" },
     { name = "fastapi" },
     { name = "fhir-resources" },
     { name = "gunicorn" },
@@ -978,6 +977,7 @@ dependencies = [
 [package.dev-dependencies]
 dev = [
     { name = "black" },
+    { name = "fakeredis" },
     { name = "httpx" },
     { name = "mypy" },
     { name = "pytest" },
@@ -994,7 +994,6 @@ requires-dist = [
     { name = "boto3", specifier = ">=1.43.0" },
     { name = "celery", specifier = ">=5.4.0" },
     { name = "cryptography", specifier = ">=42.0.0" },
-    { name = "fakeredis", specifier = ">=2.36.2" },
     { name = "fastapi", specifier = ">=0.111.0" },
     { name = "fhir-resources", specifier = ">=7.1.0" },
     { name = "gunicorn", specifier = ">=22.0.0" },
@@ -1011,6 +1010,7 @@ requires-dist = [
 [package.metadata.requires-dev]
 dev = [
     { name = "black", specifier = ">=24.4.0" },
+    { name = "fakeredis", specifier = ">=2.36.2" },
     { name = "httpx", specifier = ">=0.27.0" },
     { name = "mypy", specifier = ">=1.10.0" },
     { name = "pytest", specifier = ">=8.2.0" },
