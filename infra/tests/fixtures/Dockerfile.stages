@@ -1,0 +1,11 @@
+# Multi-stage build: only external references need a digest.
+FROM python:3.12.15-slim@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa AS Builder
+RUN echo build
+
+FROM scratch AS empty
+
+FROM --platform=$BUILDPLATFORM node:20.20.2-slim@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa AS web
+
+FROM builder
+FROM web AS copy
+FROM Scratch

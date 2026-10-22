@@ -1,0 +1,11 @@
+services:
+  pinned:
+    image: nginx:1.31.8-alpine@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  floating:
+    image: redis:7-alpine
+  quoted:
+    image: "postgres:16" # trailing comment
+  latest:
+    image: 'minio/minio:latest'
+  variable:
+    image: ${REGISTRY}/app:1.0@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
