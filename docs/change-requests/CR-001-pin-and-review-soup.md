@@ -220,6 +220,17 @@ The score is conditional on TASK-154 finding no hazard-relevant, unfixed anomaly
 control-bearing item. If it finds one, TASK-159 re-scores with that rationale. Acceptance is the
 human's, through the approval of the revised RISK-010.
 
+**Update 2026-10-22 (TASK-159).** The condition was met. TASK-154 found known, unfixed anomalies
+in MinIO, which carries the SSE control (PRB-042, PRB-043). RISK-010 1.3 is therefore re-scored to
+severity 3 × probability 2. The matrix derives `alarp`, and the worst path governs:
+- Probability 1 holds, per the rationale above, for every item except MinIO.
+- For SOUP-022/023, the review cannot lead to a fix (D-4), so the probability stays at 2. This is
+  the input stated in RISK-012.
+
+RISK-010 states in its ALARP justification that this residual is not justified for a release.
+CR-002 is the further reduction, and no release is made before it. Acceptance is still the
+human's.
+
 ## Acceptance criteria
 
 Pinning (PRB-001)
@@ -467,3 +478,5 @@ No other hazard-relevant anomalies were found.
   After QA round 1 of TASK-154 (same version): PRB-048 added to the escalation table; dated update
   to the change analysis (RISK-012 predates the change, `risk_impact` unchanged, class B pending
   the human's confirmation); RISK-012 added to the TASK-154 row.
+  TASK-159 (same version, no scope or acceptance-criteria change): dated outcome note under
+  "RISK-010 residual" (re-scored to 3 × 2, `alarp`, MinIO path).
