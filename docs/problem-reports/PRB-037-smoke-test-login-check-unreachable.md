@@ -2,8 +2,8 @@
 id: "PRB-037"
 type: problem-report
 title: "Smoke test login check targets a port the stack does not publish"
-status: open
-version: "1.0"
+status: resolved
+version: "1.1"
 author: "Carlos Santiago Liceras"
 created: "2026-10-22"
 updated: "2026-10-22"
@@ -33,15 +33,59 @@ migrated and the auth layer is active.
   no signal and CR-001 AC-5 ("passes `infra/smoke-test.sh`") cannot be met literally.
 - The one runtime check in the script (migrated schema) is never exercised.
 
+## Investigation
+
+Root cause: check 9 was written against an address the Compose topology never publishes.
+`infra/smoke-test.sh:131` (before the fix) posted to `http://localhost:8000/api/v1/auth/login`.
+In `infra/docker-compose.yml` only `reverse-proxy` has `ports:` (lines 21-23, 80 and 443); `backend`
+uses `expose: "8000"` (lines 40-41), which is reachable only from inside the `medhub` network. A
+`curl` from the host to `localhost:8000` therefore gets no connection and `-w "%{http_code}"`
+prints `000`, which falls through to the final `else` at `infra/smoke-test.sh:138-139` and is
+reported as `[FAIL]`. The "skipping" branch at `infra/smoke-test.sh:136` tests for an empty string,
+which `curl -w` never produces, so it did not help. The proxy forwards `/api/` to `backend:8000`
+(`infra/reverse-proxy/nginx.conf:31-32`) over TLS on 443, so the endpoint the stack actually
+publishes is `https://localhost/api/v1/auth/login`. The check was most likely written when the
+backend port was thought to be published, and it was never run against the finished topology
+(TASK-004 introduced the reverse-proxy-only exposure that check 3 verifies).
+
 ## Safety evaluation
 
-No hazard is realized: the defect is in verification tooling, not in the product. Hence `minor`.
+- Data integrity: not affected. The defect is in verification tooling; the product, its data and
+  its configuration are unchanged by the defect and by the fix.
+- Safety-related function / clinical decision: not affected. No software function or clinical
+  output depends on `infra/smoke-test.sh`.
+- Criticality `minor`: confirmed. The effect was a false failure of a deployment check (a missed
+  signal, not a wrong result in the product), and the runtime check it carried, a migrated schema,
+  was never exercised until now. That gap matters for verification evidence (CR-001 AC-5), not for
+  hazards. The fix makes the check able to fail for the right reason: a 500 from an empty schema.
+- Released versions: no `release` record exists in `docs/releases/`, so no released version is
+  affected and no notification is needed.
 
-## Proposed resolution
+## Resolution
 
-Point check 9 at the published endpoint (`https://localhost/api/v1/auth/login` with `curl -k`, since
-the development certificate is self-signed), or run it inside the `backend` container. Needs a task.
+Changed `infra/smoke-test.sh` (check 9, lines 124-143): the login POST now goes to
+`https://localhost/api/v1/auth/login` through the reverse proxy, with `curl -sk` because the
+development certificate is self-signed, plus a two-line comment saying why. The 401/422 pass
+condition, the empty-status skipping branch and the failure message are unchanged, and nothing else
+in the script changed. `infra/docker-compose.yml` is unchanged: the backend port is still not
+published. Chosen over running the request inside the `backend` container because the proxy path
+checks the topology an operator actually uses and needs no `exec` into the stack. Implemented by
+TASK-160, resolved by CR-001.
+
+Verification (reproducible, reference workstation, 2026-10-22, pinned stack from TASK-155):
+
+1. `docker compose -f infra/docker-compose.yml up -d --build`
+2. Before the fix: `bash infra/smoke-test.sh` -> `[FAIL] POST /auth/login returns non-500 (schema
+   migrated): got HTTP 000 ...`, `16 passed, 1 failed`, exit 1.
+3. After the fix: `bash infra/smoke-test.sh` -> `[PASS] POST /auth/login returns non-500 (schema
+   migrated)`, `17 passed, 0 failed`, exit 0. The same POST returned HTTP 401.
+4. `docker compose -f infra/docker-compose.yml down` (no `-v`); `python3 infra/check_image_pins.py`
+   -> exit 0.
+
+Full output of both runs is in TASK-160 (Evidence). Not tested: the 500 branch (an empty schema);
+the check was not run against a database without migrations.
 
 ## Source
 
-Found by the software developer while running TASK-155 verification (AC-5); out of scope for CR-001.
+Found by the software developer while running TASK-155 verification (AC-5). Added to CR-001's
+scope at Checkpoint A by the human (2026-10-22, CR-001 1.3); resolved by TASK-160.

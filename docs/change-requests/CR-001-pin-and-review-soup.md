@@ -3,7 +3,7 @@ id: "CR-001"
 type: change-request
 title: "Pin and review SOUP so the release gate's SOUP check can pass"
 status: in_progress
-version: "1.2"
+version: "1.3"
 author: "Carlos Santiago Liceras"
 created: "2026-10-22"
 updated: "2026-10-22"
@@ -14,6 +14,8 @@ links:
   - target: "PRB-002"
     relation: resolves
   - target: "PRB-033"
+    relation: resolves
+  - target: "PRB-037"
     relation: resolves
   - target: "TASK-154"
     relation: relates_to
@@ -26,6 +28,8 @@ links:
   - target: "TASK-158"
     relation: relates_to
   - target: "TASK-159"
+    relation: relates_to
+  - target: "TASK-160"
     relation: relates_to
   - target: "RISK-010"
     relation: relates_to
@@ -51,6 +55,9 @@ SOUP item meets the second condition (35 `soup_anomaly_review_stale` warnings in
   SOUP-019 has no version.
 - **PRB-033** (minor): `fakeredis`, used only by tests, is a runtime dependency and ships in the
   production image as an unreviewed, unused SOUP item (SOUP-018).
+- **PRB-037** (minor, added at Checkpoint A): `infra/smoke-test.sh` check 9 targets a port the
+  Compose topology does not publish, so the smoke test cannot pass and AC-5 cannot be met
+  literally.
 - **TASK-154**: the first anomaly-list review of every SOUP item has never been run. It is a
   residual-risk precondition of RISK-010, together with PRB-001.
 
@@ -82,9 +89,11 @@ Source: GitHub issue sancharly/medhub#26.
    are escalated to RISK records, MedHub-affecting defects to PRBs.
 7. **Risk re-assessment (§7.4).** RISK-010 is revised once the controls it assumes exist and are
    verified.
-8. **Records.** PRB-001, PRB-002 and PRB-033 move to `resolved` after the fix is verified, each
+8. **Records.** PRB-001, PRB-002, PRB-033 and PRB-037 move to `resolved` after the fix is verified, each
    with its `## Resolution` written. TS-013 (verifies SR-028) gains the test cases for SR-028 AC-5
    and AC-6.
+9. **Smoke test login check (PRB-037, TASK-160).** Check 9 of `infra/smoke-test.sh` posts through
+   the reverse proxy instead of the unpublished backend port, so the pinned stack passes 17/17.
 
 ### Requirements decision
 
@@ -130,7 +139,7 @@ and RISK-007. Any hazard-relevant anomaly found by the review is a new input to 
 #### Change analysis (Risk stage, 2026-10-22)
 
 Scales and matrix: `docs/medtrace.yml` (5 × 5 `risk_matrix`), PLAN-005. The analysis covers the
-four changes of the Scope and the review that follows them. Records consulted: RISK-001,
+five changes of the Scope and the review that follows them. Records consulted: RISK-001,
 RISK-005, RISK-007 and RISK-010; ADD-005, ADD-006, ADD-012, ADD-016, ADD-017, ADD-018 and ADD-024;
 SOUP-001, SOUP-018..024; TS-001, TS-007, TS-008, TS-011 and TS-013.
 
@@ -147,6 +156,7 @@ resolution implements (see Q-3).
 | CI pin check (TASK-156) | SI-DEVINFRA (ADD-024), not deployed | None at runtime. Failure modes: a false negative (an unpinned reference not flagged) is covered by a negative fixture for each reference form. A false positive only blocks a merge. | Adds a protective control to RISK-010 | TS-013 TC-013.5, TC-013.6 |
 | boto3 required (TASK-157) | SI-ATTACH (ADD-012); SOUP-019 with its transitives `botocore`, `s3transfer`, `jmespath` | Restores SR-013 AC-3 and adds no new failure path. The attachment write path now reaches MinIO in a real deployment, so the `ServerSideEncryption="AES256"` request runs live for the first time. If MinIO's KMS is misconfigured, MinIO rejects the request and the upload fails loudly (availability, RISK-007). The object is never stored silently in plaintext. | **RISK-007** control "Object storage dependency declared and verified at startup" is realized as *declared as a required dependency and verified in CI* (instantiation test, production-image import check), not by a check at application start. Assessed as equivalent for the cause it targets (a missing SDK), because the shipped image is built only from the frozen lock. RISK-007's residual (3 × 2, `alarp`, set by the single-host decision ADR-0010) is unchanged. | TS-007 TC-007.5, TS-013 TC-013.7, TC-013.8 |
 | fakeredis to dev (TASK-158) | Backend runtime image; SI-AUTH `U-AUTH-Session` (ADD-006) indirectly; SOUP-018 | Removes an unused component from the product. No application module imports it, and no control of RISK-005 or RISK-007 depends on it. The misconfiguration path it removes: one in-process FakeRedis per gunicorn worker loses every session on restart (RISK-007), and a session revoked on one worker stays valid on the others, which defeats SR-030 revocation (RISK-005). After the change, that wiring fails at import in the production image. Tests keep it through the dev group, so TS-001's environment is unchanged. | None weakened. RISK-005 (residual P = 1) and RISK-007 are not re-scored. | TS-013 TC-013.8 (absence in the production image); backend suite |
+| Smoke test login check (TASK-160) | SI-DEVINFRA `U-INF-Toolchain` (`infra/smoke-test.sh`), verification tooling, not shipped | None: the script is not part of the product and the Compose port publishing is unchanged. | None | AC-5 smoke run, 17/17 |
 | Anomaly review (TASK-154) | All non-obsolete SOUP | The review introduces nothing itself. Its findings are new inputs to this stage (AC-12). | Implements RISK-010's protective control | Dated reviews in the SOUP records; TS-013 TC-013.9 |
 
 **Observation passed to TASK-154 (D-4).** On 2026-10-22, `docker buildx imagetools inspect`
@@ -265,7 +275,7 @@ Verification and records
   still `verifies` SR-028.
 - **AC-16:** All jobs in `.github/workflows/ci.yml`, including the new pin check, pass on the
   branch head. The backend test suite (`pytest`) and the frontend test suite pass locally.
-- **AC-17:** PRB-001, PRB-002 and PRB-033 are `resolved`, each with a `## Resolution` that names
+- **AC-17:** PRB-001, PRB-002, PRB-033 and PRB-037 are `resolved`, each with a `## Resolution` that names
   the changed files and the reproducible verification, and each has an incoming `resolves` link
   from this CR.
 - **AC-18:** `traceability-check` over the whole project reports 0 errors and no
@@ -338,7 +348,8 @@ own PRB. All tasks are on `bug/soup-pinning`, one commit per QA-approved task wi
 | 3 | [TASK-157](../design-outputs/tasks/TASK-157-declare-boto3-required-runtime-dependency.md) Declare boto3 as a required runtime dependency | AC-6, AC-7, AC-8, AC-15 (part), AC-17 (PRB-002) | none (parallel with 1–2) | M |
 | 4 | [TASK-158](../design-outputs/tasks/TASK-158-move-fakeredis-to-dev-dependency-group.md) Move fakeredis to the dev dependency group | AC-9, AC-10, AC-15 (part), AC-17 (PRB-033) | TASK-157 (same files) | S |
 | — | **Checkpoint A** after tasks 1–4 | — | — | — |
-| 5 | [TASK-154](../design-outputs/tasks/TASK-154-soup-anomaly-list-review.md) First SOUP anomaly-list review (revised, v1.3) | AC-11, AC-12, AC-13 | TASK-155, TASK-157, TASK-158 | L (records only) |
+| 4a | [TASK-160](../design-outputs/tasks/TASK-160-smoke-test-login-check-via-proxy.md) Point the smoke test's login check at the published proxy endpoint | AC-5, AC-17 (PRB-037) | TASK-155 | XS |
+| 5 | [TASK-154](../design-outputs/tasks/TASK-154-soup-anomaly-list-review.md) First SOUP anomaly-list review (revised, v1.3) | AC-11, AC-12, AC-13 | TASK-155, TASK-157, TASK-158, TASK-160 | L (records only) |
 | 6 | [TASK-159](../design-outputs/tasks/TASK-159-reassess-risk-010-and-verify-cr-001.md) Re-assess RISK-010 and verify CR-001 end to end | AC-14, AC-15, AC-16, AC-18 | all above | S |
 
 Every AC-1..AC-18 is covered. AC-15 is built up by tasks 2–4 (TC-013.5..8) and completed in
@@ -364,6 +375,10 @@ reviews the final versions.
 - Record convention: a record changed by several tasks of this CR is bumped **once**, by the first
   task that touches it. Its approval record is cleared then, and later tasks extend the same
   version-history entry. This applies to the SOUP records, TS-013 and ADD-024.
+
+**Scope change at Checkpoint A (2026-10-22).** The human did not accept the 16/17 smoke-test
+result as meeting AC-5 and added PRB-037 to this CR. TASK-160 fixes the smoke test's login check,
+CR-001 now `resolves` PRB-037, and AC-17 covers PRB-037 as well. TASK-160 runs before TASK-154.
 
 ### Risks
 
@@ -396,3 +411,6 @@ Plan approved by Carlos Santiago Liceras on 2026-10-22, with these answers:
   `relates_to` links to TASK-155..159.
 - 1.2 (2026-10-22) — Plan approved; open questions Q-1..Q-4 answered under "Plan decisions";
   PRB-036 raised for Q-4.
+- 1.3 (2026-10-22) — Checkpoint A: PRB-037 added to scope (`resolves`), TASK-160 added to the
+  plan; AC-5 must pass the smoke test 17/17. Reason, In scope (item 9), the §7.4 change analysis
+  and TASK-154's dependencies updated for it.
