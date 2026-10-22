@@ -206,6 +206,9 @@ jobs:
       - name: Build backend image
         run: docker build -t medhub-backend:ci ./backend
 
+      - name: Check production dependency set
+        run: docker run --rm --entrypoint python medhub-backend:ci -c "import boto3"
+
       - name: Build frontend image
         run: docker build -t medhub-frontend:ci ./frontend
 

@@ -1,7 +1,8 @@
 """ObjectStorageClient — MinIO / S3-compatible object storage (TASK-045).
 
-boto3 is an optional dependency. The client raises ImportError at instantiation time
-if boto3 is not installed, rather than at module import time.
+boto3 is a required runtime dependency (declared in pyproject.toml, locked in uv.lock). The
+import stays lazy so that importing this module needs no SDK; the client raises ImportError at
+instantiation time if boto3 is missing, rather than at module import time.
 """
 
 from __future__ import annotations

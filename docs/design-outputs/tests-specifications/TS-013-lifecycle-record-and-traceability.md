@@ -23,7 +23,7 @@ tags:
 Software requirements covered: SR-028.
 Software items under test: the design record set (review), and SI-DEVINFRA unit
 `U-INF-CIPipeline` (ADD-024), specifically `infra/check_image_pins.py` (unit verification, §5.5).
-Levels: review (TC-013.1 to TC-013.4), unit (TC-013.5, TC-013.6).
+Levels: review (TC-013.1 to TC-013.4, TC-013.7), unit (TC-013.5, TC-013.6), integration (TC-013.8).
 
 ## Preconditions and environment
 
@@ -33,7 +33,7 @@ Unit and service tests run with no external services (the repository itself). Te
 PostgreSQL 16 container through testcontainers and therefore a working Docker daemon.
 Exact SOUP versions: the `soup` records in [`../../soup/`](../../soup/); the pinned image
 references (tag and digest) are those recorded in the SOUP records. TC-013.5 and TC-013.6 need only
-Python 3 (standard library) and `git`.
+Python 3 (standard library) and `git`; TC-013.7 needs `uv`; TC-013.8 needs a Docker daemon.
 
 ## Test cases
 
@@ -45,6 +45,8 @@ Python 3 (standard library) and `git`.
 | TC-013.4 | SR-028 | `git log` on `docs/` plus the record `version` fields | Every record change is version-controlled and versioned | Reviewed at release |
 | TC-013.5 | SR-028 (AC-5) | `python3 infra/check_image_pins.py` on the repository (CI job `image-pins`) | Every Compose `image:`, Dockerfile `FROM` and workflow `services.*.image` reference carries `@sha256:<64 hex>` | Exit 0, no output. Only the digest is enforced; that the tag names a full release (SR-028 AC-5 / CR-001 AC-1) remains an inspection. A digest-only reference (`repo@sha256:…`) passes |
 | TC-013.6 | SR-028 (AC-5) | `infra/tests/test_check_image_pins.py` (`python3 -m unittest discover -s infra/tests -v`): `UnpinnedReferences`, `AcceptedReferences`, `UsageErrors` | Each unpinned form (Compose, Dockerfile with `--platform` and `AS`, workflow service and container image, `container:` shorthand, short, uppercase, over-long or non-sha256 digest, variable reference) is reported with file and line; `FROM` of an earlier stage and `FROM scratch` are not; an empty `image:` value and a workflow `container: <ref>` shorthand are also reported; the pinned fixtures pass | Exit 1 on each unpinned fixture, 0 on the pinned and stage fixtures, 2 on a missing file; all 11 unit tests pass |
+| TC-013.7 | SR-028 (AC-5) | `cd backend && uv lock --check` | Every Python runtime dependency, `boto3` included, resolves to one locked version: `uv.lock` is in sync with `[project] dependencies` | Exit 0; `boto3` is declared under `[project] dependencies` (not an extra or a dependency group) and `uv.lock` holds exactly one `boto3` entry. The CI jobs install with `uv sync --frozen`, which does not re-check the lock; the check is run by hand (review) |
+| TC-013.8 | SR-028 (AC-5) | CI job Docker Build (`.github/workflows/ci.yml`), step "Check production dependency set": `docker run --rm --entrypoint python medhub-backend:ci -c "import boto3"` | The production image, built with `uv sync --frozen --no-dev`, contains every runtime SDK the code imports | `import boto3` succeeds (exit 0) in the built backend image. Locally, `uv sync --frozen --no-dev` into a scratch environment gives the same result |
 
 ## Acceptance criteria (class B unit level, §5.5.3)
 
@@ -68,3 +70,6 @@ TC-013.1 to TC-013.4 verify the process requirement by review, which IEC 62304 �
 - 1.1 (2026-10-21) — Restored from `obsolete` together with SR-028. Content unchanged.
 - 1.2 (2026-10-22) — CR-001: test cases TC-013.5 and TC-013.6 for SR-028 AC-5 (image pin check), `U-INF-CIPipeline` as a unit under test with its acceptance criterion; environment
   updated to branch `bug/soup-pinning`. TASK-157, TASK-158 and TASK-159 extend this entry with their cases.
+  TASK-157 adds TC-013.7 (the lock resolves every runtime dependency to one version, `boto3`
+  declared) and TC-013.8 (the production image imports `boto3`), for SR-028 AC-5; environment of
+  TC-013.8: Docker daemon.

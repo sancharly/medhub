@@ -2,15 +2,11 @@
 id: TS-007
 type: test-specification
 title: Clinical entries and attachment verification
-status: approved
-version: "1.0"
+status: in_review
+version: "1.1"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-10-21"
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-10-21"
-approved_digest: f36f409fcbcfaffcc2a6b4ad102961405daa02459fda15efe61dbfd34b7cc0e3
-approval_note: self-approved
+updated: "2026-10-22"
 links:
   - target: SR-012
     relation: verifies
@@ -45,6 +41,7 @@ Exact SOUP versions: the `soup` records in [`../../soup/`](../../soup/).
 | TC-007.2 | SR-013 | `backend/tests/attachments/test_attachment_upload.py`, `backend/tests/attachments/test_dicom_validation.py` | Uploads are validated, size-limited and bound to the entry and patient transactionally | An invalid or oversized object is rejected without a dangling row |
 | TC-007.3 | SR-013, SR-005 | `backend/tests/attachments/test_attachment_fetch.py`, `backend/tests/api/test_attachments_router.py` | Fetching an attachment requires authorization for the owning entry | Unauthorized fetch denied |
 | TC-007.4 | SR-012, SR-013 | `frontend/src/core/clinical/ClinicalEntriesPage.test.tsx` | Entries and their attachments render for the authorized viewer with correct attribution | Author name shown per entry author, not per viewer |
+| TC-007.5 | SR-013 (AC-3) | `backend/tests/test_object_storage.py::test_object_storage_client_builds_real_s3_client` | The object-storage client is built from the declared SDK: `ObjectStorageClient()` imports the real `boto3` (no patch, stub or `importorskip`) and builds an S3 client for the configured endpoint and bucket, with no reachable endpoint | Test passes with the real `boto3` import; it fails with `ImportError` when `boto3` is not installed |
 
 ## Acceptance criteria (class B unit level, §5.5.3)
 
@@ -55,3 +52,8 @@ Exact SOUP versions: the `soup` records in [`../../soup/`](../../soup/).
 ## Notes
 
 Streaming upload and download (TASK-135) is open; TC-007.2 verifies the limit, not the memory profile.
+
+## Version history
+
+- 1.1 (2026-10-22) — CR-001 (TASK-157, PRB-002): test case TC-007.5 for SR-013 AC-3, so a missing
+  object-storage SDK fails the build. Test cases TC-007.1 to TC-007.4 unchanged.

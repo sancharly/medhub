@@ -34,7 +34,10 @@ it can reach `main` (SR-028). It is part of the repository and runs on every pul
   library only, no dependency install) fails, naming file and line, when a Compose `image:`,
   Dockerfile `FROM` or `.github/workflows/*.yml` `services.*.image`, `container.image` or
   `container: <ref>` reference lacks `@sha256:<64 hex>` (an empty `image:` value also fails); it ignores a `FROM` of an earlier stage and `FROM scratch`
-  (SR-028 AC-5, CR-001 AC-3).
+  (SR-028 AC-5, CR-001 AC-3). The `build` job ("Docker Build") builds the backend image, which
+  installs with `uv sync --frozen --no-dev`, and then runs the step "Check production dependency
+  set": `docker run --rm --entrypoint python medhub-backend:ci -c "import boto3"`. It fails the
+  build when the production dependency set lacks the object-storage SDK (SR-028 AC-5, CR-001 AC-8).
 - `U-INF-Toolchain` — the monorepo toolchain configuration: `backend/pyproject.toml` tool sections,
   `.pre-commit-config.yaml`, the frontend ESLint and TypeScript configuration, and the lock files
   that pin every dependency (SR-028 AC-1).
@@ -65,7 +68,8 @@ approvals — are defined by the lifecycle plans ([PLAN-001](../../plans/PLAN-00
 [TS-013](../tests-specifications/TS-013-lifecycle-record-and-traceability.md):
 `backend/tests/test_toolchain.py`, `frontend/tests/toolchain.test.ts` and
 `backend/tests/test_export_openapi.py`, `infra/check_image_pins.py` with
-`infra/tests/test_check_image_pins.py` (TC-013.5, TC-013.6), plus the `traceability-check` gap
+`infra/tests/test_check_image_pins.py` (TC-013.5, TC-013.6), `uv lock --check` and the Docker Build
+step "Check production dependency set" (TC-013.7, TC-013.8), plus the `traceability-check` gap
 reports.
 
 ## Architecture narrative
@@ -84,5 +88,6 @@ contributor because it is not deployed.
 - 1.0 (2026-10-21) — Initial record.
 - 1.1 (2026-10-22) — CR-001: `U-INF-CIPipeline` gains the image pin check job and its script
   (`infra/check_image_pins.py`, SR-028 AC-5); CI service containers are the Compose-pinned PostgreSQL
-  and Redis references; verification lists TC-013.5 and TC-013.6. TASK-157 and TASK-158 extend this
-  entry with the production-dependency-set step of the Docker Build job.
+  and Redis references; verification lists TC-013.5 and TC-013.6. TASK-157 adds the step "Check
+  production dependency set" to the Docker Build job (`import boto3` in the built backend image,
+  TC-013.8) and lists TC-013.7. TASK-158 extends the same step.
