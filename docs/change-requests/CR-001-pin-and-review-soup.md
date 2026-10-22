@@ -3,7 +3,7 @@ id: "CR-001"
 type: change-request
 title: "Pin and review SOUP so the release gate's SOUP check can pass"
 status: in_progress
-version: "1.3"
+version: "1.4"
 author: "Carlos Santiago Liceras"
 created: "2026-10-22"
 updated: "2026-10-22"
@@ -32,6 +32,8 @@ links:
   - target: "TASK-160"
     relation: relates_to
   - target: "RISK-010"
+    relation: relates_to
+  - target: "RISK-012"
     relation: relates_to
   - target: "SR-028"
     relation: relates_to
@@ -157,7 +159,7 @@ resolution implements (see Q-3).
 | boto3 required (TASK-157) | SI-ATTACH (ADD-012); SOUP-019 with its transitives `botocore`, `s3transfer`, `jmespath` | Restores SR-013 AC-3 and adds no new failure path. The attachment write path now reaches MinIO in a real deployment, so the `ServerSideEncryption="AES256"` request runs live for the first time. If MinIO's KMS is misconfigured, MinIO rejects the request and the upload fails loudly (availability, RISK-007). The object is never stored silently in plaintext. | **RISK-007** control "Object storage dependency declared and verified at startup" is realized as *declared as a required dependency and verified in CI* (instantiation test, production-image import check), not by a check at application start. Assessed as equivalent for the cause it targets (a missing SDK), because the shipped image is built only from the frozen lock. RISK-007's residual (3 × 2, `alarp`, set by the single-host decision ADR-0010) is unchanged. | TS-007 TC-007.5, TS-013 TC-013.7, TC-013.8 |
 | fakeredis to dev (TASK-158) | Backend runtime image; SI-AUTH `U-AUTH-Session` (ADD-006) indirectly; SOUP-018 | Removes an unused component from the product. No application module imports it, and no control of RISK-005 or RISK-007 depends on it. The misconfiguration path it removes: one in-process FakeRedis per gunicorn worker loses every session on restart (RISK-007), and a session revoked on one worker stays valid on the others, which defeats SR-030 revocation (RISK-005). After the change, that wiring fails at import in the production image. Tests keep it through the dev group, so TS-001's environment is unchanged. | None weakened. RISK-005 (residual P = 1) and RISK-007 are not re-scored. | TS-013 TC-013.8 (absence in the production image); backend suite |
 | Smoke test login check (TASK-160) | SI-DEVINFRA `U-INF-Toolchain` (`infra/smoke-test.sh`), verification tooling, not shipped | None: the script is not part of the product and the Compose port publishing is unchanged. | None | AC-5 smoke run, 17/17 |
-| Anomaly review (TASK-154) | All non-obsolete SOUP | The review introduces nothing itself. Its findings are new inputs to this stage (AC-12). | Implements RISK-010's protective control | Dated reviews in the SOUP records; TS-013 TC-013.9 |
+| Anomaly review (TASK-154) | All non-obsolete SOUP | The review introduces nothing itself. Its findings are new inputs to this stage (AC-12): RISK-012 (see the update below). | Implements RISK-010's protective control | Dated reviews in the SOUP records; TS-013 TC-013.9 |
 
 **Observation passed to TASK-154 (D-4).** On 2026-10-22, `docker buildx imagetools inspect`
 resolved every other image normally but refused `minio/minio:latest` and `minio/mc:latest` on
@@ -173,6 +175,25 @@ distribution change:
 
 Neither consequence exceeds class B. TASK-154 confirms the status from the vendor's own notices and
 escalates it, without changing the component.
+
+**Update 2026-10-22 (TASK-154).** The Risk-stage conclusion above holds for the change itself.
+The anomaly review then surfaced
+[RISK-012](../risks/RISK-012-object-store-compromised-or-unpatchable.md) (severity 4 ×
+probability 2, alarp): the object store can be compromised from the internal network and never
+patched.
+
+- **It predates this change.** The MinIO release and its configuration (console, example
+  credentials, no default bucket SSE, checksum not checked on download) were in use before CR-001.
+  Pinning only recorded the release, and the review only found the anomalies. So RISK-012 is not
+  caused by the change, and `risk_impact` stays `affects_controls`.
+- **The software safety class stays B.** Severity 4 is the harm class of RISK-002 and RISK-003
+  (wrong diagnosis or treatment from wrong or misattributed clinical data or images), which are
+  already assessed under class B and covered by the class B rationale in `docs/medtrace.yml`.
+  **Class confirmation is pending the human**, as the `risk-management` rule on class changes
+  requires.
+
+RISK-012's controls go to the separate CR-002, and no release is made before it (human decision,
+2026-10-22).
 
 **Verification gap noted (outside this CR).** No test verifies that an attachment written through
 `ObjectStorageClient` is stored with SSE-AES256 by a real MinIO. The unit tests assert only that a
@@ -404,6 +425,32 @@ Plan approved by Carlos Santiago Liceras on 2026-10-22, with these answers:
 - **Q-3:** TASK-157 updates RISK-007's control row (implementer and verification evidence).
 - **Q-4:** the missing end-to-end SSE-AES256 check is raised as PRB-036, outside this CR.
 
+### Escalations from TASK-154 (AC-12)
+
+The first SOUP anomaly-list review (TASK-154, 2026-10-22) covered every non-obsolete `soup`
+record, SOUP-001..035 except SOUP-018. It escalated the findings below. None is resolved by this CR
+(A-4, D-4), so this CR has no `resolves` link to them.
+
+| Record | Criticality / score | Escalation |
+|---|---|---|
+| [RISK-012](../risks/RISK-012-object-store-compromised-or-unpatchable.md) | 4 × 2, alarp (residual = initial) | New risk: the object store can be compromised from the internal network and never patched (SOUP-022/023). Its controls are planned under CR-002 |
+| [PRB-042](../problem-reports/PRB-042-minio-community-edition-unmaintained.md) | major | D-4 confirmed: the MinIO community edition is source-only since 2025-10-15, unmaintained since 2026-02-12, archived since April 2026, and no registry serves its images (§5.8.5, §6.1 f) |
+| [PRB-043](../problem-reports/PRB-043-minio-unfixed-cves-exposed-by-configuration.md) | critical | Unfixed MinIO CVE-2026-41145, CVE-2026-40344, CVE-2026-113466 and CVE-2026-34204, exposed by the console on `:9001`, the `minioadmin` example credentials, no default bucket SSE, the checksum never checked on download, and MinIO reachable from the whole `medhub` network |
+| [PRB-044](../problem-reports/PRB-044-openapi-fetch-declared-but-unused.md) | minor | `openapi-fetch` (SOUP-033) is declared but imported nowhere, and ADD-004's SI-FE-APICLIENT row misdescribes the client |
+| [PRB-045](../problem-reports/PRB-045-redis-image-base-os-end-of-support.md) | minor | The Redis image's base OS, Alpine 3.21, reaches end of support on 2026-11-01 (SOUP-021) |
+| [PRB-046](../problem-reports/PRB-046-dicom-frame-path-lacks-numpy.md) | minor | NumPy is not declared, so `?frame=` extraction cannot work in the production image. It fails loudly, so RISK-003 is not re-scored (SOUP-015, with PRB-006) |
+| [PRB-048](../problem-reports/PRB-048-dicom-viewer-module-not-installed.md) | major | Found by QA during the TASK-154 review: the `dicom_viewer` module is installed in no environment, so SR-017's viewer endpoint is never mounted and the "view" link never shows (download still works). Masks PRB-046 |
+| [PRB-047](../problem-reports/PRB-047-runtime-transitives-with-published-advisories.md) | minor | anyio 4.14.0, urllib3 2.7.0 and cryptography 49.0.0 carry advisories that do not affect MedHub's use. Upgrade at the next dependency change |
+
+No other hazard-relevant anomalies were found.
+
+**Human decisions (Carlos Santiago Liceras, 2026-10-22):**
+1. The MinIO mitigation goes to a separate **CR-002**, not to this CR. No release is made before
+   CR-002.
+2. The MinIO hazard is recorded as a new **RISK-012**, not as a re-score of RISK-002/003.
+   RISK-010's MinIO residual change is made by TASK-159, using the input stated in RISK-012.
+3. PRB-043 is **critical**.
+
 ## Version history
 
 - 1.1 (2026-10-22) — Risk stage: change analysis added under "Risk impact (§7.4)". Plan stage:
@@ -414,3 +461,9 @@ Plan approved by Carlos Santiago Liceras on 2026-10-22, with these answers:
 - 1.3 (2026-10-22) — Checkpoint A: PRB-037 added to scope (`resolves`), TASK-160 added to the
   plan; AC-5 must pass the smoke test 17/17. Reason, In scope (item 9), the §7.4 change analysis
   and TASK-154's dependencies updated for it.
+- 1.4 (2026-10-22) — TASK-154 consolidation: "Escalations from TASK-154 (AC-12)" added to the
+  Implementation plan (RISK-012, PRB-042..047, and the human's three decisions of 2026-10-22);
+  `relates_to` link to RISK-012. D-4 confirmed. No scope or acceptance-criteria change.
+  After QA round 1 of TASK-154 (same version): PRB-048 added to the escalation table; dated update
+  to the change analysis (RISK-012 predates the change, `risk_impact` unchanged, class B pending
+  the human's confirmation); RISK-012 added to the TASK-154 row.
