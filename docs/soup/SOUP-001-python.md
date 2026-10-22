@@ -2,17 +2,13 @@
 id: SOUP-001
 type: soup
 title: Python runtime
-status: approved
-version: "1.0"
+status: in_review
+version: "1.1"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
-updated: "2026-10-21"
+updated: "2026-10-22"
 manufacturer: Python Software Foundation
-soup_version: 3.12-slim
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-10-21"
-approved_digest: 31c960446c4db9c4ca1767245888d03c819ba004f97d8f57a780bb82f8fa4c83
-approval_note: self-approved
+soup_version: "3.12.15"
 links: []
 tags:
   - soup
@@ -20,9 +16,7 @@ tags:
   - class:B
 ---
 
-# SOUP-001 — Python runtime 3.12-slim
-
-> Floating image tag: the exact patch version and base OS are not pinned (PRB-001).
+# SOUP-001 — Python runtime 3.12.15
 
 ## Functional and performance requirements
 
@@ -30,7 +24,13 @@ Language runtime and standard library for every backend item, including `secrets
 
 ## Required hardware and software environment
 
-Debian-based `python:3.12-slim` container image (backend `Dockerfile`, builder and runtime stages). Tests ran on CPython 3.12.3.
+Debian-based `python:3.12.15-slim` container image; base OS Debian GNU/Linux 13 (trixie) (A-5: the base OS is part of this item, identified by the digest).
+
+| Full image reference | Used by |
+|---|---|
+| `python:3.12.15-slim@sha256:cb33f7f771ecec2ef1225cf39b159591a040391bd73e4c01f00fdfc4c47611d2` | `backend/Dockerfile`: builder stage and runtime stage (identical reference) |
+
+Resolved on 2026-10-22 with `docker buildx imagetools inspect python:3.12-slim` and `docker buildx imagetools inspect python:3.12.15-slim`; both reported the same image configuration (`PYTHON_VERSION=3.12.15`). The digest is the multi-arch image index digest (`Digest:` line of the second command). Tests ran on CPython 3.12.3.
 
 ## Anomaly list review
 
@@ -48,3 +48,4 @@ accountable. Hazard-relevant anomalies go to `risk-management`; defects affectin
 
 - 2026-10-21 — Record created at the locked/declared version when the SOUP list moved from
   ADD-004 to one `soup` record per component (medical-records 0.3.2).
+- 2026-10-22 — `python:3.12-slim` → `python:3.12.15-slim@sha256:cb33f7f771ecec2ef1225cf39b159591a040391bd73e4c01f00fdfc4c47611d2`; pinned at the version the tag resolved to, no upgrade (CR-001 A-4, TASK-155); PRB-001.

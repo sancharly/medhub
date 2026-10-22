@@ -2,17 +2,13 @@
 id: SOUP-021
 type: soup
 title: Redis server
-status: approved
-version: "1.0"
+status: in_review
+version: "1.1"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
-updated: "2026-10-21"
+updated: "2026-10-22"
 manufacturer: Redis Ltd.
-soup_version: 7-alpine
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-10-21"
-approved_digest: 27044965ba94229801eaa832099a11597ed6d7f566c50a4adc230bf294fc8752
-approval_note: self-approved
+soup_version: "7.4.11"
 links: []
 tags:
   - soup
@@ -20,9 +16,7 @@ tags:
   - class:B
 ---
 
-# SOUP-021 — Redis server 7-alpine
-
-> Floating image tag (PRB-001).
+# SOUP-021 — Redis server 7.4.11
 
 ## Functional and performance requirements
 
@@ -30,7 +24,13 @@ Session store with TTL eviction (SR-030) and Celery broker/result backend.
 
 ## Required hardware and software environment
 
-`redis:7-alpine` container image.
+`redis:7.4.11-alpine` container image; base OS Alpine Linux v3.21 (A-5).
+
+| Full image reference | Used by |
+|---|---|
+| `redis:7.4.11-alpine@sha256:892022f9f18c26c92c30e15194d132f90044af87b94a491a75429bbc3982eab1` | `infra/docker-compose.yml`: `redis` service; `.github/workflows/ci.yml`: `backend-tests` job, `redis` service container (identical reference) |
+
+Resolved on 2026-10-22 with `docker buildx imagetools inspect redis:7-alpine` and `docker buildx imagetools inspect redis:7.4.11-alpine`; both reported the same image configuration (Redis 7.4.11). The digest is the multi-arch image index digest (`Digest:` line of the second command).
 
 ## Anomaly list review
 
@@ -48,3 +48,4 @@ accountable. Hazard-relevant anomalies go to `risk-management`; defects affectin
 
 - 2026-10-21 — Record created at the locked/declared version when the SOUP list moved from
   ADD-004 to one `soup` record per component (medical-records 0.3.2).
+- 2026-10-22 — `redis:7-alpine` → `redis:7.4.11-alpine@sha256:892022f9f18c26c92c30e15194d132f90044af87b94a491a75429bbc3982eab1`; pinned at the version the tag resolved to, no upgrade (CR-001 A-4, TASK-155); PRB-001.

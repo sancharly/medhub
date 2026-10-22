@@ -1,4 +1,4 @@
-FROM python:3.12-slim AS builder
+FROM python:3.12.15-slim@sha256:cb33f7f771ecec2ef1225cf39b159591a040391bd73e4c01f00fdfc4c47611d2 AS builder
 WORKDIR /app
 RUN pip install uv
 COPY pyproject.toml uv.lock ./
@@ -6,7 +6,7 @@ COPY alembic.ini ./
 COPY modules/ ./modules/
 RUN uv sync --frozen --no-dev
 
-FROM python:3.12-slim
+FROM python:3.12.15-slim@sha256:cb33f7f771ecec2ef1225cf39b159591a040391bd73e4c01f00fdfc4c47611d2
 WORKDIR /app
 COPY --from=builder /app/.venv /app/.venv
 COPY --from=builder /app/alembic.ini ./

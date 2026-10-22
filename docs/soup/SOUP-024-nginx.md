@@ -2,17 +2,13 @@
 id: SOUP-024
 type: soup
 title: nginx
-status: approved
-version: "1.0"
+status: in_review
+version: "1.1"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
-updated: "2026-10-21"
+updated: "2026-10-22"
 manufacturer: F5, Inc. / nginx authors
-soup_version: alpine
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-10-21"
-approved_digest: c03895889d651f650b6329fd0c1a8c16bd476b37e938641b679d4aa266f2df7e
-approval_note: self-approved
+soup_version: "1.31.8"
 links: []
 tags:
   - soup
@@ -20,9 +16,7 @@ tags:
   - class:B
 ---
 
-# SOUP-024 — nginx alpine
-
-> Floating `alpine` tag (PRB-001).
+# SOUP-024 — nginx 1.31.8
 
 ## Functional and performance requirements
 
@@ -30,7 +24,13 @@ TLS termination, HSTS and security headers at the reverse proxy (SR-001, SR-031)
 
 ## Required hardware and software environment
 
-`nginx:alpine` container image (reverse proxy and `frontend/Dockerfile` runtime stage); certificates in `infra/certs/`.
+`nginx:1.31.8-alpine` container image; base OS Alpine Linux v3.24 (A-5); certificates in `infra/certs/`.
+
+| Full image reference | Used by |
+|---|---|
+| `nginx:1.31.8-alpine@sha256:e2d97c2b8c016f12c2f1a27d095685063b2f281c4edf2babfde6001cf4fb77a8` | `infra/docker-compose.yml`: `reverse-proxy` service; `frontend/Dockerfile`: runtime stage (identical reference) |
+
+Resolved on 2026-10-22 with `docker buildx imagetools inspect nginx:alpine` and `docker buildx imagetools inspect nginx:1.31.8-alpine`; both reported the same image configuration (`NGINX_VERSION=1.31.8`). The digest is the multi-arch image index digest (`Digest:` line of the second command). The tag `nginx:alpine` and `nginx:1.31.8-alpine` had the same image configuration but different index digests that day (`nginx:alpine` = `sha256:060849a174666c53439dc7cecbf8f67e225c7cbfb1a44ca97915d9a172a81e6d`); the full-release tag's digest is pinned.
 
 ## Anomaly list review
 
@@ -48,3 +48,4 @@ accountable. Hazard-relevant anomalies go to `risk-management`; defects affectin
 
 - 2026-10-21 — Record created at the locked/declared version when the SOUP list moved from
   ADD-004 to one `soup` record per component (medical-records 0.3.2).
+- 2026-10-22 — `nginx:alpine` → `nginx:1.31.8-alpine@sha256:e2d97c2b8c016f12c2f1a27d095685063b2f281c4edf2babfde6001cf4fb77a8`; pinned at the version the tag resolved to, no upgrade (CR-001 A-4, TASK-155); PRB-001.
