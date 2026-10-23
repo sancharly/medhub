@@ -3,10 +3,10 @@ id: "CR-001"
 type: change-request
 title: "Pin and review SOUP so the release gate's SOUP check can pass"
 status: in_progress
-version: "1.4"
+version: "1.5"
 author: "Carlos Santiago Liceras"
 created: "2026-10-22"
-updated: "2026-10-22"
+updated: "2026-10-23"
 branch: "bug/soup-pinning"
 links:
   - target: "PRB-001"
@@ -189,8 +189,8 @@ patched.
 - **The software safety class stays B.** Severity 4 is the harm class of RISK-002 and RISK-003
   (wrong diagnosis or treatment from wrong or misattributed clinical data or images), which are
   already assessed under class B and covered by the class B rationale in `docs/medtrace.yml`.
-  **Class confirmation is pending the human**, as the `risk-management` rule on class changes
-  requires.
+  **Class B confirmed by the human on 2026-10-23**, as the `risk-management` rule on class
+  changes requires.
 
 RISK-012's controls go to the separate CR-002, and no release is made before it (human decision,
 2026-10-22).
@@ -313,6 +313,9 @@ Verification and records
 - **AC-18:** `traceability-check` over the whole project reports 0 errors and no
   `soup_anomaly_review_stale` warning for any non-obsolete SOUP record. Every record created or
   changed by this CR is `in_review`, or `obsolete` for SOUP-018.
+  *Reading confirmed by the human on 2026-10-23:* no record created or changed by this CR is left
+  in `draft`. Design records may be `in_review` or `approved`, SOUP-018 is `obsolete`, and problem
+  reports and this CR follow their own status sets (`open`, `resolved`, `in_progress`).
 
 ## Verification approach
 
@@ -462,6 +465,16 @@ No other hazard-relevant anomalies were found.
    RISK-010's MinIO residual change is made by TASK-159, using the input stated in RISK-012.
 3. PRB-043 is **critical**.
 
+## Human decisions at closure (2026-10-23)
+
+Recorded from the human's confirmation in chat, after the records left `in_review` were approved
+in MedTrace (commit 836d80e):
+
+- **Software safety class:** stays **B** (see the dated TASK-154 update in "Risk impact").
+- **AC-18 reading:** no record created or changed by this CR is left in `draft` (see AC-18).
+- **Criticality:** PRB-043 stays `critical` and PRB-048 stays `major`.
+- **CR status:** stays `in_progress` here; the human closes CR-001 in MedTrace.
+
 ## Version history
 
 - 1.1 (2026-10-22) — Risk stage: change analysis added under "Risk impact (§7.4)". Plan stage:
@@ -480,3 +493,6 @@ No other hazard-relevant anomalies were found.
   the human's confirmation); RISK-012 added to the TASK-154 row.
   TASK-159 (same version, no scope or acceptance-criteria change): dated outcome note under
   "RISK-010 residual" (re-scored to 3 × 2, `alarp`, MinIO path).
+- 1.5 (2026-10-23) — Human decisions at closure: class B confirmed, AC-18 reading confirmed,
+  PRB-043 `critical` and PRB-048 `major` confirmed. No scope or acceptance-criteria change; status
+  left `in_progress` for the human to close in MedTrace.
