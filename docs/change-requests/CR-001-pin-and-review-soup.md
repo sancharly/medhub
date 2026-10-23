@@ -1,43 +1,48 @@
 ---
-id: "CR-001"
+id: CR-001
 type: change-request
-title: "Pin and review SOUP so the release gate's SOUP check can pass"
-status: in_progress
+title: Pin and review SOUP so the release gate's SOUP check can pass
+status: closed
 version: "1.5"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-10-22"
 updated: "2026-10-23"
-branch: "bug/soup-pinning"
+branch: bug/soup-pinning
 links:
-  - target: "PRB-001"
+  - target: PRB-001
     relation: resolves
-  - target: "PRB-002"
+  - target: PRB-002
     relation: resolves
-  - target: "PRB-033"
+  - target: PRB-033
     relation: resolves
-  - target: "PRB-037"
+  - target: PRB-037
     relation: resolves
-  - target: "TASK-154"
+  - target: TASK-154
     relation: relates_to
-  - target: "TASK-155"
+  - target: TASK-155
     relation: relates_to
-  - target: "TASK-156"
+  - target: TASK-156
     relation: relates_to
-  - target: "TASK-157"
+  - target: TASK-157
     relation: relates_to
-  - target: "TASK-158"
+  - target: TASK-158
     relation: relates_to
-  - target: "TASK-159"
+  - target: TASK-159
     relation: relates_to
-  - target: "TASK-160"
+  - target: TASK-160
     relation: relates_to
-  - target: "RISK-010"
+  - target: RISK-010
     relation: relates_to
-  - target: "RISK-012"
+  - target: RISK-012
     relation: relates_to
-  - target: "SR-028"
+  - target: SR-028
     relation: relates_to
-tags: ["soup", "configuration-management", "regulatory", "class:B", "issue:sancharly/medhub#26"]
+tags:
+  - soup
+  - configuration-management
+  - regulatory
+  - class:B
+  - issue:sancharly/medhub#26
 ---
 
 # CR-001 — Pin and review SOUP
