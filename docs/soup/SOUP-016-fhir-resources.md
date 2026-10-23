@@ -2,14 +2,18 @@
 id: SOUP-016
 type: soup
 title: fhir.resources
-status: in_review
+status: approved
 version: "1.1"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
-updated: "2026-10-22"
+updated: "2026-10-23"
 manufacturer: Md Nazrul Islam (nazrulworld)
 soup_version: 8.2.0
 anomaly_review: "2026-10-22"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-23"
+approved_digest: 97910b3181028accf0a0fd7557ffc716efa0cf1b4354973d2f5b25813fbeacfb
+approval_note: self-approved
 links: []
 tags:
   - soup

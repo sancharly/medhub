@@ -2,14 +2,18 @@
 id: SOUP-015
 type: soup
 title: pydicom
-status: in_review
+status: approved
 version: "1.1"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
-updated: "2026-10-22"
+updated: "2026-10-23"
 manufacturer: pydicom contributors
 soup_version: 3.0.2
 anomaly_review: "2026-10-22"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-23"
+approved_digest: b86493c5cdec03b6bb7ebfc822fbf0f7669cdeffea679d8a76c0b3352eb3826a
+approval_note: self-approved
 links: []
 tags:
   - soup

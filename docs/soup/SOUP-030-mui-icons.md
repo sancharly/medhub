@@ -2,14 +2,18 @@
 id: SOUP-030
 type: soup
 title: MUI Icons (@mui/icons-material)
-status: in_review
+status: approved
 version: "1.1"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
-updated: "2026-10-22"
+updated: "2026-10-23"
 manufacturer: MUI
 soup_version: 9.1.1
 anomaly_review: "2026-10-22"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-23"
+approved_digest: 9bd5a34e0ca5ce3fc772190ba8e477ee4d736b87079caf18fbbe1860180165e7
+approval_note: self-approved
 links: []
 tags:
   - soup

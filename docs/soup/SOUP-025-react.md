@@ -2,14 +2,18 @@
 id: SOUP-025
 type: soup
 title: React
-status: in_review
+status: approved
 version: "1.1"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
-updated: "2026-10-22"
+updated: "2026-10-23"
 manufacturer: Meta Platforms
 soup_version: 18.3.1
 anomaly_review: "2026-10-22"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-23"
+approved_digest: 72e6c94161f779d425e9b3ab3ae0f1b0c1bdd0f34613bf9dd27d12d0a9531989
+approval_note: self-approved
 links: []
 tags:
   - soup

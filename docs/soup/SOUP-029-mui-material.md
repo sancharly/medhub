@@ -2,14 +2,18 @@
 id: SOUP-029
 type: soup
 title: MUI Material (@mui/material)
-status: in_review
+status: approved
 version: "1.1"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
-updated: "2026-10-22"
+updated: "2026-10-23"
 manufacturer: MUI
 soup_version: 9.1.1
 anomaly_review: "2026-10-22"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-23"
+approved_digest: 9b316cbe1f040fd1e61fa51cba2b9ce91292747328e11959af3921c62a6be89c
+approval_note: self-approved
 links: []
 tags:
   - soup

@@ -2,14 +2,18 @@
 id: SOUP-035
 type: soup
 title: Fontsource Manrope (@fontsource-variable/manrope)
-status: in_review
+status: approved
 version: "1.1"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
-updated: "2026-10-22"
+updated: "2026-10-23"
 manufacturer: Fontsource
 soup_version: 5.2.8
 anomaly_review: "2026-10-22"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-23"
+approved_digest: 39a593af2be4162203fc45e07e32acfeef81d3f0ec07393483ee985ff1471ea5
+approval_note: self-approved
 links: []
 tags:
   - soup

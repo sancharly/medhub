@@ -2,14 +2,18 @@
 id: SOUP-012
 type: soup
 title: argon2-cffi
-status: in_review
+status: approved
 version: "1.1"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
-updated: "2026-10-22"
+updated: "2026-10-23"
 manufacturer: Hynek Schlawack
 soup_version: 25.1.0
 anomaly_review: "2026-10-22"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-23"
+approved_digest: 025952e4ef591ef6cd13b58ddbba6e9081a713b17bdfae3e85876ca9be9f36b2
+approval_note: self-approved
 links: []
 tags:
   - soup

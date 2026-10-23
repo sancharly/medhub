@@ -2,14 +2,18 @@
 id: SOUP-017
 type: soup
 title: python-multipart
-status: in_review
+status: approved
 version: "1.1"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
-updated: "2026-10-22"
+updated: "2026-10-23"
 manufacturer: Andrew Dunham / Kludex
 soup_version: 0.0.32
 anomaly_review: "2026-10-22"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-23"
+approved_digest: dc5f3baa0bf1463d02dbaecfa17207854208af943ebf0fcfd3bfa3eeaceb8d38
+approval_note: self-approved
 links: []
 tags:
   - soup

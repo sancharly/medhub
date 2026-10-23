@@ -2,14 +2,18 @@
 id: SOUP-004
 type: soup
 title: Uvicorn
-status: in_review
+status: approved
 version: "1.1"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
-updated: "2026-10-22"
+updated: "2026-10-23"
 manufacturer: Encode
 soup_version: 0.49.0
 anomaly_review: "2026-10-22"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-23"
+approved_digest: 386ed17d5fb46fad6d0967464fd9d352f51f23c87788531e9472e386b8348902
+approval_note: self-approved
 links: []
 tags:
   - soup

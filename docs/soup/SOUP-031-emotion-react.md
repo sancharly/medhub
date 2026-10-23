@@ -2,14 +2,18 @@
 id: SOUP-031
 type: soup
 title: Emotion (@emotion/react)
-status: in_review
+status: approved
 version: "1.1"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
-updated: "2026-10-22"
+updated: "2026-10-23"
 manufacturer: Emotion contributors
 soup_version: 11.14.0
 anomaly_review: "2026-10-22"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-23"
+approved_digest: 3d54c553418a5e9f4670286c29a906e8bf69157fc0c38172775d544cfe5a51f2
+approval_note: self-approved
 links: []
 tags:
   - soup

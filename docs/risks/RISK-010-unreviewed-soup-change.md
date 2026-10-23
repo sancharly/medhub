@@ -2,19 +2,23 @@
 id: RISK-010
 type: risk
 title: Unreviewed SOUP change weakens a verified risk control
-status: in_review
+status: approved
 version: "1.3"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-10-22"
+updated: "2026-10-23"
 hazard: A third-party component changing behaviour in a way that disables or weakens a control that a risk record depends on.
-cause: "A pinned version is changed without review (a lock-file or image-digest update merged without the SOUP record and its anomaly review being updated), or a pinned version keeps an anomaly that no upgrade can fix (MinIO, SOUP-022/023, PRB-042) → TLS/HSTS headers, server-side encryption, password hashing or query parameterization behave differently, or a known defect in them stays deployed → a control that a RISK record claims is verified no longer holds, with no test failing."
+cause: A pinned version is changed without review (a lock-file or image-digest update merged without the SOUP record and its anomaly review being updated), or a pinned version keeps an anomaly that no upgrade can fix (MinIO, SOUP-022/023, PRB-042) → TLS/HSTS headers, server-side encryption, password hashing or query parameterization behave differently, or a known defect in them stays deployed → a control that a RISK record claims is verified no longer holds, with no test failing.
 harm: "Indirect: re-enables the harms of RISK-001, RISK-005, RISK-007, RISK-008 or RISK-011."
 severity_initial: 3
 probability_initial: 2
 severity_residual: 3
 probability_residual: 2
 acceptability: alarp
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-23"
+approved_digest: 98b20ec931a79b5511f4efb2beceab9971786dc9a7ffa5c411845779704df0cc
+approval_note: self-approved
 links:
   - target: SOUP-001
     relation: relates_to

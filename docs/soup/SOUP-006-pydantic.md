@@ -2,14 +2,18 @@
 id: SOUP-006
 type: soup
 title: Pydantic
-status: in_review
+status: approved
 version: "1.1"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
-updated: "2026-10-22"
+updated: "2026-10-23"
 manufacturer: Pydantic Services
 soup_version: 2.13.4
 anomaly_review: "2026-10-22"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-23"
+approved_digest: 5f590d0bdfb0ec1efc244b82b15c739e83f5a59da8f43fadcd9b30798785e9a1
+approval_note: self-approved
 links: []
 tags:
   - soup

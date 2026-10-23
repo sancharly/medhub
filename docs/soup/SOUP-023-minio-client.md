@@ -2,14 +2,18 @@
 id: SOUP-023
 type: soup
 title: MinIO client (mc)
-status: in_review
+status: approved
 version: "1.2"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
-updated: "2026-10-22"
+updated: "2026-10-23"
 manufacturer: MinIO, Inc.
 soup_version: RELEASE.2025-08-13T08-35-41Z
 anomaly_review: "2026-10-22"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-23"
+approved_digest: 024226e5d9e9a7a34a5f12a5c81d74f5ba79db027490e1f1c842932dcbe9c43c
+approval_note: self-approved
 links: []
 tags:
   - soup

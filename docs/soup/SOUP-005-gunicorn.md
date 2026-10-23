@@ -2,14 +2,18 @@
 id: SOUP-005
 type: soup
 title: Gunicorn
-status: in_review
+status: approved
 version: "1.1"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
-updated: "2026-10-22"
+updated: "2026-10-23"
 manufacturer: Benoit Chesneau
 soup_version: 26.0.0
 anomaly_review: "2026-10-22"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-23"
+approved_digest: 0411a31a8788f868a98b6d41c5c2e53fed8bdbcedc06d05ceae280004e65f53e
+approval_note: self-approved
 links: []
 tags:
   - soup

@@ -2,14 +2,18 @@
 id: SOUP-022
 type: soup
 title: MinIO object storage
-status: in_review
+status: approved
 version: "1.2"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
-updated: "2026-10-22"
+updated: "2026-10-23"
 manufacturer: MinIO, Inc.
 soup_version: RELEASE.2025-09-07T16-13-09Z
 anomaly_review: "2026-10-22"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-23"
+approved_digest: 50ba4c1e482c1fc3e53b7f8358cefc1079d538b30421f898e94faf4b905e3887
+approval_note: self-approved
 links: []
 tags:
   - soup

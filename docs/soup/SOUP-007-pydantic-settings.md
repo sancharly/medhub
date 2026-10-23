@@ -2,14 +2,18 @@
 id: SOUP-007
 type: soup
 title: pydantic-settings
-status: in_review
+status: approved
 version: "1.1"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
-updated: "2026-10-22"
+updated: "2026-10-23"
 manufacturer: Pydantic Services
 soup_version: 2.14.2
 anomaly_review: "2026-10-22"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-23"
+approved_digest: 8fae657afa678be50c88c6239809f4acf335cd4ec09f011407a1271a980390bd
+approval_note: self-approved
 links: []
 tags:
   - soup

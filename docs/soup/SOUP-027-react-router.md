@@ -2,14 +2,18 @@
 id: SOUP-027
 type: soup
 title: React Router (react-router-dom)
-status: in_review
+status: approved
 version: "1.1"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
-updated: "2026-10-22"
+updated: "2026-10-23"
 manufacturer: Remix Software / Shopify
 soup_version: 7.18.0
 anomaly_review: "2026-10-22"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-23"
+approved_digest: d361b60b3d562690a71f58be14c1465a7113eff63322ea2e72244ce35ddb92b7
+approval_note: self-approved
 links: []
 tags:
   - soup

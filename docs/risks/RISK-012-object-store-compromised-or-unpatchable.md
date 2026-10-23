@@ -2,19 +2,23 @@
 id: RISK-012
 type: risk
 title: Object store compromised from the internal network or left unpatchable
-status: in_review
+status: approved
 version: "1.0"
 author: Carlos Santiago Liceras
 created: "2026-10-22"
-updated: "2026-10-22"
-hazard: "Clinical attachments (including DICOM studies) in the object store can be read, replaced, planted or made unreadable without the object store's secret key, and the object store will never receive a security fix."
-cause: "MinIO RELEASE.2025-09-07T16-13-09Z is the last community release and is no longer maintained (SOUP-022, PRB-042). It carries unfixed vulnerabilities (CVE-2026-41145, CVE-2026-40344, CVE-2026-113466, CVE-2026-34204), which MedHub's configuration exposes to every container on the `medhub` network (PRB-043) → an actor who gains a foothold on that network (a compromised container or the host) writes or takes over the store → attachments are disclosed, substituted, stored without encryption, or made permanently unreadable, and the backend serves the substituted content because it does not check the stored checksum on download."
-harm: "Wrong or delayed diagnosis or treatment from a substituted or planted attachment or DICOM study (harms of RISK-002 and RISK-003); privacy harm from disclosure of attachments (RISK-001, RISK-011); delayed care from lost or unreadable attachments (RISK-007)."
+updated: "2026-10-23"
+hazard: Clinical attachments (including DICOM studies) in the object store can be read, replaced, planted or made unreadable without the object store's secret key, and the object store will never receive a security fix.
+cause: MinIO RELEASE.2025-09-07T16-13-09Z is the last community release and is no longer maintained (SOUP-022, PRB-042). It carries unfixed vulnerabilities (CVE-2026-41145, CVE-2026-40344, CVE-2026-113466, CVE-2026-34204), which MedHub's configuration exposes to every container on the `medhub` network (PRB-043) → an actor who gains a foothold on that network (a compromised container or the host) writes or takes over the store → attachments are disclosed, substituted, stored without encryption, or made permanently unreadable, and the backend serves the substituted content because it does not check the stored checksum on download.
+harm: Wrong or delayed diagnosis or treatment from a substituted or planted attachment or DICOM study (harms of RISK-002 and RISK-003); privacy harm from disclosure of attachments (RISK-001, RISK-011); delayed care from lost or unreadable attachments (RISK-007).
 severity_initial: 4
 probability_initial: 2
 severity_residual: 4
 probability_residual: 2
 acceptability: alarp
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-23"
+approved_digest: f51032ac7ffb7c123fd8fe8721136d5210c07f6a91a16f2500f8f3acedbc89ef
+approval_note: self-approved
 links:
   - target: SOUP-022
     relation: relates_to

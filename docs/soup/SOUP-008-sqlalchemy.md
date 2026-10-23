@@ -2,14 +2,18 @@
 id: SOUP-008
 type: soup
 title: SQLAlchemy
-status: in_review
+status: approved
 version: "1.1"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
-updated: "2026-10-22"
+updated: "2026-10-23"
 manufacturer: SQLAlchemy authors
 soup_version: 2.0.51
 anomaly_review: "2026-10-22"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-23"
+approved_digest: 3e260c8b4d3382936c66a6073035224f8e8445011baee3f4c03131cf6d8b2ccf
+approval_note: self-approved
 links: []
 tags:
   - soup

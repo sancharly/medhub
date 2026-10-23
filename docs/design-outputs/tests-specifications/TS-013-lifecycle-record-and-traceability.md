@@ -2,11 +2,15 @@
 id: TS-013
 type: test-specification
 title: Lifecycle record and traceability verification
-status: in_review
+status: approved
 version: "1.3"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-10-22"
+updated: "2026-10-23"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-23"
+approved_digest: 04f8510e012d4a7ae231578d06b8df9c50d3f1b1f3d17088e654e701d0f96684
+approval_note: self-approved
 links:
   - target: SR-028
     relation: verifies

@@ -2,14 +2,18 @@
 id: SOUP-009
 type: soup
 title: Alembic
-status: in_review
+status: approved
 version: "1.1"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
-updated: "2026-10-22"
+updated: "2026-10-23"
 manufacturer: SQLAlchemy authors
 soup_version: 1.18.4
 anomaly_review: "2026-10-22"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-23"
+approved_digest: 7d74c8920b9c798f8696420133b6d3146c5cf5c9f27e488fd26bd2151a31a0c1
+approval_note: self-approved
 links: []
 tags:
   - soup

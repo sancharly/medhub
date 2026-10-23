@@ -2,14 +2,18 @@
 id: SOUP-021
 type: soup
 title: Redis server
-status: in_review
+status: approved
 version: "1.2"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
-updated: "2026-10-22"
+updated: "2026-10-23"
 manufacturer: Redis Ltd.
 soup_version: 7.4.11
 anomaly_review: "2026-10-22"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-23"
+approved_digest: 0481aa5d8e0c4325a98d008431f9dc12fa76a9f058650a5cc06af7ce63e9b37d
+approval_note: self-approved
 links: []
 tags:
   - soup

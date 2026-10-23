@@ -2,14 +2,18 @@
 id: SOUP-024
 type: soup
 title: nginx
-status: in_review
+status: approved
 version: "1.2"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
-updated: "2026-10-22"
+updated: "2026-10-23"
 manufacturer: F5, Inc. / nginx authors
 soup_version: 1.31.8
 anomaly_review: "2026-10-22"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-23"
+approved_digest: 9c567d092e01183ee86caa8331290cd2520c808d04bde37a7b5dc3e26cd41026
+approval_note: self-approved
 links: []
 tags:
   - soup

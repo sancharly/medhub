@@ -2,14 +2,18 @@
 id: SOUP-010
 type: soup
 title: psycopg2-binary
-status: in_review
+status: approved
 version: "1.1"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
-updated: "2026-10-22"
+updated: "2026-10-23"
 manufacturer: Daniele Varrazzo
 soup_version: 2.9.12
 anomaly_review: "2026-10-22"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-23"
+approved_digest: 789bcfeee1e25864ba07151998f56064fb012f8a7284d1de8a202725bbafea14
+approval_note: self-approved
 links: []
 tags:
   - soup

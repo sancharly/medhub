@@ -2,14 +2,18 @@
 id: SOUP-034
 type: soup
 title: Fontsource Inter (@fontsource-variable/inter)
-status: in_review
+status: approved
 version: "1.1"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
-updated: "2026-10-22"
+updated: "2026-10-23"
 manufacturer: Fontsource
 soup_version: 5.2.8
 anomaly_review: "2026-10-22"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-23"
+approved_digest: 8a55a951f95e43212c3e005d018d524bd0169c351c443ac1a757b3cfc54bb57a
+approval_note: self-approved
 links: []
 tags:
   - soup

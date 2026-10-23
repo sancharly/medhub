@@ -2,14 +2,18 @@
 id: SOUP-033
 type: soup
 title: openapi-fetch
-status: in_review
+status: approved
 version: "1.1"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
-updated: "2026-10-22"
+updated: "2026-10-23"
 manufacturer: Drew Powers
 soup_version: 0.17.0
 anomaly_review: "2026-10-22"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-23"
+approved_digest: ece012b10a514c5afbee26214278e0a04966e7539ec17411e5bd523cfb59590f
+approval_note: self-approved
 links: []
 tags:
   - soup
