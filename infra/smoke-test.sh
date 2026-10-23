@@ -124,11 +124,13 @@ done
 # ── 9. Migrated schema: login endpoint returns 401 not 500 ──────────────────
 # A 401 means the schema exists and the auth layer is active.
 # A 500 means the DB is empty (no migrations applied).
+# Posts through the reverse proxy: the backend port is not published (PRB-037);
+# -k because the development certificate is self-signed.
 echo ""
 echo "-- Schema migration (SR-001.1, SR-003) --"
 if command -v curl >/dev/null 2>&1; then
-    LOGIN_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
-        -X POST http://localhost:8000/api/v1/auth/login \
+    LOGIN_STATUS=$(curl -sk -o /dev/null -w "%{http_code}" \
+        -X POST https://localhost/api/v1/auth/login \
         -H "Content-Type: application/json" \
         -d '{"email":"smoke@test.invalid","password":"unused"}' 2>/dev/null || true)
     if [ "$LOGIN_STATUS" = "401" ] || [ "$LOGIN_STATUS" = "422" ]; then

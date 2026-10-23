@@ -17,7 +17,7 @@ services:
   # ── Reverse Proxy (nginx) ─────────────────────────────────────────────────
   # Only service that publishes external ports. Enforces HTTPS + HSTS (SR-008).
   reverse-proxy:
-    image: nginx:alpine
+    image: nginx:1.31.8-alpine@sha256:e2d97c2b8c016f12c2f1a27d095685063b2f281c4edf2babfde6001cf4fb77a8
     ports:
       - "80:80"
       - "443:443"
@@ -66,7 +66,7 @@ services:
 
   # ── PostgreSQL 16 ─────────────────────────────────────────────────────────
   postgres:
-    image: postgres:16
+    image: postgres:16.15@sha256:9e2cf6287f25c3151f4c9421ccce2b17f3e60061c111a29165e0d2cdd9ff0a97
     environment:
       POSTGRES_DB: medhub
       POSTGRES_USER: medhub
@@ -81,7 +81,7 @@ services:
 
   # ── Redis 7 (sessions + Celery broker) ────────────────────────────────────
   redis:
-    image: redis:7-alpine
+    image: redis:7.4.11-alpine@sha256:892022f9f18c26c92c30e15194d132f90044af87b94a491a75429bbc3982eab1
     command: redis-server --appendonly yes
     volumes:
       - redis_data:/data
@@ -93,7 +93,7 @@ services:
 
   # ── MinIO (S3-compatible object store, SSE-AES256) ────────────────────────
   minio:
-    image: minio/minio:latest
+    image: minio/minio:RELEASE.2025-09-07T16-13-09Z@sha256:14cea493d9a34af32f524e538b8346cf79f3321eff8e708c1e2960462bd8936e
     command: server /data --console-address ":9001"
     environment:
       MINIO_ROOT_USER: ${OBJECT_STORE_ACCESS_KEY}
@@ -111,7 +111,7 @@ services:
 
   # ── MinIO bucket initialisation (one-shot) ────────────────────────────────
   createbuckets:
-    image: minio/mc:latest
+    image: minio/mc:RELEASE.2025-08-13T08-35-41Z@sha256:a7fe349ef4bd8521fb8497f55c6042871b2ae640607cf99d9bede5e9bdf11727
     depends_on:
       minio:
         condition: service_started

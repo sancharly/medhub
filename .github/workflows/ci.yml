@@ -22,6 +22,10 @@ jobs:
       - name: Install uv
         run: pip install uv
 
+      - name: Check the lock file is current
+        working-directory: backend
+        run: uv lock --check
+
       - name: Install dependencies
         working-directory: backend
         run: uv sync --frozen
@@ -44,7 +48,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: postgres:16
+        image: postgres:16.15@sha256:9e2cf6287f25c3151f4c9421ccce2b17f3e60061c111a29165e0d2cdd9ff0a97
         env:
           POSTGRES_DB: medhub_test
           POSTGRES_USER: medhub
@@ -57,7 +61,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
       redis:
-        image: redis:7-alpine
+        image: redis:7.4.11-alpine@sha256:892022f9f18c26c92c30e15194d132f90044af87b94a491a75429bbc3982eab1
         ports:
           - 6379:6379
         options: >-
@@ -206,5 +210,21 @@ jobs:
       - name: Build backend image
         run: docker build -t medhub-backend:ci ./backend
 
+      - name: Check production dependency set
+        run: docker run --rm --entrypoint python medhub-backend:ci -c "import importlib.util, sys; import boto3; sys.exit(importlib.util.find_spec('fakeredis') is not None)"
+
       - name: Build frontend image
         run: docker build -t medhub-frontend:ci ./frontend
+
+  # ── Image pin check ─────────────────────────────────────────────────────────
+  image-pins:
+    name: Image Pin Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Unit-test the pin check
+        run: python3 -m unittest discover -s infra/tests -v
+
+      - name: Check every image reference carries a digest
+        run: python3 infra/check_image_pins.py

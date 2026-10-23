@@ -1,0 +1,15 @@
+name: CI
+jobs:
+  shorthand:
+    runs-on: ubuntu-latest
+    container: node:20
+  shorthand_quoted:
+    runs-on: ubuntu-latest
+    container: "python:3.12" # comment
+  mapping:
+    runs-on: ubuntu-latest
+    container:
+      image: node:20.20.2-slim@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  shorthand_pinned:
+    runs-on: ubuntu-latest
+    container: node:20.20.2-slim@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
