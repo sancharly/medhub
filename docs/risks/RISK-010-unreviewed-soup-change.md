@@ -3,10 +3,10 @@ id: RISK-010
 type: risk
 title: Unreviewed SOUP change weakens a verified risk control
 status: approved
-version: "1.3"
+version: "1.4"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-10-23"
+updated: "2026-10-29"
 hazard: A third-party component changing behaviour in a way that disables or weakens a control that a risk record depends on.
 cause: A pinned version is changed without review (a lock-file or image-digest update merged without the SOUP record and its anomaly review being updated), or a pinned version keeps an anomaly that no upgrade can fix (MinIO, SOUP-022/023, PRB-042) → TLS/HSTS headers, server-side encryption, password hashing or query parameterization behave differently, or a known defect in them stays deployed → a control that a RISK record claims is verified no longer holds, with no test failing.
 harm: "Indirect: re-enables the harms of RISK-001, RISK-005, RISK-007, RISK-008 or RISK-011."
@@ -16,8 +16,8 @@ severity_residual: 3
 probability_residual: 2
 acceptability: alarp
 approved_by: Carlos Santiago Liceras
-approved_on: "2026-10-23"
-approved_digest: 98b20ec931a79b5511f4efb2beceab9971786dc9a7ffa5c411845779704df0cc
+approved_on: "2026-10-29"
+approved_digest: cedf412b415b8c3864bb814469c38fd8ffb30355b28da33046a564e34bb3022d
 approval_note: self-approved
 links:
   - target: SOUP-001
@@ -82,8 +82,6 @@ links:
     relation: relates_to
   - target: SOUP-032
     relation: relates_to
-  - target: SOUP-033
-    relation: relates_to
   - target: SOUP-034
     relation: relates_to
   - target: SOUP-035
@@ -132,7 +130,8 @@ Indirect: re-enables the harms of RISK-001, RISK-005, RISK-007, RISK-008 or RISK
 ## Software items involved
 
 All items; specifically nginx, MinIO, cryptography, argon2-cffi, SQLAlchemy, Redis, pydicom
-(SOUP-001..035; SOUP-018 is obsolete since CR-001, TASK-158). The pin check is part of SI-DEVINFRA
+(SOUP-001..035). SOUP-018 is obsolete since CR-001 (TASK-158). SOUP-033 (openapi-fetch, never
+imported) leaves the list with CR-003 (TASK-165, PRB-044), so this record no longer links it. The pin check is part of SI-DEVINFRA
 `U-INF-CIPipeline` (ADD-024). The MinIO path is analyzed in full, at its own severity, in
 [RISK-012](RISK-012-object-store-compromised-or-unpatchable.md).
 
@@ -148,10 +147,10 @@ Scored before CR-001 (floating tags, no anomaly review); unchanged.
 
 | Measure | Type | Implemented by | Verified by |
 |---|---|---|---|
-| SOUP list with exact versions, required functions and required HW/SW | Design | SR-028, SOUP-001..035 (SOUP-018 obsolete) | TR-001, TS-013 |
-| Every image and dependency pinned to an immutable version | Design | SR-028 AC-5; CR-001: TASK-155 (every image by release tag and digest, PRB-001), the committed lock files `backend/uv.lock` and `frontend/package-lock.json`, TASK-157 / TASK-158 (manifest corrections, PRB-002 / PRB-033) | The CR-001 AC-3 pin check (TASK-156, CI job `image-pins`); TS-013 TC-013.5, TC-013.6, TC-013.7, TC-013.8 |
+| SOUP list with exact versions, required functions and required HW/SW | Design | SR-028, SOUP-001..035 (SOUP-018 obsolete; SOUP-033 obsolete with CR-003 TASK-165) | TR-001, TS-013 |
+| Every image and dependency pinned to an immutable version | Design | SR-028 AC-5; CR-001: TASK-155 (every image by release tag and digest, PRB-001), the committed lock files `backend/uv.lock` and `frontend/package-lock.json`, TASK-157 / TASK-158 (manifest corrections, PRB-002 / PRB-033). CR-003 re-pins at the upgraded versions: TASK-161 (Redis), TASK-162 (Node build image), TASK-163 / TASK-164 (lock) | The CR-001 AC-3 pin check (TASK-156, CI job `image-pins`); TS-013 TC-013.5, TC-013.6, TC-013.7, TC-013.8 |
 | CI rejects any image reference without a digest | Protective | SR-028 AC-5; TASK-156 (`infra/check_image_pins.py`, CI job `image-pins`, ADD-024) | TS-013 TC-013.5, TC-013.6 |
-| Anomaly and advisory review per version, at least yearly and before release | Protective | SR-028 AC-6; TASK-154 (first review), PLAN-002 "SOUP monitoring" (cadence and owner) | The dated, sourced reviews (`anomaly_review: 2026-10-22`) in SOUP-001..017 and SOUP-019..035; TS-013 TC-013.9. For SOUP-022/023 the review detects but cannot lead to a fix (path 2) |
+| Anomaly and advisory review per version, at least yearly and before release | Protective | SR-028 AC-6; TASK-154 (first review), PLAN-002 "SOUP monitoring" (cadence and owner). CR-003 re-reviews SOUP-003, 011, 019 and 021 at their new versions (TASK-161, TASK-163, TASK-164) | The dated, sourced reviews (`anomaly_review`; 2026-10-22 from TASK-154, re-dated by CR-003 for SOUP-003, 011, 019, 021) in SOUP-001..017, SOUP-019..032, SOUP-034 and SOUP-035; TS-013 TC-013.9. For SOUP-022/023 the review detects but cannot lead to a fix (path 2) |
 | Tests asserting the security headers, encryption and hashing behaviour | Protective | SR-001, SR-022, SR-025 | TR-001, TS-001, TS-008, TS-011 |
 
 ## Residual risk
@@ -167,11 +166,17 @@ resolved (TASK-155, TASK-156) and the first anomaly review was run on 2026-10-22
     needs a commit that changes the lock or the digest. That commit passes PR review, the CI pin
     check and the PLAN-002 rule "review at every dependency change".
   - The anomaly review gives each pinned version a dated, sourced baseline, and its findings for
-    these items have a fix path (PRB-044..047 are upgrades or declarations).
+    these items have a fix path (PRB-044..047 are upgrades or declarations). CR-003 applies that
+    fix path to PRB-044, PRB-045 and PRB-047. Each upgrade is a reviewed commit that changes a lock
+    or a digest, followed by a dated review at the new version. That is the PLAN-002
+    counterweight working as this record assumes.
   - What stays unenforced is process: no automated gate ties a lock or digest change to a SOUP
     record update. Review checks it, and so do TS-013 TC-013.9 and `traceability-check` at release.
-  - PRB-034 (unpinned CI tooling and `uv`) and PRB-035 (Node 20 build stage) do not reopen the
-    path: `uv sync --frozen` and `npm ci` install only locked versions, and neither tool ships.
+  - PRB-035 (end-of-life Node 20 build stage) is resolved by CR-003 TASK-162. The build stage
+    and CI run on Node 24 LTS (end of life 2028-04-30), pinned by tag and digest.
+  - PRB-034 (unpinned CI tooling and `uv`) is still open and does not reopen the path. Neither
+    did PRB-035 while it was open. `uv sync --frozen` and `npm ci` install only locked
+    versions, and no build tool ships.
   - On this path alone: 3 × 1 → acceptable.
 - **Path 2, MinIO server and client (SOUP-022, SOUP-023): probability 2 (Remote), the initial
   value.**
@@ -209,6 +214,12 @@ CR-002 lands.
 - For MinIO, pinning recorded the last community release, and that counterweight does not work:
   no patched release will be published (D-4, PRB-042). That is path 2 above, and the input to
   RISK-012.
+- Pinning by digest also holds back upstream rebuilds that keep the same tag. On 2026-10-26
+  upstream rebuilt `redis:7.4.11-alpine` under the same tag (new index digest
+  `sha256:d9436322…3193`). MedHub kept the pinned `sha256:892022f9…eab1` until CR-003 changed the
+  digest (CR-003, observation of 2026-10-29). This is the intended behaviour: the tag alone does
+  not identify the image. Base-OS fixes made by such rebuilds reach MedHub only through a reviewed
+  digest change, and the same PLAN-002 counterweight applies. No hazard beyond the first bullet.
 - The CI pin check can reject a correct change (false positive). That only blocks a merge, and its
   false-negative modes are covered by the TC-013.6 fixtures. No hazard.
 
@@ -230,3 +241,17 @@ CR-002 lands.
     from RISK-012). ALARP justification added.
   - `relates_to` SOUP-018 removed (obsolete since TASK-158), and `relates_to` RISK-012 added,
     which shares the MinIO path.
+- 1.4 (2026-10-29) — CR-003 Risk stage (§7.4, CR-003 AC-15), by the Software Architect role.
+  Content change, so the approval record is cleared and the record returns to review.
+  - `relates_to` SOUP-033 removed (openapi-fetch, never imported; obsolete with CR-003 TASK-165,
+    PRB-044).
+  - The path-1 rationale no longer cites PRB-035 as open. It names its resolution (TASK-162,
+    Node 24 LTS) and records that CR-003 applies the fix path to PRB-044, PRB-045 and PRB-047.
+  - Control table: CR-003's re-pins (TASK-161..164) and re-reviews (SOUP-003, 011, 019, 021) are
+    named.
+  - Risks introduced by controls: a new bullet on upstream rebuilds under a pinned tag
+    (`redis:7.4.11-alpine`, 2026-10-26).
+  - Residual confirmed at 3 × 2 → `alarp`, derived from `risk_matrix`, not re-scored. Path 2
+    (MinIO) still governs and is CR-002's. Path 1 stays at probability 1. Acceptance is the
+    human's, through approval of this version. TASK-168 confirms the PRB-035 statement once
+    TASK-162 has landed.
