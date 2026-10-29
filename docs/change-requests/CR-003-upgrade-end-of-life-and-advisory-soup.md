@@ -290,6 +290,14 @@ that this list is complete.
   through the Redis protocol. A separate defect, outside this CR, was found while testing:
   [PRB-049](../problem-reports/PRB-049-setup-test-data-script-fails-on-datetime-utc.md)
   (`backend/scripts/setup_test_data.py` fails on `datetime.UTC`; minor, developer tooling).
+- TASK-163 (SOUP-011, review of 2026-10-29): none. No anomaly applies to cryptography 50.0.2,
+  cffi 2.0.0 or pycparser 3.0, and GHSA-g6cj-pr64-35w5 is fixed at 50.0.0. No OpenSSL advisory
+  lists the bundled 4.0.3 as affected. No hazard-relevant finding and no MedHub-affecting defect,
+  so no RISK raised for SOUP-011. A separate defect, outside this CR, was found by the QA review of
+  TASK-162:
+  [PRB-050](../problem-reports/PRB-050-frontend-docker-build-context-copies-host-node-modules.md)
+  (`frontend/` has no `.dockerignore`, so a local image build copies the host's `node_modules` and
+  `dist`; minor, local build reproducibility, CI unaffected).
 
 ### Selected versions (Plan stage, 2026-10-29)
 
