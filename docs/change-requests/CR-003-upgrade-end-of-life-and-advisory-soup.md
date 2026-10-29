@@ -51,8 +51,6 @@ links:
     relation: relates_to
   - target: "SOUP-021"
     relation: relates_to
-  - target: "SOUP-033"
-    relation: relates_to
 tags:
   - soup
   - maintenance
