@@ -2,8 +2,8 @@
 id: "PRB-035"
 type: problem-report
 title: "Frontend bundle is built on end-of-life Node 20"
-status: open
-version: "1.1"
+status: resolved
+version: "1.2"
 author: "Carlos Santiago Liceras"
 created: "2026-10-22"
 updated: "2026-10-29"
@@ -81,3 +81,38 @@ and re-run the frontend suite and the Compose smoke test. Needs a task and a CR 
 ## Source
 
 Raised during the Specify stage of CR-001 (2026-10-22), which leaves it out of scope.
+
+## Resolution
+
+Resolved by TASK-162 under CR-003 (2026-10-29).
+
+- **`frontend/Dockerfile:1`** build stage is now
+  `FROM node:24.22.2-trixie-slim@sha256:54f84b4cf8432b21aaffd5d3ce8d41e12cea0d10d33c09d2f3c9879d49d6b446 AS build`.
+  The digest is the index digest from `docker buildx imagetools inspect` on 2026-10-29 and equals the
+  one selected in CR-003. The explicit `-trixie-slim` tag is used because the bare `-slim` alias
+  resolves to bookworm for Node 24 (D-2). The nginx runtime stage is unchanged, and the image pin
+  check (`infra/check_image_pins.py`, RISK-010) still passes.
+- **`.github/workflows/ci.yml`**: `frontend-quality` and `frontend-tests` use `node-version: "24"`
+  (step renamed "Set up Node.js 24"). `openapi-lint` gains an `actions/setup-node@v4` step with
+  `node-version: "24"` before its first `npx` or `npm` step (Q-3), so it no longer runs on the
+  runner's default Node. No job installs Node 20.
+- **Support evidence.** Node.js release schedule (https://github.com/nodejs/Release, `schedule.json`,
+  checked 2026-10-29): v24 "Krypton" Active LTS from 2025-10-28, Maintenance LTS from 2026-10-20,
+  end of life 2028-04-30. v20 end of life 2026-04-30. Every locked frontend package that declares a
+  `node` engine range (303 entries in `frontend/package-lock.json`, checked 2026-10-29) has a range
+  that includes 24.
+- **Records.** TS-001..TS-013 name "frontend Node 24 LTS" in their environment line and are
+  `in_review` (new versions). TP-001, TR-001 and TR-002 are unchanged: they are evidence of past
+  runs on Node 20.
+
+Verification (2026-10-29):
+
+- `docker build -t medhub-frontend:ci ./frontend` succeeded: `npm ci` and `npm run build` ran in the
+  Node 24 stage, and the emitted `dist` was byte-identical to the previous build (checked by
+  building `--target build` from clean copies with the Node 20 and the Node 24 Dockerfile and
+  comparing the SHA-256 of every file under `/app/dist`: 16 files, identical).
+- `git diff --exit-code frontend/package-lock.json` is clean (AC-5).
+- In `node:24.22.2-trixie-slim` (Node v24.22.2, npm 11.19.1): `npm ci`, `npm run lint`,
+  `npm run typecheck` and `npm test -- --run` passed (27 files, 155 tests).
+- `infra/smoke-test.sh` against the running Compose stack: 17 passed, 0 failed.
+- CI logs on the branch head showing Node v24 (CR-003 AC-18) are pending the push.

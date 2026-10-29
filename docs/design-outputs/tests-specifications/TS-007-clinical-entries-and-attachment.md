@@ -2,15 +2,11 @@
 id: TS-007
 type: test-specification
 title: Clinical entries and attachment verification
-status: approved
-version: "1.1"
+status: in_review
+version: "1.2"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-10-22"
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-10-22"
-approved_digest: be3d595a8da4d6f43a6f26a4c63c6c912e1af954353960cb9e2ab60e46be8fd2
-approval_note: self-approved
+updated: "2026-10-29"
 links:
   - target: SR-012
     relation: verifies
@@ -32,7 +28,7 @@ Levels: unit, integration.
 ## Preconditions and environment
 
 Build: branch `bug/soup-pinning` (CR-001), which holds `backend/tests/test_object_storage.py` (TC-007.5). Backend Python 3.12 with the
-dependencies locked in `backend/uv.lock`; frontend Node 20 with `frontend/package-lock.json`.
+dependencies locked in `backend/uv.lock`; frontend Node 24 LTS (build stage node:24.22.2-trixie-slim; CI node-version 24) with `frontend/package-lock.json`.
 Unit and service tests run with no external services (in-memory repositories and a fake object store). TC-007.5 builds the real boto3 S3 client from the locked SDK; no object-storage service is needed. Tests marked *real DB* require a
 PostgreSQL 16 container through testcontainers and therefore a working Docker daemon.
 Exact SOUP versions: the `soup` records in [`../../soup/`](../../soup/).

@@ -2,15 +2,11 @@
 id: TS-013
 type: test-specification
 title: Lifecycle record and traceability verification
-status: approved
-version: "1.3"
+status: in_review
+version: "1.4"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-10-23"
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-10-23"
-approved_digest: 04f8510e012d4a7ae231578d06b8df9c50d3f1b1f3d17088e654e701d0f96684
-approval_note: self-approved
+updated: "2026-10-29"
 links:
   - target: SR-028
     relation: verifies
@@ -35,7 +31,7 @@ TC-013.8: automated CI checks of the dependency set the build resolves).
 
 Build: branch `bug/soup-pinning`. TC-013.9 and the CR-001 end-to-end run (TASK-159, 2026-10-22) were
 executed on commit `7ef8f93` with the TASK-159 record changes only (no source change). Backend Python 3.12 with the
-dependencies locked in `backend/uv.lock`; frontend Node 20 with `frontend/package-lock.json`.
+dependencies locked in `backend/uv.lock`; frontend Node 24 LTS (build stage node:24.22.2-trixie-slim; CI node-version 24) with `frontend/package-lock.json`.
 Unit and service tests run with no external services (the repository itself). Tests marked *real DB* require a
 PostgreSQL 16 container through testcontainers and therefore a working Docker daemon.
 Exact SOUP versions: the `soup` records in [`../../soup/`](../../soup/); the pinned image
