@@ -2,8 +2,8 @@
 id: "PRB-047"
 type: problem-report
 title: "Locked runtime dependencies carry published advisories that do not affect MedHub's use"
-status: open
-version: "1.1"
+status: resolved
+version: "1.2"
 author: "Carlos Santiago Liceras"
 created: "2026-10-22"
 updated: "2026-10-29"
@@ -35,8 +35,8 @@ noticing.
 
 Mechanism. The lock pins the three versions, and nothing short of a lock refresh moves them:
 
-- `backend/uv.lock:55-56` has anyio 4.14.0, `:521-522` cryptography 49.0.0 and `:1655-1656`
-  urllib3 2.7.0.
+- In the lock as it stood before CR-003 (`f807bfb`), `backend/uv.lock:55-56` had anyio 4.14.0, `:521-522` cryptography 49.0.0 and `:1655-1656`
+  urllib3 2.7.0 (these line numbers describe that lock, not the current one).
 - `backend/Dockerfile:7` installs with `uv sync --frozen --no-dev`, so the production image gets
   exactly these versions.
 - `cryptography` is a direct dependency with only a floor (`backend/pyproject.toml:19`,
@@ -49,8 +49,8 @@ Mechanism. The lock pins the three versions, and nothing short of a lock refresh
 History. The three versions have not changed since the lock was first resolved with them
 (commit `845886c`, 2026-06-21). They are identical at `7f1d9ee` (2026-06-30) and after CR-001's
 TASK-157 (`c455618`) and TASK-158 (`fac911b`), which ran `uv lock` without `--upgrade` on purpose
-(CR-001 A-4 and its plan risk table). The fixes came out after that: anyio 4.14.2 on 2026-07-07
-(SOUP-003), cryptography 50.0.0 on 2026-07-31 (SOUP-011) and urllib3 2.8.0 on 2026-09-15
+(CR-001 A-4 and its plan risk table). The fixes came out after that: anyio 4.14.2 (advisories published
+2026-07-07; PyPI upload 2026-07-12) (SOUP-003), cryptography 50.0.0 on 2026-07-31 (SOUP-011) and urllib3 2.8.0 on 2026-09-15
 (SOUP-019). Root cause: no upgrade has been made since the lock was resolved. By design the lock
 is the pin, and a version changes only through an explicit change. This PRB is that trigger.
 
@@ -92,6 +92,69 @@ In CR-003, a separate CR because CR-001 A-4 forbids upgrades:
 - Re-run the backend suite (including the TS-008 encryption tests) and the anomaly review for
   the new versions.
 - Update SOUP-003, SOUP-011 and SOUP-019.
+
+## Resolution
+
+Resolved in the working tree by [CR-003](../change-requests/CR-003-upgrade-end-of-life-and-advisory-soup.md)
+(D-3), in two tasks, one per lock change. The resolving `resolves` link is on CR-003. `closed`
+waits for a shipped release (none exists yet).
+
+**What changed.**
+
+| Package | Before | After | Task | SOUP record |
+|---|---|---|---|---|
+| cryptography | 49.0.0 | 50.0.2 | TASK-163 | [SOUP-011](../soup/SOUP-011-cryptography.md) 1.2 |
+| anyio | 4.14.0 | 4.14.2 | TASK-164 | [SOUP-003](../soup/SOUP-003-starlette.md) 1.2 |
+| urllib3 | 2.7.0 | 2.8.0 | TASK-164 | [SOUP-019](../soup/SOUP-019-boto3.md) 1.3 |
+
+- `backend/uv.lock`: each task changed only its own package blocks (versions, sdists, wheel URLs
+  and hashes). A package-by-package comparison of `f807bfb:backend/uv.lock` (before CR-003) with
+  the working lock shows 86 packages on both sides, none added or removed, and exactly these
+  three changed. cffi 2.0.0, pycparser 3.0, idna 3.18 and typing-extensions 4.15.0 are unchanged,
+  so no further package had to move. `backend/pyproject.toml` is unchanged: anyio and urllib3 stay
+  transitive, and cryptography keeps its `>=42.0.0` floor.
+- anyio is pinned to 4.14.2 on purpose (`uv lock --upgrade-package anyio==4.14.2`). It is the
+  smallest move that fixes the three advisories; 4.15.1 exists and was not taken (CR-003 D-3).
+- The three advisories of each package are fixed at the new version: GHSA-g6cj-pr64-35w5 at
+  cryptography 50.0.0; GHSA-3w57-8xmc-8v26, GHSA-5p39-cfhj-2xmp and GHSA-82r6-8w77-94w6 at anyio
+  4.14.2; GHSA-8988-9cw3-xx77, GHSA-vxq7-64xx-v4gw and GHSA-gh4c-6fx4-qh6g at urllib3 2.8.0. OSV
+  and the GitHub Advisory Database return no vulnerability for the three locked versions, and the
+  same query returns each advisory for the old versions.
+
+**Why this approach.** The lock is the pin, so the fix is an explicit, narrow lock refresh per
+package (`uv lock --upgrade-package <pkg>==<version>`), with the lock diff inspected block by
+block. The cryptography change went in behind a known-answer test, because the control it carries
+(SR-022, RISK-011) protects data already at rest.
+
+**How it was verified (reproducible).**
+
+- Known-answer test (TS-008 TC-008.5, `backend/tests/db/test_crypto_known_answer.py`): the
+  ciphertext fixture was produced by MedHub's own `encrypt` under cryptography 49.0.0. Under
+  50.0.2 it decrypts to the original plaintext, `encrypt` with the same key and nonce gives the
+  identical envelope, and a tampered tag raises `InvalidTag`. Run:
+  `cd backend && uv run pytest tests/db/test_crypto_known_answer.py tests/db/test_crypto.py -v`
+  (9 passed).
+- Backend suite on the final lock: `cd backend && DOCKER_CONTEXT=desktop-linux uv run --frozen
+  pytest --cov=app --cov-fail-under=85`: 499 passed, coverage 91.71 %, including the real-DB
+  tests, TS-011 (security headers and CSRF over the anyio middleware path) and TS-007 TC-007.5.
+  `ruff check .`, `black --check .` and `mypy app` pass, and `uv lock --check` passes.
+- AC-8 on the built backend image (CR-003 D-4, run once):
+  `docker build -t medhub-backend:ci ./backend`, then
+  `docker run --rm --entrypoint python medhub-backend:ci -c "import importlib.metadata as m; print({p: m.version(p) for p in ('anyio','urllib3','cryptography')})"`
+  printed `{'anyio': '4.14.2', 'urllib3': '2.8.0', 'cryptography': '50.0.2'}`. The `backend` and
+  `celery-worker` containers rebuilt from the same Dockerfile report the same three versions.
+- Rebuilt Compose stack: `infra/smoke-test.sh` 17 passed, 0 failed. Attachment round trip through
+  `https://localhost` (RISK-007, RISK-011): login 200, clinical entry created 201, a 307,200-byte
+  attachment uploaded 201 and downloaded 200 with identical bytes (same SHA-256), unauthenticated
+  download 401, logout 204. This confirms the SSE request path over urllib3 2.8.0 on the real
+  object store. End-to-end proof of SSE on the stored object stays with PRB-036.
+- SOUP re-reviews, all dated 2026-10-29 at the new versions: SOUP-011, SOUP-003 and SOUP-019 each
+  find no anomaly that applies, show the PRB-047 advisories as fixed, and state the upgrade
+  impact. No RISK and no new PRB came from them.
+
+**Result.** No locked runtime dependency carries a published advisory at the versions
+`backend/uv.lock` resolves. Criticality stays `minor`. The three SOUP records stay `in_review`
+for human approval under CR-003 AC-19.
 
 ## Source
 
