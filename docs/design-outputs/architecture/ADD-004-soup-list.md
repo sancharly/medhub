@@ -3,10 +3,10 @@ id: "ADD-004"
 type: architecture-doc
 title: "SOUP list (software of unknown provenance)"
 status: obsolete
-version: "1.0"
+version: "1.1"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
-updated: "2026-10-21"
+updated: "2026-10-29"
 links:
   - target: "SR-001"
     relation: implements
@@ -30,7 +30,10 @@ tags: ["soup", "regulatory", "class:B"]
 > **Obsolete (2026-10-21).** Superseded by one `soup` record per component, SOUP-001..035 in
 > [`../../soup/`](../../soup/) (medical-records 0.3.2). Development tooling is no longer listed — it is
 > not SOUP. Correction made during the move: `fhir.resources` is locked at **8.2.0**; the 1.1.8 below
-> is the version of its dependency `fhir-core`. Kept unchanged below because IDs are never reused.
+> is the version of its dependency `fhir-core`. The `openapi-fetch` row is wrong: MedHub never
+> imported the package, and its API client is the hand-written `ApiClient` with generated types only
+> (PRB-044). The package was removed by CR-003 (SOUP-033 obsolete). Kept unchanged below because IDs
+> are never reused.
 
 # SOUP list
 
