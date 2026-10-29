@@ -45,7 +45,7 @@ Invariants (verified in module integration tests):
 
 | Provider item   | Interface         | Consumers                       | Contract                                                                                               |
 |-----------------|-------------------|---------------------------------|--------------------------------------------------------------------------------------------------------|
-| SI-FE-APICLIENT | typed `ApiClient` | SI-FE-AUTH, SI-FE-CORE, modules | methods generated from OpenAPI; attaches session cookie + CSRF (SR-031.3)                              |
+| SI-FE-APICLIENT | typed `ApiClient` | SI-FE-AUTH, SI-FE-CORE, modules | hand-written methods; request/response types generated from OpenAPI; attaches session cookie + CSRF (SR-031.3) |
 | SI-FE-MODREG    | `ModuleRegistry`  | SI-FE-SHELL, modules            | `register(FrontendModule)`; shell renders nav only if `moduleKey ∈ GET /me/modules` (SR-015, SR-016.2) |
 | SI-FE-SHELL     | `ShellServices`   | SI-FE-CORE, modules             | navigation, confirmation dialog, error toast, layout slots (SR-027)                                    |
 

@@ -11,7 +11,7 @@ package "Frontend SPA (React + TS)" as SPA #lightblue {
   rectangle "Core Feature Views\n(SI-FE-CORE)" as FECore #lightblue
   rectangle "Module Registry\n(SI-FE-MODREG)" as FEModReg #lightblue
   rectangle "DICOM Viewer Module\n(SI-MOD-DICOM-FE)\nCornerstone3D" as FEDicom #lightblue
-  rectangle "API Client\n(generated from OpenAPI)" as FEApi #lightblue
+  rectangle "API Client\n(hand-written; types from OpenAPI)" as FEApi #lightblue
 }
 
 package "Backend (FastAPI, modular monolith)" as BE #lightblue {

@@ -2,11 +2,11 @@
 id: "PRB-044"
 type: problem-report
 title: "openapi-fetch is declared as a runtime dependency but MedHub does not use it"
-status: open
-version: "1.1"
+status: resolved
+version: "1.2"
 author: "Carlos Santiago Liceras"
 created: "2026-10-22"
-updated: "2026-10-29"
+updated: "2026-10-30"
 criticality: minor
 links: []
 tags: ["soup", "configuration-management", "documentation"]
@@ -105,6 +105,82 @@ In CR-003, a separate CR as for PRB-033:
   gets a correction note in its obsolete banner, as was done for `fhir.resources`. The `relates_to`
   links to SOUP-033 from ADD-023 and RISK-010 are removed.
 - Check that the frontend suite and build still pass.
+
+## Resolution
+
+Resolved by CR-003 (`resolves` link on the CR) in TASK-165, TASK-166 and TASK-167, on branch
+`bug/soup-upgrades`. The proposal was carried out as amended by the Investigation: the dependency
+is removed, SOUP-033 is retired, and the live design text (ADD-023 and arc42) is corrected instead
+of ADD-004, which only gets a note in its obsolete banner. The defect was in the records and in an
+unused manifest entry. No runtime code changed (`frontend/src/api/client.ts` and
+`frontend/src/api/generated/*` are untouched).
+
+Changes:
+- [TASK-165](../design-outputs/tasks/TASK-165-remove-unused-openapi-fetch.md):
+  `frontend/package.json` loses the `"openapi-fetch"` dependency; `frontend/package-lock.json` loses
+  `node_modules/openapi-fetch`, `node_modules/openapi-typescript-helpers` and the root-package
+  dependency entry, with no other change. `docs/soup/SOUP-033-openapi-fetch.md` is `obsolete`
+  (version 1.2, change-log entry citing PRB-044 and CR-003), and CR-003's `relates_to` link to
+  SOUP-033 is removed (CR-003 D-6).
+- [TASK-166](../design-outputs/tasks/TASK-166-correct-add-023-api-client-description.md):
+  `docs/design-outputs/architecture/ADD-023-frontend-api-client.md` (version 1.1, `in_review`)
+  describes the hand-written `ApiClient` with generated types in its Responsibility and in
+  `U-FEAPI-Client`, and no longer links SOUP-033. `docs/design-outputs/architecture/ADD-004-soup-list.md`
+  stays `obsolete` (version 1.1) with a correction note on the `openapi-fetch` row in its banner.
+- [TASK-167](../design-outputs/tasks/TASK-167-correct-api-client-description-in-arc42.md):
+  `docs/design/03-context-and-scope.md`, `docs/design/05-building-blocks.md` (table row and
+  `U-FEAPI-Client`), `docs/design/12-interfaces.md` (SI-FE-APICLIENT row) and
+  `docs/specifications/diagram-building-blocks.puml` say "hand-written" with types generated from
+  OpenAPI. `docs/design/adr/0003-frontend-stack.md` was already accurate and is unchanged.
+- RISK-010's `relates_to` link to SOUP-033 was removed at the Risk stage of CR-003 (RISK-010 change
+  log). `docs/design/04-solution-strategy.md` (Frontend row) was also corrected, as a small addition
+  to the arc42 text, so that section 04 agrees with ADD-023.
+
+Verification, reproducible from the repository root. TASK-165 is commit `89f84c9`; its parent is
+`4df23d2`.
+
+```sh
+# AC-10 (TASK-165): the package is gone from the manifest and the lock
+git diff --numstat 4df23d2 89f84c9 -- frontend/package.json frontend/package-lock.json
+#   0  14  frontend/package-lock.json   (root-package entry + two node_modules blocks)
+#   0   1  frontend/package.json        (the "openapi-fetch" line)
+(cd frontend && grep -c openapi-fetch package.json package-lock.json)      # 0 and 0, at 89f84c9 or later
+(cd frontend && npm ci && npm run lint && npm run typecheck && npm run build && npm test -- --run)  # in the pinned node:24.22.2-trixie-slim image; results below are from that image
+
+# Bundle unchanged: build both commits in the pinned image, then compare the SHA-256 of every dist/ file
+IMG=node:24.22.2-trixie-slim@sha256:54f84b4cf8432b21aaffd5d3ce8d41e12cea0d10d33c09d2f3c9879d49d6b446
+W="$(mktemp -d)"
+for c in 4df23d2 89f84c9; do
+  mkdir "$W/$c" && git archive "$c" frontend | tar -x -C "$W/$c"
+  docker run --rm -v "$W/$c/frontend":/app -w /app "$IMG" sh -c 'npm ci && npm run build'
+  (cd "$W/$c/frontend/dist" && find . -type f -print0 | sort -z | xargs -0 shasum -a 256) > "$W/$c.sha256"
+done
+diff "$W/4df23d2.sha256" "$W/89f84c9.sha256"                              # no output: identical
+
+# AC-11/AC-12 (TASK-166): ADD-023 links no SOUP-033 and calls nothing "generated" but the types
+grep -n 'SOUP-033' docs/design-outputs/architecture/ADD-023-frontend-api-client.md        # no link entry
+grep -n -i 'generated' docs/design-outputs/architecture/ADD-023-frontend-api-client.md    # types only
+grep -n 'PRB-044' docs/design-outputs/architecture/ADD-004-soup-list.md                   # banner note
+
+# AC-12 (TASK-167): no arc42 text or diagram label says the client or its methods are generated
+grep -n -i 'client generated\|generated typed client\|methods generated\|(generated from OpenAPI)' \
+  docs/design/03-context-and-scope.md docs/design/05-building-blocks.md \
+  docs/design/12-interfaces.md docs/specifications/diagram-building-blocks.puml          # no output
+plantuml -checkonly docs/specifications/diagram-building-blocks.puml                      # exit 0
+```
+
+Results (TASK-165 and QA, 2026-10-29):
+
+- Lock diff: `0 1` for `frontend/package.json` and `0 14` for `frontend/package-lock.json`, so the
+  commit contains the removals only.
+- `npm ci` added 466 packages. Lint gave 0 warnings, typecheck passed, Vitest passed (27 files, 155
+  tests) and the build succeeded.
+- Bundle: 16 of 16 `dist/` files are identical between `4df23d2` and `89f84c9`.
+- TASK-166 and TASK-167 greps print nothing where "no output" is expected, and
+  `plantuml -checkonly` exits 0.
+
+The CI frontend jobs and `openapi-lint` are verified in TASK-168 (CR-003 AC-18). QA reviews
+TASK-165, TASK-166 and TASK-167 together.
 
 ## Source
 

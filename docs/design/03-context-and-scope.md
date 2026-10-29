@@ -28,7 +28,7 @@ See diagrams: [`../specifications/diagram-context.puml`](../specifications/diagr
 | Component                              | Data/Protocol/Interface                   | Direction     | Description                                                      |
 |----------------------------------------|-------------------------------------------|---------------|------------------------------------------------------------------|
 | **Browser ↔ Reverse proxy**            | HTTPS/TLS 1.2+, REST/JSON, session cookie | Inbound       | All client traffic; HTTP→HTTPS redirect, HSTS (SR-001, SR-022)   |
-| **SPA ↔ Backend API**                  | `/api/v1` JSON, RFC 7807 errors           | Bidirectional | Typed client generated from OpenAPI (api-design.md)              |
+| **SPA ↔ Backend API**                  | `/api/v1` JSON, RFC 7807 errors           | Bidirectional | Hand-written typed client (`ApiClient`) with types generated from OpenAPI (api-design.md) |
 | **DICOM viewer ↔ Attachment endpoint** | HTTPS, DICOM Part-10 bytes/frames         | Inbound       | Authorized byte stream; rendering client-side (SR-017, ADR-0008) |
 | **Backend ↔ PostgreSQL**               | SQL over local/TLS                        | Outbound      | Domain + audit data (ADR-0004)                                   |
 | **Backend ↔ Redis**                    | RESP                                      | Outbound      | Sessions (SR-030) + Celery broker                                |
