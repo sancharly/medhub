@@ -3,7 +3,7 @@ id: CR-002
 type: change-request
 title: Secure or replace the MinIO object store
 status: in_progress
-version: "1.5"
+version: "1.7"
 author: Carlos Santiago Liceras
 created: "2026-10-30"
 updated: "2026-10-30"
@@ -17,6 +17,8 @@ links:
   - target: PRB-036
     relation: resolves
   - target: PRB-039
+    relation: resolves
+  - target: PRB-052
     relation: resolves
   - target: PRB-055
     relation: resolves
@@ -78,6 +80,12 @@ links:
     relation: relates_to
   - target: TASK-182
     relation: relates_to
+  - target: TASK-183
+    relation: relates_to
+  - target: RISK-006
+    relation: relates_to
+  - target: SR-023
+    relation: relates_to
   - target: ADD-025
     relation: relates_to
 tags:
@@ -114,6 +122,10 @@ PLAN-001 release gate.
   `put_object`; no test writes to a real store.
 - **PRB-039** (minor): `createbuckets` starts before the store accepts connections, fails silently
   and still exits 0, so a fresh volume gets no bucket.
+- **PRB-052** (major, added by D-7): audit events that record a failure are rolled back with the
+  error response (`get_db` rolls back on any exception), so denials, failed logins, failed
+  activations and refused DICOM reads leave no audit row (SR-023, RISK-006). TASK-173 worked around
+  it for one event with a `durable` flag that commits the whole request session.
 
 One CR bundles them, as CR-001 and CR-003 did: they come from the same review, share RISK-012 and
 the SOUP-022/023 records, and share one verification run (a fresh-host stack start, the pin check,
@@ -163,6 +175,12 @@ Source: GitHub issue sancharly/medhub#33.
    specifications and a test report entry for each AC. `infra/DEPLOY.md` (bucket administration
    through the initialiser and scripted S3 calls only, key generation, no console) and the ADD and arc42 sections that describe the
    object store and the deployment topology are updated to the new state.
+9. **Audit persistence (PRB-052, added by D-7).** `AuditService` commits every audit event that
+   records a failure or a refusal on its own short-lived transaction, so it persists whatever the
+   request's outcome ([ADR-0016](../design/adr/0016-failure-audit-events-on-own-transaction.md)).
+   TASK-173's `durable` flag is removed. Real-database tests cover each affected path. The two
+   other LOW findings of TASK-173's QA review are fixed with it: the 502 responses declare their
+   problem body, and the integrity message no longer reloads the attachment.
 
 ### Requirements decision
 
@@ -185,6 +203,10 @@ approves them.
   initialiser, and reliable bucket initialisation. No existing SR covers the deployment topology of
   the object store. It satisfies RR-003 and derives from NFR-007 and UN-008, and mitigates RISK-012,
   RISK-001 and RISK-007.
+- **SR-023 (audit logging), unchanged (D-7):** AC 1 already requires failed authentication
+  attempts to be recorded, and AC 2 requires access to clinical data to be recorded. A row that is
+  rolled back is not recorded, so PRB-052 is a failure to meet SR-023, not a gap in it. TS-009
+  gains the real-database test cases (TASK-183).
 - **No UN, NFR or RR is created or amended.** RR-003, RR-008, RR-010 and NFR-007 already state the
   obligations.
 - **§5.2.2 checklist:** e (security), h (installation), j (IT-network) are covered by SR-040;
@@ -265,7 +287,7 @@ SeaweedFS. Where option (a) or (c) changes a result, the table says so.
 | Server replaced by SeaweedFS 4.51 (TASK-176) | `U-OBJ-Server`; SOUP-022 → obsolete; SOUP-036 | The four PRB-043 CVEs leave with the MinIO code. Introduced: a different SSE implementation (verified by AC-4 and AC-7 on every PR), a larger surface with internal ports, and rolling releases (RISK-012 1.1, "risks introduced by controls"). No change in severity. **Under (c):** the CVEs stay, and only availability is restored | RISK-012 (design row), RISK-010 path 2 (gains a fix path), RISK-011 (SSE now runs on a new SOUP item), RISK-007 (obtainable on any host) | TS-013 TC-013.10; TS-014 TC-014.5; TS-008 |
 | Network isolation (TASK-177) | Deployment topology | Reach is cut from five containers. The backend is unaffected (CR-002 A-2, confirmed by the task). No new hazard | RISK-012 and RISK-001 (strengthened) | TS-014 TC-014.6 |
 | Migration rehearsal (TASK-178) | Tooling (`backend/scripts/`), both stores | A migration error can orphan or expose objects (RISK-011, RISK-007). The control is a rehearsal on backups with checksum comparison, and the source is never modified. Q-5: development data only | RISK-011 (new protective row in TASK-181) | Rehearsal record; TS-007 path through the API |
-| SSE end-to-end in CI (TASK-179) | `ObjectStorageClient`; SI-DEVINFRA CI | Verification only. It closes PRB-036's gap, and urllib3/botocore changes are now caught end to end | RISK-011, RISK-012 (verification of the SSE control) | TS-008 TC-008.7 |
+| SSE end-to-end in CI (TASK-179) | `ObjectStorageClient`; SI-DEVINFRA CI | Verification only. It closes PRB-036's gap, and urllib3/botocore changes are now caught end to end | RISK-011, RISK-012 (verification of the SSE control) | TS-008 TC-008.8 |
 | Documents (TASK-180) | DEPLOY.md, ADD, arc42 | Information for safety: bucket administration without a console, key generation, migration | RISK-012 (information) | Inspection |
 
 **Re-evaluation of RISK-010 path 2 (AC-14).** At this stage path 2 stays at probability 2, so
@@ -291,10 +313,22 @@ now**. The expected outcome, for TASK-181 to confirm with evidence:
 - **RISK-011**: affected (SSE control enforced by the store and verified end to end; key material
   migrated; it links SOUP-022). Not re-scored. TASK-181 updates it.
 
-**For the human to accept** (risk acceptability is a human decision): RISK-012 1.1, which is
-the control plan with the residual still at 4 × 2 `alarp` and accepted for development only, as
-on 2026-10-22. Later, the records TASK-181 revises from evidence: RISK-012 (re-scored), RISK-010
-1.5, and RISK-001, 007 and 011.
+*Re-evaluated by TASK-181 (2026-10-30) from the verification evidence of TASK-172..180:*
+
+- **RISK-012** (1.1, `in_review`): re-scored from 4 × 2 → `alarp` to **4 × 1 → `acceptable`** (row 4, column 1). Every control row names its implementing TASK, its commit and the test case that passed. The interim row was removed under option (b). The 4 × 1 is **conditional on TASK-182**: the hosted `object-store-integration` run and the amd64 fresh-host run must pass, otherwise the score is reopened. It also rests on PLAN-002 1.2 (the monthly check).
+- **RISK-010** (1.5, `in_review`): path 2 re-scored from 3 × 2 → `alarp` to **3 × 1 → `acceptable`**. A maintained store is deployed at a pinned digest, and its review found a fix path. The 3 × 1 is **conditional on the approval of PLAN-002 1.2** (the monthly check for items with rolling releases). Without it, path 2 stays 3 × 2 → `alarp`.
+- **RISK-001** (1.2, `in_review`): not re-scored (2 × 2 → `acceptable`). Adds the control row "object store reachable only by the backend, no console, non-default credentials" (SR-040; TASK-174, TASK-177; TS-014).
+- **RISK-007** (1.4, `in_review`): not re-scored (3 × 2 → `alarp`). "MinIO failure" now reads "object-store failure"; the link is now SOUP-036. Two rows added: the fail-fast bucket initialisation (TS-014 TC-014.4) and the checksum refusal with a clear error (TS-007 TC-007.6..8). The backup part of the backup row is unmet (PRB-057). The ALARP justification is re-evaluated when PRB-057 is resolved, or at the first release.
+- **RISK-011** (1.3, `in_review`): not re-scored (3 × 2 → `alarp`). The SSE row gains TASK-175, TASK-179, TS-008 TC-008.6 and TC-008.8. A migration row is added (TASK-178, TS-008 TC-008.7). The link is now SOUP-036. The key reuse is carried over (Q-3, Q-7, PRB-007). The key-loss path (F-4) has no backup (PRB-057). The ALARP justification is re-evaluated when PRB-057 is resolved, or at the first release.
+- **RISK-002, RISK-003**: not edited and not re-scored (Out of scope, D-2). Their bodies name no replaced item: a grep finds no MinIO, SOUP-022 or SOUP-023.
+
+**For the human to accept** (risk acceptability is a human decision):
+
+1. RISK-012 1.1 at 4 × 1 → `acceptable`. This replaces the development-only acceptance of 4 × 2 (D-6). It is conditional on TASK-182's hosted CI run and fresh-host run.
+2. RISK-010 1.5 at 3 × 1 → `acceptable`, together with the approval of PLAN-002 1.2 and SOUP-036 1.2.
+3. RISK-001 1.2, RISK-007 1.4 and RISK-011 1.3: content changes, scores unchanged.
+4. **PRB-057 as a release-gate condition.** Before the first release, either PRB-057 is resolved, or it is listed under "Known residual anomalies" in the REL record, with RISK-007 and RISK-011 re-accepted against it.
+5. **How the release treats PRB-043.** PRB-043 (`critical`) is `resolved` under AC-19. It still counts as open for the `iec62304-sdlc` release gate and MedTrace E10 until it is `closed`. Decision: it is closed in the release-record (REL) commit, after the release test report (TR) confirms the resolution.
 
 **Escalations.** None at the Risk stage. TASK-172 adds any hazard-relevant finding of the SOUP-036
 review here as a RISK, and any MedHub-affecting defect as a PRB. TASK-181 checks that the list is
@@ -309,6 +343,39 @@ Alpine v3.24 `community`, whose support ends 2026-11-01 (PLAN-002 end-of-support
 exercised by MedHub; remedy is the reviewed digest change under the PLAN-002 1.2 monthly rule).
 The human raised it as [PRB-051](../problem-reports/PRB-051-seaweedfs-image-fuse-from-alpine-community-end-of-support.md)
 on 2026-10-30. It stays outside this CR's scope.
+
+*Checked by TASK-181 (2026-10-30).* The list is complete. **No new RISK was raised**: the SOUP-036 review found no hazard-relevant advisory against 4.51, and each configuration finding is either closed by a verified control or recorded in an existing RISK:
+
+- **F-1** (in `weed mini` the filer, master and volume ports answer unauthenticated requests on the network): avoided by design. `weed server` binds master, volume and filer to 127.0.0.1 (TASK-176, TS-014 TC-014.1 and TC-014.5). Only the backend and the initialiser can reach the store (TASK-177, TS-014 TC-014.6). A substituted object is refused on download (TASK-173, TS-007 TC-007.6..8). It is a residual reason in RISK-012.
+- **F-2** (the S3 gRPC port 18333 stays on a non-loopback address): limited to the internal `object-store` network (TASK-177, TS-014 TC-014.6; QA probe: it times out from `medhub`). Its IAM-cache RPCs accept only local peers. It is a residual reason in RISK-012 and is watched in the monthly review.
+- **F-3** (telemetry on by default): switched off with `-master.telemetry=false`, asserted by TS-014 TC-014.1. The `object-store` network is `internal: true` and has no egress (TASK-177 QA).
+- **F-4** (the SSE key is the only key, so losing it loses the data): recorded in RISK-011 1.3 and RISK-007 1.4, and as a risk introduced by the controls in RISK-012. Key separation is tracked on PRB-007. The missing backup and restore of the volume with its key is PRB-057. Verified by TASK-172's run with a different key (`InternalError`, rerun by QA).
+- **F-5** (admin listeners and a key file in `weed mini`): no action. Neither occurs under `weed server` (TASK-172; TS-014 TC-014.5 shows no admin listener).
+
+Problem reports raised during CR-002:
+
+- PRB-051 (fuse from Alpine `community`, minor): `open`, outside this CR.
+- PRB-052 (FAILURE audit events rolled back, major): in scope by D-7, resolved by TASK-183.
+- PRB-053 (raw-SQL guard test, minor): `open`, outside this CR.
+- PRB-054 (test-data seeder in the runtime image, minor): `open`, outside this CR.
+- PRB-055 (smoke test requires `minio_data`, minor): `resolved` by TASK-179.
+- PRB-056 (empty `CORS_ORIGINS` in `.env.example`, minor): `open`, outside this CR.
+- PRB-057 (no backup and restore procedure, major): `open`, outside this CR. It is a release-gate condition (see "For the human to accept").
+
+*Added for PRB-052 (D-7, 2026-10-30, Software Architect role).* `risk_impact` stays
+`affects_controls`. No new hazard, and class B is unchanged: PRB-052 is a new **cause** of the
+existing RISK-006 hazard (severity 2), not a new harm.
+
+| Change (task) | Software items / SOUP | §7.4.1 hazard contribution | §7.4.2 controls affected | §7.4.3 verification |
+|---|---|---|---|---|
+| Failure audit events on their own transaction; `durable` removed; 502 problem body (TASK-183) | SI-AUDIT `U-AUD-Writer` (ADD-013); SI-ATTACH `U-ATT-Fetch`; DICOM viewer route; SOUP-008 (SQLAlchemy, unchanged version) | Removes the cause "audit row rolled back with the failed request" from RISK-006 for `AUTHZ_DENIED`, `LOGIN_FAILURE`, `ACCOUNT_LOCKOUT` (found at this stage, not in PRB-052), `ACTIVATION_FAILED`, the `DICOM_STUDY_READ` FAILURE and the `ATTACHMENT_ACCESS` FAILURE. Introduced: a second pooled connection per failure event (pool pressure on a login burst, which the lockout bounds; it fails with an error and does not drop the row). A business write can no longer be committed by an audit call (TASK-173 LOW 1) | RISK-006 (new design control row; residual pending verification). RISK-012: its AC-5 audit evidence now has a general mechanism, and its scores are not affected | TS-009 TC-009.4..8 (real DB, mutation check); TS-007 TC-007.6 rerun without `durable` |
+
+- **RISK-006**: revised to 1.2 (`in_review`). New cause and control. Scores unchanged, and the
+  residual is pending verification by TASK-183 (until then the failure-evidence path is 2 × 3,
+  `alarp`).
+- **For the human to accept:** RISK-006 1.2, that is, the new cause, the control plan, and the
+  interim 2 × 3 `alarp` for the failure-evidence path, accepted for development only (no release
+  exists) until TASK-183 is approved; then 2 × 2 `acceptable` is confirmed from its evidence.
 
 ## Acceptance criteria
 
@@ -397,7 +464,7 @@ Verification and release
 - **AC-17 (suites and CI):** Every job in `.github/workflows/ci.yml` passes on the branch head, and
   the full backend and frontend suites pass locally.
 - **AC-18 (traceability):** `traceability-check` over the project reports 0 errors.
-- **AC-19 (problem reports):** PRB-043, PRB-042, PRB-036 and PRB-039 are `resolved`, each with a
+- **AC-19 (problem reports):** PRB-043, PRB-042, PRB-036, PRB-039 and PRB-052 are `resolved`, each with a
   completed `## Investigation` and `## Resolution` and an incoming `resolves` link from this CR.
   PRB-043 no longer blocks the PLAN-001 release gate. None is set `closed` (that needs a release).
   PRB-007 stays `open` and gets a note that its object-store credentials are resolved by this CR.
@@ -405,6 +472,26 @@ Verification and release
   store and deployment topology match AC-1 to AC-6: no console, bucket administration through the initialiser and
   scripted S3 calls,
   key generation, the network, and the component chosen by the ADR.
+
+Audit persistence (PRB-052, SR-023; added by D-7)
+
+- **AC-21 (failure events persist, SR-023 AC 1 and AC 2):** For each of `AUTHZ_DENIED` (403),
+  `LOGIN_FAILURE` (401; unknown email, locked account, and wrong password), `ACCOUNT_LOCKOUT` (401,
+  on the threshold failure), `ACTIVATION_FAILED` (401), the `DICOM_STUDY_READ` FAILURE (403) and
+  the `ATTACHMENT_ACCESS` FAILURE (502), a test sends the request through the application with the
+  real `get_db` against a real PostgreSQL database, receives the error status, and then finds the
+  event's row (action, outcome, and actor or target) in `audit_log` from a separate session. With
+  every event written back into the request transaction (the old behaviour), these tests fail.
+  The mutation result is recorded.
+- **AC-22 (one mechanism, no partial commit):** `AuditService.record` has no `durable` parameter,
+  `AuditRepository` has no method that commits the request session, and no file under
+  `backend/app` or `backend/modules` contains `durable=`. A real-database test shows that when a
+  request adds a business row, records a FAILURE event and then ends in an error, the business row
+  is absent and the FAILURE row is present.
+- **AC-23 (502 problem body):** In the regenerated `backend/openapi/openapi.json` and
+  `frontend/src/api/generated/openapi.ts`, the 502 responses of `GET /attachments/{attachment_id}`
+  and the DICOM viewer `GET /studies/{attachment_id}` declare `application/problem+json` with the
+  `ProblemDetail` schema, and a contract test asserts it.
 
 ## Verification approach
 
@@ -426,6 +513,9 @@ risk-control measures after a change).
   checksums.
 - **Records (AC-8, AC-12..AC-15, AC-18, AC-19):** `traceability-check`, and human approval of the
   ADR, the SOUP records, RISK-012, RISK-010 and the SRs.
+- **Audit persistence (AC-21, AC-22, AC-23):** real-database API tests per path (testcontainers
+  PostgreSQL, the real `get_db`), an atomicity test, a mutation run, and a contract test for the
+  502 body. All are recorded in TS-009 and TS-007.
 - **Regression (AC-17):** the full CI pipeline on the branch head, including the TS-007
   attachment tests.
 
@@ -493,6 +583,14 @@ Each carries a recommended answer. None is decided here.
   (Q-3). *Recommended: record it on PRB-007 (#27) as a separate key-separation item, rather than
   widen this CR.*
 
+- **Q-8 (PRB-052 notification, §9.3; for the human; added by D-7):** PRB-052's safety evaluation
+  leaves open whether users must be notified that failure events were not kept. *Recommended: no
+  notification.* No release exists (`docs/releases/` is absent, no git tag; A-1), so no
+  installation relies on the audit trail. No patient harm follows (PRB-052, safety evaluation). PRB-052's
+  sentence "All released versions with the audit trail are affected" should be corrected at
+  resolution to "no released version". Revisit this only if a non-development installation
+  exists.
+
 ## Decisions
 
 - **D-1 (human, 2026-10-22, from PRB-042, PRB-043 and RISK-012):** the controls are made in this
@@ -529,6 +627,18 @@ Each carries a recommended answer. None is decided here.
   - Q-7: the shared `AT_REST_ENCRYPTION_KEY` is carried over; key separation is tracked on PRB-007
     (#27).
 
+- **D-7 (human, in chat, 2026-10-30):** PRB-052 is added to CR-002's scope ("Add to CR-002").
+  The Software Architect role amended the CR: scope item 9, AC-21..AC-23, PRB-052 added to AC-19,
+  the change analysis for RISK-006 (RISK-006 1.2 `in_review`), TASK-183, and
+  [ADR-0016](../design/adr/0016-failure-audit-events-on-own-transaction.md) (`Proposed`). SR-023
+  is unchanged. Q-8 is open. The amendment becomes binding with the human's approval of TASK-183,
+  ADR-0016 and RISK-006 1.2.
+
+- **D-8 (human, in chat, 2026-10-30):** the PRB-052 amendment is approved ("Approve amendment"):
+  AC-21..AC-23, TASK-183, ADR-0016 (now Accepted) and RISK-006 1.2's control plan, with its
+  residual pending verification by TASK-183. Q-8 is answered with the recommendation: no
+  notification is needed for PRB-052 (no release exists).
+
 ## Implementation plan
 
 The plan is the TASK records below. Under the overlay there is no `docs/plans/<feature>.md`.
@@ -543,7 +653,7 @@ ADR.**
   record cleared once in this CR, by the first task that changes it. Later tasks keep that
   version and add to its history entry (CR-001, CR-003). Here that applies to ADD-012:
   TASK-175 bumps it, and TASK-176 and TASK-180 add to it.
-- New records: ADD-025 (Plan stage), TS-014 (TASK-174), SOUP-036 (TASK-172).
+- New records: ADD-025 (Plan stage), TS-014 (TASK-174), SOUP-036 (TASK-172), TASK-183 (D-7).
 
 | Order | Task | CR-002 AC | SR | Depends on | Size | Docker host / network |
 |---|---|---|---|---|---|---|
@@ -551,7 +661,8 @@ ADR.**
 | 2 | [TASK-173](../design-outputs/tasks/TASK-173-verify-stored-checksum-on-download.md) Verify the stored checksum on every attachment download | AC-5, AC-15 (SR-013) | SR-013 | none (independent of Q-1) | M | None, apart from the real-database tests |
 | 3 | [TASK-174](../design-outputs/tasks/TASK-174-refuse-weak-object-store-credentials.md) Refuse default or weak object-store credentials at start-up | AC-2, AC-15 (SR-040) | SR-040 | none (independent of Q-1) | M | Docker host |
 | 4 | [TASK-175](../design-outputs/tasks/TASK-175-initialise-bucket-with-default-encryption.md) Initialise the bucket from the backend image with default encryption, and retire `mc` | AC-4, AC-6, AC-12 (SOUP-023), AC-19 (PRB-039) | SR-040, SR-022 | TASK-174 | M | Reference workstation (cached MinIO image) |
-| — | **Checkpoint A**, after tasks 2–4 | AC-17 (interim) | — | — | — | Docker host |
+| 4a | [TASK-183](../design-outputs/tasks/TASK-183-commit-failure-audit-events-independently.md) Commit failure audit events independently of the request transaction (added by D-7) | AC-21, AC-22, AC-23, AC-19 (PRB-052) | SR-023 | TASK-173. Independent of TASK-172, TASK-174..179 and of Q-1; start after TASK-174 is committed | M | Docker host (testcontainers) |
+| — | **Checkpoint A**, after tasks 2–4a | AC-17 (interim) | — | — | — | Docker host |
 | 5 | [TASK-176](../design-outputs/tasks/TASK-176-replace-minio-server-with-seaweedfs.md) Replace the MinIO server with SeaweedFS pinned by tag and digest | AC-1, AC-9 (local), AC-4/AC-6 (re-run), AC-12 (SOUP-022, pins), AC-19 (PRB-042) | SR-028, SR-022, SR-040 | TASK-172, TASK-175 | M | Docker host plus an empty `docker:dind` daemon. Network |
 | 6 | [TASK-177](../design-outputs/tasks/TASK-177-restrict-object-store-network.md) Restrict the object store to the backend and the bucket initialiser | AC-3 | SR-040 | TASK-176 | S | Docker host |
 | 7 | [TASK-178](../design-outputs/tasks/TASK-178-migrate-objects-to-new-store.md) Migrate existing objects and key material, rehearsed against a backup | AC-11 | SR-022, SR-013 | TASK-176 (TASK-173 for the API check) | M | Reference workstation (cached MinIO image, populated `minio_data`) |
@@ -563,6 +674,8 @@ ADR.**
 
 **Parallel work.**
 
+- TASK-183 shares no source file with TASK-174..179 and can run in parallel with them. It edits
+  `backend/app/attachments/service.py` after TASK-173 and nothing else in the plan edits that file.
 - TASK-172, TASK-173 and TASK-174 share no file and can run in parallel. TASK-173 and TASK-174
   can start before the Q-1 answer.
 - TASK-175 and TASK-176 both edit the object-store block of `infra/docker-compose.yml`, so they
@@ -571,13 +684,14 @@ ADR.**
   that TASK-178 removes the `minio_data` declaration, so commit TASK-177 first.
 - The Document Writer may take the arc42 part of TASK-180.
 
-**Checkpoint A (after TASK-173..175, still on MinIO, reference workstation).**
+**Checkpoint A (after TASK-173..175 and TASK-183, still on MinIO, reference workstation).**
 
 - The backend suite passes (coverage ≥ 85 %), the frontend suite passes, and all CI jobs are green.
 - `python3 infra/check_image_pins.py` exits 0, and the infrastructure tests pass.
 - On a fresh Compose project, the stack starts, the bucket has `AES256` default encryption, a
   weak key stops the preflight, and a substituted attachment is refused.
 - `infra/smoke-test.sh` passes (17/17 at least).
+- A denied attachment read (403) leaves an `AUTHZ_DENIED` row in `audit_log` (TASK-183).
 
 **Checkpoint B (after TASK-176..179).**
 
@@ -598,7 +712,7 @@ Every runtime change of this CR is then in place. Tasks 9–11 change records on
 | (c) Interim | Binary-verification design (minisign key source, pinned base image) | Build from archived binaries with SHA-256 and minisign checks, plus a tampered-binary negative test (AC-10). SOUP-022 updated, not obsolete | Dropped (AC-11 met by ADR-0015) | TASK-181 keeps RISK-010 path 2 at 3 × 2. TASK-180 describes the interim build |
 | (d) Interim, then replacement | As (c) | As (c) | As (c) | A follow-up CR repeats (a) or (b) |
 
-TASK-173, 174, 175, 177, 179, 180 and 182 are the same under every answer.
+TASK-173, 174, 175, 177, 179, 180, 182 and 183 are the same under every answer.
 
 ### AC coverage
 
@@ -622,10 +736,13 @@ TASK-173, 174, 175, 177, 179, 180 and 182 are the same under every answer.
 | AC-16 | TASK-182 (Checkpoint B in the interim) |
 | AC-17 | every task (its suites); Checkpoints A and B; TASK-182 |
 | AC-18 | every task (scoped); TASK-182 (project) |
-| AC-19 | TASK-175 (PRB-039), TASK-176 (PRB-042), TASK-179 (PRB-036), TASK-181 (PRB-043, PRB-007), TASK-182 (check) |
+| AC-19 | TASK-175 (PRB-039), TASK-176 (PRB-042), TASK-179 (PRB-036), TASK-181 (PRB-043, PRB-007), TASK-183 (PRB-052), TASK-182 (check) |
 | AC-20 | TASK-180 (see Q-6) |
+| AC-21 | TASK-183; TASK-182 (suite run) |
+| AC-22 | TASK-183 |
+| AC-23 | TASK-183; `openapi-lint` CI job (AC-17) |
 
-Every AC-1..AC-20 maps to at least one task.
+Every AC-1..AC-23 maps to at least one task.
 
 ### Plan risks
 
@@ -634,7 +751,8 @@ Every AC-1..AC-20 maps to at least one task.
 | SeaweedFS fails part of the contract: `HeadObject` does not report `AES256`, the bucket encryption API differs, or boto3 default checksums are rejected | Option (b) is not viable | TASK-172 is first and is a gate. On a no-go, report to the human with option (a) or (c); TASK-173 and TASK-174 are unaffected |
 | A new SeaweedFS release or advisory lands during the CR (releases every few days) | The pinned digest is behind a fix | TASK-172 re-resolves the version. SOUP-036 records the review date. The PLAN-002 monthly check (TASK-172) catches later ones |
 | Internal SeaweedFS ports (master, volume, filer, gRPC) are unauthenticated | Anyone on the store network can bypass S3 auth | Only the backend and the initialiser share the network (TASK-177). TASK-172 binds what it can to loopback and lists the rest. Accepted residual reasoning goes in RISK-012 (TASK-181) |
-| The FAILURE audit row is rolled back with the failed request | AC-5 audit evidence is missing | TASK-173 follows the authorization-denied pattern and tests that the row persists |
+| The FAILURE audit row is rolled back with the failed request | AC-5 audit evidence is missing | TASK-173 follows the authorization-denied pattern and tests that the row persists. *Realised as PRB-052 (app-wide); fixed by TASK-183 (D-7)* |
+| Independent audit rows commit outside test-held transactions (TASK-183) | Real-database tests leak rows into each other; flaky counts | Each persistence test deletes its own `audit_log` rows; DICOM tests run in their own session (TASK-173 QA) |
 | The fresh-host check deletes the only copy of the MinIO image | Migration and rollback become impossible | No pruning on the reference workstation; the fresh host is a disposable `docker:dind` or a CI runner (TASK-176, TASK-182) |
 | A port cannot be published from an `internal` network | The CI job cannot reach the store | The CI override adds a CI-only network (TASK-177, TASK-179) |
 | No Docker daemon on the workstation (seen 2026-10-29) | Started-stack checks cannot run | Use the reference workstation with Docker Desktop running. CI covers AC-7 and the AC-9 CI part |
@@ -665,3 +783,14 @@ Every AC-1..AC-20 maps to at least one task.
 - 1.4 (2026-10-30) — Status `open → in_progress`: the plan was approved at the Plan gate (D-6)
   and Build started with TASK-172 (approved by QA).
 - 1.5 (2026-10-30) — PRB candidate P-1 raised by the human as PRB-051 (minor, outside this CR).
+- 1.6 (2026-10-30) — D-7: PRB-052 added to scope (`resolves` link, Reason, scope item 9). New
+  AC-21..AC-23, with PRB-052 added to AC-19. "Requirements decision": SR-023 is unchanged. Change
+  analysis for PRB-052: RISK-006 1.2 `in_review`, with the residual pending verification. TASK-183
+  (order 4a, before Checkpoint A) and ADR-0016 (`Proposed`). New Q-8 (notification). AC coverage,
+  Checkpoint A, parallel work and plan risks updated.
+- 1.7 (2026-10-30) — D-8: the human approved the PRB-052 amendment (AC-21..23, TASK-183,
+  ADR-0016 Accepted, RISK-006 1.2 control plan) and answered Q-8 (no notification). TASK-181
+  results added to "Escalations" (F-1..F-5, no new RISK, PRBs raised during CR-002) and
+  "Results per record (AC-14)"; "For the human to accept" replaced, including PRB-057 as a
+  release-gate condition and PRB-043 closed in the REL commit. Also carries `resolves` → PRB-055
+  (committed earlier with TASK-179) and TC-008.8 for the CI SSE row.

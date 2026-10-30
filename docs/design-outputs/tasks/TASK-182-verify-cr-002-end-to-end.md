@@ -66,10 +66,12 @@ gate.
    - **Do not prune images on the reference workstation.** Its cached MinIO image is the only
      copy, and TASK-178's rollback needs it.
 2. `python3 infra/check_image_pins.py` exits 0.
-3. `bash infra/smoke-test.sh` reports every check passing: the 17 existing checks plus those
-   added by TASK-176 and TASK-177. Record N/N.
+3. `bash infra/smoke-test.sh` reports every check passing (26 checks after TASK-179; record N/N).
+   The temporary `.env` needs `CORS_ORIGINS=[]` until PRB-056 is fixed; say so in the evidence.
 4. **Suites (AC-17):**
    - `cd backend && uv run pytest --cov=app --cov-fail-under=85`;
+   - `cd backend && uv run pytest modules/dicom_viewer/tests` (separate session; includes
+     TASK-183's DICOM persistence test, AC-21);
    - `cd frontend && npm test`;
    - lint and type-check in both;
    - every job in `.github/workflows/ci.yml`, including `object-store-integration`, is green on
@@ -80,9 +82,12 @@ gate.
      except the retiring ones (the command in TASK-181).
    - AC-15: SR-013, SR-022, SR-028 and SR-040 are `in_review` or later, and TS-007, TS-008,
      TS-013 and TS-014 `verify` them with a test case for each new AC.
-   - AC-19: PRB-036, 039, 042 and 043 are `resolved` with `## Investigation` and
+   - AC-19: PRB-036, 039, 042, 043 and 052 are `resolved` with `## Investigation` and
      `## Resolution`. None is `closed`. PRB-007 is `open` with its note.
    - CR-002's AC coverage table and "Escalations" are complete.
+   - RISK-012 1.1 and RISK-010 1.5: their residual conditions hold (the hosted
+     `object-store-integration` run and the amd64 fresh-host run passed; PLAN-002 1.2 approved).
+     Otherwise return both to re-score (TASK-181 QA, M-3).
 6. **AC-18:** `traceability-check` over the whole project reports 0 errors. List the warnings,
    with the reason for each (for example W5 for approved records that point at `in_review` ones,
    as in CR-003).
@@ -90,7 +95,8 @@ gate.
 ## Acceptance criteria
 
 - [ ] CR-002 **AC-9**, **AC-16**, **AC-17** and **AC-18**, as above.
-- [ ] CR-002 **AC-12**, **AC-15** and **AC-19** confirmed.
+- [ ] CR-002 **AC-12**, **AC-15** and **AC-19** confirmed (AC-19 includes PRB-052, added by
+      CR-002 D-7).
 
 ## Verification
 
