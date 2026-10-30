@@ -75,7 +75,7 @@ Acceptance is the human's decision: every record is left `in_review`.
 - **RISK-011** (bump and clear the approval record):
   - link SOUP-022 → SOUP-036;
   - the row "Server-side encryption enforced on the object store, verified at bring-up" gains
-    SR-022 AC 4 and AC 5, TASK-175 and TASK-179, and TS-008 TC-008.6 and TC-008.7;
+    SR-022 AC 4 and AC 5, TASK-175 and TASK-179, and TS-008 TC-008.6 and TC-008.8;
   - add a row for the rehearsed migration (TASK-178);
   - body "MinIO (SOUP-022)" becomes generic;
   - note the carried-over key reuse (Q-3, PRB-007);

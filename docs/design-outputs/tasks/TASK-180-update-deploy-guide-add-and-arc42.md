@@ -64,7 +64,7 @@ deployment guide is the "information for safety" side of RISK-012's controls.
 - **ADD-024**:
   - bump the version and clear the approval record;
   - `U-INF-CIPipeline` gains the job `object-store-integration` and the CI override file;
-  - Verification lists TC-008.7.
+  - Verification lists TC-008.8.
 - **ADD-025**:
   - check the units against the implemented services;
   - check the SOUP links (SOUP-019, SOUP-036; none to SOUP-022 or SOUP-023);

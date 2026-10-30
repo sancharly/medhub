@@ -80,7 +80,7 @@ override, as a job step. This is the CI form of Q-4's answer, not a smoke-test s
      `OBJECT_STORE_INTEGRATION=1 OBJECT_STORE_ENDPOINT=http://127.0.0.1:<port> uv run pytest -m
      object_store -v`;
    - always run `docker compose down -v` at the end. The volume is disposable here.
-3. **TS-008** TC-008.7: the CI job and its three assertions. **ADD-024** gets the new job in
+3. **TS-008** TC-008.8: the CI job and its three assertions. **ADD-024** gets the new job in
    `U-INF-CIPipeline` (TASK-180 records it).
 4. **PRB-036** → `resolved`, with a `## Resolution` that names the job and the test module.
 
@@ -92,7 +92,7 @@ override, as a job step. This is the CI form of Q-4's answer, not a smoke-test s
 - [ ] CR-002 **AC-4** re-checked in CI. **AC-9** CI part: the store is pulled and started on a
       fresh amd64 runner.
 - [ ] CR-002 **AC-19** (PRB-036 part): PRB-036 is `resolved`.
-- [ ] CR-002 **AC-15** (SR-022 part): TS-008 `verifies` SR-022 and lists TC-008.6 and TC-008.7.
+- [ ] CR-002 **AC-15** (SR-022 part): TS-008 `verifies` SR-022 and lists TC-008.6 and TC-008.8.
 
 ## Verification
 
