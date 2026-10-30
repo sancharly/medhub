@@ -73,7 +73,7 @@ backend/app/{main.py, core/(config,security,logging), db/(models,repositories,al
   modules/(host), api/(routers,deps,errors,schemas), workers/(celery)}
 backend/modules/dicom_viewer/        # installable module package (entry point: medhub.modules)
 backend/tests/
-frontend/src/{app/(shell,routing), api/(generated client), auth/, core/,
+frontend/src/{app/(shell,routing), api/(client.ts, generated/ types), auth/, core/,
   modules/(registry), modules/dicom-viewer/}
 frontend/tests/
 infra/{docker-compose.yml, reverse-proxy/, .env.example}
@@ -87,7 +87,8 @@ infra/{docker-compose.yml, reverse-proxy/, .env.example}
   Errors are RFC 7807 `application/problem+json` ([api-design.md](../specifications/api-design.md)).
   Security-relevant actions call `AuditService` (SR-023). ORM-only parameterized queries (SR-031).
 - **Secrets / config**: 12-factor, env-injected, never committed (NFR-007).
-- **Frontend**: TypeScript only; typed client generated from OpenAPI; cookie + CSRF auth;
+- **Frontend**: TypeScript only; hand-written `ApiClient` (`frontend/src/api/client.ts`) using
+  types generated from the OpenAPI schema (ADD-023); cookie + CSRF auth;
   MUI for accessible/responsive UI; module code lazy-loaded.
 - **Stack (exact):** Python 3.12, FastAPI, Pydantic v2, SQLAlchemy 2.x, Alembic, Celery, Redis,
   pydicom, fhir.resources, argon2-cffi, PostgreSQL 16, MinIO (S3 / SSE-AES256); TypeScript,
