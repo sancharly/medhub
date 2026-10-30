@@ -4,7 +4,8 @@
 # Run after `docker compose up -d` to confirm topology is correct.
 #
 # SR-008: Data in transit must be encrypted (TLS 1.2+, HTTPS redirect, HSTS)
-# SR-016: PHI at rest must be encrypted (MinIO SSE-AES256)
+# SR-016: PHI at rest must be encrypted (object-store SSE-S3 AES256)
+# SR-040: object store has no console or admin option
 
 set -uo pipefail
 
@@ -52,7 +53,7 @@ fi
 echo ""
 echo "-- Service topology --"
 COMPOSE_SERVICES=$(docker compose -f "$COMPOSE_FILE" config 2>/dev/null | grep -E "^  [a-z]" | sed 's/://g' | tr -d ' ' || true)
-for svc in reverse-proxy backend frontend postgres redis minio celery-worker; do
+for svc in reverse-proxy backend frontend postgres redis object-store celery-worker; do
     if echo "$COMPOSE_SERVICES" | grep -q "^${svc}$"; then
         check "service '${svc}' defined" "ok"
     else
@@ -64,9 +65,9 @@ done
 echo ""
 echo "-- Port exposure (SR-008) --"
 # Check that only reverse-proxy has 'ports:' in the raw compose file (grep-based).
-# The backend, frontend, postgres, redis, minio, celery-worker use 'expose:' (internal only).
+# The backend, frontend, postgres, redis, object-store, celery-worker use 'expose:' (internal only).
 UNEXPECTED_PORTS=0
-for svc in backend frontend postgres redis minio celery-worker; do
+for svc in backend frontend postgres redis object-store celery-worker; do
     # Look for ports: under each service block in the compose file
     if grep -A5 "^  ${svc}:" "$COMPOSE_FILE" | grep -q "^\s*ports:"; then
         check "service '${svc}' does NOT publish external ports" "FAIL — has ports: entry"
@@ -101,19 +102,27 @@ else
     check "TLS 1.2+ enforced (SR-008)" "missing ssl_protocols TLSv1.2 in nginx.conf"
 fi
 
-# ── 7. MinIO SSE configured ──────────────────────────────────────────────────
+# ── 7. Object-store SSE and no console ───────────────────────────────────────
 echo ""
 echo "-- At-rest encryption (SR-016) --"
-if docker compose -f "$COMPOSE_FILE" config 2>/dev/null | grep -q "MINIO_KMS_SECRET_KEY"; then
-    check "MinIO SSE-AES256 key configured (SR-016)" "ok"
+if docker compose -f "$COMPOSE_FILE" config 2>/dev/null | grep -q "WEED_S3_SSE_KEY"; then
+    check "object-store SSE key configured (SR-022)" "ok"
 else
-    check "MinIO SSE-AES256 key configured (SR-016)" "MINIO_KMS_SECRET_KEY missing from minio service"
+    check "object-store SSE key configured (SR-022)" "WEED_S3_SSE_KEY missing from object-store service"
+fi
+# Static check on the store's command: no console or admin option (SR-040 AC 1).
+STORE_CMD=$(docker compose -f "$COMPOSE_FILE" config --format json 2>/dev/null \
+    | python3 -c 'import json,sys; print(" ".join(json.load(sys.stdin)["services"]["object-store"]["command"]))' 2>/dev/null || true)
+if [ -n "$STORE_CMD" ] && ! echo "$STORE_CMD" | grep -qiE "console|admin|webdav|sftp|9001"; then
+    check "object store has no console or admin option (SR-040 AC 1)" "ok"
+else
+    check "object store has no console or admin option (SR-040 AC 1)" "command missing or names a console/admin option: $STORE_CMD"
 fi
 
 # ── 8. Named volumes defined for persistent data ─────────────────────────────
 echo ""
 echo "-- Data persistence --"
-for vol in postgres_data redis_data minio_data; do
+for vol in postgres_data redis_data object_store_data minio_data; do
     if grep -q "^  ${vol}:" "$COMPOSE_FILE"; then
         check "named volume '${vol}' defined" "ok"
     else

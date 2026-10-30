@@ -3,7 +3,7 @@ id: SOUP-036
 type: soup
 title: SeaweedFS object store
 status: in_review
-version: "1.0"
+version: "1.2"
 author: Carlos Santiago Liceras
 created: "2026-10-30"
 updated: "2026-10-30"
@@ -24,8 +24,8 @@ tags:
 
 Replaces MinIO ([SOUP-022](SOUP-022-minio.md)) as the self-hosted S3-compatible store
 ([ADR-0015](../design/adr/0015-object-store-component-after-minio.md), CR-002 D-6). Created by
-TASK-172 from a recorded run of the published image. Nothing under `infra/` uses it yet
-(TASK-176).
+TASK-172 from a recorded run of the published image. `infra/docker-compose.yml` uses it from
+TASK-176 (service `object-store`).
 
 ## Identification
 
@@ -95,7 +95,7 @@ off or bound to loopback (below).
   | Port | Purpose | Bind | Reachable from the network |
   |---|---|---|---|
   | 8333 | S3 HTTP (the only port the backend uses) | 0.0.0.0 | Yes, by design |
-  | 18333 | S3 gRPC (cannot be bound separately: it follows `-s3.ip.bind`) | 0.0.0.0 | Yes. TASK-177 limits it to the `object-store` network |
+  | 18333 | S3 gRPC (cannot be bound separately: it follows `-s3.ip.bind`) | 0.0.0.0 | Yes. TASK-177 limits it to the `object-store` network. It carries only the IAM-cache RPCs, each of which accepts local callers only when no filer signing key is set (upstream `weed/s3api/s3api_server_grpc.go`, lines 25-58, as read by QA) |
   | 9333, 19333 | master HTTP, gRPC | 127.0.0.1 | No (connection refused from a peer container) |
   | 8080, 18080 | volume server HTTP, gRPC | 127.0.0.1 | No |
   | 8888, 18888 | filer HTTP, gRPC | 127.0.0.1 | No |
@@ -107,13 +107,24 @@ off or bound to loopback (below).
   `weed server -dir=/data -ip=127.0.0.1 -ip.bind=127.0.0.1 -filer -s3 -s3.ip.bind=0.0.0.0
   -s3.port.iceberg=0 -s3.port.lance=0 -master.volumeSizeLimitMB=1024 -master.telemetry=false`.
   Environment: `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` (the admin identity, from
-  `OBJECT_STORE_ACCESS_KEY` and `OBJECT_STORE_SECRET_KEY`) and `WEED_S3_SSE_KEY` (64 hex
-  characters; the log reads "SSE-S3 KeyManager: Derived KEK from s3.sse.key config").
+  `OBJECT_STORE_ACCESS_KEY` and `OBJECT_STORE_SECRET_KEY`) and `WEED_S3_SSE_KEY`: any
+  string. The KEK is derived from it with HKDF-SHA256 (unsalted); only `s3.sse.kek` must be hex
+  (upstream `weed/s3api/s3_sse_s3.go`, around lines 300, 441 and 531-552, as read by QA in
+  TASK-176 round 1). MedHub passes `AT_REST_ENCRYPTION_KEY` (base64 of 32 bytes), which the
+  started stack accepted; the log reads "SSE-S3 KeyManager: Derived KEK from s3.sse.key config".
 - **Not `weed mini`.** The all-in-one `weed mini` command binds master, volume and filer to
   every interface, and its `-ip.bind` is global, so only `weed server` with `-s3.ip.bind` can
   keep them on loopback. `-master.telemetry=false` is needed because telemetry to
   `telemetry.seaweedfs.com` is on by default.
 - **Other SOUP it depends on:** none at run time. The backend side is boto3 (SOUP-019).
+
+- **Start-up log and the KEK.** With `WEED_S3_SSE_KEY` set, the log says "SSE-S3 KeyManager:
+  neither s3.sse.kek.passphrase nor WEED_S3_SSE_KEK_PASSPHRASE is set; the KEK will be stored on
+  the filer in plaintext" and then "Derived KEK from s3.sse.key config". The first line is
+  misleading for this configuration. Checked on the started stack (TASK-176, 2026-10-30): the
+  filer root holds only `/buckets` (`GET http://127.0.0.1:8888/`, `Accept: application/json`,
+  inside the container), and the `AT_REST_ENCRYPTION_KEY` value is not found in `/data`
+  (`grep -rlF`, exit 1). Nothing is stored in plaintext; the warning is ignored.
 
 ## Anomaly list review
 
@@ -205,3 +216,8 @@ a tool check.
 - 2026-10-30 — Version 1.0: record created at 4.51 (`sha256:f7a49e3f…134b8`), replacing
   MinIO SOUP-022 under CR-002 / ADR-0015 (TASK-172). First anomaly-list review. Contract
   confirmed against the published image. Pinned in `infra/` by TASK-176.
+- 2026-10-30 — Version 1.1: `infra/docker-compose.yml` pins this image by tag and index digest
+  (TASK-176); "Used by" now true. Environment notes the misleading KEK start-up log line and the
+  check that nothing is stored. `soup_version`, digest and anomaly review unchanged.
+- 2026-10-30 — Version 1.2: TASK-176 round 2. `WEED_S3_SSE_KEY` is any string (HKDF-SHA256), not
+  64 hex characters; port 18333 carries only the IAM-cache RPCs. No version, digest or review change.

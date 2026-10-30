@@ -7,7 +7,7 @@ import sys
 import boto3
 import pytest
 from botocore.config import Config
-from botocore.exceptions import EndpointConnectionError
+from botocore.exceptions import ConnectionClosedError, EndpointConnectionError, ReadTimeoutError
 from botocore.stub import Stubber
 
 from app.core.object_store_init import InitError, initialise
@@ -146,6 +146,24 @@ def test_endpoint_unreachable_fails() -> None:
 
     with pytest.raises(InitError, match="unreachable"):
         initialise(Unreachable(), BUCKET)
+
+
+@pytest.mark.parametrize(
+    "error",
+    [
+        ConnectionClosedError(endpoint_url="http://store:9000"),
+        ReadTimeoutError(endpoint_url="http://store:9000"),
+    ],
+)
+def test_other_transport_error_is_one_line_not_a_traceback(error) -> None:
+    """TASK-175 QA carry-over: any botocore transport error becomes an InitError."""
+
+    class Broken:
+        def head_bucket(self, **_: object) -> None:
+            raise error
+
+    with pytest.raises(InitError, match=f"object store error: {type(error).__name__}"):
+        initialise(Broken(), BUCKET)
 
 
 def _run_main(extra_env: dict[str, str]) -> subprocess.CompletedProcess[str]:

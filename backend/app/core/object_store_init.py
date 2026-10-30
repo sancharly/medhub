@@ -20,6 +20,7 @@ from typing import Any
 import boto3
 from botocore.config import Config
 from botocore.exceptions import (
+    BotoCoreError,
     ClientError,
     EndpointConnectionError,
     NoCredentialsError,
@@ -92,6 +93,10 @@ def initialise(client: Any, bucket: str) -> None:
         raise InitError(unreachable_message(exc)) from exc
     except NoCredentialsError as exc:
         raise InitError("no object-store credentials") from exc
+    except BotoCoreError as exc:
+        # Any other transport failure (closed connection, read timeout): one line, no traceback.
+        failure = InitError(f"object store error: {type(exc).__name__}")
+        raise failure from exc
 
 
 def main() -> int:

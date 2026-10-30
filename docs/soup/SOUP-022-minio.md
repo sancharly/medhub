@@ -2,18 +2,14 @@
 id: SOUP-022
 type: soup
 title: MinIO object storage
-status: approved
-version: "1.2"
+status: obsolete
+version: "1.3"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
-updated: "2026-10-23"
+updated: "2026-10-30"
 manufacturer: MinIO, Inc.
 soup_version: RELEASE.2025-09-07T16-13-09Z
 anomaly_review: "2026-10-22"
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-10-23"
-approved_digest: 50ba4c1e482c1fc3e53b7f8358cefc1079d538b30421f898e94faf4b905e3887
-approval_note: self-approved
 links: []
 tags:
   - soup
@@ -183,3 +179,8 @@ accountable. Hazard-relevant anomalies go to `risk-management`; defects affectin
   4 × 2 alarp), PRB-042 (major) and PRB-043 (critical; no release before CR-002, per the human's
   decision of 2026-10-22). Base-OS packages not reviewed individually (gap stated). `anomaly_review` set. No version change.
   Approval record cleared for re-approval.
+- 2026-10-30 — Version 1.3: status `obsolete`, replaced by [SOUP-036](SOUP-036-seaweedfs.md)
+  (SeaweedFS 4.51), CR-002 TASK-176, ADR-0015. The `minio` service and the
+  `minio/minio:RELEASE.2025-09-07T16-13-09Z` image reference left `infra/docker-compose.yml`; no
+  component of this record remains in the deployment definition. The `minio_data` volume is kept
+  declared, unmounted, until TASK-178 migrates its objects. Approval record cleared.

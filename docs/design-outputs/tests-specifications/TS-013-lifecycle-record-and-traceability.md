@@ -3,14 +3,10 @@ id: TS-013
 type: test-specification
 title: Lifecycle record and traceability verification
 status: approved
-version: "1.4"
+version: "1.5"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-10-30"
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-10-30"
-approved_digest: 48c92e412ad44bf752caba0e3a4d341ec1d4fd9b96ab1f61f33a6024e642dea4
-approval_note: self-approved
 links:
   - target: SR-028
     relation: verifies
@@ -59,6 +55,7 @@ Python 3 (standard library) and `git`; TC-013.7 needs `uv`; TC-013.8 needs a Doc
 | TC-013.7 | SR-028 (AC-5) | `cd backend && uv lock --check` (CI job `backend-quality`, step "Check the lock file is current") | Every Python runtime dependency, `boto3` included, resolves to one locked version: `uv.lock` is in sync with `[project] dependencies` | Exit 0; `boto3` is declared under `[project] dependencies` (not an extra or a dependency group) and `uv.lock` holds exactly one `boto3` entry. CI job `backend-quality`, step "Check the lock file is current", runs it on every pull request, before `uv sync --frozen` (which does not itself compare the lock with the manifest) |
 | TC-013.8 | SR-028 (AC-5) | CI job Docker Build (`.github/workflows/ci.yml`), step "Check production dependency set": `docker run --rm --entrypoint python medhub-backend:ci -c "import importlib.util, sys; import boto3; sys.exit(importlib.util.find_spec('fakeredis') is not None)"` | The production image, built with `uv sync --frozen --no-dev`, contains every runtime SDK the code imports and does not contain `fakeredis`, which only the tests use and which lives in the `dev` dependency group (PRB-033) | Exit 0 in the built backend image: `import boto3` succeeds and `fakeredis` is absent (exit 1 if `fakeredis` is present; a missing `boto3` raises and also fails the step). Locally, `uv sync --frozen --no-dev` into a scratch environment gives the same result |
 | TC-013.9 | SR-028 (AC-6) | Review, before QA approval and at release: for each `soup` record whose status is not `obsolete`, compare `soup_version` with the version the build resolves (`backend/uv.lock` for Python packages, `frontend/package-lock.json` top-level entries for npm packages, the release tag of the pinned image reference in `infra/docker-compose.yml`, `backend/Dockerfile` and `frontend/Dockerfile` for images and the Python runtime); read the record's `anomaly_review` date and its "Anomaly list review" section; then run `medical-records:traceability-check` over `docs/` | Every non-obsolete `soup_version` equals the version the build resolves (one version per item; for images, the identical tag at every reference). Every non-obsolete record has an `anomaly_review` date no older than `soup_anomaly_max_age_days` (`docs/medtrace.yml`, 365) on the day of the check, and its "Anomaly list review" section cites each source reviewed by name and URL for that exact version and does not read "Not yet performed" | No version mismatch; no record without a dated, sourced review; no `soup_anomaly_review_stale` finding for a non-obsolete record in the committed gap report. At release, the age is measured to the release date |
+| TC-013.10 | SR-028 (AC-7) | Manual, steps in TASK-176 Verification: on a Docker daemon with an empty image store (a disposable `docker:dind` pinned by digest, started with no volume of cached images; on an arm64 host the client sets `DOCKER_DEFAULT_PLATFORM=linux/amd64`), from the version-controlled sources of the branch: `docker compose -p <name> build` then `docker compose -p <name> up -d` | Every image is obtained from a public registry by its pinned digest (`chrislusf/seaweedfs:4.51@sha256:f7a49e3f…134b8` included) or built from the repository; no image is taken from a local cache; the stack reaches the state where `object-store` is healthy, `object-store-preflight` and `object-store-init` exited 0 and `backend` is started; the SeaweedFS image runs as `linux amd64` | Build and `up -d` exit 0; container states and `weed version` recorded in the TASK-176 "Verification results". CI evidence for the same on a hosted amd64 runner is TASK-179; the end-to-end run is TASK-182 |
 
 Coverage of SR-028 AC-5 and AC-6: AC-5 (one exact version per component; images by tag and
 digest; CI fails on a reference without a digest) is covered by TC-013.5 and TC-013.6 (digest and
@@ -107,3 +104,7 @@ TC-013.1 to TC-013.4 and TC-013.9 verify the process requirement by review, whic
   `node:24.22.2-trixie-slim`, CI `node-version` 24) instead of Node 20. The test cases do not change.
   TASK-168 (2026-10-30) adds to the environment the branch and commit of the TC-013.9 and CR-003
   end-to-end run. The test cases still do not change.
+- 1.5 (2026-10-30) — CR-002 (TASK-176). Version 1.4 was approved, so this change bumps the version and
+  clears the approval record. Added TC-013.10 for SR-028 AC-7 (pull and build on a daemon with no
+  cached images, amd64). Existing test cases unchanged (TC-013.9 reads the object-store pin from
+  SOUP-036 once the record is approved).

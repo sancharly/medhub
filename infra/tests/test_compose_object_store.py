@@ -61,14 +61,14 @@ class ComposeWiring(unittest.TestCase):
         self.assertEqual(svc["entrypoint"], ["python", "-m", "app.core.object_store_credentials"])
 
     def test_store_and_initialiser_wait_for_preflight(self):
-        for name in ("minio", "object-store-init"):
+        for name in ("object-store", "object-store-init"):
             dep = self.config["services"][name]["depends_on"]["object-store-preflight"]
             self.assertEqual(dep["condition"], "service_completed_successfully", name)
 
     def test_store_has_a_healthcheck_and_initialiser_waits_for_it(self):
         """PRB-039: the initialiser starts only once the store is healthy."""
-        self.assertIn("healthcheck", self.config["services"]["minio"])
-        dep = self.config["services"]["object-store-init"]["depends_on"]["minio"]
+        self.assertIn("healthcheck", self.config["services"]["object-store"])
+        dep = self.config["services"]["object-store-init"]["depends_on"]["object-store"]
         self.assertEqual(dep["condition"], "service_healthy")
 
     def test_initialiser_runs_once_from_the_backend_image_with_the_store_keys(self):
@@ -85,10 +85,63 @@ class ComposeWiring(unittest.TestCase):
         result, config = compose_config(GOOD, shell)
         self.assertEqual(result.returncode, 0, result.stderr)
         init_env = config["services"]["object-store-init"]["environment"]
-        minio_env = config["services"]["minio"]["environment"]
-        self.assertEqual(init_env["OBJECT_STORE_ACCESS_KEY"], minio_env["MINIO_ROOT_USER"])
-        self.assertEqual(init_env["OBJECT_STORE_SECRET_KEY"], minio_env["MINIO_ROOT_PASSWORD"])
+        store_env = config["services"]["object-store"]["environment"]
+        self.assertEqual(init_env["OBJECT_STORE_ACCESS_KEY"], store_env["AWS_ACCESS_KEY_ID"])
+        self.assertEqual(init_env["OBJECT_STORE_SECRET_KEY"], store_env["AWS_SECRET_ACCESS_KEY"])
         self.assertEqual(init_env["OBJECT_STORE_ACCESS_KEY"], shell["OBJECT_STORE_ACCESS_KEY"])
+
+    def test_backend_and_initialiser_resolve_the_same_store_settings(self):
+        """TASK-175 QA carry-over: a shell variable cannot split init and backend.
+
+        `environment:` beats `env_file`, so the backend must take endpoint, bucket and keys from
+        the same interpolation as the initialiser. GOOD's .env is not the backend's env_file, so
+        a decoy in infra/.env must not win either.
+        """
+        shell = {
+            "OBJECT_STORE_ENDPOINT": "http://decoy-store:1234",
+            "OBJECT_STORE_BUCKET": "decoy-bucket",
+            "OBJECT_STORE_ACCESS_KEY": "shell-override-access",
+            "OBJECT_STORE_SECRET_KEY": "shell-override-secret-key-1",
+        }
+        result, config = compose_config(GOOD, shell)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        init_env = config["services"]["object-store-init"]["environment"]
+        backend_env = config["services"]["backend"]["environment"]
+        for name, value in shell.items():
+            self.assertEqual(init_env[name], value, f"init {name}")
+            self.assertEqual(backend_env[name], value, f"backend {name}")
+        # Without overrides both use the same defaults, pointing at the object-store service.
+        _, defaults = compose_config(GOOD)
+        for name in ("OBJECT_STORE_ENDPOINT", "OBJECT_STORE_BUCKET"):
+            self.assertEqual(
+                defaults["services"]["backend"]["environment"][name],
+                defaults["services"]["object-store-init"]["environment"][name],
+            )
+        self.assertEqual(
+            defaults["services"]["backend"]["environment"]["OBJECT_STORE_ENDPOINT"],
+            "http://object-store:8333",
+        )
+
+    def test_object_store_is_pinned_internal_and_has_no_console_or_admin_option(self):
+        """TASK-176: SR-040 AC 1, SR-028 AC-5, SR-022 (SSE key), TS-014 TC-014.5."""
+        svc = self.config["services"]["object-store"]
+        self.assertRegex(svc["image"], r"^chrislusf/seaweedfs:4\.51@sha256:[0-9a-f]{64}$")
+        command = " ".join(svc["command"])
+        for option in ("console", "admin", "webdav", "sftp", "9001"):
+            self.assertNotIn(option, command.lower())
+        for option in ("-ip.bind=127.0.0.1", "-s3.ip.bind=0.0.0.0", "-master.telemetry=false",
+                       "-s3.port.iceberg=0", "-s3.port.lance=0"):
+            self.assertIn(option, command)
+        self.assertNotIn("ports", svc)
+        self.assertEqual([str(p) for p in svc["expose"]], ["8333"])
+        self.assertEqual(svc["environment"]["WEED_S3_SSE_KEY"], GOOD["AT_REST_ENCRYPTION_KEY"])
+        self.assertIn("object_store_data", self.config["volumes"])
+        # Declared for TASK-178 (migration) and rollback; `config` drops unused volumes, so read
+        # the file. No service may mount it.
+        self.assertRegex(COMPOSE.read_text(), r"(?m)^  minio_data:")
+        self.assertNotIn("minio", self.config["services"])
+        mounts = [v["source"] for v in svc["volumes"]]
+        self.assertEqual(mounts, ["object_store_data"])
 
     def test_backend_waits_for_a_successful_initialisation(self):
         """SR-040 AC 4: a failed initialisation keeps the backend down."""
@@ -101,7 +154,7 @@ class ComposeWiring(unittest.TestCase):
             self.assertNotIn("minio/mc", svc.get("image", ""), name)
 
     def test_preflight_checks_the_values_the_store_receives(self):
-        """A shell override must reach the preflight and minio identically (QA round 1)."""
+        """A shell override must reach the preflight and the object store identically (QA round 1)."""
         shell = {
             "OBJECT_STORE_ACCESS_KEY": "shell-override-access",
             "OBJECT_STORE_SECRET_KEY": "shell-override-secret-key-1",
@@ -110,10 +163,10 @@ class ComposeWiring(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         pre = config["services"]["object-store-preflight"]
         self.assertNotIn("env_file", pre)
-        minio_env = config["services"]["minio"]["environment"]
-        self.assertEqual(pre["environment"]["OBJECT_STORE_ACCESS_KEY"], minio_env["MINIO_ROOT_USER"])
-        self.assertEqual(pre["environment"]["OBJECT_STORE_SECRET_KEY"], minio_env["MINIO_ROOT_PASSWORD"])
-        self.assertEqual(minio_env["MINIO_ROOT_USER"], shell["OBJECT_STORE_ACCESS_KEY"])
+        store_env = config["services"]["object-store"]["environment"]
+        self.assertEqual(pre["environment"]["OBJECT_STORE_ACCESS_KEY"], store_env["AWS_ACCESS_KEY_ID"])
+        self.assertEqual(pre["environment"]["OBJECT_STORE_SECRET_KEY"], store_env["AWS_SECRET_ACCESS_KEY"])
+        self.assertEqual(store_env["AWS_ACCESS_KEY_ID"], shell["OBJECT_STORE_ACCESS_KEY"])
 
     def test_unset_keys_are_refused_by_compose_itself(self):
         for var in ("OBJECT_STORE_ACCESS_KEY", "OBJECT_STORE_SECRET_KEY"):

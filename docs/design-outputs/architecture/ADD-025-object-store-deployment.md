@@ -3,7 +3,7 @@ id: "ADD-025"
 type: architecture-doc
 title: "Object store deployment (SI-OBJSTORE)"
 status: in_review
-version: "1.0"
+version: "1.1"
 author: "Carlos Santiago Liceras"
 created: "2026-10-30"
 updated: "2026-10-30"
@@ -23,6 +23,8 @@ links:
     relation: relates_to
   - target: "SOUP-019"
     relation: relates_to
+  - target: "SOUP-036"
+    relation: relates_to
 tags:
   - software-item:SI-OBJSTORE
   - class:B
@@ -40,10 +42,10 @@ gate on credentials, its bucket initialisation with default encryption, and its 
 handled here in clear text beyond what the S3 server decrypts for an authorised backend request.
 
 The component (product and version) is decided by
-[ADR-0015](../../design/adr/0015-object-store-component-after-minio.md), which is `Proposed` until
-the human answers CR-002 Q-1. This record is written so that it holds for any of the ADR's options.
-TASK-176 adds the `relates_to` link to the chosen server's SOUP record, and TASK-175 and TASK-176
-remove the links to the retired MinIO records.
+[ADR-0015](../../design/adr/0015-object-store-component-after-minio.md), which the human accepted
+with Q-1 (SeaweedFS 4.51, [SOUP-036](../../soup/SOUP-036-seaweedfs.md)). TASK-176 added the
+`relates_to` link to SOUP-036, and TASK-175 and TASK-176 removed the links to the retired MinIO
+records.
 
 ## Software units (IEC 62304 §5.4.1)
 
@@ -110,3 +112,5 @@ RISK-007 (reliable initialisation) and RISK-011 (SSE key material and its migrat
 ## Version history
 
 - 1.0 (2026-10-30): created at the CR-002 Plan stage (Software Architect role).
+- 1.1 (2026-10-30): TASK-176. `relates_to` SOUP-036 added; the Compose service `object-store`
+  (SeaweedFS 4.51 by digest) implements `U-OBJ-Server`. Approval not yet given.
