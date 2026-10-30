@@ -86,7 +86,7 @@ off or bound to loopback (below).
   supported until **2028-06-01** (more than 12 months). The `community` repository of v3.24 is
   listed with end date **2026-11-01**. One installed package comes from `community`: `fuse`
   2.9.9 (checked with `apk policy`). MedHub does not mount FUSE in this container. This is
-  raised as PRB candidate P-1 (below).
+  raised as PRB-051 (below).
 - **Process model:** one container, command `weed server …` (hardened command line below), user
   `seaweed` after the entrypoint, one persistent volume at `/data`. The entrypoint sets
   `GODEBUG=fips140=on`.
@@ -164,7 +164,7 @@ the store, identity injection, SSRF):
 
 **Base OS.** Alpine v3.24.3 packages: 0 entries in OSV (above). One package (`fuse` 2.9.9) is
 in the `community` repository, whose support ends 2026-11-01. It is not exercised by MedHub.
-PRB candidate P-1 (minor). Upstream rebuilds the image on a newer Alpine with each release, so
+[PRB-051](../problem-reports/PRB-051-seaweedfs-image-fuse-from-alpine-community-end-of-support.md) (minor). Upstream rebuilds the image on a newer Alpine with each release, so
 the remedy is the reviewed digest change of the monitoring rule below.
 
 **Open issue reviewed.** seaweedfs/seaweedfs#8908 (open, created 2026-04-03, reported against
@@ -184,8 +184,8 @@ pinned release is acceptable while it is no more than one review interval behind
 fixes a hazard-relevant advisory (ADR-0015, "Negative"; PLAN-002 1.2).
 
 **Escalated under CR-002 (TASK-172):** no hazard-relevant anomaly in 4.51, so no new RISK.
-F-1..F-5 are inputs to RISK-012 (TASK-181) and to TASK-176/177. One defect candidate, P-1,
-is listed in CR-002 "Escalations" for the human's decision.
+F-1..F-5 are inputs to RISK-012 (TASK-181) and to TASK-176/177. One defect, PRB-051 (candidate
+P-1 in CR-002 "Escalations"), was raised by the human.
 
 ## Monitoring
 

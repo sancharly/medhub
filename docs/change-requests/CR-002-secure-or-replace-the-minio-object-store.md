@@ -3,7 +3,7 @@ id: CR-002
 type: change-request
 title: Secure or replace the MinIO object store
 status: in_progress
-version: "1.4"
+version: "1.5"
 author: Carlos Santiago Liceras
 created: "2026-10-30"
 updated: "2026-10-30"
@@ -302,10 +302,11 @@ complete.
 4.51, so **no new RISK** was raised. Its configuration findings F-1..F-5 (unauthenticated
 filer, master and volume ports in `weed mini`; S3 gRPC port; telemetry default; SSE key loss; admin
 listeners) are inputs to RISK-012, to be scored by TASK-181, and to TASK-176 and TASK-177. One
-defect candidate is **not yet a PRB**, for the human to decide: **P-1 (minor)**, the base OS
-package `fuse` 2.9.9 of the pinned image is in Alpine v3.24 `community`, whose support ends
-2026-11-01 (PLAN-002 end-of-support rule; not exercised by MedHub; remedy is the reviewed digest
-change under the PLAN-002 1.2 monthly rule).
+defect candidate, **P-1 (minor)**: the base OS package `fuse` 2.9.9 of the pinned image is in
+Alpine v3.24 `community`, whose support ends 2026-11-01 (PLAN-002 end-of-support rule; not
+exercised by MedHub; remedy is the reviewed digest change under the PLAN-002 1.2 monthly rule).
+The human raised it as [PRB-051](../problem-reports/PRB-051-seaweedfs-image-fuse-from-alpine-community-end-of-support.md)
+on 2026-10-30. It stays outside this CR's scope.
 
 ## Acceptance criteria
 
@@ -661,3 +662,4 @@ Every AC-1..AC-20 maps to at least one task.
   (ADR-0015, "Spike result"). SOUP-036 created and PLAN-002 1.2 proposed, both `in_review`.
 - 1.4 (2026-10-30) — Status `open → in_progress`: the plan was approved at the Plan gate (D-6)
   and Build started with TASK-172 (approved by QA).
+- 1.5 (2026-10-30) — PRB candidate P-1 raised by the human as PRB-051 (minor, outside this CR).
