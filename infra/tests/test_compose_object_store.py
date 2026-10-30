@@ -164,6 +164,33 @@ class ComposeWiring(unittest.TestCase):
         published = [n for n, s in self.config["services"].items() if s.get("ports")]
         self.assertEqual(published, ["reverse-proxy"])
 
+    def test_ci_override_publishes_the_store_on_loopback_over_a_separate_network(self):
+        """TASK-179: the CI-only file adds no image, one non-internal network and a loopback port."""
+        override = ROOT / "infra" / "compose.ci-object-store.yml"
+        self.assertNotRegex(override.read_text(), r"(?m)^\s*image:")
+        with tempfile.TemporaryDirectory() as tmp:
+            env_file = Path(tmp) / ".env"
+            env_file.write_text("".join(f"{k}={v}\n" for k, v in GOOD.items()))
+            result = subprocess.run(
+                ["docker", "compose", "-f", str(COMPOSE), "-f", str(override),
+                 "--env-file", str(env_file), "config", "--format", "json"],
+                capture_output=True, text=True, cwd=tmp,
+                env={k: v for k, v in os.environ.items() if k != "OBJECT_STORE_CI_PORT"},
+            )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        merged = json.loads(result.stdout)
+        store = merged["services"]["object-store"]
+        self.assertEqual(set(store["networks"]), {"object-store", "ci-publish"})
+        self.assertFalse(merged["networks"]["ci-publish"].get("internal", False))
+        self.assertIs(merged["networks"]["object-store"]["internal"], True)
+        self.assertEqual(
+            [(p["host_ip"], int(p["published"]), int(p["target"])) for p in store["ports"]],
+            [("127.0.0.1", 8333, 8333)],
+        )
+        # Nothing else changes: the other services publish what they did before.
+        published = [n for n, s in merged["services"].items() if s.get("ports")]
+        self.assertEqual(sorted(published), ["object-store", "reverse-proxy"])
+
     def test_backend_waits_for_a_successful_initialisation(self):
         """SR-040 AC 4: a failed initialisation keeps the backend down."""
         dep = self.config["services"]["backend"]["depends_on"]["object-store-init"]

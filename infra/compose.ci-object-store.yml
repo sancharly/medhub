@@ -1,0 +1,18 @@
+# CI-only override (TASK-179, CR-002 Q-4, ADD-024 U-INF-CIPipeline). Never used in a deployment.
+#
+# The `object-store-integration` job starts the real store with
+#   docker compose -f infra/docker-compose.yml -f infra/compose.ci-object-store.yml up -d --wait ...
+# and reaches it from the runner. Docker cannot publish a port from a container that sits only on
+# `internal` networks, so this file adds one non-internal network to the store and publishes the S3
+# port on the loopback interface of the runner only. It adds no image; the image pin check scans it
+# like every Compose file. The production file is unchanged.
+services:
+  object-store:
+    ports:
+      - "127.0.0.1:${OBJECT_STORE_CI_PORT:-8333}:8333"
+    networks:
+      - ci-publish
+
+networks:
+  ci-publish:
+    driver: bridge

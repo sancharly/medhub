@@ -122,7 +122,7 @@ fi
 # ── 8. Named volumes defined for persistent data ─────────────────────────────
 echo ""
 echo "-- Data persistence --"
-for vol in postgres_data redis_data object_store_data minio_data; do
+for vol in postgres_data redis_data object_store_data; do
     if grep -q "^  ${vol}:" "$COMPOSE_FILE"; then
         check "named volume '${vol}' defined" "ok"
     else
@@ -154,7 +154,8 @@ else
 fi
 
 # ── 10. Object-store network isolation (SR-040 AC 3, AC 5) ──────────────────
-# Started-stack checks: skipped, with a message, when the stack is not running. The stack is the
+# Started-stack checks: skipped, with a message, only when no container of the project is running.
+# When the stack is up, a missing object-store or backend is a FAIL, not a skip. The stack is the
 # Compose project of the shell (COMPOSE_PROJECT_NAME, default `infra`).
 # Probe tool per image: reverse-proxy and frontend (nginx:alpine) have no bash, so busybox
 # `nc -z`; postgres and redis (Debian), backend and celery-worker (python:slim, Debian) have bash,
@@ -172,10 +173,16 @@ connects() {
         compose exec -T "$svc" timeout 3 bash -c "exec 3<>/dev/tcp/$host/$port" >/dev/null 2>&1
     fi
 }
-if [ -n "$(compose ps -q object-store 2>/dev/null)" ] && [ -n "$(compose ps -q backend 2>/dev/null)" ]; then
-    # service:tool:control host:control port
-    for entry in reverse-proxy:nc:backend:8000 frontend:nc:localhost:80 postgres:bash:localhost:5432 \
-                 redis:bash:localhost:6379 celery-worker:bash:redis:6379; do
+if [ -z "$(compose ps -q 2>/dev/null)" ]; then
+    echo "  [SKIP] stack not running — object-store isolation checks skipped (run after docker compose up)"
+elif [ -z "$(compose ps -q object-store 2>/dev/null)" ] || [ -z "$(compose ps -q backend 2>/dev/null)" ]; then
+    check "object-store and backend are running (needed for the isolation checks)" \
+        "stack is up but object-store or backend is not running"
+else
+    # service:tool:control host:control port. Each control is a connection to another container,
+    # so it also proves the probe tool and the service-name resolution work from that container.
+    for entry in reverse-proxy:nc:backend:8000 frontend:nc:backend:8000 postgres:bash:redis:6379 \
+                 redis:bash:postgres:5432 celery-worker:bash:redis:6379; do
         IFS=: read -r svc tool chost cport <<<"$entry"
         if ! connects "$svc" "$tool" "$chost" "$cport"; then
             check "probe tool works in '${svc}' (control $chost:$cport)" "control connection failed"
@@ -209,8 +216,6 @@ print("ok")' 2>&1 | tail -1)
     else
         check "object-store publishes no host port" "published: '$PUBLISHED', HostPort entries: $HOST_PORTS"
     fi
-else
-    echo "  [SKIP] stack not running — object-store isolation checks skipped (run after docker compose up)"
 fi
 
 # ── Summary ──────────────────────────────────────────────────────────────────

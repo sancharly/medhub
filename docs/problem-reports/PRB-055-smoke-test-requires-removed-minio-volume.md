@@ -2,8 +2,8 @@
 id: "PRB-055"
 type: problem-report
 title: "The smoke test still requires the minio_data volume that CR-002 removed"
-status: open
-version: "1.0"
+status: resolved
+version: "1.1"
 author: "Carlos Santiago Liceras"
 created: "2026-10-30"
 updated: "2026-10-30"
@@ -40,10 +40,20 @@ Verification tooling only: no product behaviour, data integrity, safety-related 
 clinical decision is affected. No released version exists, so no notification is needed. Hence
 `minor`.
 
-## Proposed resolution
+## Resolution
 
-Remove `minio_data` from the section 8 loop and rerun the smoke test on a started stack, expecting
-a full pass. In scope for CR-002 and resolved by TASK-179.
+`minio_data` is removed from the section 8 loop of `infra/smoke-test.sh`
+(`for vol in postgres_data redis_data object_store_data; do`). Fixed in the commit "CI, TEST: Check
+object-store encryption end to end in CI (TASK-179)" on `bug/minio-object-store`; verify with
+`git show <that commit> -- infra/smoke-test.sh`. The regression came with db0b480 ("FIX, DOC:
+Migrate existing objects from MinIO, rehearsed on a backup (TASK-178)").
+
+Verification (reproducible): start the stack in its own project with a temporary `infra/.env` made
+from `infra/.env.example` with generated keys and `CORS_ORIGINS=[]` (PRB-056),
+`COMPOSE_PROJECT_NAME=medhub-sm179b docker compose -f infra/docker-compose.yml up -d --build`, wait
+about 45 seconds, then `bash infra/smoke-test.sh`. Before the change: 26 passed, 1 failed (named
+volume 'minio_data' defined: missing). After: `=== Results: 26 passed, 0 failed ===`. The stack was
+then removed with `down -v` and the dev `infra/.env` and volumes were unchanged.
 
 ## Source
 

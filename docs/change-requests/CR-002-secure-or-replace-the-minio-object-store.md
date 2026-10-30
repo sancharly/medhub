@@ -18,6 +18,8 @@ links:
     relation: resolves
   - target: PRB-039
     relation: resolves
+  - target: PRB-055
+    relation: resolves
   - target: PRB-007
     relation: relates_to
   - target: RISK-012
