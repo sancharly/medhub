@@ -2,7 +2,7 @@
 id: CR-003
 type: change-request
 title: Upgrade end-of-life and advisory-affected SOUP, and drop an unused SOUP item
-status: in_progress
+status: closed
 version: "1.5"
 author: Carlos Santiago Liceras
 created: "2026-10-29"
