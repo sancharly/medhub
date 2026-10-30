@@ -64,6 +64,12 @@ business writes.
   bounded by the Redis lockout. The default pool (5 + 10 overflow) is enough for the MVP load
   (SR-026). Pool exhaustion makes the request fail with an error and does not drop the row
   silently.
+  *Amended 2026-10-30 (QA review of TASK-183):* the last two sentences do not hold. On pool
+  exhaustion the request fails with a generic 500 after `pool_timeout` and the failure row is lost;
+  only the server log records it (QA probe: 500 after 2.1 s, no row). The per-account lockout does
+  not bound a spray of unknown emails, and login has no rate limit. Tracked as
+  [PRB-058](../../problem-reports/PRB-058-independent-audit-write-lost-on-pool-exhaustion.md); see
+  RISK-006 1.2.
 - **Constraint:** the independent session cannot see the request's uncommitted rows. `audit_log`
   has no foreign key (`actor_id` is not an FK), so the insert does not depend on them.
 - **Tests:** an independent row commits outside any test-held transaction. Real-database tests

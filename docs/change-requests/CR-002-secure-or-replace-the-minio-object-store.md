@@ -3,7 +3,7 @@ id: CR-002
 type: change-request
 title: Secure or replace the MinIO object store
 status: in_progress
-version: "1.7"
+version: "1.8"
 author: Carlos Santiago Liceras
 created: "2026-10-30"
 updated: "2026-10-30"
@@ -368,7 +368,7 @@ existing RISK-006 hazard (severity 2), not a new harm.
 
 | Change (task) | Software items / SOUP | §7.4.1 hazard contribution | §7.4.2 controls affected | §7.4.3 verification |
 |---|---|---|---|---|
-| Failure audit events on their own transaction; `durable` removed; 502 problem body (TASK-183) | SI-AUDIT `U-AUD-Writer` (ADD-013); SI-ATTACH `U-ATT-Fetch`; DICOM viewer route; SOUP-008 (SQLAlchemy, unchanged version) | Removes the cause "audit row rolled back with the failed request" from RISK-006 for `AUTHZ_DENIED`, `LOGIN_FAILURE`, `ACCOUNT_LOCKOUT` (found at this stage, not in PRB-052), `ACTIVATION_FAILED`, the `DICOM_STUDY_READ` FAILURE and the `ATTACHMENT_ACCESS` FAILURE. Introduced: a second pooled connection per failure event (pool pressure on a login burst, which the lockout bounds; it fails with an error and does not drop the row). A business write can no longer be committed by an audit call (TASK-173 LOW 1) | RISK-006 (new design control row; residual pending verification). RISK-012: its AC-5 audit evidence now has a general mechanism, and its scores are not affected | TS-009 TC-009.4..8 (real DB, mutation check); TS-007 TC-007.6 rerun without `durable` |
+| Failure audit events on their own transaction; `durable` removed; 502 problem body (TASK-183) | SI-AUDIT `U-AUD-Writer` (ADD-013); SI-ATTACH `U-ATT-Fetch`; DICOM viewer route; SOUP-008 (SQLAlchemy, unchanged version) | Removes the cause "audit row rolled back with the failed request" from RISK-006 for `AUTHZ_DENIED`, `LOGIN_FAILURE`, `ACCOUNT_LOCKOUT` (found at this stage, not in PRB-052), `ACTIVATION_FAILED`, the `DICOM_STUDY_READ` FAILURE and the `ATTACHMENT_ACCESS` FAILURE. Introduced: a second connection from the shared pool per failure event, taken while the request holds its first. *Corrected in 1.8 (QA review of TASK-183):* when a burst exhausts the pool, the request fails with a `500` after `pool_timeout` and the failure row is lost, with only the server log recording it. The per-account lockout does not limit a spray of unknown emails, and login has no rate limit. This is [PRB-058](../problem-reports/PRB-058-independent-audit-write-lost-on-pool-exhaustion.md) (minor, outside this CR). A business write can no longer be committed by an audit call (TASK-173 LOW 1) | RISK-006 (new design control row; residual pending verification). RISK-012: its AC-5 audit evidence now has a general mechanism, and its scores are not affected | TS-009 TC-009.4..8 (real DB, mutation check); TS-007 TC-007.6 rerun without `durable` |
 
 - **RISK-006**: revised to 1.2 (`in_review`). New cause and control. Scores unchanged, and the
   residual is pending verification by TASK-183 (until then the failure-evidence path is 2 × 3,
@@ -794,3 +794,7 @@ Every AC-1..AC-23 maps to at least one task.
   "Results per record (AC-14)"; "For the human to accept" replaced, including PRB-057 as a
   release-gate condition and PRB-043 closed in the REL commit. Also carries `resolves` → PRB-055
   (committed earlier with TASK-179) and TC-008.8 for the CI SSE row.
+- 1.8 (2026-10-30) — Correction from the QA review of TASK-183. The §7.4 row for TASK-183 no
+  longer claims that the lockout bounds the burst or that the row is never dropped: on pool
+  exhaustion the request fails with a `500` and the row is lost. PRB-058 (minor, outside this CR)
+  is raised, and RISK-006 1.2 is corrected to match. No scope, AC or status change.
