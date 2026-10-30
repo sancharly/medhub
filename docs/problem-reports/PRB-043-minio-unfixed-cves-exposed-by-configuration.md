@@ -2,8 +2,8 @@
 id: "PRB-043"
 type: problem-report
 title: "Unfixed MinIO vulnerabilities are exposed by MedHub's object-store configuration"
-status: open
-version: "1.1"
+status: resolved
+version: "1.2"
 author: "Carlos Santiago Liceras"
 created: "2026-10-22"
 updated: "2026-10-30"
@@ -95,25 +95,47 @@ critical`, as the human decided on 2026-10-22. It blocks any release (release ga
 Released versions (§9.3): no `release` record exists (`docs/releases/` is absent), so no released
 version in use is affected and no notification is needed.
 
-## Proposed resolution
+After resolution (2026-10-30, TASK-181): every exposure below is closed by a verified control, and
+RISK-012 is re-scored from that evidence to severity 4 × probability 1 → `acceptable` (`in_review`,
+the human accepts it). The `criticality` stays `critical`: it records the actual impact of the
+problem as found, and the resolution does not lower it. PRB-043 is `resolved` under CR-002 AC-19.
+Under the `iec62304-sdlc` release gate and MedTrace E10 (`release_with_open_critical`) it still
+counts as an open `critical` PRB until it is `closed`. Closing it is planned for the release (REL)
+record commit, after the release test report (TR) confirms the resolution.
 
-CR-002 (human decision, 2026-10-22), configuration hardening plus checksum checking. These
-measures do not depend on replacing the component (PRB-042):
+## Resolution
 
-1. Remove `--console-address ":9001"` and the `9001` `expose`. Bucket administration stays with
-   `mc` (`createbuckets`), and `infra/DEPLOY.md` is updated with it.
-2. Refuse to start with the default or example credentials (`minioadmin`, `changeme`), and
-   document how to generate the access and secret keys.
-3. Set default bucket encryption in `createbuckets` (`mc encrypt set sse-s3 …`), so every object
-   is encrypted at rest whatever path wrote it.
-4. Check the stored SHA-256 checksum on every attachment and DICOM download, and fail loudly on a
-   mismatch (an error to the client, plus an audit event).
-5. Put `minio` on a network that only `backend` and `createbuckets` join.
-6. Test each measure: a negative test for the checksum mismatch, a configuration test for the
-   console, credentials and network, and an end-to-end SSE check together with PRB-036.
+Resolved by CR-002 (`resolves` PRB-043) on branch `bug/minio-object-store`, under ADR-0015 option
+(b): MinIO is replaced by SeaweedFS 4.51 (SOUP-036) and the configuration is hardened. Each
+exposure is closed by the control and commit named below, verified by the recorded evidence (all
+tasks approved by QA on 2026-10-30).
 
-Update RISK-012's control table and residual risk with the implementing tasks and their
-verification.
+**The four CVEs: removed with the component.**
+
+| CVE | Exposure in MedHub | Closed by | Evidence |
+|---|---|---|---|
+| CVE-2026-41145 | Write any object with the access key alone | MinIO server no longer deployed: TASK-176 (`9d3b395`). Defence in depth: TASK-177 (reach), TASK-174 (no default access key), TASK-173 (a written object is refused on download if it differs) | TS-014 TC-014.1: no `minio` service or `minio/*` image in `infra/docker-compose.yml`; `grep -n "9001\|console\|minio/minio\|minio/mc" infra/docker-compose.yml` → no output (TASK-176 QA). SOUP-022 `obsolete`. SOUP-036 review: no advisory affects 4.51 |
+| CVE-2026-40344 | Same, through the Snowball auto-extract handler | As above | As above |
+| CVE-2026-113466 | Console admin takeover | MinIO and its console removed (TASK-176); the replacement has no console or admin listener | TS-014 TC-014.5: from `backend`, 9001 and every admin or internal port refused; `netstat` shows only 8333 and 18333 off loopback |
+| CVE-2026-34204 | SSE metadata injection makes an object unreadable | MinIO removed (TASK-176) | TS-014 TC-014.1; SOUP-022 `obsolete`. Remaining unreadability cause (key loss, SOUP-036 F-4) is RISK-011's |
+
+**The five configuration findings: each closed by its own control.**
+
+| Finding (Investigation) | Closed by | Evidence (reproducible) |
+|---|---|---|
+| 1. Console enabled (`--console-address ":9001"`) | TASK-176 (`9d3b395`): `object-store` runs `weed server` with no console, admin, WebDAV or SFTP option; internal master, volume and filer ports bound to 127.0.0.1 | `python3 -m unittest discover -s infra/tests -v` (`test_object_store_is_pinned_internal_and_has_no_console_or_admin_option`); `infra/smoke-test.sh` check "object store has no console or admin option (SR-040 AC 1)"; started-stack probes of TS-014 TC-014.5 (TASK-176 "Verification results" and QA review) |
+| 2. Ports reachable from every container on `medhub` | TASK-177 (`d4cdba0`): internal network `object-store`, joined only by `object-store`, `object-store-init` and `backend`; `expose: 8333` only, no `ports:` | `test_object_store_network_is_internal_and_joined_only_by_backend_and_initialiser`; `COMPOSE_PROJECT_NAME=<p> bash infra/smoke-test.sh` section 10 (27/27 in TASK-177 QA, mutations M1..M3); QA probes by name and IP from `medhub` on 8333, 18333, 9333, 8888, 8080: not resolved or timed out (TS-014 TC-014.6) |
+| 3. Default credentials accepted (`minioadmin`, `changeme`) | TASK-174 (`8c46bcc`): `object-store-preflight` rejects an unset, empty or known-default key, or a secret shorter than 16 characters, before the store starts; `.env.example` ships empty keys; Compose `:?` guards | `cd backend && uv run pytest tests/core/test_object_store_credentials.py tests/test_env_example.py -v`; `git grep -n -i minioadmin -- ':!docs'` matches only the rule module and the tests that name the default set; started-stack cases in TASK-174 "Verification results (round 2)" (TS-014 TC-014.1..3) |
+| 4. No default bucket encryption | TASK-175 (`684ee7b`): `object-store-init` (backend image, `mc` retired) sets and reads back `AES256` default encryption and fails closed; re-run on SeaweedFS by TASK-176. TASK-179 (`aa2fd61`) checks it end to end in CI | `cd backend && uv run pytest tests/core/test_object_store_init.py -v`; started stack: `get_bucket_encryption` → `AES256`, a plain `put_object` reported `AES256` (TS-008 TC-008.6, TS-014 TC-014.4); CI job `object-store-integration` (TS-008 TC-008.8: 4 passed in QA's run of the job steps; hosted run is TASK-182's) |
+| 5. Checksum stored but never checked on download | TASK-173 (`0e01b2a`): `AttachmentService.open` compares the SHA-256 of the fetched bytes with `Attachment.checksum`; a mismatch is refused with 502 `attachment-integrity-failure` and a committed `ATTACHMENT_ACCESS` FAILURE audit event; both callers (attachment route, DICOM route) covered | `cd backend && uv run pytest --cov=app --cov-fail-under=85` and `uv run pytest modules/dicom_viewer/tests` (TS-007 TC-007.6..8); mutation: comparison replaced by `if False:` → 4 tests fail (TASK-173 QA) |
+
+Existing objects were migrated by a rehearsed procedure (TASK-178, `db0b480`; TS-008 TC-008.7), and
+the operator documentation describes the new store, its keys and the migration (TASK-180,
+`d2b557a`). RISK-012 1.1 records each control with its verification and the re-scored residual.
+
+**Not covered here:** the shared `AT_REST_ENCRYPTION_KEY` (field encryption and SSE) stays with
+PRB-007 (CR-002 Q-3, Q-7); the backup and restore of the store with its key is PRB-057. The hosted
+CI run and the fresh-host run are verified by TASK-182 before CR-002 closes.
 
 ## Source
 
