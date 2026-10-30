@@ -3,7 +3,7 @@ id: CR-003
 type: change-request
 title: Upgrade end-of-life and advisory-affected SOUP, and drop an unused SOUP item
 status: in_progress
-version: "1.2"
+version: "1.3"
 author: Carlos Santiago Liceras
 created: "2026-10-29"
 updated: "2026-10-30"
@@ -27,6 +27,10 @@ links:
   - target: TASK-168
     relation: relates_to
   - target: RISK-011
+    relation: relates_to
+  - target: PLAN-002
+    relation: relates_to
+  - target: PLAN-001
     relation: relates_to
   - target: PRB-045
     relation: resolves
@@ -121,6 +125,12 @@ Source: GitHub issue sancharly/medhub#32.
    for its PRB-035 rationale.
 6. **Records.** PRB-045, PRB-035, PRB-047 and PRB-044 move to `resolved` once their fixes are
    verified, each with its `## Resolution`. TS-008 gains the known-answer test case.
+7. **Root cause in the maintenance plan (Q-5, revised).** PLAN-002 1.1 adds an end-of-support
+   criterion to SOUP monitoring (§6.1 f): a 12-month support horizon for each SOUP version line,
+   container base OS and build image, checked at every review and before every release, with a
+   PRB and a planned upgrade on a shortfall. PLAN-001 3.1 adds the check to the release gate.
+   Both plans go to `in_review`; the human's approval in MedTrace is their verification. No
+   TASK covers them, because a plan revision implements no SR.
 
 ### Scheduling
 
@@ -141,8 +151,8 @@ only in development, CI and pre-release environments. No released product contai
 - **"A SOUP item is in upstream support" is not made an SR.** It is a maintenance-process
   obligation (§6.1 f: evaluating upgrades, patches and obsolescence), so it belongs in PLAN-002,
   not in a product requirement that tests could verify against the software. PLAN-002 has no
-  such criterion, which is the shared root cause of PRB-045 and PRB-035. Q-5 asks whether to fix
-  that here.
+  such criterion, which is the shared root cause of PRB-045 and PRB-035. Under the revised Q-5,
+  this CR adds it (scope item 7).
 - **The SRs whose controls run on the upgraded SOUP stay unchanged:** SR-022 (field encryption,
   cryptography), SR-030 (session store, Redis), SR-031 (CSRF and security headers, Starlette and
   anyio; the client side built by Node) and SR-013 (attachments, urllib3 under boto3). The change
@@ -561,6 +571,9 @@ question, and the Plan-stage decisions are under "Decisions".
   component change, and the plan change gets its own review.
   **Resolved (human, 2026-10-29): not in this CR.** The PLAN-002 end-of-support criterion is a
   separate plan revision, which the orchestrator raises.
+  **Revised (human, 2026-10-30): merge it as part of this CR.** The plan revision was prepared
+  separately and is carried on this branch, so it merges with CR-003 (scope item 7). The plan
+  change still gets its own review: the human approves PLAN-002 and PLAN-001 in MedTrace.
 
 ## Decisions
 
@@ -693,3 +706,6 @@ Every AC-1..AC-19 maps to at least one task.
     risks. `relates_to` links to the tasks and to RISK-011 added.
   - Status stays `open`.
 - 1.2 (2026-10-30) — TASK-168 (Checkpoint B). Escalations list confirmed complete. Status stays `open`.
+- 1.3 (2026-10-30) — Q-5 revised by the human: the PLAN-002 end-of-support criterion merges with
+  this CR. Scope item 7 added; the requirements decision updated to match. PLAN-002 1.1 and
+  PLAN-001 3.1 (`in_review`) committed on this branch, with `relates_to` links to both.
