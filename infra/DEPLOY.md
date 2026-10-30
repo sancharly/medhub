@@ -22,6 +22,20 @@ cp infra/.env.example infra/.env
 
 Never commit `infra/.env` to version control.
 
+#### Generate the object-store keys
+
+`OBJECT_STORE_ACCESS_KEY` and `OBJECT_STORE_SECRET_KEY` have no default. Generate both:
+
+```bash
+openssl rand -hex 12      # OBJECT_STORE_ACCESS_KEY
+openssl rand -base64 32   # OBJECT_STORE_SECRET_KEY
+```
+
+The `object-store-preflight` service stops the object store and its bucket initialiser, naming
+the setting, when either key is unset or empty, equals a well-known default value
+(list in `backend/app/core/object_store_credentials.py`, compared in any case), or when the secret key is shorter than
+16 characters.
+
 ### 2. Provision TLS certificates
 
 Place your certificate and key in `infra/certs/`:
