@@ -86,7 +86,11 @@ All facts were checked on 2026-10-30. Sources are listed at the end.
   in 2023 and are amd64 only, and the GitHub release list is empty. It fails criterion 2 as far
   as this research could establish. Not pursued.
 
-## Decision (recommended, pending the human's confirmation of Q-1)
+## Decision
+
+> Amended 2026-10-30 (TASK-180): the heading read "Decision (recommended, pending the human's
+> confirmation of Q-1)". Q-1 is confirmed (see Status and the "2026-10-30: go" note below), so
+> the decision below is the accepted one. The text of D1 to D3 is unchanged.
 
 **D1: replace MinIO with SeaweedFS (option b), pinned as
 `chrislusf/seaweedfs:4.51@sha256:f7a49e3f3972ebed5be2ed4befa4a0c68eb7bdddba6e692d42729ceb545134b8`**
@@ -212,6 +216,11 @@ repository.
   on the `object-store` network, and they are unauthenticated unless JWT signing is configured.
   D4 limits reach to the backend and the initialiser, which already hold the S3 credentials. The
   spike records every listener and binds what it can to loopback.
+  > Amended 2026-10-30 (TASK-180): this bullet is out of date. As built (TASK-172, TASK-176,
+  > `weed server -ip.bind=127.0.0.1`), the master, volume server and filer listen on loopback
+  > only and are unreachable from the `object-store` network. Only S3 (8333) and its gRPC port
+  > (18333, which follows `-s3.ip.bind`) listen on the container address, and D4 limits reach to
+  > the backend and the initialiser. The residual exposure is the 18333 port (SOUP-036 F-2).
 - **SSE semantics are SeaweedFS's own implementation.** AC-4 and AC-7 verify the behaviour MedHub
   relies on against the real server, in CI on every pull request.
 - **A migration is needed** (TASK-178), and the MinIO SSE key material is retired after it.

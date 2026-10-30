@@ -11,6 +11,7 @@
 | **Single-host Compose = no HA**                    | Outage blocks clinical workflows (UN-001)               | Acceptable at MVP; containerized so HA is additive; backups + monitoring documented (ADR-0010)                    |
 | **Cross-store consistency (DB ↔ object store)**    | Orphaned/dangling attachments                           | Write object then commit metadata; orphan-cleanup job (ADR-0009)                                                  |
 | **Safari WebGL/Cornerstone quirks**                | Viewer defects on one browser (SR-019)                  | Cross-browser test pass each release; documented support matrix                                                   |
+| **Object store component has a high advisory rate and rolling releases** | A vulnerable or unpatched store exposes PHI objects (RISK-012) | SeaweedFS pinned by digest; no console; unused listeners off; isolated internal network; credential preflight; default encryption verified in CI; stored checksum verified on download; advisories read monthly and fixes adopted by a reviewed digest change (ADR-0015, PLAN-002, SOUP-036) |
 | **Async email delivery failures**                  | Missed activation/appointment notice                    | Retries in Celery; admin resend (SR-033.7); dual-channel in-app + email (SR-035.3)                                |
 
 ## Known technical debt / deferred items (deliberate MVP scope)
@@ -25,3 +26,9 @@
 | Terminology bindings (LOINC/SNOMED)                          | Not required for MVP model                                | Bind in FHIR mapping post-MVP                                                         |
 | Formal IEC 62366 usability engineering & penetration testing | Beyond MVP; basic usability controls applied              | Expand per NFR-009 note                                                               |
 | Notification delivery/read tracking                          | Best-effort send confirmed for MVP (no proof of delivery) | Add via `Notification` `status`/hook extension point, no caller rework (section 8.12) |
+
+## Closed technical debt
+
+| Item | Closed by | Note |
+|------|-----------|------|
+| Object store: MinIO community edition unmaintained, with unfixed advisories, floating tags and a console | CR-002 (ADR-0015, SeaweedFS 4.51 by digest) | The replacement's own debt is the monthly advisory cadence above. Hosts that held attachments in MinIO migrate once (`infra/DEPLOY.md`) |

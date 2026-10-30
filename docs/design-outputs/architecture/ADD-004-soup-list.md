@@ -32,7 +32,8 @@ tags: ["soup", "regulatory", "class:B"]
 > not SOUP. Correction made during the move: `fhir.resources` is locked at **8.2.0**; the 1.1.8 below
 > is the version of its dependency `fhir-core`. The `openapi-fetch` row is wrong: MedHub never
 > imported the package, and its API client is the hand-written `ApiClient` with generated types only
-> (PRB-044). The package was removed by CR-003 (SOUP-033 obsolete). Kept unchanged below because IDs
+> (PRB-044). The package was removed by CR-003 (SOUP-033 obsolete). MinIO and `mc` were retired by
+> CR-002 (SOUP-022 and SOUP-023 obsolete; SOUP-036 is SeaweedFS). Kept unchanged below because IDs
 > are never reused.
 
 # SOUP list

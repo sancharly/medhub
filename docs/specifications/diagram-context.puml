@@ -12,7 +12,7 @@ rectangle "MedHub\nWeb Application" as MedHub #lightblue
 
 rectangle "Web Browser\n(Safari/Firefox/Chrome/Edge)" as Browser #lightgray
 rectangle "SMTP / Email\nService" as SMTP #lightgray
-rectangle "Object Storage\n(S3-compatible / MinIO)" as ObjStore #lightgray
+rectangle "Object Storage\n(S3-compatible / SeaweedFS)" as ObjStore #lightgray
 
 Doctor --> Browser : uses
 Patient --> Browser : uses

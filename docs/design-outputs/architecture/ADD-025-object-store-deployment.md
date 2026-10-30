@@ -3,7 +3,7 @@ id: "ADD-025"
 type: architecture-doc
 title: "Object store deployment (SI-OBJSTORE)"
 status: in_review
-version: "1.1"
+version: "1.2"
 author: "Carlos Santiago Liceras"
 created: "2026-10-30"
 updated: "2026-10-30"
@@ -80,7 +80,7 @@ Non-functional requirements constraining this item: NFR-007.
 
 ## Interfaces
 
-- Provides: the S3 API on `object-store:<s3 port>` over the `object-store` network, consumed by
+- Provides: the S3 API on `object-store:8333` over the `object-store` network, consumed by
   `ObjectStorageClient` (`backend/app/core/object_storage.py`) through `OBJECT_STORE_ENDPOINT`.
 - Consumes: `OBJECT_STORE_ACCESS_KEY`, `OBJECT_STORE_SECRET_KEY`, `OBJECT_STORE_BUCKET` and
   `AT_REST_ENCRYPTION_KEY` from `infra/.env`, which is never committed.
@@ -90,15 +90,15 @@ Non-functional requirements constraining this item: NFR-007.
 - [TS-014](../tests-specifications/) (new, created by TASK-174; it `verifies` SR-040) covers the
   Compose-file assertions, the four preflight cases, the initialiser's failure exits and the
   started-stack connection checks.
-- TS-008 (SR-022 AC 4 and AC 5) covers the default-encryption check and the CI job
-  `object-store-integration` (TASK-179).
+- TS-008 (SR-022 AC 4 and AC 5) covers the default-encryption check (TC-008.6) and the CI job
+  `object-store-integration` (TC-008.8, TASK-179; the job is recorded in ADD-024).
 - TS-013 (SR-028 AC-7) covers the fresh-host pull and build (TASK-176, TASK-182).
 
 ## Architecture narrative
 
 [07 deployment view](../../design/07-deployment-view.md) (topology, networks, operational
 notes) and [05 building blocks](../../design/05-building-blocks.md) (the item and its units). The
-deployment procedure is in `infra/DEPLOY.md`. TASK-180 updates all three. Governing decisions:
+deployment procedure is in `infra/DEPLOY.md`; TASK-180 brought all three in line with this record. Governing decisions:
 [ADR-0009](../../design/adr/0009-file-object-storage.md),
 [ADR-0010](../../design/adr/0010-deployment-model.md) and
 [ADR-0015](../../design/adr/0015-object-store-component-after-minio.md).
@@ -114,3 +114,7 @@ RISK-007 (reliable initialisation) and RISK-011 (SSE key material and its migrat
 - 1.0 (2026-10-30): created at the CR-002 Plan stage (Software Architect role).
 - 1.1 (2026-10-30): TASK-176. `relates_to` SOUP-036 added; the Compose service `object-store`
   (SeaweedFS 4.51 by digest) implements `U-OBJ-Server`. Approval not yet given.
+- 1.2 (2026-10-30): TASK-180. Units checked against the implemented services (`object-store-preflight`,
+  `object-store`, `object-store-init` in `infra/docker-compose.yml`): no change of units. SOUP links
+  checked: SOUP-019 and SOUP-036 only, none to SOUP-022 or SOUP-023. Interface names port 8333;
+  verification names TC-008.6 and TC-008.8. Approval not yet given.

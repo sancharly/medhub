@@ -3,7 +3,7 @@ id: ADD-012
 type: architecture-doc
 title: Attachment Service (SI-ATTACH)
 status: in_review
-version: "1.2"
+version: "1.3"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-10-30"
@@ -41,7 +41,10 @@ Upload/fetch attachment binaries via object storage, authorized
 ## Software units (IEC 62304 §5.4.1)
 
 - `U-ATT-Upload` — validate, store object (SSE), bind to entry/patient transactionally (SR-013).
-- `U-ATT-Fetch` — authorized stream / scoped pre-signed URL (SR-005, SR-013.3).
+- `U-ATT-Fetch` — authorized stream / scoped pre-signed URL (SR-005, SR-013.3). Before any byte is
+  served it compares the SHA-256 of the content read from the store with the stored checksum
+  (constant-time). On a mismatch it serves nothing, records an `ATTACHMENT_ACCESS` audit event with
+  outcome FAILURE, and answers HTTP 502 (TASK-173).
 
 Class B requires decomposition down to software units, not per-unit detailed design
 (§5.4.2–5.4.4 are class C). Each unit above is independently unit-testable and is the granularity
@@ -65,8 +68,16 @@ This record is a summary and traceability anchor, not the narrative. The design 
 arc42 sections — [05 building blocks](../../design/05-building-blocks.md) for the decomposition,
 [04 solution strategy](../../design/04-solution-strategy.md),
 [08 cross-cutting concepts](../../design/08-cross-cutting-concepts.md) and, for deployment,
-[07 deployment view](../../design/07-deployment-view.md). Governing decisions: [ADR-0008](../../design/adr/), [ADR-0009](../../design/adr/), [ADR-0010](../../design/adr/), [ADR-0011](../../design/adr/).
+[07 deployment view](../../design/07-deployment-view.md). Governing decisions: [ADR-0008](../../design/adr/), [ADR-0009](../../design/adr/), [ADR-0010](../../design/adr/), [ADR-0011](../../design/adr/),
+[ADR-0015](../../design/adr/0015-object-store-component-after-minio.md) (the object-store component this item talks to; its deployment is [ADD-025](ADD-025-object-store-deployment.md)).
 
 ## Risk relevance
 
 Participates in RISK-002, RISK-007, RISK-011 (see `docs/risks/`); the control measures are carried by the SRs and TASKs listed there.
+
+## Version history
+
+- 1.1 (2026-10-30): TASK-175. Approval record cleared; the link to SOUP-023 (`mc`) removed.
+- 1.2 (2026-10-30): TASK-176. The link to SOUP-022 (MinIO) removed.
+- 1.3 (2026-10-30): TASK-180. `U-ATT-Fetch` verifies the stored checksum and refuses with an audit
+  FAILURE (TASK-173); ADR-0015 named among the governing decisions. Still `in_review`, not approved.

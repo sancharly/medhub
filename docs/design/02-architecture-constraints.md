@@ -59,7 +59,7 @@
 | argon2-cffi / cryptography | latest stable  | Password hashing, crypto (SR-022, SR-025)    |
 | Celery + Redis             | latest stable  | Async email tasks; Redis also session store  |
 | PostgreSQL                 | 16             | Primary DB (ADR-0004)                        |
-| MinIO (S3-compatible)      | latest stable  | Object storage for attachments (ADR-0009)    |
+| SeaweedFS (S3-compatible)  | 4.51 (pinned)  | Object storage for attachments (ADR-0015)    |
 | React / TypeScript / Vite  | React 18, TS 5 | SPA (ADR-0003)                               |
 | Cornerstone3D              | latest stable  | In-browser DICOM viewer (ADR-0008)           |
 | MUI (or equivalent)        | latest stable  | Responsive, accessible UI components         |

@@ -32,7 +32,7 @@ package "Backend (FastAPI, modular monolith)" as BE #lightblue {
 database "PostgreSQL\n(domain + audit)" as PG #lightgray
 queue "Redis\n(sessions + Celery broker)" as Redis #lightgray
 rectangle "Celery Worker\n(SI-WORKER)" as Worker #lightblue
-rectangle "Object Storage\n(MinIO / S3)" as Obj #lightgray
+rectangle "Object Storage\n(SeaweedFS, S3) (SI-OBJSTORE)" as Obj #lightgray
 rectangle "SMTP" as SMTP #lightgray
 
 Proxy --> Shell : HTTPS

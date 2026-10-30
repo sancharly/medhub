@@ -2,15 +2,11 @@
 id: ADD-024
 type: architecture-doc
 title: Development and verification infrastructure (SI-DEVINFRA)
-status: approved
-version: "1.1"
+status: in_review
+version: "1.2"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
-updated: "2026-10-22"
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-10-22"
-approved_digest: d0f2e662cc7f78ebe092fbd0a9ada219926928f17fb44a9708ff967036300efb
-approval_note: self-approved
+updated: "2026-10-30"
 links:
   - target: SR-028
     relation: implements
@@ -44,7 +40,12 @@ it can reach `main` (SR-028). It is part of the repository and runs on every pul
   It fails the build when the production dependency set lacks the object-storage SDK or contains
   `fakeredis`, which only the tests use (SR-028 AC-5, CR-001 AC-8, AC-9). The `backend-quality`
   job runs `uv lock --check` before it installs, so a manifest edit that is not re-locked fails
-  the pull request (SR-028 AC-5).
+  the pull request (SR-028 AC-5). The `object-store-integration` job ("Object Store Integration",
+  CR-002 AC-7, SR-022 AC 5) starts the real object store with the Compose project `medhub-ci`,
+  `infra/docker-compose.yml` and the CI-only override `infra/compose.ci-object-store.yml`, then
+  runs the pytest marker `object_store` (`backend/tests/integration/test_object_store_sse.py`)
+  against it. The reason for the override is in
+  [07 deployment view](../../design/07-deployment-view.md); the store itself is ADD-025.
 - `U-INF-Toolchain` — the monorepo toolchain configuration: `backend/pyproject.toml` tool sections,
   `.pre-commit-config.yaml`, the frontend ESLint and TypeScript configuration, and the lock files
   that pin every dependency (SR-028 AC-1).
@@ -52,7 +53,8 @@ it can reach `main` (SR-028). It is part of the repository and runs on every pul
   committed OpenAPI schema and the generated frontend types, kept identical to the implementation
   by the `openapi-lint` job (the contract rule in `CLAUDE.md`).
 
-Built by TASK-001 (monorepo and tooling) and TASK-005 (CI pipeline).
+Built by TASK-001 (monorepo and tooling), TASK-005 (CI pipeline) and, for the
+`object-store-integration` job and its override file, TASK-179.
 
 ## Requirements implemented
 
@@ -78,7 +80,8 @@ approvals — are defined by the lifecycle plans ([PLAN-001](../../plans/PLAN-00
 `infra/tests/test_check_image_pins.py` (TC-013.5, TC-013.6), `uv lock --check` (the `backend-quality`
 step "Check the lock file is current") and the Docker Build step "Check production dependency set"
 (TC-013.7, TC-013.8), plus the `traceability-check` gap
-reports.
+reports. [TS-008](../tests-specifications/TS-008-persistence-fhir-aligned-model-and-encryption.md) lists TC-008.8, the
+`object-store-integration` job, and the override check in `infra/tests/test_compose_object_store.py`.
 
 ## Architecture narrative
 
@@ -101,3 +104,7 @@ contributor because it is not deployed.
   TC-013.8) and lists TC-013.7. TASK-158 extends the same step with the absence of `fakeredis`
   (PRB-033, CR-001 AC-9) and adds the `backend-quality` step "Check the lock file is current"
   (`uv lock --check`, TC-013.7).
+- 1.2 (2026-10-30) — CR-002 TASK-180: `U-INF-CIPipeline` gains the job `object-store-integration`
+  and the CI-only override `infra/compose.ci-object-store.yml` (TASK-179); verification lists
+  TC-008.8. Status returned to `in_review` and the approval record cleared for re-approval by the
+  human.

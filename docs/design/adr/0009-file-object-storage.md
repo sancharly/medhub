@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted
+Accepted. Amended by [ADR-0015](0015-object-store-component-after-minio.md) (self-hosted product).
 
 ## Context
 
