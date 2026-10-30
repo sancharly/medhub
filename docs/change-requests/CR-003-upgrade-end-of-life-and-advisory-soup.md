@@ -3,7 +3,7 @@ id: CR-003
 type: change-request
 title: Upgrade end-of-life and advisory-affected SOUP, and drop an unused SOUP item
 status: in_progress
-version: "1.3"
+version: "1.4"
 author: Carlos Santiago Liceras
 created: "2026-10-29"
 updated: "2026-10-30"
@@ -26,6 +26,12 @@ links:
     relation: relates_to
   - target: TASK-168
     relation: relates_to
+  - target: TASK-169
+    relation: relates_to
+  - target: TASK-170
+    relation: relates_to
+  - target: TASK-171
+    relation: relates_to
   - target: RISK-011
     relation: relates_to
   - target: PLAN-002
@@ -39,6 +45,10 @@ links:
   - target: PRB-047
     relation: resolves
   - target: PRB-044
+    relation: resolves
+  - target: PRB-049
+    relation: resolves
+  - target: PRB-050
     relation: resolves
   - target: CR-001
     relation: relates_to
@@ -93,6 +103,18 @@ the same records: the SOUP list, RISK-010 and the SR-028 verification. And they 
 verification run: the pin check, the lock check, the smoke test, both suites and
 `traceability-check`. PRB-045's deadline is handled by doing it first (see "Scheduling").
 
+Two more defects were found while this CR was implemented, and one stale template sentence goes
+with PRB-044. The human brought all three into this CR on 2026-10-30 (D-7):
+
+- **PRB-049** (minor): `backend/scripts/setup_test_data.py` calls `datetime.now(datetime.UTC)` on
+  the `datetime` class, so the test-data script cannot create or update any account. Found by
+  TASK-161.
+- **PRB-050** (minor): `frontend/` has no `.dockerignore`, so a local or Compose image build
+  copies the host's `node_modules` and `dist` over the lock-exact install. Found by the QA review
+  of TASK-162.
+- **Task template:** `docs/templates/task.md` still calls the frontend API client "generated",
+  which is the error PRB-044 corrected in ADD-023 and arc42.
+
 Source: GitHub issue sancharly/medhub#32.
 
 ## Scope
@@ -131,6 +153,15 @@ Source: GitHub issue sancharly/medhub#32.
    PRB and a planned upgrade on a shortfall. PLAN-001 3.1 adds the check to the release gate.
    Both plans go to `in_review`; the human's approval in MedTrace is their verification. No
    TASK covers them, because a plan revision implements no SR.
+8. **Test-data script (PRB-049, D-7).** Make the three `datetime.now(...)` calls in
+   `backend/scripts/setup_test_data.py` use the module's `UTC`, and add a backend test that runs
+   `set_password`, `create_doctor` and `create_patient` against a database. The hard-coded
+   passwords the script prints are not changed (Out of scope).
+9. **Frontend build context (PRB-050, D-7).** Add `frontend/.dockerignore` so that the build
+   context excludes `node_modules`, `dist` and local environment files. `frontend/Dockerfile` is
+   not changed.
+10. **Task template (D-7).** Correct `docs/templates/task.md` so that it describes the API client
+    as ADD-023 does: a hand-written `ApiClient` with types generated from the OpenAPI schema.
 
 ### Scheduling
 
@@ -177,6 +208,11 @@ only in development, CI and pre-release environments. No released product contai
 - Changing TP-001, TR-001 or TR-002. They are evidence of past runs on Node 20 and keep their
   content.
 - Changing the PRBs' status before their fixes are verified.
+- The fixed passwords that `setup_test_data.py` sets and prints (`doctor123`, `patient123`).
+  PRB-049 notes them, but they are local test data, and changing them is not needed to fix the
+  defect.
+- Changing `frontend/Dockerfile`, or adding a `.dockerignore` for `backend/`. The backend image
+  copies named paths only (PRB-050 Investigation).
 
 ### Boundaries
 
@@ -263,6 +299,9 @@ reviews that follow them.
 | urllib3 2.7.0 → 2.8.0 (TASK-164) | SOUP-019 (transitive of botocore 1.43.117); SI-ATTACH object-storage path (ADD-012, SR-013, SR-022 SSE request) | Minor release that fixes the three PRB-047 advisories. Its one behaviour change applies to HTTPS proxies, and none is configured. It deprecates an empty `Retry.allowed_methods`, and botocore uses its own retry handler. urllib3 only carries the request. The `ServerSideEncryption` header is set by botocore and passes through unchanged. A transport regression fails the upload or download loudly (RISK-007). It cannot store an object in plaintext without the request failing. No new hazard. **Pre-existing gap:** no automated test sends a real request to MinIO (PRB-036), so this path is verified by the instantiation test and a manual attachment round trip, not end to end in CI. | RISK-007 and RISK-011 (SSE request, attachment availability): code unchanged, now running on a changed transitive. | TS-007 TC-007.5. Manual attachment upload and download through the proxy on the Compose stack at Checkpoint A (TASK-164). AC-8 version check. SOUP-019 review (AC-14) |
 | openapi-fetch removed; ADD-023 and arc42 corrected (TASK-165, TASK-166, TASK-167) | SOUP-033; SI-FE-APICLIENT (ADD-023) | Not imported, so not in the bundle. The emitted bundle is expected to be byte-identical before and after (TASK-165 compares the `dist/` checksums). The record correction removes a misattribution: ADD-023 credited the SR-031.3 client-side CSRF control to a generated, SOUP-backed client, when it is in-house code that must be reviewed as such (PRB-044). No new hazard. | RISK-005: unchanged at runtime; the description of the control's implementation is corrected. RISK-010: `relates_to` SOUP-033 removed. | Frontend lint, typecheck, build and suite (AC-10). `dist/` checksum comparison. `traceability-check` (AC-11, AC-19) |
 | Anomaly reviews, RISK-010 and end-to-end verification (TASK-168) | SOUP-003, 011, 019, 021 | The reviews add nothing themselves. Their findings are inputs to this stage (AC-14). | RISK-010 protective control "anomaly and advisory review", re-run at the new versions | TS-013 TC-013.9; gap report (AC-19) |
+| `datetime.UTC` fix in the test-data script (TASK-169, D-7) | None. `backend/scripts/` is developer tooling, not part of any software item or image | The script runs only when a developer calls it against a local database. The fix restores the code path it was written for. No SOUP, application code or control changes. No new hazard. | None | New backend test that runs the three functions against PostgreSQL (AC-20) |
+| `frontend/.dockerignore` (TASK-170, D-7) | No SOUP. SI-DEVINFRA `U-INF-Toolchain` (ADD-024), local and Compose builds of the frontend image | The build context loses only paths that are git-ignored, so a clean checkout (the CI `build` job) sends the same context as before. A local build now matches it. No new hazard. | RISK-010 (pinned, reproducible dependencies): strengthened for local builds, unchanged for CI. Not re-scored | Local image built from a working tree with host `node_modules` and `dist` gives the same `dist/` checksums as a clean build (AC-21) |
+| Task template wording (TASK-171, D-7) | None. `docs/templates/task.md` is a process template | Text only. No new hazard. | None | Inspection (AC-22) |
 
 **RISK-010 (AC-15), revised to 1.4 at this stage.**
 
@@ -469,12 +508,27 @@ Verification and records
 - **AC-18:** Every job in `.github/workflows/ci.yml` passes on the branch head. Locally, the
   backend suite (`pytest`, coverage at or above the CI threshold of 85 %) and the frontend suite
   (Vitest) pass.
-- **AC-19:** PRB-045, PRB-035, PRB-047 and PRB-044 are `resolved`. Each has a `## Resolution`
-  that names the changed files and a reproducible verification, and each has an incoming
-  `resolves` link from this CR. Every design record this CR creates or changes is `in_review`,
-  apart from SOUP-033 and ADD-004, which are `obsolete`. `traceability-check` over the whole
-  project reports 0 errors and no `soup_anomaly_review_stale` warning for any non-obsolete SOUP
-  record.
+- **AC-19:** PRB-045, PRB-035, PRB-047, PRB-044, PRB-049 and PRB-050 are `resolved`. Each has a
+  `## Resolution` that names the changed files and a reproducible verification, and each has an
+  incoming `resolves` link from this CR. Every design record this CR creates or changes is
+  `in_review`, apart from SOUP-033 and ADD-004, which are `obsolete`. `traceability-check` over
+  the whole project reports 0 errors and no `soup_anomaly_review_stale` warning for any
+  non-obsolete SOUP record. *(Amended 2026-10-30, D-7: PRB-049 and PRB-050 added.)*
+
+Added by D-7 (2026-10-30)
+
+- **AC-20 (PRB-049):** `backend/scripts/setup_test_data.py` contains no `datetime.UTC`, and its
+  `set_password`, `create_doctor` and `create_patient` set a timezone-aware UTC
+  `password_changed_at`. A backend test, run by `pytest` in CI, calls all three against a
+  PostgreSQL database and fails on the unfixed script with the PRB-049 `AttributeError`.
+- **AC-21 (PRB-050):** `frontend/.dockerignore` excludes at least `node_modules`, `dist` and
+  `.env*` files. Built from a working tree that holds the host's `node_modules` and a stale
+  `dist`, the frontend image's `/usr/share/nginx/html` has the same SHA-256 per file as the image
+  built from a clean `git archive` of the same commit, and the build stage's
+  `/app/node_modules` is the one `npm ci` installed (no host-only file in it).
+- **AC-22 (task template):** `docs/templates/task.md` says nowhere that the frontend API client
+  is generated. It names the hand-written `ApiClient` (`frontend/src/api/client.ts`) and the
+  types generated from the OpenAPI schema into `frontend/src/api/generated/`, as ADD-023 does.
 
 ## Verification approach
 
@@ -611,6 +665,14 @@ plan gate.
   keeps a `relates_to` link to SOUP-033. This CR is such a record, so TASK-165 removes this CR's
   `relates_to` SOUP-033 link when it sets SOUP-033 `obsolete`. The body still names SOUP-033, and
   so does TASK-165's link. This follows CR-001, which did not link SOUP-018.
+- **D-7 (PRB-049, PRB-050 and the task template; human, 2026-10-30):** resolve both PRBs and
+  correct `docs/templates/task.md` in this CR, instead of in a CR of their own as the PRBs
+  proposed. They were found by this CR's tasks, are `minor`, change no SOUP, no application code
+  and no requirement, and PRB-050 and the template touch what TASK-162 and TASK-165..167 changed.
+  Scope items 8–10, AC-20..AC-22 and TASK-169..171 are added, and AC-19 is amended. The TASK-168
+  end-to-end run stays as it was; TASK-171 re-runs `traceability-check` over the whole project
+  after the new tasks. The human approved this amendment (scope, AC-20..AC-22, TASK-169..171) in
+  chat on 2026-10-30, before TASK-169 started.
 
 ## Implementation plan
 
@@ -632,6 +694,9 @@ The plan is the TASK records below. Under the overlay there is no `docs/plans/<f
 | 6 | [TASK-166](../design-outputs/tasks/TASK-166-correct-add-023-api-client-description.md) Correct the API-client design record (ADD-023, ADD-004 note) | AC-11 (ADD-023 link), AC-12 (records) | TASK-165 | S | none |
 | 7 | [TASK-167](../design-outputs/tasks/TASK-167-correct-api-client-description-in-arc42.md) Correct the API-client description in arc42 and the building-block diagram | AC-12 (arc42, diagram), AC-19 (PRB-044) | TASK-166 | S | none |
 | 8 | [TASK-168](../design-outputs/tasks/TASK-168-verify-cr-003-end-to-end.md) Confirm RISK-010 and the anomaly reviews, and verify CR-003 end to end | AC-11 (check), AC-14 (escalations), AC-15, AC-16, AC-17, AC-18, AC-19 | all above | S | Docker host. Network (CI on the branch head) |
+| 9 | [TASK-169](../design-outputs/tasks/TASK-169-fix-datetime-utc-in-test-data-script.md) Fix `datetime.UTC` in the test-data script (D-7) | AC-20, AC-19 (PRB-049) | none | XS | Docker host (testcontainers PostgreSQL) |
+| 10 | [TASK-170](../design-outputs/tasks/TASK-170-add-frontend-dockerignore.md) Exclude host build output from the frontend image context (D-7) | AC-21, AC-19 (PRB-050) | none | XS | Docker host (frontend image builds). Network (registry, npm) |
+| 11 | [TASK-171](../design-outputs/tasks/TASK-171-correct-api-client-wording-in-task-template.md) Correct the API-client wording in the task template, and re-check traceability (D-7) | AC-22, AC-19 (`traceability-check`) | TASK-169, TASK-170 | XS | none |
 
 **Parallel work.** Tasks 1, 2 and 3 share no file except `.github/workflows/ci.yml`, which tasks 1
 and 2 edit in different jobs, so they can be worked in parallel and committed in order. Tasks 6
@@ -670,9 +735,12 @@ and 7 are documentation only, and the Document Writer may do task 7 (the arc42 s
 | AC-16 | every task; TASK-168 on the branch head |
 | AC-17 | TASK-161 (Redis version, existing volume), Checkpoint A, TASK-168 |
 | AC-18 | every task (its suites); TASK-168 (every CI job on the branch head) |
-| AC-19 | TASK-161 (PRB-045), TASK-162 (PRB-035), TASK-164 (PRB-047), TASK-167 (PRB-044), TASK-168 (statuses, `traceability-check`) |
+| AC-19 | TASK-161 (PRB-045), TASK-162 (PRB-035), TASK-164 (PRB-047), TASK-167 (PRB-044), TASK-168 (statuses, `traceability-check`), TASK-169 (PRB-049), TASK-170 (PRB-050), TASK-171 (`traceability-check` after D-7) |
+| AC-20 | TASK-169 |
+| AC-21 | TASK-170 |
+| AC-22 | TASK-171 |
 
-Every AC-1..AC-19 maps to at least one task.
+Every AC-1..AC-22 maps to at least one task.
 
 ### Plan risks
 
@@ -709,3 +777,9 @@ Every AC-1..AC-19 maps to at least one task.
 - 1.3 (2026-10-30) — Q-5 revised by the human: the PLAN-002 end-of-support criterion merges with
   this CR. Scope item 7 added; the requirements decision updated to match. PLAN-002 1.1 and
   PLAN-001 3.1 (`in_review`) committed on this branch, with `relates_to` links to both.
+- 1.4 (2026-10-30) — D-7: the human brought PRB-049, PRB-050 and the task-template correction
+  into this CR. Reason, scope items 8–10, out-of-scope items, change-analysis rows, AC-19
+  (amended), AC-20..AC-22, the plan rows and AC coverage for TASK-169..171 added. `resolves`
+  links to PRB-049 and PRB-050 and `relates_to` links to TASK-169..171 added. The Escalations
+  entries for TASK-161 and TASK-163 still say "outside this CR", as they were written; D-7
+  supersedes that.

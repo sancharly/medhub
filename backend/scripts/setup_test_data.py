@@ -3,7 +3,7 @@
 
 import os
 import sys
-from datetime import datetime
+from datetime import UTC, datetime
 from uuid import uuid4
 
 import argon2
@@ -73,7 +73,7 @@ def set_password(session: Session, email: str, password: str):
 
     account.password_hash = hash_password(password)
     account.status = AccountStatus.ACTIVE
-    account.password_changed_at = datetime.now(datetime.UTC)
+    account.password_changed_at = datetime.now(UTC)
     session.commit()
     print(f"  ✅ Password set for {email}")
     return True
@@ -97,7 +97,7 @@ def create_doctor(session: Session, email: str, first_name: str, surname: str, p
         status=AccountStatus.ACTIVE,
         first_name=first_name,
         surname=surname,
-        password_changed_at=datetime.now(datetime.UTC),
+        password_changed_at=datetime.now(UTC),
     )
     session.add(doctor)
     session.commit()
@@ -123,7 +123,7 @@ def create_patient(session: Session, email: str, first_name: str, surname: str, 
         status=AccountStatus.ACTIVE,
         first_name=first_name,
         surname=surname,
-        password_changed_at=datetime.now(datetime.UTC),
+        password_changed_at=datetime.now(UTC),
     )
     session.add(patient)
     session.commit()

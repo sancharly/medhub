@@ -2,8 +2,8 @@
 id: "PRB-049"
 type: problem-report
 title: "Test-data script fails on datetime.UTC, so it cannot create or update any account"
-status: open
-version: "1.0"
+status: resolved
+version: "1.1"
 author: "Carlos Santiago Liceras"
 created: "2026-10-29"
 updated: "2026-10-30"
@@ -57,4 +57,37 @@ only when a developer calls it by hand against a local database. No released ver
 
 Replace the three calls with `datetime.now(timezone.utc)` (import `timezone`), or import the module.
 Optionally take the passwords from the environment instead of printing fixed ones. Resolve it in a
-CR of its own; it is outside CR-003.
+CR of its own; it is outside CR-003. (Superseded on 2026-10-30: CR-003 D-7 brought it into CR-003.)
+
+## Resolution
+
+Resolved by CR-003 (`resolves` link on the CR, decision D-7) in
+[TASK-169](../design-outputs/tasks/TASK-169-fix-datetime-utc-in-test-data-script.md), on branch
+`bug/soup-upgrades`. The first option of the proposal was taken, in the form the backend already
+uses (`from datetime import UTC, datetime`, as in `backend/tests/db/test_repositories.py:3`). The
+fixed passwords are not changed (CR-003 Out of scope).
+
+Changes:
+- `backend/scripts/setup_test_data.py`: the import becomes `from datetime import UTC, datetime`,
+  and the three calls in `set_password`, `create_doctor` and `create_patient` become
+  `datetime.now(UTC)`. Nothing else changes.
+- `backend/tests/db/test_setup_test_data.py` (new): loads the script by path and, on the
+  testcontainers PostgreSQL `db_session`, calls `create_doctor`, `create_patient` and then
+  `set_password`. Each `password_changed_at` must be timezone-aware with a zero UTC offset. The
+  test is in `tests/`, so the CI `backend-tests` job runs it.
+
+Verification, reproducible from `backend/` with Docker running (on the reference workstation:
+`DOCKER_HOST=unix://$HOME/.docker/run/docker.sock`, the endpoint of the `desktop-linux` context):
+
+```sh
+grep -c 'datetime.UTC' scripts/setup_test_data.py                  # 0
+uv run pytest tests/db/test_setup_test_data.py -q                  # 1 passed
+# against the unfixed script (git show <TASK-169 parent>:backend/scripts/setup_test_data.py):
+uv run pytest tests/db/test_setup_test_data.py -q                  # fails: AttributeError ... UTC
+uv run ruff check . && uv run pytest --cov=app --cov-fail-under=85  # 500 passed, coverage 91.71 %
+```
+
+Results on 2026-10-30: before the fix, the new test failed at `scripts/setup_test_data.py:100`
+with `AttributeError: type object 'datetime.datetime' has no attribute 'UTC'`, which is the
+PRB-049 failure. After the fix, it passes, and so does the whole backend suite (500 passed,
+coverage 91.71 %, `ruff check` clean).
