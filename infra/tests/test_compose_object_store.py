@@ -136,9 +136,8 @@ class ComposeWiring(unittest.TestCase):
         self.assertEqual([str(p) for p in svc["expose"]], ["8333"])
         self.assertEqual(svc["environment"]["WEED_S3_SSE_KEY"], GOOD["AT_REST_ENCRYPTION_KEY"])
         self.assertIn("object_store_data", self.config["volumes"])
-        # Declared for TASK-178 (migration) and rollback; `config` drops unused volumes, so read
-        # the file. No service may mount it.
-        self.assertRegex(COMPOSE.read_text(), r"(?m)^  minio_data:")
+        # TASK-178: the MinIO volume is no longer declared here; the legacy file names it external.
+        self.assertNotRegex(COMPOSE.read_text(), r"(?m)^  minio_data:")
         self.assertNotIn("minio", self.config["services"])
         mounts = [v["source"] for v in svc["volumes"]]
         self.assertEqual(mounts, ["object_store_data"])

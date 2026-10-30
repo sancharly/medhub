@@ -1,0 +1,87 @@
+# Legacy MinIO for the one-off migration to the new object store (TASK-178, CR-002 AC-11).
+#
+# Starts the old MinIO, pinned by tag and digest like every other image (SOUP-022, obsolete),
+# against an EXISTING named volume given in LEGACY_MINIO_VOLUME, plus the migration container.
+# Not part of the normal stack: use it only as described in infra/DEPLOY.md, "Migrating from MinIO".
+# Run it under its own project name (docker compose -p <name>), never as the stack's project.
+#
+# LEGACY_MINIO_VOLUME must be a COPY of the old volume (restored from the step-1 backup), never the
+# original: a MinIO that runs on a data directory writes to it. Started and stopped on a writable
+# restored copy it deleted 19 of 31 housekeeping files (.minio.sys/tmp/.trash/*, a tmp file) in
+# QA's check; no object data, but the tree is no longer identical. The volume is therefore mounted
+# read-only here as a second guard. MinIO 2025-09-07 starts on a read-only data directory, lists
+# and decrypts objects, and leaves the tree hash unchanged (TASK-178 rehearsal, round 2); it logs
+# rename errors for its housekeeping files, which are harmless for this use.
+#
+# The cached image is arm64 only and cannot be pulled (SOUP-022); pull_policy: never keeps Compose
+# from trying. The legacy store joins one internal network (no egress, no published port) with the
+# migration container only. The volume is external: this file never creates or removes it, and
+# `down` without `-v` leaves it alone. This file is not a rollback path: see DEPLOY.md, "Rollback".
+
+networks:
+  legacy:
+    driver: bridge
+    internal: true
+  # Where the target store and the database are. Named by the caller; both exist already.
+  object-store:
+    external: true
+    name: ${OBJECT_STORE_NETWORK:?OBJECT_STORE_NETWORK must name the new object-store network}
+  database:
+    external: true
+    name: ${DATABASE_NETWORK:?DATABASE_NETWORK must name the network of the database}
+
+volumes:
+  minio_data:
+    external: true
+    name: ${LEGACY_MINIO_VOLUME:?LEGACY_MINIO_VOLUME must name a restored copy of the MinIO data volume}
+
+services:
+  minio-legacy:
+    image: minio/minio:RELEASE.2025-09-07T16-13-09Z@sha256:14cea493d9a34af32f524e538b8346cf79f3321eff8e708c1e2960462bd8936e
+    pull_policy: never
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${LEGACY_ACCESS_KEY:-${OBJECT_STORE_ACCESS_KEY:?OBJECT_STORE_ACCESS_KEY must be set}}
+      MINIO_ROOT_PASSWORD: ${LEGACY_SECRET_KEY:-${OBJECT_STORE_SECRET_KEY:?OBJECT_STORE_SECRET_KEY must be set}}
+      # The key the objects were encrypted with (SR-016): the AT_REST_ENCRYPTION_KEY of the old stack
+      MINIO_KMS_SECRET_KEY: medhub-key:${LEGACY_KMS_KEY:-${AT_REST_ENCRYPTION_KEY:?AT_REST_ENCRYPTION_KEY must be set}}
+    volumes:
+      - minio_data:/data:ro
+    expose:
+      - "9000"
+    networks:
+      - legacy
+    restart: "no"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:9000/minio/health/ready"]
+      interval: 5s
+      timeout: 5s
+      retries: 24
+      start_period: 5s
+
+  # One-shot: copies every attachment object to the new store and verifies it (exit 1 on any
+  # missing or mismatched object). Run with: up --abort-on-container-exit migrate, or `run --rm migrate`.
+  migrate:
+    build:
+      context: ../../backend
+      dockerfile: Dockerfile
+    profiles: ["migrate"]
+    entrypoint: ["python", "scripts/migrate_object_store.py"]
+    environment:
+      DATABASE_URL: ${MIGRATION_DATABASE_URL:?MIGRATION_DATABASE_URL must be set}
+      SOURCE_ENDPOINT: http://minio-legacy:9000
+      SOURCE_ACCESS_KEY: ${LEGACY_ACCESS_KEY:-${OBJECT_STORE_ACCESS_KEY:?OBJECT_STORE_ACCESS_KEY must be set}}
+      SOURCE_SECRET_KEY: ${LEGACY_SECRET_KEY:-${OBJECT_STORE_SECRET_KEY:?OBJECT_STORE_SECRET_KEY must be set}}
+      SOURCE_BUCKET: ${LEGACY_BUCKET:-${OBJECT_STORE_BUCKET:-medhub}}
+      OBJECT_STORE_ENDPOINT: ${OBJECT_STORE_ENDPOINT:-http://object-store:8333}
+      OBJECT_STORE_ACCESS_KEY: ${OBJECT_STORE_ACCESS_KEY:?OBJECT_STORE_ACCESS_KEY must be set}
+      OBJECT_STORE_SECRET_KEY: ${OBJECT_STORE_SECRET_KEY:?OBJECT_STORE_SECRET_KEY must be set}
+      OBJECT_STORE_BUCKET: ${OBJECT_STORE_BUCKET:-medhub}
+    depends_on:
+      minio-legacy:
+        condition: service_healthy
+    networks:
+      - legacy
+      - object-store
+      - database
+    restart: "no"

@@ -19,7 +19,6 @@ networks:
 volumes:
   postgres_data:
   redis_data:
-  minio_data:   # MinIO data, kept for migration (TASK-178) and rollback; no service mounts it
   object_store_data:
 
 services:
