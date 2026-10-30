@@ -2,11 +2,15 @@
 id: TS-011
 type: test-specification
 title: Transport security, CSRF and error contract verification
-status: in_review
+status: approved
 version: "1.1"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-10-29"
+updated: "2026-10-30"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-30"
+approved_digest: aa5fedfc71eaccc594bda5110b464621af0e2f043ff2d675061ef200c1c5cb73
+approval_note: self-approved
 links:
   - target: SR-001
     relation: verifies

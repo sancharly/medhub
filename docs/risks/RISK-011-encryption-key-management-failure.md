@@ -2,11 +2,11 @@
 id: RISK-011
 type: risk
 title: Encryption or key management failure exposes or orphans clinical data
-status: in_review
+status: approved
 version: "1.2"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-10-29"
+updated: "2026-10-30"
 hazard: Encrypted clinical fields exposed in clear, or made permanently unreadable.
 cause: The ciphertext envelope carries no key identifier or version → a key rotation cannot tell which key decrypts which row → old rows fail to decrypt (data lost) or rotation is avoided altogether (a compromised key stays in use). Separately, a misconfigured storage endpoint could store attachments without server-side encryption.
 harm: Delayed care from lost history, or privacy harm from exposure.
@@ -15,6 +15,10 @@ probability_initial: 2
 severity_residual: 3
 probability_residual: 2
 acceptability: alarp
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-30"
+approved_digest: 38e570388370db331b90be35ac9e21c3eccf793c64021d373eac5426622d22cf
+approval_note: self-approved
 links:
   - target: SOUP-011
     relation: relates_to

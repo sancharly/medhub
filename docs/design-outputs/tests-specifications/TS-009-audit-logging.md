@@ -2,11 +2,15 @@
 id: TS-009
 type: test-specification
 title: Audit logging verification
-status: in_review
+status: approved
 version: "1.1"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-10-29"
+updated: "2026-10-30"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-30"
+approved_digest: 5c295cf3b7f99c4ede4f3a8bd22963019d6755e629549454b4c4c9eee9db47ff
+approval_note: self-approved
 links:
   - target: SR-023
     relation: verifies

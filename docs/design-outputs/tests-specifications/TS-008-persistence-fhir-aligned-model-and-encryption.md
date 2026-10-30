@@ -2,11 +2,15 @@
 id: TS-008
 type: test-specification
 title: Persistence, FHIR-aligned model and encryption verification
-status: in_review
+status: approved
 version: "1.1"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-10-29"
+updated: "2026-10-30"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-30"
+approved_digest: fff8756a71255e0e1476f1698a08f03c6516ead87449d1be7883bf68b75543c9
+approval_note: self-approved
 links:
   - target: SR-021
     relation: verifies

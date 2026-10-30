@@ -6,7 +6,7 @@ status: open
 version: "1.0"
 author: "Carlos Santiago Liceras"
 created: "2026-10-29"
-updated: "2026-10-29"
+updated: "2026-10-30"
 criticality: minor
 links: []
 tags: ["tooling", "test-data", "found-by:TASK-161"]
@@ -16,7 +16,7 @@ tags: ["tooling", "test-data", "found-by:TASK-161"]
 
 ## Observed
 
-`backend/scripts/setup_test_data.py` imports the class (`from datetime import datetime`, line 5)
+`backend/scripts/setup_test_data.py` imports the class (`from datetime import datetime`, line 6)
 and then calls `datetime.now(datetime.UTC)` at three places: `set_password` (line 76),
 `create_doctor` (line 100) and `create_patient` (line 126). The class `datetime.datetime` has no
 `UTC` attribute (`UTC` belongs to the module), so each call raises:

@@ -2,14 +2,18 @@
 id: SOUP-011
 type: soup
 title: cryptography
-status: in_review
+status: approved
 version: "1.2"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
-updated: "2026-10-29"
+updated: "2026-10-30"
 manufacturer: Python Cryptographic Authority (PyCA)
 soup_version: 50.0.2
 anomaly_review: "2026-10-29"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-30"
+approved_digest: b1afde58fee868644468031179301b127b3d5d2f01c764bb275f8ea1134faca5
+approval_note: self-approved
 links: []
 tags:
   - soup

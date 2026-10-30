@@ -2,11 +2,15 @@
 id: TS-005
 type: test-specification
 title: Groups and per-group module enablement verification
-status: in_review
+status: approved
 version: "1.1"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-10-29"
+updated: "2026-10-30"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-30"
+approved_digest: ae0b63b5a5016266c3c33a05f4c02a91c9995c1d27bd0088fd3f36abfbc686ea
+approval_note: self-approved
 links:
   - target: SR-014
     relation: verifies

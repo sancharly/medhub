@@ -2,11 +2,15 @@
 id: TS-002
 type: test-specification
 title: Authorization, consent and visibility verification
-status: in_review
+status: approved
 version: "1.1"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-10-29"
+updated: "2026-10-30"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-30"
+approved_digest: 41949a1ea6e1625d077d40e90458d45116e81f306738f9e2b8e6750a7ac89801
+approval_note: self-approved
 links:
   - target: SR-005
     relation: verifies

@@ -2,11 +2,15 @@
 id: TS-012
 type: test-specification
 title: Usability, responsiveness and theming verification
-status: in_review
+status: approved
 version: "1.1"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-10-29"
+updated: "2026-10-30"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-30"
+approved_digest: dce927e475547c60791e250dc9f7b1214e524b30d6357db96f2218c13518bf11
+approval_note: self-approved
 links:
   - target: SR-019
     relation: verifies

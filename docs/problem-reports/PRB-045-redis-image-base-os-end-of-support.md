@@ -6,7 +6,7 @@ status: resolved
 version: "1.2"
 author: "Carlos Santiago Liceras"
 created: "2026-10-22"
-updated: "2026-10-29"
+updated: "2026-10-30"
 criticality: minor
 links: []
 tags: ["soup", "maintenance", "configuration-management"]
@@ -58,8 +58,9 @@ Under CR-001 A-5 the base OS belongs to the image's own SOUP record, so SOUP-021
 fix changes.
 
 Re-checked 2026-10-29. Both references above are unchanged since CR-001 (same tag and digest), so
-the TASK-154 finding still applies. `/etc/alpine-release` was not read again: this workstation
-has no container runtime.
+the TASK-154 finding still applies. `/etc/alpine-release` was not read again at that point, because
+this workstation had no container runtime then. Superseded by TASK-161: Alpine 3.21.9 was confirmed
+from the old pinned image on 2026-10-29.
 
 ## Safety evaluation
 

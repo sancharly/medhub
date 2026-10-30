@@ -2,11 +2,15 @@
 id: TS-006
 type: test-specification
 title: Appointments and notification verification
-status: in_review
+status: approved
 version: "1.1"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-10-29"
+updated: "2026-10-30"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-30"
+approved_digest: 9f28bca152793c970369a3aafe616a0eecfd68ba25086917667bdb59fbc7bb46
+approval_note: self-approved
 links:
   - target: SR-010
     relation: verifies

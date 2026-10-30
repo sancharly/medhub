@@ -1,55 +1,56 @@
 ---
-id: "CR-003"
+id: CR-003
 type: change-request
-title: "Upgrade end-of-life and advisory-affected SOUP, and drop an unused SOUP item"
-status: open
-version: "1.1"
-author: "Carlos Santiago Liceras"
+title: Upgrade end-of-life and advisory-affected SOUP, and drop an unused SOUP item
+status: in_progress
+version: "1.2"
+author: Carlos Santiago Liceras
 created: "2026-10-29"
-updated: "2026-10-29"
+updated: "2026-10-30"
 branch: bug/soup-upgrades
+risk_impact: affects_controls
 links:
-  - target: "TASK-161"
+  - target: TASK-161
     relation: relates_to
-  - target: "TASK-162"
+  - target: TASK-162
     relation: relates_to
-  - target: "TASK-163"
+  - target: TASK-163
     relation: relates_to
-  - target: "TASK-164"
+  - target: TASK-164
     relation: relates_to
-  - target: "TASK-165"
+  - target: TASK-165
     relation: relates_to
-  - target: "TASK-166"
+  - target: TASK-166
     relation: relates_to
-  - target: "TASK-167"
+  - target: TASK-167
     relation: relates_to
-  - target: "TASK-168"
+  - target: TASK-168
     relation: relates_to
-  - target: "RISK-011"
+  - target: RISK-011
     relation: relates_to
-  - target: "PRB-045"
+  - target: PRB-045
     relation: resolves
-  - target: "PRB-035"
+  - target: PRB-035
     relation: resolves
-  - target: "PRB-047"
+  - target: PRB-047
     relation: resolves
-  - target: "PRB-044"
+  - target: PRB-044
     relation: resolves
-  - target: "CR-001"
+  - target: CR-001
     relation: relates_to
-  - target: "SR-028"
+  - target: SR-028
     relation: relates_to
-  - target: "RISK-010"
+  - target: RISK-010
     relation: relates_to
-  - target: "ADD-023"
+  - target: ADD-023
     relation: relates_to
-  - target: "SOUP-003"
+  - target: SOUP-003
     relation: relates_to
-  - target: "SOUP-011"
+  - target: SOUP-011
     relation: relates_to
-  - target: "SOUP-019"
+  - target: SOUP-019
     relation: relates_to
-  - target: "SOUP-021"
+  - target: SOUP-021
     relation: relates_to
 tags:
   - soup
@@ -301,6 +302,9 @@ that this list is complete.
   jmespath and urllib3 2.8.0. The six PRB-047 advisories for these two packages are fixed at
   anyio 4.14.2 and urllib3 2.8.0. No hazard-relevant finding and no MedHub-affecting defect, so no
   RISK raised for SOUP-003 or SOUP-019. PRB-047 is `resolved` (all three packages).
+- TASK-168 (completeness check, 2026-10-30): the list has an entry for each of SOUP-003, SOUP-011,
+  SOUP-019 and SOUP-021, and each says "none". No review raised a RISK, and the only PRBs raised
+  during the CR (PRB-049, PRB-050) are tooling defects outside the four reviewed items.
 
 ### Selected versions (Plan stage, 2026-10-29)
 
@@ -688,3 +692,4 @@ Every AC-1..AC-19 maps to at least one task.
   - Implementation plan TASK-161..168 added, with checkpoints, the AC coverage table and the plan
     risks. `relates_to` links to the tasks and to RISK-011 added.
   - Status stays `open`.
+- 1.2 (2026-10-30) — TASK-168 (Checkpoint B). Escalations list confirmed complete. Status stays `open`.

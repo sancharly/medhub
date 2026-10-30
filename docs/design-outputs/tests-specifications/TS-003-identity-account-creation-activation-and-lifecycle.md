@@ -2,11 +2,15 @@
 id: TS-003
 type: test-specification
 title: Identity, account creation, activation and lifecycle verification
-status: in_review
+status: approved
 version: "1.1"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-10-29"
+updated: "2026-10-30"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-30"
+approved_digest: be0556cc302f2f21a2426501cb360d45b20e3ab21f96a34d88ef9afa4a6bc97d
+approval_note: self-approved
 links:
   - target: SR-003
     relation: verifies

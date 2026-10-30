@@ -2,11 +2,15 @@
 id: TS-013
 type: test-specification
 title: Lifecycle record and traceability verification
-status: in_review
+status: approved
 version: "1.4"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-10-29"
+updated: "2026-10-30"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-30"
+approved_digest: 48c92e412ad44bf752caba0e3a4d341ec1d4fd9b96ab1f61f33a6024e642dea4
+approval_note: self-approved
 links:
   - target: SR-028
     relation: verifies
@@ -30,7 +34,9 @@ TC-013.8: automated CI checks of the dependency set the build resolves).
 ## Preconditions and environment
 
 Build: branch `bug/soup-pinning`. TC-013.9 and the CR-001 end-to-end run (TASK-159, 2026-10-22) were
-executed on commit `7ef8f93` with the TASK-159 record changes only (no source change). Backend Python 3.12 with the
+executed on commit `7ef8f93` with the TASK-159 record changes only (no source change). TC-013.9 and the
+CR-003 end-to-end run (TASK-168, 2026-10-30) were executed on branch `bug/soup-upgrades` at commit
+`d57ec72` with the TASK-168 record changes only (no source change). Backend Python 3.12 with the
 dependencies locked in `backend/uv.lock`; frontend Node 24 LTS (build stage node:24.22.2-trixie-slim; CI node-version 24) with `frontend/package-lock.json`.
 Unit and service tests run with no external services (the repository itself). Tests marked *real DB* require a
 PostgreSQL 16 container through testcontainers and therefore a working Docker daemon.
@@ -96,3 +102,8 @@ TC-013.1 to TC-013.4 and TC-013.9 verify the process requirement by review, whic
   TC-013.7 moved from the review level to the integration level with TC-013.8: since TASK-158 it is
   an automated CI step, not a review (carried LOW finding from TASK-158's QA); `level:integration`
   tag added for TC-013.7/8. Environment states the commit tested.
+- 1.4 (2026-10-29) — CR-003 (TASK-162). Version 1.3 was approved, so this change bumps the version and
+  clears the approval record. The environment line names Node 24 LTS (build stage
+  `node:24.22.2-trixie-slim`, CI `node-version` 24) instead of Node 20. The test cases do not change.
+  TASK-168 (2026-10-30) adds to the environment the branch and commit of the TC-013.9 and CR-003
+  end-to-end run. The test cases still do not change.
