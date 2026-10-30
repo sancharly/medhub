@@ -18,6 +18,7 @@ This folder records the significant architecture decisions for MedHub. One decis
 | [ADR-0012](0012-authentication-session-mechanism.md)      | Server-side opaque session tokens in hardened cookies                                            | Accepted |
 | [ADR-0013](0013-account-deletion-anonymized-retention.md) | Account deletion via 5-year anonymized retention with a user-held retrieval code                 | Accepted |
 | [ADR-0014](0014-mui-css-variables-theming.md)             | Design-token theming via MUI CSS variables + native light/dark colorSchemes                      | Accepted |
+| [ADR-0015](0015-object-store-component-after-minio.md)    | Replace MinIO with SeaweedFS; boto3 bucket initialiser; credential preflight; isolated network (amends ADR-0009) | Accepted |
 
 ## Trade-off summary
 

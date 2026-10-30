@@ -2,16 +2,12 @@
 id: PLAN-002
 type: lifecycle-plan
 title: Software maintenance plan
-status: approved
-version: "1.1"
+status: in_review
+version: "1.2"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
 updated: "2026-10-30"
 plan_kind: maintenance
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-10-30"
-approved_digest: 139edd8a08b544124db2bb30f76483c5fdbd8736e043057be93a4a92bb88aa60
-approval_note: self-approved
 links: []
 tags:
   - regulatory
@@ -75,6 +71,26 @@ On a shortfall (less than 12 months left, or support already ended):
    human records in the PRB why the release may ship with it, and the release evaluates it as a
    residual anomaly (§5.8.3).
 
+### Items with rolling releases
+
+An item whose manufacturer ships fixes only in its latest release (no maintained release line
+and no published end-of-life date) and that has had a critical advisory in the previous 12
+months is reviewed **monthly**, not only at the intervals above:
+
+- Each calendar month the sources named in the item's `soup` record are read again, and
+  `anomaly_review` is updated.
+- A fix for a hazard-relevant advisory is adopted by a reviewed change of the pinned digest, with
+  the record's change log updated, no later than the next monthly review.
+- The pinned release is acceptable while it is no more than one review interval behind a
+  release that fixes a hazard-relevant advisory.
+- The 365-day maximum in `docs/medtrace.yml` is unchanged. The monthly cadence is a process
+  rule of this plan.
+
+Current item: [SOUP-036](../soup/SOUP-036-seaweedfs.md) (SeaweedFS, 25 advisories in 2026, 9
+critical, rolling releases, no end-of-life date). An item leaves the rule when it has had no
+critical advisory for 12 months or moves to a maintained release line; the review that finds
+this says so in the record.
+
 ## Maintenance of this plan
 
 This plan is a living document; a change is a new `version` and a new review.
@@ -85,3 +101,4 @@ This plan is a living document; a change is a new `version` and a new review.
 |---|---|---|
 | 1.0 | 2026-10-21 | Split out of ADD-002 v2.0 as a `lifecycle-plan` record |
 | 1.1 | 2026-10-30 | End-of-support criterion added to SOUP monitoring (§6.1 f), with a 12-month horizon and the action on a shortfall. Root cause of [PRB-045](../problem-reports/PRB-045-redis-image-base-os-end-of-support.md) (Redis image on Alpine 3.21, support ending 2026-11-01) and [PRB-035](../problem-reports/PRB-035-frontend-build-on-end-of-life-node.md) (frontend built on Node 20, end of life 2026-04-30): the reviews checked anomaly lists only, and nothing checked end of support. Raised as a separate plan revision by CR-003 Q-5 |
+| 1.2 | 2026-10-30 | Monthly review for items with rolling releases and a recent critical advisory added to SOUP monitoring (§6.1 f). Current item: SOUP-036 (SeaweedFS, ADR-0015, CR-002 TASK-172). The yearly review of every other item is unchanged. Proposed; approval record cleared for re-approval by the human |

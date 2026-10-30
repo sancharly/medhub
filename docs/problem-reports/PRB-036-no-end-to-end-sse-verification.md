@@ -3,10 +3,10 @@ id: "PRB-036"
 type: problem-report
 title: "Server-side encryption of attachments is never verified against a real object store"
 status: open
-version: "1.0"
+version: "1.1"
 author: "Carlos Santiago Liceras"
 created: "2026-10-22"
-updated: "2026-10-22"
+updated: "2026-10-30"
 criticality: minor
 links: []
 tags: ["verification", "security", "encryption"]
@@ -26,6 +26,14 @@ confirms it is stored encrypted. CI runs no object-store service.
 - The at-rest encryption control for attachments (SR-022, RISK-001) is claimed verified, but the
   evidence covers only the call, not the store's behaviour.
 - Until boto3 is declared (PRB-002, CR-001) the path never ran outside tests, so the gap was latent.
+
+## Investigation
+
+Root cause: the only tests of the encryption path mock the S3 client. `ObjectStorageClient.put_object`
+passes `ServerSideEncryption="AES256"` (`backend/app/core/object_storage.py:40`), and the tests
+assert that the mock received the parameter. No test or CI job starts an object store, so what the
+store does with the parameter (stores the object encrypted, or rejects the write) was never
+observed. CI has no object-store service container.
 
 ## Safety evaluation
 

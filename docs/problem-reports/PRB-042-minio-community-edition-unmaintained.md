@@ -3,10 +3,10 @@ id: "PRB-042"
 type: problem-report
 title: "MinIO community edition is unmaintained and its images can no longer be obtained"
 status: open
-version: "1.0"
+version: "1.1"
 author: "Carlos Santiago Liceras"
 created: "2026-10-22"
-updated: "2026-10-22"
+updated: "2026-10-30"
 criticality: major
 links: []
 tags: ["soup", "configuration-management", "maintenance", "hazard:availability", "hazard:security"]
@@ -59,6 +59,19 @@ The workstation cache holds both images, arm64 only, and CR-001 pinned their loc
   - RISK-010: its "pinning delays patches" counterweight does not hold for this item. The input
     goes to TASK-159.
   - RISK-011 and RISK-001: the SSE server receives no security fixes.
+
+## Investigation
+
+Root cause: the manufacturer withdrew the community edition. The evidence is in the Observed list:
+source-only from 2025-10-15, maintenance mode 2025-12-03, no longer maintained 2026-02-12, archived
+April 2026, community downloads answering HTTP 410 and the Docker Hub and quay.io images gone on
+2026-10-22.
+
+MedHub's side of the problem: `infra/docker-compose.yml:96` and `:114` pin the server and `mc` by
+tag and digest (CR-001), but the pinned references name images that no registry serves, and the
+`backend` service depends on `createbuckets`, which needs the `mc` image. A host without the cached
+arm64 images cannot start the stack. Which maintained store or interim build resolves it is an
+architecture decision (ADR of CR-002); this report does not decide it.
 
 ## Safety evaluation
 

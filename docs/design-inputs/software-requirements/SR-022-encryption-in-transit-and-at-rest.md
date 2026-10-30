@@ -1,30 +1,38 @@
 ---
-id: "SR-022"
+id: SR-022
 type: software-requirement
-title: "Encryption in transit and at rest"
+title: Encryption in transit and at rest
 status: approved
-version: "1.3"
-author: "Carlos Santiago Liceras"
+version: "1.4"
+author: Carlos Santiago Liceras
 created: "2026-07-07"
-updated: "2026-10-21"
+updated: "2026-10-30"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-30"
+approved_digest: ccda8b65863525c84e66b78eb18bceff2ca5b45e3c53e7b4c822168f6b41c8e0
+approval_note: self-approved
 links:
-  - target: "RR-003"
+  - target: RR-003
     relation: satisfies
-  - target: "RISK-006"
+  - target: RISK-006
     relation: mitigates
-  - target: "RISK-007"
+  - target: RISK-007
     relation: mitigates
-  - target: "RISK-008"
+  - target: RISK-008
     relation: mitigates
-  - target: "RISK-010"
+  - target: RISK-010
     relation: mitigates
-  - target: "RISK-011"
+  - target: RISK-011
     relation: mitigates
-  - target: "NFR-004"
+  - target: RISK-012
+    relation: mitigates
+  - target: NFR-004
     relation: derives_from
-  - target: "NFR-007"
+  - target: NFR-007
     relation: derives_from
-tags: ["control:design", "control:protective"]
+tags:
+  - control:design
+  - control:protective
 ---
 
 ## Summary
@@ -40,6 +48,8 @@ This requirement implements the encryption obligations shared by GDPR and cybers
 1. All client-server traffic is transmitted over TLS; non-TLS access is not served.
 2. Personal and health data, including clinical entries and attachments, are encrypted at rest using a recognized algorithm (e.g., AES-256).
 3. Encryption keys are managed so that data is not recoverable without authorized key access.
+4. The object store bucket that holds attachments has default encryption enabled by the deployment, so that an object is stored encrypted at rest whichever client or path wrote it, including a write that carries no encryption request.
+5. The encryption of an attachment written through the application's object-storage client is verified against a real object store: the stored object reports server-side encryption AES256.
 
 ## Origin Requirement
 
@@ -58,6 +68,7 @@ Encryption protects special-category health data and is required by GDPR and med
 ### Control Measures
 
 - Enforce TLS (SR-001) and storage-level encryption; verify configuration during security review and system testing.
+- Default bucket encryption (AC 4) covers writes that bypass the application (RISK-012). AC 5 closes the gap that only a mocked call was tested (PRB-036).
 
 ## Version history
 
@@ -68,3 +79,4 @@ Encryption protects special-category health data and is required by GDPR and med
   unchanged, so the existing approval stands.
 - 1.3 (2026-10-21) — Tagged `control:design`, `control:protective` (type of the risk control it implements,
   medical-records 0.3.2). Traceability only: the content is unchanged, so the existing approval stands.
+- 1.4 (2026-10-30) — Content change, so the approval is cleared and the record returns to review (CR-002). Added AC 4 (default bucket encryption) and AC 5 (encryption verified against a real object store) and a `mitigates` link to RISK-012. Reason: the application requests encryption only on its own write path, so an object written by another path is stored unencrypted (PRB-043), and no test ever wrote to a real store (PRB-036).

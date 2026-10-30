@@ -3,10 +3,10 @@ id: "PRB-043"
 type: problem-report
 title: "Unfixed MinIO vulnerabilities are exposed by MedHub's object-store configuration"
 status: open
-version: "1.0"
+version: "1.1"
 author: "Carlos Santiago Liceras"
 created: "2026-10-22"
-updated: "2026-10-22"
+updated: "2026-10-30"
 criticality: critical
 links: []
 tags: ["security", "soup", "configuration-management", "hazard:security", "hazard:data-integrity"]
@@ -58,6 +58,25 @@ An actor with a foothold on the `medhub` network (a compromised container, or th
 MedHub would then show substituted content to clinicians without any error. The control "server-side
 encryption enforced on the object store" (RISK-011, SR-022) holds only for the backend's own write
 path.
+
+## Investigation
+
+Root cause: nothing in the deployment limits who can reach the object store or what it exposes, and
+the application trusts the store's content without checking it.
+
+- `infra/docker-compose.yml:97` starts the server with the console; `:105-107` expose ports 9000
+  and 9001 to the whole `medhub` network (`:108-109` is the only network).
+- `infra/docker-compose.yml:99-100` take the root credentials from `OBJECT_STORE_ACCESS_KEY` and
+  `OBJECT_STORE_SECRET_KEY`; `infra/.env.example:24,26` set them to `minioadmin` and `changeme`, and
+  no start-up check rejects them.
+- `infra/docker-compose.yml:118-124` (`createbuckets`) creates the bucket and sets it private but
+  sets no default encryption. Only the backend's own write requests `ServerSideEncryption="AES256"`
+  (`backend/app/core/object_storage.py:40`).
+- `backend/app/attachments/service.py:79` computes the SHA-256 and `:92` stores it; the read path
+  `AttachmentService.open` (`:115-137`) fetches the object and returns it without comparing it.
+
+Root cause of the exposure is therefore configuration plus a missing integrity check. The component
+defects themselves cannot be fixed (PRB-042).
 
 ## Safety evaluation
 

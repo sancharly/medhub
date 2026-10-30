@@ -3,10 +3,10 @@ id: "PRB-039"
 type: problem-report
 title: "Bucket initialisation runs before MinIO accepts connections"
 status: open
-version: "1.0"
+version: "1.1"
 author: "Carlos Santiago Liceras"
 created: "2026-10-22"
-updated: "2026-10-22"
+updated: "2026-10-30"
 criticality: minor
 links: []
 tags: ["infrastructure", "verification"]
@@ -29,6 +29,15 @@ race; it was not captured in the baseline run.
 On a fresh `minio_data` volume the `medhub` bucket is not created, and attachment storage (SR-013)
 fails until the bucket is created by hand. On an existing volume (as on the reference workstation,
 where the bucket already existed) the failure is hidden.
+
+## Investigation
+
+Root cause: `createbuckets` waits for `minio` with `condition: service_started`
+(`infra/docker-compose.yml:115-117`), which only means that the container process was created, and
+`minio` defines no healthcheck. The entrypoint (`infra/docker-compose.yml:118-124`) runs `mc alias
+set`, `mc mb` and `mc anonymous set` once, each of which fails with `connection refused` while the
+server initialises, and ends with `exit 0;`, which hides the failure. On a fresh volume the bucket is
+never created.
 
 ## Safety evaluation
 

@@ -3,13 +3,13 @@ id: SR-028
 type: software-requirement
 title: Traceable, version-controlled development records
 status: approved
-version: "1.5"
+version: "1.6"
 author: Carlos Santiago Liceras
 created: "2026-07-07"
-updated: "2026-10-22"
+updated: "2026-10-30"
 approved_by: Carlos Santiago Liceras
-approved_on: "2026-10-22"
-approved_digest: aab4c822b5f62bbf77a3f22a2d4c62e201eba8bc8dc91406eeea681cf2fb9704
+approved_on: "2026-10-30"
+approved_digest: 48fcf3109fc7b116257f58ca9f2fab0cdfca1ee76fecb7550bc479f157209377
 approval_note: self-approved
 links:
   - target: RR-006
@@ -51,6 +51,7 @@ The same obligation covers the software of unknown provenance the build is assem
 4. Each software requirement is traced to at least one system test before release.
 5. Every third-party component that the deployed software ships or requires at runtime is declared in a version-controlled manifest and resolves to exactly one version: packages through the committed lock files, container images through a reference that carries both a release tag and an immutable content digest (`@sha256:`). The CI pipeline fails on a change that leaves a container image reference in the deployment or image-build files (Compose files, Dockerfiles) without a digest.
 6. Every SOUP component in use has a `soup` record whose `soup_version` equals the version the build resolves, and a dated review of its published anomaly list that cites the source reviewed; at release the review is no older than `soup_anomaly_max_age_days` in `docs/medtrace.yml`.
+7. Every container image the deployment references can be obtained, by its pinned tag and digest or by a documented build from version-controlled sources with verified checksums, on a host that holds no cached images: building and starting the stack on such a host succeeds.
 
 ## Origin Requirement
 
@@ -94,3 +95,4 @@ Traceable, controlled records are mandatory for MDR/FDA technical documentation 
   that realizes them, but none of its criteria stated those obligations, so the pinning check and
   the anomaly review of CR-001 (PRB-001, PRB-002, PRB-033, TASK-154) had no testable criterion to
   verify against.
+- 1.6 (2026-10-30) — Content change, so the approval record is cleared and the record returns to review (CR-002). Added AC-7 (every pinned component can be obtained on a host with no cached images). Reason: the pinned MinIO images can no longer be pulled from any registry, so the pinned build is not reproducible on a fresh or amd64 host (PRB-042, §5.8.5).
