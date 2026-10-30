@@ -7,6 +7,14 @@ version: "3.9"
 networks:
   medhub:
     driver: bridge
+  # Object store network (SR-040 AC 3, ADR-0015 D4): joined only by object-store, object-store-init
+  # and backend. internal: no egress and no published port. The store's unauthenticated internal
+  # ports are therefore unreachable from the proxy, frontend, postgres, redis and celery-worker.
+  # The CI override (TASK-179) attaches the store to a CI-only network too, because Docker
+  # cannot publish a port from a container that is on internal networks only.
+  object-store:
+    driver: bridge
+    internal: true
 
 volumes:
   postgres_data:
@@ -56,6 +64,7 @@ services:
         condition: service_completed_successfully
     networks:
       - medhub
+      - object-store
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/healthz')"]
@@ -142,7 +151,7 @@ services:
     expose:
       - "8333"
     networks:
-      - medhub
+      - object-store
     restart: unless-stopped
     # Healthy only once the S3 endpoint answers (PRB-039); the initialiser waits for it.
     healthcheck:
@@ -174,7 +183,7 @@ services:
       object-store:
         condition: service_healthy
     networks:
-      - medhub
+      - object-store
     restart: "no"
 
   # ── Celery Worker ─────────────────────────────────────────────────────────

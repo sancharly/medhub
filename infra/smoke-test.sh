@@ -153,6 +153,66 @@ else
     echo "  [SKIP] curl not available — schema migration check skipped"
 fi
 
+# ── 10. Object-store network isolation (SR-040 AC 3, AC 5) ──────────────────
+# Started-stack checks: skipped, with a message, when the stack is not running. The stack is the
+# Compose project of the shell (COMPOSE_PROJECT_NAME, default `infra`).
+# Probe tool per image: reverse-proxy and frontend (nginx:alpine) have no bash, so busybox
+# `nc -z`; postgres and redis (Debian), backend and celery-worker (python:slim, Debian) have bash,
+# so a /dev/tcp connect. Each probe has a positive control (same tool, a port that must answer)
+# so a missing tool cannot pass as "refused".
+echo ""
+echo "-- Object-store network isolation (SR-040 AC 3, AC 5) --"
+compose() { docker compose -f "$COMPOSE_FILE" "$@"; }
+# connects SVC TOOL HOST PORT -> exit 0 when the TCP connection opens
+connects() {
+    local svc="$1" tool="$2" host="$3" port="$4"
+    if [ "$tool" = "nc" ]; then
+        compose exec -T "$svc" nc -z -w 3 "$host" "$port" >/dev/null 2>&1
+    else
+        compose exec -T "$svc" timeout 3 bash -c "exec 3<>/dev/tcp/$host/$port" >/dev/null 2>&1
+    fi
+}
+if [ -n "$(compose ps -q object-store 2>/dev/null)" ] && [ -n "$(compose ps -q backend 2>/dev/null)" ]; then
+    # service:tool:control host:control port
+    for entry in reverse-proxy:nc:backend:8000 frontend:nc:localhost:80 postgres:bash:localhost:5432 \
+                 redis:bash:localhost:6379 celery-worker:bash:redis:6379; do
+        IFS=: read -r svc tool chost cport <<<"$entry"
+        if ! connects "$svc" "$tool" "$chost" "$cport"; then
+            check "probe tool works in '${svc}' (control $chost:$cport)" "control connection failed"
+        elif connects "$svc" "$tool" object-store 8333; then
+            check "'${svc}' cannot reach object-store:8333" "connection succeeded"
+        else
+            check "'${svc}' cannot reach object-store:8333" "ok"
+        fi
+    done
+    if connects backend bash object-store 8333; then
+        check "'backend' reaches object-store:8333" "ok"
+    else
+        check "'backend' reaches object-store:8333" "connection failed"
+    fi
+    ROUND_TRIP=$(compose exec -T backend python -c '
+from app.core.object_storage import ObjectStorageClient
+c = ObjectStorageClient()
+k = "smoke/network-isolation.txt"
+c.put_object(k, b"smoke", "text/plain")
+try:
+    assert c.get_object(k) == b"smoke"
+finally:
+    c.delete_object(k)
+print("ok")' 2>&1 | tail -1)
+    check "'backend' stores and reads back an object" "$([ "$ROUND_TRIP" = ok ] && echo ok || echo "$ROUND_TRIP")"
+    STORE_ID=$(compose ps -q object-store)
+    PUBLISHED=$(compose port object-store 8333 2>/dev/null || true)
+    HOST_PORTS=$(docker inspect "$STORE_ID" --format '{{json .NetworkSettings.Ports}} {{json .HostConfig.PortBindings}}' | grep -c HostPort || true)
+    if [ -z "$PUBLISHED" ] && [ "$HOST_PORTS" = 0 ]; then
+        check "object-store publishes no host port" "ok"
+    else
+        check "object-store publishes no host port" "published: '$PUBLISHED', HostPort entries: $HOST_PORTS"
+    fi
+else
+    echo "  [SKIP] stack not running — object-store isolation checks skipped (run after docker compose up)"
+fi
+
 # ── Summary ──────────────────────────────────────────────────────────────────
 echo ""
 echo "=== Results: ${PASS} passed, ${FAIL} failed ==="

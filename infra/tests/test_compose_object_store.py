@@ -143,6 +143,28 @@ class ComposeWiring(unittest.TestCase):
         mounts = [v["source"] for v in svc["volumes"]]
         self.assertEqual(mounts, ["object_store_data"])
 
+    def test_object_store_network_is_internal_and_joined_only_by_backend_and_initialiser(self):
+        """TASK-177: SR-040 AC 3, ADR-0015 D4, TS-014 TC-014.6."""
+        nets = self.config["networks"]
+        self.assertIs(nets["object-store"]["internal"], True)
+        self.assertFalse(nets["medhub"].get("internal", False))
+        members = {
+            name: set(svc.get("networks", {}))
+            for name, svc in self.config["services"].items()
+            if "object-store" in svc.get("networks", {})
+        }
+        self.assertEqual(set(members), {"object-store", "object-store-init", "backend"})
+        self.assertEqual(members["object-store"], {"object-store"})
+        self.assertEqual(members["object-store-init"], {"object-store"})
+        self.assertEqual(members["backend"], {"medhub", "object-store"})
+        for name in ("reverse-proxy", "frontend", "postgres", "redis", "celery-worker"):
+            self.assertEqual(set(self.config["services"][name]["networks"]), {"medhub"}, name)
+        self.assertEqual(self.config["services"]["object-store-preflight"]["network_mode"], "none")
+        self.assertNotIn("networks", self.config["services"]["object-store-preflight"])
+        # No service but the proxy publishes a port.
+        published = [n for n, s in self.config["services"].items() if s.get("ports")]
+        self.assertEqual(published, ["reverse-proxy"])
+
     def test_backend_waits_for_a_successful_initialisation(self):
         """SR-040 AC 4: a failed initialisation keeps the backend down."""
         dep = self.config["services"]["backend"]["depends_on"]["object-store-init"]
