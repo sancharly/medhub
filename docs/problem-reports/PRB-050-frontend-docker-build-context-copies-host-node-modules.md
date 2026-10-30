@@ -2,11 +2,11 @@
 id: "PRB-050"
 type: problem-report
 title: "Frontend image build copies the host's node_modules and dist because there is no .dockerignore"
-status: open
-version: "1.0"
+status: resolved
+version: "1.1"
 author: "Carlos Santiago Liceras"
 created: "2026-10-29"
-updated: "2026-10-29"
+updated: "2026-10-30"
 criticality: minor
 links: []
 tags: ["build", "configuration-management", "reproducibility", "found-by:TASK-162-qa"]
@@ -72,4 +72,47 @@ Criticality `minor`.
 
 Add `frontend/.dockerignore` excluding at least `node_modules`, `dist` and local environment files,
 and check that the CI `build` job and `docker compose build` still produce the same image. Resolve
-it in a CR of its own; it is outside CR-003.
+it in a CR of its own; it is outside CR-003. (Superseded on 2026-10-30: CR-003 D-7 brought it into CR-003.)
+
+## Resolution
+
+Resolved by CR-003 (`resolves` link on the CR, decision D-7) in
+[TASK-170](../design-outputs/tasks/TASK-170-add-frontend-dockerignore.md), on branch
+`bug/soup-upgrades`. The proposal was carried out as written. `frontend/Dockerfile` and
+`infra/docker-compose.yml` are unchanged.
+
+Changes:
+- `frontend/.dockerignore` (new) excludes `node_modules`, `dist` and `.env*` from the build
+  context. Every file the build needs (`package*.json`, `index.html`, `public/`, `src/`, the
+  TypeScript and Vite configs, `nginx.conf`) stays in it.
+
+Verification, 2026-10-30, Docker Desktop (`DOCKER_CONTEXT=desktop-linux`, linux/arm64). Three
+copies of `frontend/` were made from `git archive HEAD frontend`:
+
+- **clean:** the archive plus the new `.dockerignore`;
+- **dirty:** the same, plus the host's `frontend/node_modules` (339 entries, 394 MB, with the macOS
+  packages `@esbuild/darwin-arm64` and `@rollup/rollup-darwin-arm64`), a stale
+  `dist/STALE-HOST-BUILD.txt` and a `.env.local`;
+- **dirty, no `.dockerignore`:** the dirty tree without the new file, as a control.
+
+```sh
+docker build --target build -t fe:<copy>-build <copy>/frontend   # build stage
+docker build -t fe:<copy> <copy>/frontend                        # final image
+docker run --rm --entrypoint sh fe:<copy>-build -c 'ls /app/node_modules/@esbuild /app/node_modules/@rollup; ls -a /app'
+docker run --rm --entrypoint sh fe:<copy> -c 'cd /usr/share/nginx/html && find . -type f | sort | xargs sha256sum'
+```
+
+| Copy | Build-stage image ID | Final image ID | `@esbuild` / `@rollup` in `/app/node_modules` | `.env.local` in `/app` |
+|---|---|---|---|---|
+| clean | `sha256:5b76b792…7081` | `sha256:3be4792a…f6e1` | `linux-arm64` / `rollup-linux-arm64-gnu`, `-musl` | no |
+| dirty | `sha256:5b76b792…7081` (same) | `sha256:3be4792a…f6e1` (same) | same as clean | no |
+| dirty, no `.dockerignore` | `sha256:eed5a47d…da65` | not built | **`darwin-arm64`**, `linux-arm64` / **`rollup-darwin-arm64`**, `-gnu`, `-musl` | **yes** |
+
+- With the file, the dirty tree gives the same build-stage and final image IDs as the clean tree.
+  The IDs are content hashes over every layer, so the images are byte-identical. The 17 files
+  under `/usr/share/nginx/html` also have identical SHA-256 sums (`diff` prints nothing).
+- Without the file, the control reproduces the defect: the host's macOS packages and
+  `.env.local` are copied into the build stage over the `npm ci` install. The stale `dist/` file
+  does not survive, because `vite build` empties `dist/` first.
+- The CI `build` job builds from a fresh checkout, which has no `node_modules`, `dist` or `.env*`,
+  so its build context is the same with or without the file.
