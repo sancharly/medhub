@@ -117,6 +117,17 @@ class RateLimitedError(ProblemError):
         super().__init__(detail)
 
 
+class AttachmentIntegrityError(ProblemError):
+    """The object store returned bytes that do not match the checksum stored at upload."""
+
+    status = 502
+    title = "Bad Gateway"
+    type_slug = "attachment-integrity-failure"
+
+    def __init__(self, detail: str = "The stored attachment failed its integrity check.") -> None:
+        super().__init__(detail)
+
+
 def _problem_response(problem: dict[str, Any], status: int) -> JSONResponse:
     return JSONResponse(
         content=problem,

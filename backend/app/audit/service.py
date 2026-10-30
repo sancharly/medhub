@@ -31,11 +31,14 @@ class AuditService:
         target_id: str | None,
         outcome: AuditOutcome,
         ip: str | None,
+        durable: bool = False,
     ) -> None:
         """Persist an immutable audit record.
 
         The timestamp is server-assigned here; callers cannot supply it.
         Credential-like patterns in the action string are scrubbed before storage.
+        With ``durable=True`` the row is committed at once, so it survives the request
+        ending in an error (get_db rolls the session back on any exception).
         Raises on persistence failure — never swallows exceptions.
         """
         safe_action = _scrub(action)
@@ -55,3 +58,5 @@ class AuditService:
             timestamp=datetime.datetime.now(datetime.UTC),
         )
         self._repo.add(log)
+        if durable:
+            self._repo.commit()

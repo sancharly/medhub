@@ -2,16 +2,18 @@
 
 from __future__ import annotations
 
+import hashlib
 import uuid
 from unittest.mock import MagicMock
 
 import pytest
 
-from app.api.errors import AuthorizationError, NotFoundError
+from app.api.errors import AttachmentIntegrityError, AuthorizationError, NotFoundError
 from app.attachments.service import AttachmentService
 from app.authz.service import AuthorizationService
 from app.db.models.account import Account, AccountStatus, UserType
 from app.db.models.attachment import Attachment
+from app.db.models.audit import AuditOutcome
 
 
 def _make_account(user_type: UserType, id: uuid.UUID | None = None) -> Account:
@@ -23,7 +25,10 @@ def _make_account(user_type: UserType, id: uuid.UUID | None = None) -> Account:
     )
 
 
-def _make_attachment(patient_id: uuid.UUID) -> Attachment:
+_ORIGINAL = b"file content"
+
+
+def _make_attachment(patient_id: uuid.UUID, data: bytes = _ORIGINAL) -> Attachment:
     return Attachment(
         id=uuid.uuid4(),
         clinical_entry_id=uuid.uuid4(),
@@ -32,7 +37,7 @@ def _make_attachment(patient_id: uuid.UUID) -> Attachment:
         content_type="application/dicom",
         size=1024,
         storage_key="attachments/xray.dcm",
-        checksum="deadbeef",
+        checksum=hashlib.sha256(data).hexdigest(),
     )
 
 
@@ -85,6 +90,51 @@ def test_doctor_without_consent_cannot_open() -> None:
     svc, _ = _build_svc(effective_access=False, attachment=attachment)
     with pytest.raises(AuthorizationError):
         svc.open(doctor, attachment.id)
+
+
+def test_open_unmodified_object_returns_identical_bytes_and_audits_success() -> None:
+    """TC-007.7: a matching checksum changes nothing for the user (SR-013 AC 5)."""
+    patient = _make_account(UserType.PATIENT)
+    doctor = _make_account(UserType.DOCTOR)
+    attachment = _make_attachment(patient.id)
+    svc, mock_audit = _build_svc(attachment=attachment, storage_data=_ORIGINAL)
+
+    data, _, _ = svc.open(doctor, attachment.id)
+
+    assert data == _ORIGINAL
+    kwargs = mock_audit.record.call_args.kwargs
+    assert kwargs["action"] == "ATTACHMENT_ACCESS"
+    assert kwargs["outcome"] == AuditOutcome.SUCCESS
+
+
+def test_open_substituted_object_is_refused_and_audited_as_failure() -> None:
+    """TC-007.6: stored bytes differ from the upload checksum -> no content, FAILURE audit."""
+    patient = _make_account(UserType.PATIENT)
+    doctor = _make_account(UserType.DOCTOR)
+    attachment = _make_attachment(patient.id)
+    substituted = b"planted content"
+    svc, mock_audit = _build_svc(attachment=attachment, storage_data=substituted)
+
+    with pytest.raises(AttachmentIntegrityError) as excinfo:
+        svc.open(doctor, attachment.id)
+
+    err = excinfo.value
+    assert err.status == 502
+    assert str(attachment.id) in err.detail
+    assert attachment.checksum not in err.detail
+    assert hashlib.sha256(substituted).hexdigest() not in err.detail
+    assert "planted" not in err.detail
+    kwargs = mock_audit.record.call_args.kwargs
+    assert kwargs["action"] == "ATTACHMENT_ACCESS"
+    assert kwargs["outcome"] == AuditOutcome.FAILURE
+    assert kwargs["actor"] == doctor.id
+    assert kwargs["target_type"] == "attachment"
+    assert kwargs["target_id"] == str(attachment.id)
+    assert kwargs["durable"] is True
+    # No SUCCESS access row was written for the refused read.
+    assert all(
+        c.kwargs["outcome"] == AuditOutcome.FAILURE for c in mock_audit.record.call_args_list
+    )
 
 
 def test_open_emits_audit() -> None:

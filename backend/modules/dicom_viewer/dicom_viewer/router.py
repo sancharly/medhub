@@ -19,7 +19,10 @@ def build_router() -> APIRouter:
     """Build and return the DICOM viewer APIRouter. Services are injected per-request via DI."""
     router = APIRouter()
 
-    @router.get("/studies/{attachment_id}")
+    @router.get(
+        "/studies/{attachment_id}",
+        responses={502: {"description": "Stored object failed its checksum verification."}},
+    )
     def get_study(
         attachment_id: uuid.UUID,
         frame: Annotated[int | None, Query(ge=0)] = None,

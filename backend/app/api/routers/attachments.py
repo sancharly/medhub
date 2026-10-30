@@ -80,7 +80,10 @@ def list_attachments(
 _CHUNK_SIZE = 65536  # 64 KiB
 
 
-@router.get("/attachments/{attachment_id}")
+@router.get(
+    "/attachments/{attachment_id}",
+    responses={502: {"description": "Stored object failed its checksum verification."}},
+)
 def fetch_attachment(
     attachment_id: uuid.UUID,
     actor: Account = Depends(get_current_user),

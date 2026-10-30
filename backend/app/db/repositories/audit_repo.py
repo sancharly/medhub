@@ -19,3 +19,7 @@ class AuditRepository:
         self._session.add(log)
         self._session.flush()
         return log
+
+    def commit(self) -> None:
+        """Commit the session so audit rows survive a request that ends in an error."""
+        self._session.commit()

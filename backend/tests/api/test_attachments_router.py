@@ -133,6 +133,51 @@ class TestFetchAttachment:
         assert resp.status_code == 401
 
 
+class TestFetchSubstitutedAttachment:
+    def test_substituted_object_returns_502_problem_without_content(self, client):
+        """TC-007.6: through the real service, a substituted object yields a 502 problem."""
+        import hashlib  # noqa: PLC0415
+
+        from app.audit.service import AuditService  # noqa: PLC0415
+        from app.authz.service import AuthorizationService  # noqa: PLC0415
+
+        actor = _make_account(UserType.DOCTOR)
+        _auth_as(client, actor)
+        att = _make_attachment()
+        att.checksum = hashlib.sha256(b"original bytes").hexdigest()
+        att.storage_key = "attachments/x"
+
+        repo = MagicMock()
+        repo.get.return_value = att
+        storage = MagicMock()
+        storage.get_object.return_value = b"planted bytes"
+        audit_repo = MagicMock()
+        svc = AttachmentService(
+            repo,
+            MagicMock(),
+            AuditService(audit_repo),
+            MagicMock(spec=AuthorizationService),
+            storage,
+        )
+        client.app.dependency_overrides[_get_attachment_service] = lambda: svc
+
+        resp = client.get(f"/api/v1/attachments/{att.id}")
+
+        client.app.dependency_overrides = {}
+        assert resp.status_code == 502
+        assert resp.headers["content-type"].startswith("application/problem+json")
+        body = resp.json()
+        assert body["type"].endswith("/attachment-integrity-failure")
+        assert body["status"] == 502
+        assert str(att.id) in body["detail"]
+        assert b"planted bytes" not in resp.content
+        assert b"original bytes" not in resp.content
+        assert att.checksum not in resp.text
+        logged = audit_repo.add.call_args.args[0]
+        assert logged.outcome.value == "FAILURE"
+        assert logged.target_id == str(att.id)
+
+
 class TestListAttachments:
     def test_list_attachments_returns_200(self, client):
         actor = _make_account(UserType.DOCTOR)
