@@ -2,16 +2,12 @@
 id: PLAN-001
 type: lifecycle-plan
 title: Software development plan (IEC 62304, software safety class B)
-status: approved
-version: "3.0"
+status: in_review
+version: "3.1"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
-updated: "2026-10-21"
+updated: "2026-10-30"
 plan_kind: development
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-10-21"
-approved_digest: 4b9bbdcfc084671846bf725c18ded6be76a2476a6f0cc8da1d9eadb15ff07557
-approval_note: self-approved
 links: []
 tags:
   - regulatory
@@ -179,6 +175,8 @@ The release records get their own commit, made before the tag; once tagged, `git
 - no `critical` PRB open that was created on or before the release;
 - no SOUP item with a missing anomaly review, or one older than `soup_anomaly_max_age_days`
   (365 in `docs/medtrace.yml`);
+- the end-of-support check of [PLAN-002](PLAN-002-maintenance-plan.md) run for this release, and
+  every item short of its horizon covered by a PRB;
 - every SR verified by a TR;
 - `traceability-check` reports no errors in release scope.
 
@@ -248,3 +246,4 @@ SOUP item is linked from an ADD and considered by a RISK.
 | 1.0 | 2026-06 | Initial plan as a narrative document (`docs/software-development-plan.md`) |
 | 2.0 | 2026-09-17 | Promoted to ADD-002; stages, records, gates and roles aligned with the `medical-records:iec62304-sdlc` overlay |
 | 3.0 | 2026-10-21 | Re-issued as a `lifecycle-plan` record for medical-records 0.3.2; maintenance, configuration management and problem resolution split into PLAN-002..004; release record and gate, SOUP records and per-task commits added |
+| 3.1 | 2026-10-30 | Release gate gains the PLAN-002 v1.1 end-of-support check (root cause of PRB-045 and PRB-035) |
