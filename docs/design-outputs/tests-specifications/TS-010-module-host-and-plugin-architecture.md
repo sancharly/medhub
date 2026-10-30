@@ -3,13 +3,13 @@ id: TS-010
 type: test-specification
 title: Module host and plugin architecture verification
 status: approved
-version: "1.0"
+version: "1.1"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-10-21"
+updated: "2026-10-30"
 approved_by: Carlos Santiago Liceras
-approved_on: "2026-10-21"
-approved_digest: bdf7acb97a0f962c0d736d7a6f75a0fe32d3c8cfd82ac0cdc8dbcb016720ddd2
+approved_on: "2026-10-30"
+approved_digest: 300bd530bc71765eb7caee10a0c6a1fcbb917bff40001a4aaa36e0577bf13bc8
 approval_note: self-approved
 links:
   - target: SR-016
@@ -30,7 +30,7 @@ Levels: unit, integration.
 ## Preconditions and environment
 
 Build: branch `doc/agentic-os-migration`, commit `40401a1`. Backend Python 3.12 with the
-dependencies locked in `backend/uv.lock`; frontend Node 20 with `frontend/package-lock.json`.
+dependencies locked in `backend/uv.lock`; frontend Node 24 LTS (build stage node:24.22.2-trixie-slim; CI node-version 24) with `frontend/package-lock.json`.
 Unit and service tests run with no external services (the bundled dicom_viewer module as the fixture). Tests marked *real DB* require a
 PostgreSQL 16 container through testcontainers and therefore a working Docker daemon.
 Exact SOUP versions: the `soup` records in [`../../soup/`](../../soup/).

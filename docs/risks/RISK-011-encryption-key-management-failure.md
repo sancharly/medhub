@@ -3,10 +3,10 @@ id: RISK-011
 type: risk
 title: Encryption or key management failure exposes or orphans clinical data
 status: approved
-version: "1.1"
+version: "1.2"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-10-21"
+updated: "2026-10-30"
 hazard: Encrypted clinical fields exposed in clear, or made permanently unreadable.
 cause: The ciphertext envelope carries no key identifier or version → a key rotation cannot tell which key decrypts which row → old rows fail to decrypt (data lost) or rotation is avoided altogether (a compromised key stays in use). Separately, a misconfigured storage endpoint could store attachments without server-side encryption.
 harm: Delayed care from lost history, or privacy harm from exposure.
@@ -16,8 +16,8 @@ severity_residual: 3
 probability_residual: 2
 acceptability: alarp
 approved_by: Carlos Santiago Liceras
-approved_on: "2026-10-21"
-approved_digest: ea34a481516cff3fe1324458f0951b663280c7ecdb131579d55336370a28c71b
+approved_on: "2026-10-30"
+approved_digest: 38e570388370db331b90be35ac9e21c3eccf793c64021d373eac5426622d22cf
 approval_note: self-approved
 links:
   - target: SOUP-011
@@ -52,7 +52,7 @@ Delayed care from lost history, or privacy harm from exposure.
 
 ## Software items involved
 
-SI-PERSIST (`U-PER-Crypto`), SI-ATTACH (object storage SSE), SOUP: cryptography 49.0.0, MinIO.
+SI-PERSIST (`U-PER-Crypto`), SI-ATTACH (object storage SSE), SOUP: cryptography (SOUP-011), MinIO (SOUP-022); versions in the SOUP records.
 
 ## Initial risk
 
@@ -65,7 +65,7 @@ occur); the score is severity × P2, the probability that the hazardous situatio
 
 | Measure | Type | Implemented by | Verified by |
 |---|---|---|---|
-| AES-256-GCM field encryption at rest and TLS in transit | Design | SR-022, SR-001 | TR-001, TS-008, TS-011 |
+| AES-256-GCM field encryption at rest and TLS in transit | Design | SR-022, SR-001 | TR-001, TS-008 (incl. TC-008.5), TS-011 |
 | Key identifier and version in the ciphertext envelope to make rotation safe | Design | PRB-004 resolution | none yet |
 | Server-side encryption enforced on the object store, verified at bring-up | Protective | SR-022, TASK-115 | TR-001, TS-008 |
 | Documented key custody and rotation procedure | Information for safety | NFR-007, TASK-115 | none yet |
@@ -84,3 +84,15 @@ Encryption at rest and in transit is in place; the residual comes from key rotat
 ## Risks introduced by controls
 
 Rotation itself is a risky operation; it needs a rehearsed, documented procedure and a backup before each run.
+
+## Version history
+
+- 1.2 (2026-10-29) — CR-003 (TASK-163, D-5), §7.4 change analysis for the cryptography upgrade
+  49.0.0 → 50.0.2 (SOUP-011). Content change, so the approval record is cleared and the record
+  returns to review.
+  - "Software items involved" named cryptography 49.0.0. It now names the SOUP records (SOUP-011,
+    SOUP-022) instead of a version, so it does not go stale at the next upgrade.
+  - The AES-256-GCM control row gains TS-008 TC-008.5 as verification: the known-answer test shows
+    that a field value encrypted under 49.0.0 still decrypts under the locked version, which is the
+    "old rows fail to decrypt" harm of this record.
+  - Scores are not changed: severity 3 × probability 2 → alarp, as derived from `risk_matrix`.

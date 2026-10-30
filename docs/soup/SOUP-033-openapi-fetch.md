@@ -2,18 +2,14 @@
 id: SOUP-033
 type: soup
 title: openapi-fetch
-status: approved
-version: "1.1"
+status: obsolete
+version: "1.2"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
-updated: "2026-10-23"
+updated: "2026-10-29"
 manufacturer: Drew Powers
 soup_version: 0.17.0
 anomaly_review: "2026-10-22"
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-10-23"
-approved_digest: ece012b10a514c5afbee26214278e0a04966e7539ec17411e5bd523cfb59590f
-approval_note: self-approved
 links: []
 tags:
   - soup
@@ -23,11 +19,13 @@ tags:
 
 # SOUP-033 — openapi-fetch 0.17.0
 
+> No longer part of MedHub: removed from `frontend/package.json` and `frontend/package-lock.json` (PRB-044, CR-003). It is no longer a dependency, so it is not SOUP; it was never imported.
+
 ## Functional and performance requirements
 
-None. MedHub relies on no function of this item. It is declared in `frontend/package.json`
-`dependencies` (`^0.17.0`, locked at 0.17.0), but no frontend source or test file imports it,
-so it is not part of the production bundle. MedHub's typed HTTP client, including RFC 7807
+None. MedHub relies on no function of this item. It was declared in `frontend/package.json`
+`dependencies` (`^0.17.0`, locked at 0.17.0) until CR-003 (TASK-165) removed it; no frontend
+source or test file imported it, so it was never part of the production bundle. MedHub's typed HTTP client, including RFC 7807
 error handling, is the hand-written `ApiClient` over the browser `fetch`
 (`frontend/src/api/client.ts`). Its types come from `src/api/generated/types.ts`, which the
 dev tool `openapi-typescript` generates.
@@ -104,3 +102,4 @@ accountable. Hazard-relevant anomalies go to `risk-management`; defects affectin
   to MedHub. The package is declared but not imported, so the section now says MedHub relies on no
   function of it (ADD-004's row for this item has the same error and is corrected at its next
   revision). Removal and the ADD-004 correction are tracked in PRB-044 (minor).
+- 2026-10-29 — removed from `frontend/package.json` and `package-lock.json`; never imported (PRB-044, CR-003). Together with its only dependency `openapi-typescript-helpers` 0.1.0. Record 1.1 → 1.2, `obsolete`, approval record removed. Impact analysis (§7.4): the package was not in the production bundle, and the `dist/` output is byte-identical before and after (TASK-165). No risk control depended on it.

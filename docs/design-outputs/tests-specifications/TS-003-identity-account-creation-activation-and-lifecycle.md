@@ -3,13 +3,13 @@ id: TS-003
 type: test-specification
 title: Identity, account creation, activation and lifecycle verification
 status: approved
-version: "1.0"
+version: "1.1"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-10-21"
+updated: "2026-10-30"
 approved_by: Carlos Santiago Liceras
-approved_on: "2026-10-21"
-approved_digest: 896e4ddeeda285f0a8eee628c135a5f2e718d19bdca7bfcae21d70ec981de51c
+approved_on: "2026-10-30"
+approved_digest: be0556cc302f2f21a2426501cb360d45b20e3ab21f96a34d88ef9afa4a6bc97d
 approval_note: self-approved
 links:
   - target: SR-003
@@ -38,7 +38,7 @@ Levels: unit, integration.
 ## Preconditions and environment
 
 Build: branch `doc/agentic-os-migration`, commit `40401a1`. Backend Python 3.12 with the
-dependencies locked in `backend/uv.lock`; frontend Node 20 with `frontend/package-lock.json`.
+dependencies locked in `backend/uv.lock`; frontend Node 24 LTS (build stage node:24.22.2-trixie-slim; CI node-version 24) with `frontend/package-lock.json`.
 Unit and service tests run with no external services (in-memory repositories and a fake mailer). Tests marked *real DB* require a
 PostgreSQL 16 container through testcontainers and therefore a working Docker daemon.
 Exact SOUP versions: the `soup` records in [`../../soup/`](../../soup/).

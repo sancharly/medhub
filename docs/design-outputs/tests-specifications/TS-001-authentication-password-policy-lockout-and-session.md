@@ -3,13 +3,13 @@ id: TS-001
 type: test-specification
 title: Authentication, password policy, lockout and session verification
 status: approved
-version: "1.0"
+version: "1.1"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-10-21"
+updated: "2026-10-30"
 approved_by: Carlos Santiago Liceras
-approved_on: "2026-10-21"
-approved_digest: 72ad039802329c30e54f26cd6b11fea5463990b3ff8038b4af22614116b1cbcd
+approved_on: "2026-10-30"
+approved_digest: 8676a99a6ba10cb4f58e55d63f126b2c5059302a67d38b064cf56f3489c2d172
 approval_note: self-approved
 links:
   - target: SR-002
@@ -36,7 +36,7 @@ Levels: unit, integration.
 ## Preconditions and environment
 
 Build: branch `doc/agentic-os-migration`, commit `40401a1`. Backend Python 3.12 with the
-dependencies locked in `backend/uv.lock`; frontend Node 20 with `frontend/package-lock.json`.
+dependencies locked in `backend/uv.lock`; frontend Node 24 LTS (build stage node:24.22.2-trixie-slim; CI node-version 24) with `frontend/package-lock.json`.
 Unit and service tests run with no external services (fakeredis substitutes Redis; no network). Tests marked *real DB* require a
 PostgreSQL 16 container through testcontainers and therefore a working Docker daemon.
 Exact SOUP versions: the `soup` records in [`../../soup/`](../../soup/).

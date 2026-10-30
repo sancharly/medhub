@@ -3,13 +3,13 @@ id: TS-005
 type: test-specification
 title: Groups and per-group module enablement verification
 status: approved
-version: "1.0"
+version: "1.1"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-10-21"
+updated: "2026-10-30"
 approved_by: Carlos Santiago Liceras
-approved_on: "2026-10-21"
-approved_digest: d9a25dd0418ffa5c423631efb9c7812c8cf03dc61d246898bc4d3d4034ec1d32
+approved_on: "2026-10-30"
+approved_digest: ae0b63b5a5016266c3c33a05f4c02a91c9995c1d27bd0088fd3f36abfbc686ea
 approval_note: self-approved
 links:
   - target: SR-014
@@ -32,7 +32,7 @@ Levels: unit, integration.
 ## Preconditions and environment
 
 Build: branch `doc/agentic-os-migration`, commit `40401a1`. Backend Python 3.12 with the
-dependencies locked in `backend/uv.lock`; frontend Node 20 with `frontend/package-lock.json`.
+dependencies locked in `backend/uv.lock`; frontend Node 24 LTS (build stage node:24.22.2-trixie-slim; CI node-version 24) with `frontend/package-lock.json`.
 Unit and service tests run with no external services (in-memory repositories). Tests marked *real DB* require a
 PostgreSQL 16 container through testcontainers and therefore a working Docker daemon.
 Exact SOUP versions: the `soup` records in [`../../soup/`](../../soup/).

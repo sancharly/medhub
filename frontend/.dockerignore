@@ -1,0 +1,5 @@
+# Build context for frontend/Dockerfile (PRB-050). npm ci installs dependencies
+# from package-lock.json inside the image, so host installs and builds stay out.
+node_modules
+dist
+.env*

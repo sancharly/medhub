@@ -3,13 +3,13 @@ id: TS-006
 type: test-specification
 title: Appointments and notification verification
 status: approved
-version: "1.0"
+version: "1.1"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-10-21"
+updated: "2026-10-30"
 approved_by: Carlos Santiago Liceras
-approved_on: "2026-10-21"
-approved_digest: 2c6c6b1935149d7e2c6feb5e7e91a41537e17fbe8bc5a2071767b35ffb3c57d0
+approved_on: "2026-10-30"
+approved_digest: 9f28bca152793c970369a3aafe616a0eecfd68ba25086917667bdb59fbc7bb46
 approval_note: self-approved
 links:
   - target: SR-010
@@ -32,7 +32,7 @@ Levels: unit, integration.
 ## Preconditions and environment
 
 Build: branch `doc/agentic-os-migration`, commit `40401a1`. Backend Python 3.12 with the
-dependencies locked in `backend/uv.lock`; frontend Node 20 with `frontend/package-lock.json`.
+dependencies locked in `backend/uv.lock`; frontend Node 24 LTS (build stage node:24.22.2-trixie-slim; CI node-version 24) with `frontend/package-lock.json`.
 Unit and service tests run with no external services (in-memory repositories and a fake mailer; Celery in eager mode). Tests marked *real DB* require a
 PostgreSQL 16 container through testcontainers and therefore a working Docker daemon.
 Exact SOUP versions: the `soup` records in [`../../soup/`](../../soup/).

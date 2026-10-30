@@ -3,13 +3,13 @@ id: TS-004
 type: test-specification
 title: Personal data erasure and retention verification
 status: approved
-version: "1.0"
+version: "1.1"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-10-21"
+updated: "2026-10-30"
 approved_by: Carlos Santiago Liceras
-approved_on: "2026-10-21"
-approved_digest: 7793e8ee7f3dcf5e545ff8db0b5f86c2d04756e1a6e39f7a4c48a3594f255ee3
+approved_on: "2026-10-30"
+approved_digest: c79b5e465a3e7afcaa476210c0effe6979bd2fe9169e1aa2e5031b1f20ed5532
 approval_note: self-approved
 links:
   - target: SR-024
@@ -30,7 +30,7 @@ Levels: unit, integration.
 ## Preconditions and environment
 
 Build: branch `doc/agentic-os-migration`, commit `40401a1`. Backend Python 3.12 with the
-dependencies locked in `backend/uv.lock`; frontend Node 20 with `frontend/package-lock.json`.
+dependencies locked in `backend/uv.lock`; frontend Node 24 LTS (build stage node:24.22.2-trixie-slim; CI node-version 24) with `frontend/package-lock.json`.
 Unit and service tests run with no external services (in-memory repositories; frozen clock for deadlines). Tests marked *real DB* require a
 PostgreSQL 16 container through testcontainers and therefore a working Docker daemon.
 Exact SOUP versions: the `soup` records in [`../../soup/`](../../soup/).
