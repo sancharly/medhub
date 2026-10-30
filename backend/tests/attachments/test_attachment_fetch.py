@@ -130,7 +130,6 @@ def test_open_substituted_object_is_refused_and_audited_as_failure() -> None:
     assert kwargs["actor"] == doctor.id
     assert kwargs["target_type"] == "attachment"
     assert kwargs["target_id"] == str(attachment.id)
-    assert kwargs["durable"] is True
     # No SUCCESS access row was written for the refused read.
     assert all(
         c.kwargs["outcome"] == AuditOutcome.FAILURE for c in mock_audit.record.call_args_list

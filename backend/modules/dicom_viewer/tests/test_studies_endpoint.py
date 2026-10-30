@@ -225,7 +225,7 @@ class TestSubstitutedDicomObject:
         assert resp.json()["type"].endswith("/attachment-integrity-failure")
         assert b"PLANTED_DICOM" not in resp.content
         mock_stream.assert_not_called()
-        logged = audit_repo.add.call_args.args[0]
+        logged = audit_repo.add_independent.call_args.args[0]
         assert logged.outcome == AuditOutcome.FAILURE
         assert logged.action == AuditAction.ATTACHMENT_ACCESS
         assert logged.actor_id == actor.id

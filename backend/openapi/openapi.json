@@ -1869,7 +1869,14 @@
             }
           },
           "502": {
-            "description": "Stored object failed its checksum verification."
+            "description": "Stored object failed its checksum verification.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
           },
           "422": {
             "description": "Validation Error",

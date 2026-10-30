@@ -2,8 +2,8 @@
 id: TS-007
 type: test-specification
 title: Clinical entries and attachment verification
-status: approved
-version: "1.3"
+status: in_review
+version: "1.4"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-10-30"
@@ -42,7 +42,7 @@ Exact SOUP versions: the `soup` records in [`../../soup/`](../../soup/).
 | TC-007.3 | SR-013, SR-005 | `backend/tests/attachments/test_attachment_fetch.py`, `backend/tests/api/test_attachments_router.py` | Fetching an attachment requires authorization for the owning entry | Unauthorized fetch denied |
 | TC-007.4 | SR-012, SR-013 | `frontend/src/core/clinical/ClinicalEntriesPage.test.tsx` | Entries and their attachments render for the authorized viewer with correct attribution | Author name shown per entry author, not per viewer |
 | TC-007.5 | SR-013 (AC-3) | `backend/tests/test_object_storage.py::test_object_storage_client_builds_real_s3_client` | The object-storage client is built from the declared SDK: `ObjectStorageClient()` imports the real `boto3` (no patch, stub or `importorskip`) and builds an S3 client for the configured endpoint and bucket, with no reachable endpoint | Test passes with the real `boto3` import; it fails with `ImportError` when `boto3` is not installed |
-| TC-007.6 | SR-013 (AC-5) | `backend/tests/attachments/test_attachment_fetch.py::test_open_substituted_object_is_refused_and_audited_as_failure`, `backend/tests/api/test_attachments_router.py::TestFetchSubstitutedAttachment`, `backend/tests/attachments/test_attachment_integrity_persistence.py` (*real DB*) | An attachment whose stored bytes differ from the SHA-256 recorded at upload is not served: the service raises `AttachmentIntegrityError`, the API answers 502 `application/problem+json` (type `attachment-integrity-failure`) whose detail names the attachment id and carries no hash or content, and an `ATTACHMENT_ACCESS` audit event with outcome FAILURE for the attachment and actor is committed and still present after the failed request | No object bytes in the response; 502 problem; FAILURE audit row found in a fresh session after the request. Each test fails when the checksum comparison is removed (the persistence test also fails when the durable commit is removed) |
+| TC-007.6 | SR-013 (AC-5) | `backend/tests/attachments/test_attachment_fetch.py::test_open_substituted_object_is_refused_and_audited_as_failure`, `backend/tests/api/test_attachments_router.py::TestFetchSubstitutedAttachment`, `backend/tests/attachments/test_attachment_integrity_persistence.py` (*real DB*) | An attachment whose stored bytes differ from the SHA-256 recorded at upload is not served: the service raises `AttachmentIntegrityError`, the API answers 502 `application/problem+json` (type `attachment-integrity-failure`) whose detail names the attachment id and carries no hash or content, and an `ATTACHMENT_ACCESS` audit event with outcome FAILURE for the attachment and actor is committed and still present after the failed request | No object bytes in the response; 502 problem; FAILURE audit row found in a fresh session after the request. Each test fails when the checksum comparison is removed (the persistence test also fails when the FAILURE event is written back into the request transaction, ADR-0016) |
 | TC-007.7 | SR-013 (AC-5) | `backend/tests/attachments/test_attachment_fetch.py::test_open_unmodified_object_returns_identical_bytes_and_audits_success`, `backend/tests/attachments/test_attachment_fetch.py::test_doctor_with_consent_can_open_attachment` | An unmodified object downloads with identical bytes and a SUCCESS `ATTACHMENT_ACCESS` audit event | Bytes equal the uploaded bytes; audit outcome SUCCESS |
 | TC-007.8 | SR-013 (AC-5) | `backend/modules/dicom_viewer/tests/test_studies_endpoint.py::TestSubstitutedDicomObject` | A DICOM attachment fetched through the viewer route (`/studies/{attachment_id}`) with a substituted object is refused with 502 and no DICOM content; the FAILURE audit event is recorded | 502 problem; `stream_dicom` is never called; FAILURE audit for the attachment and actor |
 
@@ -67,3 +67,7 @@ Streaming upload and download (TASK-135) is open; TC-007.2 verifies the limit, n
   (stored SHA-256 checked on every download, including DICOM). Content change, so the approval is
   cleared and the record returns to review. Test cases TC-007.1 to TC-007.5 unchanged. Mutation
   check recorded in TASK-173.
+- 1.4 (2026-10-30) — CR-002 (TASK-183, PRB-052, QA review): TC-007.6's pass criterion no longer
+  cites TASK-173's `durable` commit, which TASK-183 removed. The FAILURE row is now committed by
+  `AuditService` on its own transaction (ADR-0016); the persistence test is unchanged apart from its
+  cleanup and runs without `durable`. Content change, so the record returns to review for the human.

@@ -21,7 +21,16 @@ def build_router() -> APIRouter:
 
     @router.get(
         "/studies/{attachment_id}",
-        responses={502: {"description": "Stored object failed its checksum verification."}},
+        responses={
+            502: {
+                "description": "Stored object failed its checksum verification.",
+                "content": {
+                    "application/problem+json": {
+                        "schema": {"$ref": "#/components/schemas/ProblemDetail"}
+                    }
+                },
+            }
+        },
     )
     def get_study(
         attachment_id: uuid.UUID,

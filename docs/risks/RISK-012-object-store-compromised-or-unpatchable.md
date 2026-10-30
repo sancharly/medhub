@@ -215,9 +215,11 @@ Not needed: the residual 4 × 1 is `acceptable` under `risk_matrix`. The ALARP s
   `community`, support ending 2026-11-01; MedHub does not exercise it
   ([PRB-051](../problem-reports/PRB-051-seaweedfs-image-fuse-from-alpine-community-end-of-support.md),
   minor, open). Remedy: the reviewed digest change of the monthly rule.
-- **Durable audit commit (TASK-173).** `durable=True` commits the read path's session to keep the
-  FAILURE row. Safe on that read path; the general fix is TASK-183 (PRB-052, RISK-006), which does
-  not change this record's scores.
+- **Failure audit commit (TASK-173, TASK-183).** The `ATTACHMENT_ACCESS` FAILURE row of a refused
+  download is committed by `AuditService` on its own short-lived transaction (ADR-0016, TASK-183),
+  which replaced TASK-173's `durable=True` session commit; no business write is committed with it.
+  Verified by TS-007 TC-007.6 and TS-009 TC-009.4..8. It does not change this record's scores; the
+  pool cause it introduces is in RISK-006.
 - **Migration (TASK-178).** A migration error could orphan or expose objects (RISK-011). Controlled
   by the rehearsal on backups with checksum comparison before and after each write; the source is
   never modified. CR-002 Q-5: only development data existed.
@@ -258,3 +260,6 @@ Not needed: the residual 4 × 1 is `acceptable` under `risk_matrix`. The ALARP s
     - After QA approval of TASK-181 (L-3, L-4): the table preamble names the two qualified rows
       (hosted CI run pending, PLAN-002 1.2 `in_review`), the TASK-172 rows cite `68fc68b`, and
       `hazard` and `cause` are generic, with the MinIO chain marked as first raised in 1.0.
+  - **Corrected by the QA review of TASK-183 (2026-10-30):** the "durable audit commit" item under
+    risks introduced by controls now describes ADR-0016's independent transaction, since TASK-183
+    removed `durable=True`. Text only; scores and status unchanged.

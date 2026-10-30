@@ -48,6 +48,13 @@ class TestOpenAPISchema:
         schemas_comp = schema.get("components", {}).get("schemas", {})
         assert "ProblemDetail" in schemas_comp
 
+    @pytest.mark.parametrize("path", ["/api/v1/attachments/{attachment_id}"])
+    def test_502_declares_problem_detail_body(self, schema, path):
+        """AC-23: the integrity-failure 502 is documented as application/problem+json."""
+        content = schema["paths"][path]["get"]["responses"]["502"]["content"]
+        ref = content["application/problem+json"]["schema"]["$ref"]
+        assert ref == "#/components/schemas/ProblemDetail"
+
     def test_schema_has_paths(self, schema):
         paths = schema.get("paths", {})
         assert len(paths) > 0

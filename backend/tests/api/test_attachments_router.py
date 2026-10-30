@@ -173,7 +173,7 @@ class TestFetchSubstitutedAttachment:
         assert b"planted bytes" not in resp.content
         assert b"original bytes" not in resp.content
         assert att.checksum not in resp.text
-        logged = audit_repo.add.call_args.args[0]
+        logged = audit_repo.add_independent.call_args.args[0]
         assert logged.outcome.value == "FAILURE"
         assert logged.target_id == str(att.id)
 

@@ -11,7 +11,7 @@ from unittest.mock import MagicMock
 
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine, select
+from sqlalchemy import create_engine, delete, select
 from sqlalchemy.orm import Session, sessionmaker
 from testcontainers.postgres import PostgresContainer
 
@@ -96,3 +96,8 @@ def test_failure_audit_row_persists_after_502(pg_engine, monkeypatch) -> None:
     assert rows[0].outcome == AuditOutcome.FAILURE
     assert rows[0].action == "ATTACHMENT_ACCESS"
     assert rows[0].actor_id == actor.id
+
+    # Independent rows commit outside any test transaction; leave the table clean.
+    with sessionmaker(bind=pg_engine)() as cleanup:
+        cleanup.execute(delete(AuditLog))
+        cleanup.commit()

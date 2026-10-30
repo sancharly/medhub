@@ -2,7 +2,7 @@
 id: "TASK-183"
 type: task
 title: "Commit failure audit events independently of the request transaction"
-status: draft
+status: approved
 version: "1.0"
 author: "Carlos Santiago Liceras"
 created: "2026-10-30"
@@ -37,7 +37,7 @@ tags: ["security", "audit", "cr:CR-002", "control:design"]
 - **Size:** M (5 source files: audit service, audit repository, attachment service, two route
   declarations; new real-database tests; the generated contract files; TS-009, ADD-013, arc42 §8.4)
 - **Needs:** a Docker daemon for the testcontainers PostgreSQL tests
-- **Design:** [ADR-0016](../../design/adr/0016-failure-audit-events-on-own-transaction.md) (Proposed)
+- **Design:** [ADR-0016](../../design/adr/0016-failure-audit-events-on-own-transaction.md) (Accepted, CR-002 D-8)
 
 ## Objective
 
@@ -146,12 +146,12 @@ test deletes its `audit_log` rows, because independent rows commit outside any t
 
 ## Acceptance criteria
 
-- [ ] CR-002 **AC-21** / SR-023 AC 1, AC 2: each affected FAILURE or refusal event persists after
+- [x] CR-002 **AC-21** / SR-023 AC 1, AC 2: each affected FAILURE or refusal event persists after
       the error response, tested against a real database per path; the tests fail with the old
       behaviour.
-- [ ] CR-002 **AC-22**: no `durable` flag and no session-wide commit in the audit path; a pending
+- [x] CR-002 **AC-22**: no `durable` flag and no session-wide commit in the audit path; a pending
       business write is not committed by an audit event.
-- [ ] CR-002 **AC-23**: both 502 responses declare the `ProblemDetail` problem body in the
+- [x] CR-002 **AC-23**: both 502 responses declare the `ProblemDetail` problem body in the
       regenerated contract.
 
 ## Verification
@@ -168,9 +168,61 @@ git diff --exit-code backend/openapi/openapi.json frontend/src/api/generated/ope
 
 ## Definition of Done
 
-- [ ] Lint, type-check and both suites pass; coverage ≥ 85 %.
-- [ ] OpenAPI regenerated; the `openapi-lint` CI job is green.
-- [ ] Mutation result recorded below.
-- [ ] TS-009 1.2, ADD-013 1.1 `in_review`; PRB-052 `resolved` with `## Resolution`.
-- [ ] `traceability-check` shows no error for TASK-183, TS-009, ADD-013, SR-023, RISK-006,
+- [x] Lint, type-check and both suites pass; coverage ≥ 85 %.
+- [x] OpenAPI regenerated; the `openapi-lint` CI job is green.
+- [x] Mutation result recorded below.
+- [x] TS-009 1.2, ADD-013 1.1 `in_review`; PRB-052 `resolved` with `## Resolution`.
+- [x] `traceability-check` shows no error for TASK-183, TS-009, ADD-013, SR-023, RISK-006,
       PRB-052 and CR-002.
+
+## Handoff (software developer)
+
+- Mutation check (CR-002 AC-21): with `record` routing every event through `add`, 9 of 9
+  persistence tests failed (7 in `backend/tests/audit/test_failure_audit_persistence.py`,
+  `test_failure_audit_row_persists_after_502`, and the DICOM test); restored, they pass.
+- Contract: both 502 responses declare `ProblemDetail` under `application/problem+json`; the
+  attachment route is asserted in `backend/tests/api/test_openapi_contract.py`, the DICOM route
+  (not mounted in the base app schema) in the DICOM module's test.
+
+## QA review (2026-10-30)
+
+**Verdict: APPROVED.** TASK-183 and TS-009 1.2 → `approved`. ADD-013 1.1 and RISK-006 1.2 stay
+`in_review` for the human. QA's text-only record edits in this commit: TS-007 1.4 (`in_review`,
+TC-007.6 no longer cites `durable`), RISK-012 1.1 (the "durable audit commit" item rewritten),
+PRB-052 (Source line updated for D-7; Resolution commands use a single `cd` and state their results),
+and this task's ADR-0016 status.
+
+Reruns: backend CI command 591 passed, 4 skipped (object-store integration), coverage 91.46 %;
+`modules/dicom_viewer/tests` 21 passed; ruff, black and `mypy app` clean; no `durable` under
+`backend/app` or `backend/modules`; both OpenAPI files regenerate byte-identical; `tsc --noEmit`
+clean; vitest 155 passed. Mutation M1 (every event through `add`): all 9 persistence tests fail
+(plus 4 unit and mock tests). Mutation M2 (`ACCOUNT_LOCKOUT` dropped from `_INDEPENDENT_ACTIONS`):
+`test_login_failure_locked_account_and_lockout_persist_after_401` and
+`test_account_lockout_success_event_goes_through_add_independent` fail. `traceability-check`: 0 errors
+for TASK-183, TS-009, TS-007, ADD-013, PRB-052, RISK-006 and the whole project.
+
+Findings (none blocking):
+
+- **MEDIUM: the failure row is lost when the pool is exhausted, contrary to RISK-006 and CR-002.**
+  `backend/app/db/repositories/audit_repo.py:23-32`. `add_independent` checks out a second
+  connection while the request session still holds its first one (default pool: 5 + 10 overflow,
+  30 s timeout). A QA probe with `pool_size=1, max_overflow=0, pool_timeout=2` on the
+  `AUTHZ_DENIED` path got a generic 500 after 2.1 s and **no** audit row: the exception is logged,
+  but the row is not written. RISK-006 ("Risks introduced by controls") and CR-002 §7.4 row
+  TASK-183 say "the row is not silently dropped" and "the lockout bounds" the burst. The
+  unknown-email branch is not bounded by the per-account lockout, and login has no rate limit.
+  → Correct the RISK-006 text before the human approves it ("the request fails with a 500 after
+  `pool_timeout` and the row is lost; only the server log records the exception. The per-account
+  lockout does not bound a spray of unknown emails"). Raise a PRB (minor) for the fix: give
+  `add_independent` its own engine (a cached `get_audit_engine()` with a small dedicated pool and a
+  short `pool_timeout`), so the nested checkout never waits on connections held by the waiting
+  requests.
+- **LOW: the DICOM AC-23 assertion checks the literal `$ref`, not that it resolves.**
+  `backend/modules/dicom_viewer/tests/test_failure_audit_persistence.py:95-101`. The standalone app
+  has no `ProblemDetail` component. The `$ref` resolves in the real app, because
+  `backend/app/api/openapi.py:70` always injects `ProblemDetail`. → Optional: also assert
+  `ProblemDetail` in the components of `create_app()` after the router is mounted.
+
+Pre-existing (not blocking): CI does not run `backend/modules/dicom_viewer/tests` (`testpaths =
+["tests"]`), so TC-009.7 and the DICOM AC-23 test run only locally (PRB-048 family). TASK-182
+Checkpoint C should run them.

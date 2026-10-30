@@ -147,10 +147,9 @@ class AttachmentService:
                 target_id=str(attachment.id),
                 outcome=AuditOutcome.FAILURE,
                 ip=None,
-                durable=True,
             )
             raise AttachmentIntegrityError(
-                f"Attachment {attachment.id} failed its integrity check and was not served."
+                f"Attachment {attachment_id} failed its integrity check and was not served."
             )
 
         self._audit_svc.record(
