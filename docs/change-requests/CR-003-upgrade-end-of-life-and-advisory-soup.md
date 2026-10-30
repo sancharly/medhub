@@ -3,7 +3,7 @@ id: CR-003
 type: change-request
 title: Upgrade end-of-life and advisory-affected SOUP, and drop an unused SOUP item
 status: in_progress
-version: "1.4"
+version: "1.5"
 author: Carlos Santiago Liceras
 created: "2026-10-29"
 updated: "2026-10-30"
@@ -452,8 +452,9 @@ openapi-fetch (PRB-044)
   `openapi-fetch` are removed, and nothing else changes. `npm ci`, `npm run lint`,
   `npm run typecheck` and `npm run build` succeed.
 - **AC-11:** SOUP-033 has `status: obsolete`, a bumped `version` and a change-log entry citing
-  PRB-044 and CR-003. No record that is not `obsolete` keeps a `relates_to` link to SOUP-033:
-  the links from ADD-023 and RISK-010 are removed.
+  PRB-044 and CR-003. No record that is not `obsolete` keeps a `relates_to` link to SOUP-033,
+  except the task that retires it (TASK-165), whose link is the trace of the retirement: the
+  links from ADD-023, RISK-010 and this CR are removed.
 - **AC-12:** ADD-023's Responsibility section and its `U-FEAPI-Client` unit describe what the
   code does:
   - the hand-written `ApiClient` (`frontend/src/api/client.ts`) over the browser `fetch`, with
@@ -664,7 +665,8 @@ plan gate.
 - **D-6 (AC-11 and this CR's own link; architect):** AC-11 says no record that is not `obsolete`
   keeps a `relates_to` link to SOUP-033. This CR is such a record, so TASK-165 removes this CR's
   `relates_to` SOUP-033 link when it sets SOUP-033 `obsolete`. The body still names SOUP-033, and
-  so does TASK-165's link. This follows CR-001, which did not link SOUP-018.
+  so does TASK-165's link. This follows CR-001, which did not link SOUP-018. In 1.5 the human
+  reworded AC-11 to exempt the retiring task (TASK-165), so its link meets AC-11 as written.
 - **D-7 (PRB-049, PRB-050 and the task template; human, 2026-10-30):** resolve both PRBs and
   correct `docs/templates/task.md` in this CR, instead of in a CR of their own as the PRBs
   proposed. They were found by this CR's tasks, are `minor`, change no SOUP, no application code
@@ -783,3 +785,6 @@ Every AC-1..AC-22 maps to at least one task.
   links to PRB-049 and PRB-050 and `relates_to` links to TASK-169..171 added. The Escalations
   entries for TASK-161 and TASK-163 still say "outside this CR", as they were written; D-7
   supersedes that.
+- 1.5 (2026-10-30) — AC-11 reworded by the human at CR close: the task that retires SOUP-033
+  (TASK-165) is exempt from the no-`relates_to` rule, and this CR's own removed link is named.
+  D-6 notes the change. No link, task or other criterion changes. Status stays `in_progress`.
