@@ -2,7 +2,7 @@
 id: "TASK-168"
 type: task
 title: "Confirm RISK-010 and the anomaly reviews, and verify CR-003 end to end"
-status: in_review
+status: approved
 version: "1.1"
 author: "Carlos Santiago Liceras"
 created: "2026-10-29"
@@ -104,7 +104,7 @@ evidence for the controls that TASK-161..165 re-implemented, so it links RISK-01
 - [x] CR-003 **AC-16**: the pin check exits 0 and `uv lock --check` succeeds on the branch head.
 - [x] CR-003 **AC-17**: the stack builds and starts, the smoke test passes 17/17, and Redis
       reports 7.4.12.
-- [ ] CR-003 **AC-18**: every CI job passes on the branch head. The backend suite (coverage ≥ 85 %)
+- [x] CR-003 **AC-18**: every CI job passes on the branch head. The backend suite (coverage ≥ 85 %)
       and the frontend suite pass locally.
 - [x] CR-003 **AC-19**: the four PRBs are `resolved`. `traceability-check` reports 0 errors and no
       `soup_anomaly_review_stale` warning for any non-obsolete SOUP record.
@@ -126,8 +126,8 @@ Then `medical-records:traceability-check` over `docs/`. Tear the stack down with
 
 ## Definition of Done
 
-- [ ] All of the above is recorded under "Implementation notes and evidence".
-- [ ] The gap report is committed.
+- [x] All of the above is recorded under "Implementation notes and evidence".
+- [x] The gap report is committed.
 - [x] No record created or changed by CR-003 is left in `draft`, apart from TASKs still under QA.
 
 ## Implementation notes and evidence (developer, 2026-10-30)
@@ -411,3 +411,81 @@ Inputs and reuse:
 | `traceability-check`, whole project: the fallback parser plus a QA cross-check script for W1-W4, W7 and the risk rules | 350 records, 0 errors. W5 40, W6 1 (TASK-165 → SOUP-033), W1 3, W2 4, W3 1, W7 1, W4 0. No `soup_*` findings, and no `risk_unscored` or `risk_not_acceptable` |
 | `docs/reports/gap-report-2026-10-30.md` | Accurate. The counts equal QA's (50 warnings), the 40 W5 rows add up to the per-target triage, and the inventory sums to 350 |
 | TS-013, CR-003, PRB-045, PRB-049 diffs | Environment and history lines only (TS-013 stays at 1.4, `in_review`). CR-003 is at 1.2 with one confirmation line, and its status and boxes are untouched. The PRB edits are as the dispositions say |
+
+## QA review — CI part and final verdict (2026-10-30)
+
+**Verdict: APPROVED** (`in_review → approved`). The CI part of AC-18 passed on the pushed head,
+and QA re-checked the local part on the same head. QA ticked AC-18 and the first two Definition of
+Done items. "Gap report committed" is met: the report went in with e29894c. There is no CRITICAL,
+HIGH or MEDIUM finding, and the three LOW findings from the local review are fixed in 1.1:
+
+- the D-6 precedent (`:172`);
+- the "Named sources with URL" column;
+- the version, now 1.1.
+
+The npm audit disposition (`:244`) is also corrected.
+
+### Scope after the fast-forward
+
+The head is now `6733ba0`. It adds:
+
+- the plan revisions (1336af2, 8c9fa35);
+- TASK-169..171 (D-7);
+- the human's design review (e29894c).
+
+CR-003 1.4 (`:672-675`, approved by the human) says that the TASK-168 end-to-end run "stays as it
+was" and that TASK-171 re-runs `traceability-check` after D-7. So this task does not need to name
+TASK-169..171 in its scope. AC-17 and AC-18, though, are stated "on the branch head". The CI run is
+on `6733ba0`, so QA re-ran the stack checks on `6733ba0` too (below). The evidence in this record
+now covers the head that includes TASK-169..171.
+
+The records are not stale, and none needs editing:
+
+- **Gap report** (`docs/reports/gap-report-2026-10-30.md`). It is a dated snapshot, and it names
+  its state (`d57ec72` plus the TASK-168 record changes). For that state it is still accurate.
+  - The current whole-project result is 353 records, 0 errors and 11 warnings: W5 1 (TASK-132 →
+    TASK-101, pre-existing), W6 1, W1 3, W2 4, W3 1, W7 1.
+  - The 40 CR-003 W5 warnings were cleared when the human approved the held records in e29894c.
+  - TASK-171 (approved) records this delta.
+  - Optional, at CR close or release: regenerate the report so that the latest file matches the
+    head.
+- **TS-013.** It is `approved` 1.4. Its environment line names the TC-013.9 run at `d57ec72`. No
+  SOUP version has changed since: `uv.lock` and `package-lock.json` are unchanged between
+  `d57ec72` and `6733ba0`. TC-013.9 still holds, and the record needs no edit (any edit would
+  void its approval).
+- **CR-003 AC coverage** (`:696-743`). It maps AC-20..22 to TASK-169..171 and AC-19 to all of
+  them. TASK-168 keeps AC-11, AC-14..19. This is consistent.
+- **This record's "Open items"** (`:263-274`). Three entries are now overtaken by events:
+  - CR-003 is `in_progress`.
+  - The `in_review` records are approved (e29894c).
+  - PRB-049, PRB-050 and the template wording were taken into CR-003 by D-7 and are resolved
+    there.
+
+  The two human decisions remain for CR close: the D-6 reading of AC-11, and the RISK-010 AC-19
+  reading. The human committed this record after the local QA review, which leaves both open.
+
+### Observation (not a finding)
+
+Every job logs GitHub's warning "Node.js 20 is deprecated … forced to run on Node.js 24" for
+`actions/checkout@v4`, `actions/setup-node@v4` and `actions/setup-python@v5`.
+
+- This is the runtime of the action code, not the project's Node.
+- AC-4 is met: `node-version: "24"` resolved to the runner's cached v24.22.1.
+- AC-3 is met separately: the image pin builds in `node:24.22.2`.
+
+Recommended for a later CI change: move to action majors that target Node 24.
+
+### Verification run (QA, 2026-10-30, head `6733ba0`)
+
+| Check | Result |
+|---|---|
+| `gh run view 41023084373 --json conclusion,headSha,jobs` | `success`, `headSha` `6733ba06e058dff1ce11605f1f9cf4b7e9332026` (= local HEAD). All 7 jobs passed: Backend Tests, Backend Quality, Frontend Quality, Frontend Tests, Image Pin Check, Docker Build, OpenAPI Lint |
+| `gh run view 41023084373 --log`: Node | "Set up Node.js 24" in Frontend Quality, Frontend Tests and OpenAPI Lint, `node-version: 24`, "Found in cache @ /opt/hostedtoolcache/node/24.22.1/x64". No Node 20 toolchain |
+| Same log: Docker Build | Frontend `[build 1/6] FROM node:24.22.2-trixie-slim@sha256:54f84b4c…b6d446`, `[build 4/6] RUN npm ci` ("added 466 packages"), `[build 6/6] RUN npm run build` (AC-5). Backend `FROM python:3.12.15-slim@sha256:cb33f7f7…`. The "Check production dependency set" step passed (AC-8) |
+| Same log: Backend Tests | Service `redis:7.4.12-bookworm@sha256:b6b6e3dc…82f5`. "500 passed", "Required test coverage of 85% reached. Total coverage: 91.71%". `tests/db/test_crypto_known_answer.py ...` (3, AC-9) and `tests/db/test_setup_test_data.py .` (1, TASK-169) are collected and pass |
+| Same log: Frontend Tests | Test Files 27 passed, Tests 155 passed |
+| `docker compose -f infra/docker-compose.yml up -d --build` at `6733ba0` (`DOCKER_CONTEXT=desktop-linux`) | The backend and celery-worker images were rebuilt and their containers recreated (`425c34585ad2`, `6a5926797b58`), because `scripts/` is in the backend image and TASK-169 changed it. The frontend image is unchanged (`a047f4eb63aa`): with the TASK-170 `.dockerignore`, the output is identical. The redis, postgres and minio containers were not recreated |
+| `bash infra/smoke-test.sh` | 17 passed, 0 failed |
+| `redis-cli INFO server`; `importlib.metadata` in `backend` | `redis_version:7.4.12`; anyio 4.14.2, urllib3 2.8.0, cryptography 50.0.2. `scripts/setup_test_data.py:6` imports `UTC` |
+| `git diff --stat e29894c 6733ba0` | No approved CR-003 record (ADD-023, RISK-011, SOUP-003/011/019/021, TS-001..013) changed after its approval |
+| `traceability-check` (fallback parser, plus the QA cross-check script for W1-W4, W7 and the risk rules), whole project | 353 records, **0 errors**. W5 1, W6 1, W1 3, W2 4, W3 1, W7 1, W4 0. No `soup_*` or risk-rule finding. Equal to TASK-171's recorded run. Approving this task adds no warning |
