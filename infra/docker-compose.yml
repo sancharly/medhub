@@ -40,9 +40,12 @@ services:
     expose:
       - "8000"
     depends_on:
-      - postgres
-      - redis
-      - createbuckets
+      postgres:
+        condition: service_started
+      redis:
+        condition: service_started
+      object-store-init:
+        condition: service_completed_successfully
     networks:
       - medhub
     restart: unless-stopped
@@ -127,25 +130,38 @@ services:
     networks:
       - medhub
     restart: unless-stopped
+    # Healthy only once the server answers requests (PRB-039); the initialiser waits for it.
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:9000/minio/health/ready"]
+      interval: 5s
+      timeout: 5s
+      retries: 24
+      start_period: 5s
 
-  # ── MinIO bucket initialisation (one-shot) ────────────────────────────────
-  createbuckets:
-    image: minio/mc:RELEASE.2025-08-13T08-35-41Z@sha256:a7fe349ef4bd8521fb8497f55c6042871b2ae640607cf99d9bede5e9bdf11727
+  # ── Bucket initialiser (one-shot, backend image, boto3) ───────────────────
+  # Creates the bucket, sets AES256 default encryption and checks it stays private
+  # (SR-040 AC 4, SR-022 AC 4). Starts only once the store is healthy; exits non-zero on any
+  # failure, which keeps the backend down. The entrypoint is overridden so the backend's
+  # migration entrypoint does not run.
+  object-store-init:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    entrypoint: ["python", "-m", "app.core.object_store_init"]
+    # Same expressions as the minio and preflight services: one source for the keys.
+    environment:
+      OBJECT_STORE_ENDPOINT: ${OBJECT_STORE_ENDPOINT:-http://minio:9000}
+      OBJECT_STORE_ACCESS_KEY: ${OBJECT_STORE_ACCESS_KEY:?OBJECT_STORE_ACCESS_KEY must be set}
+      OBJECT_STORE_SECRET_KEY: ${OBJECT_STORE_SECRET_KEY:?OBJECT_STORE_SECRET_KEY must be set}
+      OBJECT_STORE_BUCKET: ${OBJECT_STORE_BUCKET:-medhub}
     depends_on:
       object-store-preflight:
         condition: service_completed_successfully
       minio:
-        condition: service_started
-    entrypoint: >
-      /bin/sh -c "
-      mc alias set local http://minio:9000 $${OBJECT_STORE_ACCESS_KEY} $${OBJECT_STORE_SECRET_KEY};
-      mc mb --ignore-existing local/$${OBJECT_STORE_BUCKET:-medhub};
-      mc anonymous set none local/$${OBJECT_STORE_BUCKET:-medhub};
-      exit 0;
-      "
-    env_file: .env
+        condition: service_healthy
     networks:
       - medhub
+    restart: "no"
 
   # ── Celery Worker ─────────────────────────────────────────────────────────
   celery-worker:

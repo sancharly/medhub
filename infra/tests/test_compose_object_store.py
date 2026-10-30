@@ -61,9 +61,44 @@ class ComposeWiring(unittest.TestCase):
         self.assertEqual(svc["entrypoint"], ["python", "-m", "app.core.object_store_credentials"])
 
     def test_store_and_initialiser_wait_for_preflight(self):
-        for name in ("minio", "createbuckets"):
+        for name in ("minio", "object-store-init"):
             dep = self.config["services"][name]["depends_on"]["object-store-preflight"]
             self.assertEqual(dep["condition"], "service_completed_successfully", name)
+
+    def test_store_has_a_healthcheck_and_initialiser_waits_for_it(self):
+        """PRB-039: the initialiser starts only once the store is healthy."""
+        self.assertIn("healthcheck", self.config["services"]["minio"])
+        dep = self.config["services"]["object-store-init"]["depends_on"]["minio"]
+        self.assertEqual(dep["condition"], "service_healthy")
+
+    def test_initialiser_runs_once_from_the_backend_image_with_the_store_keys(self):
+        """TASK-175: boto3 module, no mc, keys via the same expressions as the store."""
+        svc = self.config["services"]["object-store-init"]
+        self.assertEqual(svc["entrypoint"], ["python", "-m", "app.core.object_store_init"])
+        self.assertEqual(svc["restart"], "no")
+        self.assertEqual(svc["build"]["context"], str(ROOT / "backend"))
+        self.assertNotIn("env_file", svc)
+        shell = {
+            "OBJECT_STORE_ACCESS_KEY": "shell-override-access",
+            "OBJECT_STORE_SECRET_KEY": "shell-override-secret-key-1",
+        }
+        result, config = compose_config(GOOD, shell)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        init_env = config["services"]["object-store-init"]["environment"]
+        minio_env = config["services"]["minio"]["environment"]
+        self.assertEqual(init_env["OBJECT_STORE_ACCESS_KEY"], minio_env["MINIO_ROOT_USER"])
+        self.assertEqual(init_env["OBJECT_STORE_SECRET_KEY"], minio_env["MINIO_ROOT_PASSWORD"])
+        self.assertEqual(init_env["OBJECT_STORE_ACCESS_KEY"], shell["OBJECT_STORE_ACCESS_KEY"])
+
+    def test_backend_waits_for_a_successful_initialisation(self):
+        """SR-040 AC 4: a failed initialisation keeps the backend down."""
+        dep = self.config["services"]["backend"]["depends_on"]["object-store-init"]
+        self.assertEqual(dep["condition"], "service_completed_successfully")
+
+    def test_no_mc_image_or_createbuckets_service(self):
+        self.assertNotIn("createbuckets", self.config["services"])
+        for name, svc in self.config["services"].items():
+            self.assertNotIn("minio/mc", svc.get("image", ""), name)
 
     def test_preflight_checks_the_values_the_store_receives(self):
         """A shell override must reach the preflight and minio identically (QA round 1)."""
