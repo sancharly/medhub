@@ -2,11 +2,15 @@
 id: ADD-013
 type: architecture-doc
 title: Audit Service (SI-AUDIT)
-status: in_review
+status: approved
 version: "1.1"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-10-30"
+updated: "2026-10-31"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-31"
+approved_digest: 08008cc6b2e14b8f691cf6c04199de2995a4d000b96b09669a5bb74a227bfd85
+approval_note: self-approved
 links:
   - target: SR-023
     relation: implements

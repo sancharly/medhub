@@ -2,11 +2,15 @@
 id: ADD-024
 type: architecture-doc
 title: Development and verification infrastructure (SI-DEVINFRA)
-status: in_review
+status: approved
 version: "1.2"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
-updated: "2026-10-30"
+updated: "2026-10-31"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-31"
+approved_digest: 8ccc9fca482b9afe0b9b8f35f0058bd17c5afa97a87cf8a08bed5445d64663dc
+approval_note: self-approved
 links:
   - target: SR-028
     relation: implements

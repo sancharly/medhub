@@ -2,11 +2,11 @@
 id: RISK-012
 type: risk
 title: Object store compromised from the internal network or left unpatchable
-status: in_review
+status: approved
 version: "1.1"
 author: Carlos Santiago Liceras
 created: "2026-10-22"
-updated: "2026-10-30"
+updated: "2026-10-31"
 hazard: Clinical attachments (including DICOM studies) in the object store can be read, replaced, planted or made unreadable without the object store's secret key, or the object store stops receiving security fixes (as first raised in 1.0, for MinIO, which would never receive one).
 cause: The object-store component carries a vulnerability with no deployed fix, or the deployment exposes the store beyond its intended clients (as first raised in 1.0, MinIO RELEASE.2025-09-07T16-13-09Z, unmaintained, with CVE-2026-41145, CVE-2026-40344, CVE-2026-113466 and CVE-2026-34204 exposed to every container on the `medhub` network, SOUP-022, PRB-042, PRB-043; replaced by SeaweedFS, SOUP-036, under CR-002) → an actor with a foothold that reaches the store writes to it or takes it over → attachments are disclosed, substituted, stored without encryption or made permanently unreadable, and a substituted object is served unless the stored checksum is checked on download.
 harm: Wrong or delayed diagnosis or treatment from a substituted or planted attachment or DICOM study (harms of RISK-002 and RISK-003); privacy harm from disclosure of attachments (RISK-001, RISK-011); delayed care from lost or unreadable attachments (RISK-007).
@@ -15,6 +15,10 @@ probability_initial: 2
 severity_residual: 4
 probability_residual: 1
 acceptability: acceptable
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-31"
+approved_digest: 4e4b61fa4982762761b17f074fd7407dece44e03d3159bc11b531d6e39a09be5
+approval_note: self-approved
 links:
   - target: SOUP-036
     relation: relates_to

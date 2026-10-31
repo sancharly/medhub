@@ -2,16 +2,20 @@
 id: SOUP-036
 type: soup
 title: SeaweedFS object store
-status: in_review
+status: approved
 version: "1.2"
 author: Carlos Santiago Liceras
 created: "2026-10-30"
-updated: "2026-10-30"
+updated: "2026-10-31"
 manufacturer: SeaweedFS project (Chris Lu)
 soup_version: "4.51"
 anomaly_review: "2026-10-30"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-31"
+approved_digest: ec35ad4e40c69cec5e2f4fca8cfbdbba6d52aff8c8ebd69953f43fa96e3b5cad
+approval_note: self-approved
 links:
-  - target: "ADD-025"
+  - target: ADD-025
     relation: relates_to
 tags:
   - soup

@@ -1,29 +1,33 @@
 ---
-id: "ADD-025"
+id: ADD-025
 type: architecture-doc
-title: "Object store deployment (SI-OBJSTORE)"
-status: in_review
+title: Object store deployment (SI-OBJSTORE)
+status: approved
 version: "1.2"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-10-30"
-updated: "2026-10-30"
+updated: "2026-10-31"
 safety_class: B
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-31"
+approved_digest: 6f1374a9f5ac519285de748f5072616f0f6c99b9498050615e9ea3a80dd8eac8
+approval_note: self-approved
 links:
-  - target: "SR-040"
+  - target: SR-040
     relation: implements
-  - target: "SR-022"
+  - target: SR-022
     relation: implements
-  - target: "SR-028"
+  - target: SR-028
     relation: implements
-  - target: "RISK-012"
+  - target: RISK-012
     relation: relates_to
-  - target: "RISK-007"
+  - target: RISK-007
     relation: relates_to
-  - target: "RISK-011"
+  - target: RISK-011
     relation: relates_to
-  - target: "SOUP-019"
+  - target: SOUP-019
     relation: relates_to
-  - target: "SOUP-036"
+  - target: SOUP-036
     relation: relates_to
 tags:
   - software-item:SI-OBJSTORE

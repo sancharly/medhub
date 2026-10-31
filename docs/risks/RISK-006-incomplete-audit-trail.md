@@ -2,11 +2,11 @@
 id: RISK-006
 type: risk
 title: Audit trail incomplete, so a wrong disclosure or entry goes undetected
-status: in_review
+status: approved
 version: "1.2"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-10-30"
+updated: "2026-10-31"
 hazard: Security-relevant or clinical-data events not recorded, or recorded without the information needed to reconstruct them.
 cause: A code path bypasses `AuditService`, an audit row is rolled back with the failed request that recorded it, the client IP is not captured, the scrub drops needed context, or the log store is writable → an incident cannot be reconstructed → a wrong disclosure or falsified entry is never noticed or corrected.
 harm: "Indirect: the harms of RISK-001/002/005 persist uncorrected, and the legal obligation to notify cannot be met."
@@ -15,6 +15,10 @@ probability_initial: 3
 severity_residual: 2
 probability_residual: 2
 acceptability: acceptable
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-31"
+approved_digest: a1e6a6b393b30a13b60fb140166f3442ce17e02902d4a8a4bf845bf4dee78d29
+approval_note: self-approved
 links:
   - target: SOUP-008
     relation: relates_to
