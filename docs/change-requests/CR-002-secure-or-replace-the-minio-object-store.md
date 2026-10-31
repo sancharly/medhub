@@ -2,7 +2,7 @@
 id: CR-002
 type: change-request
 title: Secure or replace the MinIO object store
-status: in_progress
+status: closed
 version: "1.9"
 author: Carlos Santiago Liceras
 created: "2026-10-30"
