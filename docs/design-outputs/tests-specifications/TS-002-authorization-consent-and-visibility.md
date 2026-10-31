@@ -3,14 +3,10 @@ id: TS-002
 type: test-specification
 title: Authorization, consent and visibility verification
 status: approved
-version: "1.1"
+version: "1.2"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-10-30"
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-10-30"
-approved_digest: 41949a1ea6e1625d077d40e90458d45116e81f306738f9e2b8e6750a7ac89801
-approval_note: self-approved
+updated: "2026-10-31"
 links:
   - target: SR-005
     relation: verifies
@@ -24,6 +20,8 @@ links:
     relation: verifies
   - target: SR-011
     relation: verifies
+  - target: SR-015
+    relation: verifies
   - target: SR-036
     relation: verifies
 tags:
@@ -35,7 +33,7 @@ tags:
 
 ## Scope
 
-Software requirements covered: SR-005, SR-006, SR-007, SR-008, SR-009, SR-011, SR-036.
+Software requirements covered: SR-005, SR-006, SR-007, SR-008, SR-009, SR-011, SR-036; TC-002.7 also SR-015 (module access decision).
 Software items under test: SI-AUTHZ, SI-API, SI-FE-CORE.
 Levels: unit, integration.
 
@@ -57,6 +55,7 @@ Exact SOUP versions: the `soup` records in [`../../soup/`](../../soup/).
 | TC-002.4 | SR-009 | `backend/tests/authz/test_admin_projection.py`, `backend/tests/api/test_admin_projection_integration.py` | Administrative personnel receive non-clinical fields only | Clinical fields absent from the response payload |
 | TC-002.5 | SR-011 | `backend/tests/authz/test_appointment_visibility.py` | Appointments are visible only to their participants and authorized administrative personnel | Each role asserted separately |
 | TC-002.6 | SR-007, SR-008 | `frontend/src/core/consent/ConsentPage.test.tsx`, `frontend/src/core/clinical/ClinicalEntriesPage.test.tsx`, `frontend/src/core/patients/PatientListPage.test.tsx` | The UI shows only permitted data and reflects consent changes | Rendering asserted per role |
+| TC-002.7 | SR-005 AC 1, AC 3, SR-011 AC 4, SR-015 | `backend/tests/authz/test_decision_table.py` (38 cases: list scope 4 roles, denied list 1; single read 12 role x relation, 1 consent, 4 missing; module access 4 roles x 4 membership states, with the 403 message asserted), `backend/tests/authz/test_authorization_service.py` (`appointment_scope`, `module:access`), `backend/tests/authz/test_appointment_visibility.py`, `backend/tests/api/test_appointments_router.py::TestGetAppointment` | The appointment list scope, single-appointment visibility and module access are decided only in `AuthorizationService`; the decision table was run green against the code before the logic moved (characterisation, RISK-004 control) and stays green, unchanged, after; a not-visible appointment is answered 404 | Same allow/deny and status code per case before and after the move; weakening the visibility rule or the list scope makes the table fail |
 
 ## Acceptance criteria (class B unit level, §5.5.3)
 
@@ -67,3 +66,8 @@ Exact SOUP versions: the `soup` records in [`../../soup/`](../../soup/).
 ## Notes
 
 Route-level role guards are missing in the frontend (PRB-014, TASK-142), so client-side defense in depth is not yet verifiable.
+
+## Version history
+
+- 1.2 (2026-10-31) — TASK-187: TC-002.7 added (decision table of the appointment list scope, appointment visibility and module access; characterisation before and after the move); `verifies` SR-015 added. Returned to `in_review`; approval record cleared.
+- 1.2 (2026-10-31) — QA review (TASK-187 round 2): approved (`in_review → approved`).

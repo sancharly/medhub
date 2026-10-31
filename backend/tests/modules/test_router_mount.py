@@ -3,15 +3,19 @@
 from __future__ import annotations
 
 import uuid
+from collections.abc import Iterator
 from unittest.mock import MagicMock, patch
 
+import pytest
 from fastapi import APIRouter, FastAPI
 from fastapi.testclient import TestClient
 
 from app.api.deps import get_current_user
 from app.api.errors import register_error_handlers
+from app.audit.service import AuditService
 from app.authz.module_guard import ModuleAccessGuard
 from app.db.models.account import Account, AccountStatus, UserType
+from app.db.repositories.session import get_db
 from app.modules.router_registry import RouterRegistry
 
 
@@ -33,6 +37,17 @@ def _make_sub_router() -> APIRouter:
     return sub
 
 
+def _fake_db() -> Iterator[MagicMock]:
+    yield MagicMock()
+
+
+@pytest.fixture(autouse=True)
+def _no_audit_store() -> Iterator[None]:
+    """The module gate audits its decision (TASK-187); these tests do not need the store."""
+    with patch.object(AuditService, "record"):
+        yield
+
+
 class TestRouterMount:
     def test_mount_exposes_routes_under_correct_prefix(self) -> None:
         app = FastAPI()
@@ -43,6 +58,7 @@ class TestRouterMount:
 
         actor = _make_account()
         app.dependency_overrides[get_current_user] = lambda: actor
+        app.dependency_overrides[get_db] = _fake_db
 
         # Module enabled so we get through the gate
         with patch.object(ModuleAccessGuard, "is_module_enabled", return_value=True):
@@ -73,6 +89,7 @@ class TestRouterMount:
 
         actor = _make_account()
         app.dependency_overrides[get_current_user] = lambda: actor
+        app.dependency_overrides[get_db] = _fake_db
 
         # Guard returns False — module not enabled for this actor
         with patch.object(ModuleAccessGuard, "is_module_enabled", return_value=False):

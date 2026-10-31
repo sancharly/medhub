@@ -5,12 +5,11 @@ from __future__ import annotations
 import uuid
 from datetime import datetime
 
-from app.api.errors import NotFoundError, ValidationProblem
+from app.api.errors import AuthorizationError, NotFoundError, ValidationProblem
 from app.appointments.state import transition
 from app.audit.actions import AuditAction
 from app.audit.service import AuditService
-from app.authz.appointment_visibility import can_view_appointment
-from app.authz.service import AuthorizationService, Resource
+from app.authz.service import AppointmentScopeKind, AuthorizationService, Resource
 from app.db.models.account import Account, UserType
 from app.db.models.appointment import Appointment, AppointmentState
 from app.db.models.audit import AuditOutcome
@@ -157,22 +156,35 @@ class AppointmentService:
 
     def list_for(self, actor: Account) -> list[Appointment]:
         """List appointments visible to the actor."""
-        self._authz_svc.authorize(
-            actor,
-            "appointment:list",
-            Resource(resource_type="appointment", owner_id=None, patient_id=None),
-        )
-        if actor.user_type in (UserType.ADMIN, UserType.SYSADMIN):
+        scope = self._authz_svc.appointment_scope(actor)
+        if scope.kind is AppointmentScopeKind.ALL:
             return self._repo.list_all()
-        if actor.user_type == UserType.DOCTOR:
-            return self._repo.list_for_doctor(actor.id)
-        if actor.user_type == UserType.PATIENT:
-            return self._repo.list_for_patient(actor.id)
+        if scope.account_id is not None:
+            if scope.kind is AppointmentScopeKind.AS_DOCTOR:
+                return self._repo.list_for_doctor(scope.account_id)
+            if scope.kind is AppointmentScopeKind.AS_PATIENT:
+                return self._repo.list_for_patient(scope.account_id)
         return []
 
     def get(self, actor: Account, appointment_id: uuid.UUID) -> Appointment:
         """Get a single appointment. Returns NotFoundError if not visible (SR-011 AC-4)."""
         appointment = self._repo.get(appointment_id)
-        if appointment is None or not can_view_appointment(actor, appointment):
+        if appointment is None:
             raise NotFoundError(f"Appointment {appointment_id} not found.")
+        try:
+            self._authz_svc.authorize(
+                actor,
+                "appointment:read",
+                Resource(
+                    resource_type="appointment",
+                    owner_id=appointment.patient_id,
+                    patient_id=appointment.patient_id,
+                    doctor_id=appointment.doctor_id,
+                    resource_id=str(appointment.id),
+                ),
+            )
+        except AuthorizationError:
+            # The AUTHZ_DENIED row is already written; the client sees 404 (SR-011 AC 4).
+            not_found = NotFoundError(f"Appointment {appointment_id} not found.")
+            raise not_found from None
         return appointment

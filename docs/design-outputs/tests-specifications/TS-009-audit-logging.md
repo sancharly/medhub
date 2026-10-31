@@ -3,7 +3,7 @@ id: TS-009
 type: test-specification
 title: Audit logging verification
 status: approved
-version: "1.3"
+version: "1.4"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-10-31"
@@ -27,7 +27,7 @@ Levels: unit, integration.
 
 ## Preconditions and environment
 
-Build: branch `fix/review-2026-07-security`, the commit that carries TASK-137 (TC-009.9); TC-009.1 to TC-009.8 last verified at the commit that carries TASK-183. Backend Python 3.12 with the
+Build: branch `fix/review-2026-07-security`, the commit that carries TASK-187 (TC-009.10); TC-009.9 at the commit that carries TASK-137; TC-009.1 to TC-009.8 last verified at the commit that carries TASK-183. Backend Python 3.12 with the
 dependencies locked in `backend/uv.lock`; frontend Node 24 LTS (build stage node:24.22.2-trixie-slim; CI node-version 24) with `frontend/package-lock.json`.
 Unit and service tests run with no external services (in-memory repository). Tests marked *real DB* require a
 PostgreSQL 16 container through testcontainers and therefore a working Docker daemon.
@@ -45,15 +45,22 @@ Exact SOUP versions: the `soup` records in [`../../soup/`](../../soup/).
 | TC-009.6 | SR-023 | `backend/tests/audit/test_failure_audit_persistence.py::test_activation_failed_persists_after_401` *(real DB)* | `ACTIVATION_FAILED` persists after the 401 on a wrong token | Row asserted |
 | TC-009.7 | SR-023 | `backend/modules/dicom_viewer/tests/test_failure_audit_persistence.py` *(real DB; run apart from `backend/tests`)* | `DICOM_STUDY_READ` FAILURE persists after the 403 | Row asserted |
 | TC-009.8 | SR-023 | `backend/tests/audit/test_failure_audit_persistence.py::test_failure_row_persists_while_business_row_and_success_event_roll_back`, `backend/tests/audit/test_audit_writer.py` *(real DB for the first)* | A business row and a SUCCESS event added in a failing request are rolled back while its FAILURE row persists; `record` has no `durable` parameter and the repository has no session-wide commit | Business row and SUCCESS row absent, FAILURE row present |
-| TC-009.9 | SR-023 AC 6, SR-042 AC 2 | `backend/tests/audit/test_audit_client_address.py` *(real DB)*, `backend/tests/audit/test_audit_writer.py::test_explicit_ip_wins_over_request_address`, `::test_request_address_used_when_ip_is_none`, `::test_no_request_context_records_no_address`, `backend/tests/workers/test_email_tasks.py` | A request-caused row (`AUTHZ_DENIED`, `CONSENT_GRANTED`, `LOGIN_FAILURE`) records the originating client address (trusted peer with `X-Forwarded-For`: the client; untrusted peer with a forged header: the peer); an explicit `ip` wins; a row written with no request (worker) records no address and is written | Row `ip` asserted per case; the address tests fail if `record` ignores the client-address variable |
+| TC-009.9 | SR-023 AC 6, SR-042 AC 2 | `backend/tests/audit/test_audit_client_address.py` *(real DB)*, `backend/tests/audit/test_audit_writer.py::test_explicit_ip_wins_over_request_address`, `::test_request_address_used_when_ip_is_none`, `::test_no_request_context_records_no_address` | A request-caused row (`AUTHZ_DENIED`, `CONSENT_GRANTED`, `LOGIN_FAILURE`) records the originating client address (trusted peer with `X-Forwarded-For`: the client; untrusted peer with a forged header: the peer); an explicit `ip` wins; a row written with no request (worker) records no address and is written | Row `ip` asserted per case; the address tests fail if `record` ignores the client-address variable |
+| TC-009.10 | SR-023 AC 7 (on a request that completes; an allowed row is lost when the request then fails, PRB-060) | `backend/tests/audit/test_authz_decision_audit.py` *(real DB)*, `backend/tests/authz/test_authorization_service.py` (`appointment_scope`, `module:access`), `backend/tests/api/test_appointments_router.py::TestGetAppointment`; `test_allowed_row_is_lost_when_the_handler_then_fails_prb_060` documents the limitation | Every appointment and module authorization decision, allowed or denied, on a request that completes, writes one row with actor, action (`AUTHZ_ALLOWED`/`AUTHZ_DENIED`), target (appointment id, or module key), outcome, timestamp and client address: an allowed and a denied appointment list, an allowed and a denied single read (404 to the client), an allowed and a denied module access | One row per decision with all fields asserted; the list tests fail if the scope is decided outside `AuthorizationService` |
 
 ## Acceptance criteria (class B unit level, §5.5.3)
 
 - Self-diagnostics: an audit write failure must not silently drop the event.
-- Data flow: the originating client address (SR-042) is part of every request-caused entry; an entry with no request records none (TC-009.9, PRB-010).
+- Data flow: every appointment and module authorization decision, allowed or denied, on a request that completes, is an entry (TC-009.10; PRB-060 for the failing request); the originating client address (SR-042) is part of every request-caused entry; an entry with no request records none (TC-009.9, PRB-010).
 
 ## Notes
 
 TC-007.6's persistence test (TS-007) now runs without `durable`: the FAILURE row is committed by the writer itself (ADR-0016).
 
 Append-only is a convention, not a database grant (PRB-005); TC-009.3 therefore verifies persistence, not immutability.
+
+## Version history
+
+- 1.4 (2026-10-31) — TASK-187: TC-009.10 added (appointment and module decisions audited, SR-023 AC 7); TC-009.9 evidence citation corrected (the no-request evidence is `test_audit_writer.py::test_no_request_context_records_no_address`, not `tests/workers/test_email_tasks.py`). Returned to `in_review`.
+- 1.4 (2026-10-31) — TC-009.10 narrowed to a request that completes (PRB-060); the lost-row behaviour is pinned by a test.
+- 1.4 (2026-10-31) — QA review (TASK-187 round 2): approved (`in_review → approved`).

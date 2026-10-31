@@ -12,6 +12,7 @@ Decision carries: allow + basis (OWNER | CONSENT:MANUAL | CONSENT:APPOINTMENT:{i
 
 from __future__ import annotations
 
+import enum
 import uuid
 from dataclasses import dataclass
 from typing import Literal
@@ -38,6 +39,24 @@ class Resource:
     resource_type: str  # e.g. "account", "clinical_entry"
     owner_id: uuid.UUID | None  # account that owns this resource
     patient_id: uuid.UUID | None  # patient the resource belongs to
+    doctor_id: uuid.UUID | None = None  # doctor of an appointment (appointment:read)
+    resource_id: str | None = None  # audit target (appointment id, module key)
+    module_enabled: bool | None = None  # ModuleAccessGuard result (module:access)
+
+
+class AppointmentScopeKind(enum.Enum):
+    ALL = "ALL"
+    AS_DOCTOR = "AS_DOCTOR"
+    AS_PATIENT = "AS_PATIENT"
+    NONE = "NONE"
+
+
+@dataclass(frozen=True)
+class AppointmentScope:
+    """Which appointments the actor may list (decided by ``appointment_scope``)."""
+
+    kind: AppointmentScopeKind
+    account_id: uuid.UUID | None = None
 
 
 class AuthorizationService:
@@ -60,13 +79,14 @@ class AuthorizationService:
         Raises AuthorizationError (403) on deny after auditing.
         """
         decision = self._evaluate(actor, action, resource)
+        target_id = resource.resource_id or str(resource.owner_id or resource.patient_id or "")
 
         if decision.allow:
             self._audit_svc.record(
                 actor=actor.id,
                 action=AuditAction.AUTHZ_ALLOWED,
                 target_type=resource.resource_type,
-                target_id=str(resource.owner_id or resource.patient_id or ""),
+                target_id=target_id,
                 outcome=AuditOutcome.SUCCESS,
                 ip=None,
             )
@@ -75,7 +95,7 @@ class AuthorizationService:
                 actor=actor.id,
                 action=AuditAction.AUTHZ_DENIED,
                 target_type=resource.resource_type,
-                target_id=str(resource.owner_id or resource.patient_id or ""),
+                target_id=target_id,
                 outcome=AuditOutcome.FAILURE,
                 ip=None,
             )
@@ -83,7 +103,33 @@ class AuthorizationService:
 
         return decision
 
+    def appointment_scope(self, actor: Account) -> AppointmentScope:
+        """Decide which appointments the actor lists; audited as ``appointment:list``.
+
+        Raises AuthorizationError (403) after auditing when the actor may not list.
+        """
+        self.authorize(
+            actor,
+            "appointment:list",
+            Resource(resource_type="appointment", owner_id=None, patient_id=None),
+        )
+        if actor.user_type in (UserType.ADMIN, UserType.SYSADMIN):
+            return AppointmentScope(AppointmentScopeKind.ALL)
+        if actor.user_type == UserType.DOCTOR:
+            return AppointmentScope(AppointmentScopeKind.AS_DOCTOR, actor.id)
+        if actor.user_type == UserType.PATIENT:
+            return AppointmentScope(AppointmentScopeKind.AS_PATIENT, actor.id)
+        return AppointmentScope(AppointmentScopeKind.NONE)
+
     def _evaluate(self, actor: Account, action: str, resource: Resource) -> Decision:
+        if action == "appointment:read":
+            return self._eval_appointment_read(actor, resource)
+        if action == "module:access":
+            # The module guard's live result is the input; no role overrides it (SR-015).
+            if resource.module_enabled is True:
+                return Decision(allow=True, basis="MODULE:ENABLED")
+            return Decision(allow=False, basis="MODULE:DISABLED")
+
         role = actor.user_type
 
         if role == UserType.PATIENT:
@@ -95,6 +141,14 @@ class AuthorizationService:
         if role == UserType.SYSADMIN:
             return self._eval_sysadmin(actor, action, resource)
 
+        return Decision(allow=False, basis="ROLE")
+
+    def _eval_appointment_read(self, actor: Account, resource: Resource) -> Decision:
+        """Visible to the appointment's doctor, its patient, and ADMIN/SYSADMIN (SR-011 AC 4)."""
+        if actor.user_type in (UserType.ADMIN, UserType.SYSADMIN):
+            return Decision(allow=True, basis="ROLE")
+        if actor.id in (resource.doctor_id, resource.patient_id):
+            return Decision(allow=True, basis="OWNER")
         return Decision(allow=False, basis="ROLE")
 
     def _eval_patient(self, actor: Account, action: str, resource: Resource) -> Decision:
@@ -174,20 +228,3 @@ class AuthorizationService:
             doctor_id, patient_id
         )
         return result
-
-
-def get_authorization_service() -> AuthorizationService:
-    """Default factory used by the FastAPI dependency system.
-
-    Wires up real dependencies. In tests, use dependency_overrides.
-    """
-    from app.audit.service import AuditService  # noqa: PLC0415
-    from app.authz.consent import ConsentService  # noqa: PLC0415
-    from app.db.repositories.audit_repo import AuditRepository  # noqa: PLC0415
-    from app.db.repositories.consent_repo import ConsentRepository  # noqa: PLC0415
-    from app.db.repositories.session import get_db  # noqa: PLC0415
-
-    db = next(get_db())
-    audit_svc = AuditService(AuditRepository(db))
-    consent_svc = ConsentService(ConsentRepository(db), audit_svc)
-    return AuthorizationService(consent_svc, audit_svc)

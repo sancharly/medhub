@@ -100,51 +100,6 @@ class AuthorizationServiceProtocol(Protocol):
 
 
 # ---------------------------------------------------------------------------
-# require() factory
-# ---------------------------------------------------------------------------
-
-
-def require(
-    action: str,
-    resource_loader: Callable[..., object],
-) -> Callable[..., object]:
-    """Return a FastAPI dependency that authorises and returns the loaded resource.
-
-    Usage::
-
-        @router.get("/patients/{patient_id}/notes")
-        def list_notes(
-            resource=Depends(require("clinical:read", load_patient)),
-            actor: Account = Depends(get_current_user),
-        ):
-            ...
-
-    The resource_loader is called as a dependency and must return the resource.
-    AuthorizationService.authorize() is called; raises 403 on deny.
-    """
-
-    async def _dependency(
-        actor: Account = Depends(get_current_user),
-        resource: object = Depends(resource_loader),
-        authz: object = Depends(_get_authz_service),
-    ) -> object:
-        authz.authorize(actor, action, resource)  # type: ignore[attr-defined]
-        return resource
-
-    return _dependency
-
-
-def _get_authz_service() -> object:
-    """Placeholder — TASK-027 will provide the real implementation.
-
-    Imported lazily so TASK-025 can land before TASK-027.
-    """
-    from app.authz.service import get_authorization_service  # noqa: PLC0415
-
-    return get_authorization_service()
-
-
-# ---------------------------------------------------------------------------
 # Module access guard dependency factory (TASK-043)
 # ---------------------------------------------------------------------------
 
@@ -199,14 +154,37 @@ def require_module_enabled(module_key: str) -> Callable[..., object]:
         actor: Account = Depends(get_current_user),
         db: Session = Depends(get_db),
     ) -> None:
+        from app.api.errors import AuthorizationError  # noqa: PLC0415
+        from app.audit.service import AuditService  # noqa: PLC0415
+        from app.authz.consent import ConsentService  # noqa: PLC0415
         from app.authz.module_guard import ModuleAccessGuard  # noqa: PLC0415
+        from app.authz.service import AuthorizationService, Resource  # noqa: PLC0415
+        from app.db.repositories.audit_repo import AuditRepository  # noqa: PLC0415
+        from app.db.repositories.consent_repo import ConsentRepository  # noqa: PLC0415
         from app.db.repositories.group_repo import GroupRepository  # noqa: PLC0415
         from app.db.repositories.module_repo import ModuleRepository  # noqa: PLC0415
 
         guard = ModuleAccessGuard(GroupRepository(db), ModuleRepository(db))
-        if not guard.is_module_enabled(actor.id, module_key):
-            from app.api.errors import AuthorizationError  # noqa: PLC0415
-
-            raise AuthorizationError(f"Module '{module_key}' is not enabled for your account.")
+        audit_svc = AuditService(AuditRepository(db))
+        authz_svc = AuthorizationService(
+            ConsentService(ConsentRepository(db), audit_svc), audit_svc
+        )
+        try:
+            authz_svc.authorize(
+                actor,
+                "module:access",
+                Resource(
+                    resource_type="module",
+                    owner_id=None,
+                    patient_id=None,
+                    resource_id=module_key,
+                    module_enabled=guard.is_module_enabled(actor.id, module_key),
+                ),
+            )
+        except AuthorizationError:
+            # The AUTHZ_DENIED row is already written.
+            raise AuthorizationError(
+                f"Module '{module_key}' is not enabled for your account."
+            ) from None
 
     return _dependency
