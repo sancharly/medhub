@@ -23,7 +23,7 @@ See [ADR-0011](adr/0011-security-compliance-approach.md). Layers:
 
 ## 8.4 Audit logging
 
-Central append-only `AuditService` (SI-AUDIT) records authentication, clinical-data access, consent changes, and administrative actions with actor/action/target/outcome/timestamp; no plaintext credentials; not modifiable by ordinary users (SR-023). Audit calls are side effects of operations, not a public endpoint.
+Central append-only `AuditService` (SI-AUDIT) records authentication, clinical-data access, consent changes, and administrative actions with actor/action/target/outcome/timestamp; no plaintext credentials; not modifiable by ordinary users (SR-023). Audit calls are side effects of operations, not a public endpoint. Events that record a failure or a refusal (outcome FAILURE, and `ACCOUNT_LOCKOUT`) are committed on their own short-lived transaction so they survive a request that ends in an error, while other events stay in the request transaction ([ADR-0016](adr/0016-failure-audit-events-on-own-transaction.md)).
 
 ## 8.5 Data-subject rights & retention
 

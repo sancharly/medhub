@@ -20,6 +20,7 @@ Diagram: [`../specifications/diagram-building-blocks.puml`](../specifications/di
 | SI-APPT         | Appointments & Notifications   | Appointment CRUD, state machine, confirmation, notification dispatch                         | SR-010, SR-011, SR-035                         |
 | SI-CLINICAL     | Clinical Records               | Clinical-entry CRUD with required fields & attribution                                       | SR-012                                         |
 | SI-ATTACH       | Attachment Service             | Upload/fetch attachment binaries via object storage, authorized                              | SR-013, SR-022                                 |
+| SI-OBJSTORE     | Object Store Deployment        | The deployed S3-compatible store: credential preflight, server, bucket initialiser, isolated network | SR-040, SR-022, SR-028                         |
 | SI-AUDIT        | Audit Service                  | Append-only audit log of security-relevant events                                            | SR-023                                         |
 | SI-MODHOST      | Module Host / Plugin Registry  | Module discovery/registration, platform-service injection, router mounting                   | SR-016                                         |
 | SI-MOD-DICOM-BE | DICOM Module (backend)         | Authorized DICOM byte/frame endpoints behind the module contract                             | SR-016, SR-017                                 |
@@ -76,7 +77,13 @@ Diagram: [`../specifications/diagram-building-blocks.puml`](../specifications/di
 
 ### SI-ATTACH
 - `U-ATT-Upload` — validate, store object (SSE), bind to entry/patient transactionally (SR-013).
-- `U-ATT-Fetch` — authorized stream / scoped pre-signed URL (SR-005, SR-013.3).
+- `U-ATT-Fetch` — authorized stream / scoped pre-signed URL; verifies the stored SHA-256 checksum before serving and refuses a mismatch with an audit FAILURE (SR-005, SR-013.3).
+
+### SI-OBJSTORE
+Deployed infrastructure, not application code; design record ADD-025, component decision ADR-0015. `SI-ATTACH` is its only runtime client.
+- `U-OBJ-Preflight` — Compose service `object-store-preflight`: rejects unset, empty, default or short keys before the store starts (SR-040 AC 2).
+- `U-OBJ-Server` — Compose service `object-store`: SeaweedFS pinned by digest, no console, SSE-S3 key from `AT_REST_ENCRYPTION_KEY`, joined only to the `object-store` network (SR-040 AC 1, AC 3, SR-022).
+- `U-OBJ-Init` — Compose service `object-store-init` (`backend/app/core/object_store_init.py`, boto3): creates the bucket, sets AES256 default encryption, verifies it, checks no policy (SR-040 AC 4, SR-022 AC 4).
 
 ### SI-AUDIT
 - `U-AUD-Writer` — append-only event writer (actor/action/target/outcome/ts), no plaintext secrets (SR-023).
@@ -129,7 +136,8 @@ Diagram: [`../specifications/diagram-building-blocks.puml`](../specifications/di
 `SI-DEVINFRA` — the CI pipeline (`.github/workflows/ci.yml`), the toolchain configuration and lock
 files, and the OpenAPI contract export. It is part of the repository and gates every merge, but it
 is not deployed and no runtime item depends on it. Units: `U-INF-CIPipeline`, `U-INF-Toolchain`,
-`U-INF-ContractExport` (SR-028). Design record: ADD-024.
+`U-INF-ContractExport` (SR-028). Design record: ADD-024. `U-INF-CIPipeline` includes the job
+`object-store-integration`, which runs the encryption checks against the real object store.
 
 ## Module boundary note
 

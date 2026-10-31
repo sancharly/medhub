@@ -73,8 +73,8 @@ jobs:
       DATABASE_URL: postgresql://medhub:testpassword@localhost:5432/medhub_test
       REDIS_URL: redis://localhost:6379/0
       OBJECT_STORE_ENDPOINT: http://localhost:9000
-      OBJECT_STORE_ACCESS_KEY: minioadmin
-      OBJECT_STORE_SECRET_KEY: minioadmin
+      OBJECT_STORE_ACCESS_KEY: test-access-key
+      OBJECT_STORE_SECRET_KEY: test-secret-key-24-chars-xx
       OBJECT_STORE_BUCKET: medhub-test
       SESSION_SIGNING_KEY: test-session-signing-key-32-bytes!
       SMTP_HOST: localhost
@@ -161,8 +161,8 @@ jobs:
       DATABASE_URL: postgresql://medhub:testpassword@localhost:5432/medhub_test
       REDIS_URL: redis://localhost:6379/0
       OBJECT_STORE_ENDPOINT: http://localhost:9000
-      OBJECT_STORE_ACCESS_KEY: minioadmin
-      OBJECT_STORE_SECRET_KEY: minioadmin
+      OBJECT_STORE_ACCESS_KEY: test-access-key
+      OBJECT_STORE_SECRET_KEY: test-secret-key-24-chars-xx
       OBJECT_STORE_BUCKET: medhub-test
       SESSION_SIGNING_KEY: test-session-signing-key-32-bytes!
       SMTP_HOST: localhost
@@ -222,6 +222,67 @@ jobs:
 
       - name: Build frontend image
         run: docker build -t medhub-frontend:ci ./frontend
+
+  # ── Object store: encryption checked against the real store (TASK-179, PRB-036) ────
+  # A `services:` container cannot take SeaweedFS's command line, so the job starts the store with
+  # the Compose file plus a CI-only override that publishes the S3 port on 127.0.0.1.
+  object-store-integration:
+    name: Object Store Integration
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      COMPOSE: docker compose -p medhub-ci -f infra/docker-compose.yml -f infra/compose.ci-object-store.yml
+    steps:
+      - uses: actions/checkout@v4
+
+      # CI ONLY: this step overwrites infra/.env, and the last step runs `down -v`. To reproduce
+      # by hand, back up infra/.env first; the project name `medhub-ci` keeps the dev volumes safe.
+      - name: Generate throwaway credentials
+        run: |
+          access_key=$(openssl rand -hex 12)
+          secret_key=$(openssl rand -base64 32)
+          sse_key=$(openssl rand -hex 32)
+          echo "::add-mask::$access_key"
+          echo "::add-mask::$secret_key"
+          echo "::add-mask::$sse_key"
+          {
+            echo "OBJECT_STORE_ACCESS_KEY=$access_key"
+            echo "OBJECT_STORE_SECRET_KEY=$secret_key"
+            echo "OBJECT_STORE_BUCKET=medhub-ci"
+            echo "AT_REST_ENCRYPTION_KEY=$sse_key"
+          } > infra/.env
+
+      - name: Start the object store
+        run: $COMPOSE up -d --build --wait object-store-preflight object-store object-store-init
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        run: pip install uv
+
+      - name: Install dependencies
+        working-directory: backend
+        run: uv sync --frozen
+
+      - name: Check encryption against the real store
+        working-directory: backend
+        run: |
+          set -a
+          . ../infra/.env
+          set +a
+          OBJECT_STORE_INTEGRATION=1 OBJECT_STORE_ENDPOINT="http://127.0.0.1:${OBJECT_STORE_CI_PORT:-8333}" \
+            uv run pytest -m object_store -v
+
+      - name: Object store logs
+        if: failure()
+        run: $COMPOSE logs --no-color object-store object-store-init
+
+      - name: Stop the object store
+        if: always()
+        run: $COMPOSE down -v
 
   # ── Image pin check ─────────────────────────────────────────────────────────
   image-pins:

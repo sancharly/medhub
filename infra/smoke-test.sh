@@ -4,7 +4,8 @@
 # Run after `docker compose up -d` to confirm topology is correct.
 #
 # SR-008: Data in transit must be encrypted (TLS 1.2+, HTTPS redirect, HSTS)
-# SR-016: PHI at rest must be encrypted (MinIO SSE-AES256)
+# SR-016: PHI at rest must be encrypted (object-store SSE-S3 AES256)
+# SR-040: object store has no console or admin option
 
 set -uo pipefail
 
@@ -52,7 +53,7 @@ fi
 echo ""
 echo "-- Service topology --"
 COMPOSE_SERVICES=$(docker compose -f "$COMPOSE_FILE" config 2>/dev/null | grep -E "^  [a-z]" | sed 's/://g' | tr -d ' ' || true)
-for svc in reverse-proxy backend frontend postgres redis minio celery-worker; do
+for svc in reverse-proxy backend frontend postgres redis object-store celery-worker; do
     if echo "$COMPOSE_SERVICES" | grep -q "^${svc}$"; then
         check "service '${svc}' defined" "ok"
     else
@@ -64,9 +65,9 @@ done
 echo ""
 echo "-- Port exposure (SR-008) --"
 # Check that only reverse-proxy has 'ports:' in the raw compose file (grep-based).
-# The backend, frontend, postgres, redis, minio, celery-worker use 'expose:' (internal only).
+# The backend, frontend, postgres, redis, object-store, celery-worker use 'expose:' (internal only).
 UNEXPECTED_PORTS=0
-for svc in backend frontend postgres redis minio celery-worker; do
+for svc in backend frontend postgres redis object-store celery-worker; do
     # Look for ports: under each service block in the compose file
     if grep -A5 "^  ${svc}:" "$COMPOSE_FILE" | grep -q "^\s*ports:"; then
         check "service '${svc}' does NOT publish external ports" "FAIL — has ports: entry"
@@ -101,19 +102,27 @@ else
     check "TLS 1.2+ enforced (SR-008)" "missing ssl_protocols TLSv1.2 in nginx.conf"
 fi
 
-# ── 7. MinIO SSE configured ──────────────────────────────────────────────────
+# ── 7. Object-store SSE and no console ───────────────────────────────────────
 echo ""
 echo "-- At-rest encryption (SR-016) --"
-if docker compose -f "$COMPOSE_FILE" config 2>/dev/null | grep -q "MINIO_KMS_SECRET_KEY"; then
-    check "MinIO SSE-AES256 key configured (SR-016)" "ok"
+if docker compose -f "$COMPOSE_FILE" config 2>/dev/null | grep -q "WEED_S3_SSE_KEY"; then
+    check "object-store SSE key configured (SR-022)" "ok"
 else
-    check "MinIO SSE-AES256 key configured (SR-016)" "MINIO_KMS_SECRET_KEY missing from minio service"
+    check "object-store SSE key configured (SR-022)" "WEED_S3_SSE_KEY missing from object-store service"
+fi
+# Static check on the store's command: no console or admin option (SR-040 AC 1).
+STORE_CMD=$(docker compose -f "$COMPOSE_FILE" config --format json 2>/dev/null \
+    | python3 -c 'import json,sys; print(" ".join(json.load(sys.stdin)["services"]["object-store"]["command"]))' 2>/dev/null || true)
+if [ -n "$STORE_CMD" ] && ! echo "$STORE_CMD" | grep -qiE "console|admin|webdav|sftp|9001"; then
+    check "object store has no console or admin option (SR-040 AC 1)" "ok"
+else
+    check "object store has no console or admin option (SR-040 AC 1)" "command missing or names a console/admin option: $STORE_CMD"
 fi
 
 # ── 8. Named volumes defined for persistent data ─────────────────────────────
 echo ""
 echo "-- Data persistence --"
-for vol in postgres_data redis_data minio_data; do
+for vol in postgres_data redis_data object_store_data; do
     if grep -q "^  ${vol}:" "$COMPOSE_FILE"; then
         check "named volume '${vol}' defined" "ok"
     else
@@ -142,6 +151,71 @@ if command -v curl >/dev/null 2>&1; then
     fi
 else
     echo "  [SKIP] curl not available — schema migration check skipped"
+fi
+
+# ── 10. Object-store network isolation (SR-040 AC 3, AC 5) ──────────────────
+# Started-stack checks: skipped, with a message, only when no container of the project is running.
+# When the stack is up, a missing object-store or backend is a FAIL, not a skip. The stack is the
+# Compose project of the shell (COMPOSE_PROJECT_NAME, default `infra`).
+# Probe tool per image: reverse-proxy and frontend (nginx:alpine) have no bash, so busybox
+# `nc -z`; postgres and redis (Debian), backend and celery-worker (python:slim, Debian) have bash,
+# so a /dev/tcp connect. Each probe has a positive control (same tool, a port that must answer)
+# so a missing tool cannot pass as "refused".
+echo ""
+echo "-- Object-store network isolation (SR-040 AC 3, AC 5) --"
+compose() { docker compose -f "$COMPOSE_FILE" "$@"; }
+# connects SVC TOOL HOST PORT -> exit 0 when the TCP connection opens
+connects() {
+    local svc="$1" tool="$2" host="$3" port="$4"
+    if [ "$tool" = "nc" ]; then
+        compose exec -T "$svc" nc -z -w 3 "$host" "$port" >/dev/null 2>&1
+    else
+        compose exec -T "$svc" timeout 3 bash -c "exec 3<>/dev/tcp/$host/$port" >/dev/null 2>&1
+    fi
+}
+if [ -z "$(compose ps -q 2>/dev/null)" ]; then
+    echo "  [SKIP] stack not running — object-store isolation checks skipped (run after docker compose up)"
+elif [ -z "$(compose ps -q object-store 2>/dev/null)" ] || [ -z "$(compose ps -q backend 2>/dev/null)" ]; then
+    check "object-store and backend are running (needed for the isolation checks)" \
+        "stack is up but object-store or backend is not running"
+else
+    # service:tool:control host:control port. Each control is a connection to another container,
+    # so it also proves the probe tool and the service-name resolution work from that container.
+    for entry in reverse-proxy:nc:backend:8000 frontend:nc:backend:8000 postgres:bash:redis:6379 \
+                 redis:bash:postgres:5432 celery-worker:bash:redis:6379; do
+        IFS=: read -r svc tool chost cport <<<"$entry"
+        if ! connects "$svc" "$tool" "$chost" "$cport"; then
+            check "probe tool works in '${svc}' (control $chost:$cport)" "control connection failed"
+        elif connects "$svc" "$tool" object-store 8333; then
+            check "'${svc}' cannot reach object-store:8333" "connection succeeded"
+        else
+            check "'${svc}' cannot reach object-store:8333" "ok"
+        fi
+    done
+    if connects backend bash object-store 8333; then
+        check "'backend' reaches object-store:8333" "ok"
+    else
+        check "'backend' reaches object-store:8333" "connection failed"
+    fi
+    ROUND_TRIP=$(compose exec -T backend python -c '
+from app.core.object_storage import ObjectStorageClient
+c = ObjectStorageClient()
+k = "smoke/network-isolation.txt"
+c.put_object(k, b"smoke", "text/plain")
+try:
+    assert c.get_object(k) == b"smoke"
+finally:
+    c.delete_object(k)
+print("ok")' 2>&1 | tail -1)
+    check "'backend' stores and reads back an object" "$([ "$ROUND_TRIP" = ok ] && echo ok || echo "$ROUND_TRIP")"
+    STORE_ID=$(compose ps -q object-store)
+    if [ -z "$STORE_ID" ] || ! STORE_BINDINGS=$(docker inspect "$STORE_ID" --format '{{json .NetworkSettings.Ports}} {{json .HostConfig.PortBindings}}' 2>&1); then
+        check "object-store publishes no host port" "docker inspect failed"
+    elif printf '%s' "$STORE_BINDINGS" | grep -q HostPort; then
+        check "object-store publishes no host port" "published: $STORE_BINDINGS"
+    else
+        check "object-store publishes no host port" "ok"
+    fi
 fi
 
 # ── Summary ──────────────────────────────────────────────────────────────────

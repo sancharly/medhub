@@ -4,6 +4,7 @@ import datetime
 import re
 import uuid
 
+from app.audit.actions import AuditAction
 from app.db.models.audit import AuditLog, AuditOutcome
 from app.db.repositories.audit_repo import AuditRepository
 
@@ -12,6 +13,10 @@ _CREDENTIAL_PATTERN = re.compile(
     r"\b(password|passwd|secret|token|key|credential)s?\s*=\s*\S+",
     re.IGNORECASE,
 )
+
+# Events committed on their own transaction although their outcome is SUCCESS: the lockout
+# is recorded inside a failing login that ends in a 401 (ADR-0016).
+_INDEPENDENT_ACTIONS = frozenset({AuditAction.ACCOUNT_LOCKOUT})
 
 
 def _scrub(value: str) -> str:
@@ -36,6 +41,11 @@ class AuditService:
 
         The timestamp is server-assigned here; callers cannot supply it.
         Credential-like patterns in the action string are scrubbed before storage.
+        An event is independent when its outcome is FAILURE or its action is in
+        ``_INDEPENDENT_ACTIONS``: it is committed at once on its own session, so it survives
+        the request ending in an error (get_db rolls the request session back on any
+        exception). An independent row is not atomic with the request (ADR-0016). Every
+        other event joins the request transaction.
         Raises on persistence failure — never swallows exceptions.
         """
         safe_action = _scrub(action)
@@ -54,4 +64,7 @@ class AuditService:
             # so in-memory objects have a value before flush.
             timestamp=datetime.datetime.now(datetime.UTC),
         )
-        self._repo.add(log)
+        if outcome is AuditOutcome.FAILURE or action in _INDEPENDENT_ACTIONS:
+            self._repo.add_independent(log)
+        else:
+            self._repo.add(log)

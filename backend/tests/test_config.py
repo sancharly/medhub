@@ -9,8 +9,8 @@ VALID_ENV = {
     "DATABASE_URL": "postgresql://user:pass@localhost:5432/medhub",
     "REDIS_URL": "redis://localhost:6379/0",
     "OBJECT_STORE_ENDPOINT": "http://localhost:9000",
-    "OBJECT_STORE_ACCESS_KEY": "minioadmin",
-    "OBJECT_STORE_SECRET_KEY": "minioadmin",
+    "OBJECT_STORE_ACCESS_KEY": "test-access-key",
+    "OBJECT_STORE_SECRET_KEY": "test-secret-key-24-chars-xx",
     "OBJECT_STORE_BUCKET": "medhub",
     "SESSION_SIGNING_KEY": "supersecretkey",
     "SMTP_HOST": "smtp.example.com",
@@ -43,7 +43,7 @@ def test_secret_str_not_revealed_in_repr(monkeypatch) -> None:
     settings = Settings()
     r = repr(settings)
     # SecretStr values must not appear in repr
-    assert "minioadmin" not in r
+    assert "test-secret-key-24-chars-xx" not in r
     assert "supersecretkey" not in r
     assert "smtppassword" not in r
     assert "encryptionkey" not in r

@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 import hashlib
+import hmac
 import uuid
 
-from app.api.errors import NotFoundError, ValidationProblem
+from app.api.errors import AttachmentIntegrityError, NotFoundError, ValidationProblem
 from app.audit.actions import AuditAction
 from app.audit.service import AuditService
 from app.authz.service import AuthorizationService, Resource
@@ -135,6 +136,21 @@ class AttachmentService:
         data = self._storage.get_object(attachment.storage_key)  # type: ignore[attr-defined]
         if data is None:
             raise NotFoundError("Attachment file not found in storage.")
+
+        # SR-013 AC 5: never serve bytes that differ from what was uploaded (RISK-012).
+        actual = hashlib.sha256(data).hexdigest()
+        if not hmac.compare_digest(actual, attachment.checksum):
+            self._audit_svc.record(
+                actor=actor_acct.id,
+                action=AuditAction.ATTACHMENT_ACCESS,
+                target_type="attachment",
+                target_id=str(attachment.id),
+                outcome=AuditOutcome.FAILURE,
+                ip=None,
+            )
+            raise AttachmentIntegrityError(
+                f"Attachment {attachment_id} failed its integrity check and was not served."
+            )
 
         self._audit_svc.record(
             actor=actor_acct.id,

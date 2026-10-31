@@ -1,5 +1,6 @@
 """AuditService tests (TASK-014, SR-023)."""
 
+import inspect
 import os
 import uuid
 from datetime import UTC, datetime
@@ -32,6 +33,7 @@ def audit_repo_mock():
         return log
 
     repo.add.side_effect = capture_add
+    repo.add_independent.side_effect = capture_add
     repo._added = added
     return repo
 
@@ -237,3 +239,43 @@ def test_two_records_have_timestamps(service, audit_repo_mock):
     )
     assert audit_repo_mock._added[0].timestamp is not None
     assert audit_repo_mock._added[1].timestamp is not None
+
+
+# --- ADR-0016: failure and refusal events commit on their own transaction ---
+
+
+def _record(service, action: str, outcome: AuditOutcome) -> None:
+    service.record(
+        actor=uuid.uuid4(),
+        action=action,
+        target_type=None,
+        target_id=None,
+        outcome=outcome,
+        ip=None,
+    )
+
+
+def test_failure_event_goes_through_add_independent(service, audit_repo_mock):
+    _record(service, AuditAction.AUTHZ_DENIED, AuditOutcome.FAILURE)
+    audit_repo_mock.add_independent.assert_called_once()
+    audit_repo_mock.add.assert_not_called()
+
+
+def test_success_event_joins_the_request_transaction(service, audit_repo_mock):
+    _record(service, AuditAction.AUTH_LOGIN, AuditOutcome.SUCCESS)
+    audit_repo_mock.add.assert_called_once()
+    audit_repo_mock.add_independent.assert_not_called()
+
+
+def test_account_lockout_success_event_goes_through_add_independent(service, audit_repo_mock):
+    _record(service, AuditAction.ACCOUNT_LOCKOUT, AuditOutcome.SUCCESS)
+    audit_repo_mock.add_independent.assert_called_once()
+    audit_repo_mock.add.assert_not_called()
+
+
+def test_record_has_no_durable_parameter():
+    assert "durable" not in inspect.signature(AuditService.record).parameters
+
+
+def test_repository_has_no_session_wide_commit():
+    assert not hasattr(AuditRepository, "commit")

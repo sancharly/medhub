@@ -57,6 +57,9 @@ ignore_missing_imports = true
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 asyncio_mode = "auto"
+markers = [
+    "object_store: needs a real object store (OBJECT_STORE_INTEGRATION=1), run by the object-store-integration CI job",
+]
 
 [tool.coverage.report]
 fail_under = 85

@@ -14,7 +14,9 @@ node "Application Host (Docker Compose)" as Host #lightblue {
   rectangle "Celery Worker" as WorkerC #lightblue
   database "PostgreSQL 16\n(encrypted volume)" as PGC #lightgray
   queue "Redis\n(sessions + broker)" as RedisC #lightgray
-  rectangle "MinIO\n(S3, SSE AES-256)" as MinioC #lightgray
+  rectangle "Credential Preflight\n(one-shot, no network)" as PreC
+  rectangle "Bucket Initialiser\n(one-shot, boto3)" as InitC
+  rectangle "Object Store: SeaweedFS 4.51\n(S3, SSE-S3 AES-256,\nno console, no host port)" as ObjC #lightgray
 }
 
 node "External Email" as Mail #lightgray {
@@ -26,7 +28,10 @@ Proxy --> StaticSPA : serve SPA
 Proxy --> ApiC : /api -> HTTP (internal)
 ApiC --> PGC : SQL (TLS/local)
 ApiC --> RedisC : sessions
-ApiC --> MinioC : objects (authorized)
+ApiC --> ObjC : S3 on "object-store" network\n(internal, no egress) (SR-040)
+PreC --> ObjC : gates start (keys valid)
+InitC --> ObjC : create bucket,\ndefault encryption AES256
+InitC --> ApiC : must complete before backend starts
 ApiC --> RedisC : enqueue tasks
 WorkerC --> RedisC : consume tasks
 WorkerC --> SMTP : send emails (SR-033, SR-035)
@@ -36,6 +41,8 @@ note bottom of Host
   Single-tenant per organization (ADR-0010).
   Secrets injected via env/secret files, never committed.
   Plain HTTP redirected to HTTPS at the proxy.
+  Only the proxy publishes host ports. The object store joins only the
+  internal "object-store" network, with the backend and the initialiser.
 end note
 
 @enduml

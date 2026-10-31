@@ -19,3 +19,14 @@ class AuditRepository:
         self._session.add(log)
         self._session.flush()
         return log
+
+    def add_independent(self, log: AuditLog) -> AuditLog:
+        """Persist ``log`` on its own short-lived session, committed at once (ADR-0016).
+
+        The row is not part of the request transaction, so it survives the request ending
+        in an error. A failure to write raises.
+        """
+        with Session(bind=self._session.get_bind()) as own:
+            own.add(log)
+            own.commit()
+        return log

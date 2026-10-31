@@ -2,11 +2,11 @@
 id: "PRB-042"
 type: problem-report
 title: "MinIO community edition is unmaintained and its images can no longer be obtained"
-status: open
-version: "1.0"
+status: resolved
+version: "1.3"
 author: "Carlos Santiago Liceras"
 created: "2026-10-22"
-updated: "2026-10-22"
+updated: "2026-10-30"
 criticality: major
 links: []
 tags: ["soup", "configuration-management", "maintenance", "hazard:availability", "hazard:security"]
@@ -60,6 +60,19 @@ The workstation cache holds both images, arm64 only, and CR-001 pinned their loc
     goes to TASK-159.
   - RISK-011 and RISK-001: the SSE server receives no security fixes.
 
+## Investigation
+
+Root cause: the manufacturer withdrew the community edition. The evidence is in the Observed list:
+source-only from 2025-10-15, maintenance mode 2025-12-03, no longer maintained 2026-02-12, archived
+April 2026, community downloads answering HTTP 410 and the Docker Hub and quay.io images gone on
+2026-10-22.
+
+MedHub's side of the problem: `infra/docker-compose.yml:96` and `:114` pin the server and `mc` by
+tag and digest (CR-001), but the pinned references name images that no registry serves, and the
+`backend` service depends on `createbuckets`, which needs the `mc` image. A host without the cached
+arm64 images cannot start the stack. Which maintained store or interim build resolves it is an
+architecture decision (ADR of CR-002); this report does not decide it.
+
 ## Safety evaluation
 
 The availability effect shows at deployment: the stack fails to start before any clinical use, so
@@ -85,6 +98,62 @@ version in use is affected and no notification is needed.
 - Update SOUP-022 and SOUP-023 (or make them `obsolete` when the component is replaced), PLAN-002
   monitoring if the replacement changes it, and RISK-012.
 - Not changed by CR-001 (D-4, A-4).
+
+## Resolution
+
+Resolved by the TASK-176 commit on `bug/minio-object-store` (subject "FIX: Replace the MinIO
+server with SeaweedFS pinned by digest (TASK-176)"), under CR-002 and
+[ADR-0015](../design/adr/0015-object-store-component-after-minio.md) (Accepted, CR-002 D-6: the
+human chose SeaweedFS). The unmaintained component leaves the deployment:
+
+- `infra/docker-compose.yml`: the `minio` service is replaced by `object-store`, image
+  `chrislusf/seaweedfs:4.51@sha256:f7a49e3f3972ebed5be2ed4befa4a0c68eb7bdddba6e692d42729ceb545134b8`
+  (OCI index digest, linux/amd64 and linux/arm64; Apache-2.0; SOUP-036). The `minio/minio` and
+  `minio/mc` references are gone (`mc` since TASK-175). The command is `weed server` with master,
+  volume server and filer on loopback and no admin UI, WebDAV or SFTP (SR-040 AC 1).
+- [SOUP-022](../soup/SOUP-022-minio.md) is `obsolete`; [SOUP-036](../soup/SOUP-036-seaweedfs.md)
+  is linked from [ADD-025](../design-outputs/architecture/ADD-025-object-store-deployment.md).
+- Existing data in `minio_data` is not read by the new server; the volume stays declared and
+  untouched. Moving it is TASK-178; network restriction is TASK-177; CI evidence is TASK-179.
+
+Verification (TASK-176, 2026-10-30; commands and results in the TASK "Verification results" and
+TS-013 TC-013.10, TS-014 TC-014.1 and TC-014.5):
+
+```sh
+python3 infra/check_image_pins.py                      # exit 0
+python3 -m unittest discover -s infra/tests -v         # 24 tests OK
+grep -n "9001\|console\|minio/minio\|minio/mc" infra/docker-compose.yml   # no output
+```
+
+Fresh-host evidence (2026-10-30, arm64 Docker Desktop host). An amd64 `docker:dind` does not start
+on this host (iptables under emulation), so the daemon under test was an **arm64-native**
+`docker:dind` with an empty image store, and only its client was set to amd64 with
+`DOCKER_DEFAULT_PLATFORM=linux/amd64`; every image in the result runs as `linux amd64` under
+emulation. Exact commands (also in TASK-176 "Verification"):
+
+```sh
+docker run -d --name cr002-dind --privileged -e DOCKER_TLS_CERTDIR= \
+  docker@sha256:cb160a57fcb936668f8ab8e4a9d73c66b7975226aa87e466233734edbcd83ccc
+  # arm64 entry of the docker:dind index sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+docker exec cr002-dind docker info --format 'images={{.Images}}'      # images=0
+( git ls-files -co --exclude-standard; echo infra/.env ) | sort -u | grep -v '^docs/' > files.txt
+docker exec cr002-dind mkdir -p /work
+tar -cf - -T files.txt infra/certs/server.crt infra/certs/server.key | docker exec -i cr002-dind tar -xf - -C /work
+docker exec -e DOCKER_DEFAULT_PLATFORM=linux/amd64 -w /work/infra cr002-dind sh -c \
+  'docker compose -p cr002-fresh build && docker compose -p cr002-fresh up -d && docker compose -p cr002-fresh ps -a'
+```
+
+The tree is the branch's version-controlled and untracked-not-ignored files, with a temporary
+`.env` (generated keys) and the gitignored development certificate pair. It predates the
+`BotoCoreError` edit to `backend/app/core/object_store_init.py`; that edit touches no image
+reference, Dockerfile, lock file or base image, so it cannot change what is pulled or built (QA
+accepted this for CR-002 AC-9, local part). Result: SeaweedFS, postgres, redis and nginx were
+pulled by digest, the other images built from the repository; build and `up -d` exited 0 (about
+2 min 30 s); `object-store` healthy, `weed version` printed `4.51 … linux amd64`,
+`object-store-init` printed "object-store init ok: bucket medhub private, AES256" and `backend`
+started. No cached image was involved, so the failure this report describes (a pinned reference
+that no registry serves) no longer occurs. CI evidence on a hosted amd64 runner is TASK-179. The
+`infra` project and `infra_minio_data` were not touched.
 
 ## Source
 

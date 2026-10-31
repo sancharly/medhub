@@ -173,3 +173,60 @@ class TestDICOMStudiesEndpoint:
             attachment_id = uuid.uuid4()
             resp = client.get(f"/studies-test/studies/{attachment_id}")
         assert resp.status_code == 200
+
+
+class TestSubstitutedDicomObject:
+    def test_substituted_dicom_object_is_refused_with_502(self) -> None:
+        """TC-007.8: a DICOM attachment whose stored bytes were substituted is not served."""
+        import hashlib  # noqa: PLC0415
+
+        from app.attachments.service import AttachmentService  # noqa: PLC0415
+        from app.audit.service import AuditService  # noqa: PLC0415
+        from app.authz.service import AuthorizationService  # noqa: PLC0415
+        from app.db.models.attachment import Attachment  # noqa: PLC0415
+
+        app = FastAPI()
+        register_error_handlers(app)
+        actor = _make_account()
+
+        attachment = Attachment(
+            id=uuid.uuid4(),
+            clinical_entry_id=uuid.uuid4(),
+            patient_id=uuid.uuid4(),
+            filename="study.dcm",
+            content_type="application/dicom",
+            size=8,
+            storage_key="attachments/study.dcm",
+            checksum=hashlib.sha256(b"ORIGINAL_DICOM").hexdigest(),
+        )
+        repo = MagicMock()
+        repo.get.return_value = attachment
+        storage = MagicMock()
+        storage.get_object.return_value = b"PLANTED_DICOM"
+        audit_repo = MagicMock()
+        audit = AuditService(audit_repo)
+        real_attachments = AttachmentService(
+            repo, MagicMock(), audit, MagicMock(spec=AuthorizationService), storage
+        )
+        services = PlatformServices(
+            authorization=MagicMock(),
+            clinical=MagicMock(),
+            attachments=real_attachments,
+            audit=audit,
+        )
+        app.include_router(build_router(), prefix="/studies-test")
+        app.dependency_overrides[get_current_user] = lambda: actor
+        app.dependency_overrides[get_platform_services] = lambda: services
+
+        with patch("dicom_viewer.router.stream_dicom") as mock_stream:
+            resp = TestClient(app).get(f"/studies-test/studies/{attachment.id}")
+
+        assert resp.status_code == 502
+        assert resp.json()["type"].endswith("/attachment-integrity-failure")
+        assert b"PLANTED_DICOM" not in resp.content
+        mock_stream.assert_not_called()
+        logged = audit_repo.add_independent.call_args.args[0]
+        assert logged.outcome == AuditOutcome.FAILURE
+        assert logged.action == AuditAction.ATTACHMENT_ACCESS
+        assert logged.actor_id == actor.id
+        assert logged.target_id == str(attachment.id)

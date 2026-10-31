@@ -91,7 +91,7 @@ infra/{docker-compose.yml, reverse-proxy/, .env.example}
   types generated from the OpenAPI schema (ADD-023); cookie + CSRF auth;
   MUI for accessible/responsive UI; module code lazy-loaded.
 - **Stack (exact):** Python 3.12, FastAPI, Pydantic v2, SQLAlchemy 2.x, Alembic, Celery, Redis,
-  pydicom, fhir.resources, argon2-cffi, PostgreSQL 16, MinIO (S3 / SSE-AES256); TypeScript,
+  pydicom, fhir.resources, argon2-cffi, PostgreSQL 16, SeaweedFS 4.51 (S3 / SSE-S3 AES256); TypeScript,
   React 18, Vite, React Router, TanStack Query, MUI, Cornerstone3D
   (`@cornerstonejs/core|tools|dicom-image-loader`); Docker Compose, Traefik/nginx reverse proxy
   (TLS / HSTS / security headers).

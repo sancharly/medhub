@@ -2,18 +2,14 @@
 id: SOUP-023
 type: soup
 title: MinIO client (mc)
-status: approved
-version: "1.2"
+status: obsolete
+version: "1.3"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
-updated: "2026-10-23"
+updated: "2026-10-30"
 manufacturer: MinIO, Inc.
 soup_version: RELEASE.2025-08-13T08-35-41Z
 anomaly_review: "2026-10-22"
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-10-23"
-approved_digest: 024226e5d9e9a7a34a5f12a5c81d74f5ba79db027490e1f1c842932dcbe9c43c
-approval_note: self-approved
 links: []
 tags:
   - soup
@@ -104,3 +100,7 @@ accountable. Hazard-relevant anomalies go to `risk-management`; defects affectin
   archived, this is the last release, no image in any registry. Escalated with SOUP-022 under AC-12
   as RISK-012 and PRB-042 (fix in CR-002). Base-OS packages not reviewed individually (gap stated).
   `anomaly_review` set. No version change. Approval record cleared for re-approval.
+- 2026-10-30 — Version 1.3: status `obsolete`, retired by CR-002 TASK-175 (ADR-0015 D2), replaced by the
+  boto3 initialiser (`backend/app/core/object_store_init.py`, SOUP-019). The `createbuckets` service and
+  the `minio/mc` image reference left `infra/docker-compose.yml`. No component of this record remains
+  in the deployment. Approval record cleared.
