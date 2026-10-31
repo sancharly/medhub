@@ -12,10 +12,13 @@ from app.api.schemas.lifecycle import AnonymizedRetrieveRequest, AnonymizedRetri
 from app.audit.service import AuditService
 from app.auth.password import PasswordService
 from app.auth.session import SessionService
+from app.authz.consent import ConsentService
+from app.authz.service import AuthorizationService
 from app.core.client_address import client_address
 from app.db.repositories.account_repo import AccountRepository
 from app.db.repositories.anonymized_dataset_repo import AnonymizedDatasetRepository
 from app.db.repositories.audit_repo import AuditRepository
+from app.db.repositories.consent_repo import ConsentRepository
 from app.db.repositories.password_history_repo import PasswordHistoryRepository
 from app.db.repositories.session import get_db
 from app.identity.erasure import ErasureService
@@ -50,12 +53,14 @@ def _get_erasure_service(
     audit_svc = AuditService(AuditRepository(db))
     password_svc = PasswordService(PasswordHistoryRepository(db))
     session_svc = SessionService(r)
+    authz_svc = AuthorizationService(ConsentService(ConsentRepository(db), audit_svc), audit_svc)
     return ErasureService(
         AccountRepository(db),
         AnonymizedDatasetRepository(db),
         session_svc,
         password_svc,
         audit_svc,
+        authz_svc,
     )
 
 

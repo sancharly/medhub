@@ -3,7 +3,7 @@ id: "PRB-027"
 type: problem-report
 title: "Identity services compare roles directly instead of asking the authorization service"
 status: open
-version: "1.1"
+version: "1.2"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
 updated: "2026-10-31"
@@ -60,6 +60,15 @@ Planned in CR-004: TASK-188 (identity and lifecycle services), TASK-189 (routers
 check that no access decision compares `user_type` outside `backend/app/authz/`). ADR-0006 is
 the governing decision; no new ADR. Not yet fixed.
 
+Interim note (2026-10-31, TASK-188): the service part is done. `AuthorizationService` now decides
+`account:create`, `account:deactivate`, `account:reactivate`, `account:delete` and
+`activation:resend` and writes one audited decision each; `account_service.py`, `lifecycle.py`,
+`activation.py` and `erasure.py` hold no role comparison that decides access (decision table,
+`backend/tests/authz/test_decision_table.py`, 55 identity cases; audit tests in
+`backend/tests/audit/test_authz_decision_audit.py`). **The PRB stays `open`**: the router checks
+(`accounts.py` unlock, `modules.py`, `consents.py`, `clinical.py`) and the static check belong to
+TASK-189, which resolves it.
+
 ## Source
 
 `docs/implementation-plan/AUDIT-FINDINGS.md` — Simplicity / hygiene.
@@ -67,3 +76,4 @@ the governing decision; no new ADR. Not yet fixed.
 ## Version history
 
 - 1.1 (2026-10-31) — CR-004 Plan stage (Software Architect role): `## Investigation` added from the current tree (§9.2); Resolution points at the planned tasks. Status and criticality unchanged.
+- 1.2 (2026-10-31) — TASK-188: interim Resolution note (service part done; TASK-189 resolves). Status and criticality unchanged.

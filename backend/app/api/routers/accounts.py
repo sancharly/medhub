@@ -118,7 +118,9 @@ def resend_activation(
 ) -> dict[str, str]:
     audit_svc = AuditService(AuditRepository(db))
     password_svc = PasswordService()
-    svc = ActivationService(AccountRepository(db), password_svc, audit_svc)
+    consent_svc = ConsentService(ConsentRepository(db), audit_svc)
+    authz_svc = AuthorizationService(consent_svc, audit_svc)
+    svc = ActivationService(AccountRepository(db), password_svc, audit_svc, authz_svc)
     svc.resend_activation(actor, account_id)
     return {"detail": "Activation email queued."}
 

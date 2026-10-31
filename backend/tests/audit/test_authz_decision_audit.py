@@ -1,8 +1,9 @@
-"""TC-009.10 (real DB): appointment and module authorization decisions are audited.
+"""TC-009.10 (real DB): appointment, module and identity authorization decisions are audited.
 
 Requests go through ``create_app()`` with the real ``get_db`` against a PostgreSQL container
 (SR-023 AC 7: actor, action, target, outcome, time and address on every decision, allowed or
-denied; SR-005 AC 3; SR-011 AC 4; TASK-187). The proxy is trusted through ``TRUSTED_PROXIES``.
+denied; SR-005 AC 3; SR-011 AC 4; TASK-187; identity decisions SR-032 AC 1/4/5,
+SR-034 AC 1: TASK-188). The proxy is trusted through ``TRUSTED_PROXIES``.
 """
 
 from __future__ import annotations
@@ -240,6 +241,113 @@ def test_module_access_decision_writes_one_row(app_, factory, enabled: bool) -> 
         _assert_full_row(
             rows[0], doctor.id, AuditAction.AUTHZ_DENIED, "module", "probe", AuditOutcome.FAILURE
         )
+
+
+# --- identity decisions (TASK-188): SR-023 AC 7 on SR-032 / SR-034 decisions -------------
+
+CSRF = {"X-CSRF-Token": "tok"}
+CSRF_COOKIE = {"medhub_csrf": "tok"}
+
+
+def _authz_rows(factory, actor: Account) -> list[AuditLog]:
+    return [
+        r
+        for r in _rows(factory, actor_id=actor.id)
+        if r.action in (AuditAction.AUTHZ_ALLOWED, AuditAction.AUTHZ_DENIED)
+    ]
+
+
+def test_denied_creation_admin_to_sysadmin_writes_one_row(app_, factory) -> None:
+    # SR-023 AC 7, SR-032 AC 4: ADMIN may not create a SYSADMIN, the denial is recorded
+    admin = _make_account(factory, UserType.ADMIN)
+    app_.dependency_overrides[get_current_user] = lambda: admin
+
+    resp = _client(app_).post(
+        "/api/v1/accounts",
+        json={"email": "new@example.com", "user_type": "SYSADMIN"},
+        headers={**HEADERS, **CSRF},
+        cookies=CSRF_COOKIE,
+    )
+
+    assert resp.status_code == 403
+    assert resp.json()["detail"] == "ADMIN cannot create SYSADMIN accounts."
+    rows = _authz_rows(factory, admin)
+    assert len(rows) == 1
+    _assert_full_row(
+        rows[0], admin.id, AuditAction.AUTHZ_DENIED, "account", "", AuditOutcome.FAILURE
+    )
+
+
+def test_denied_deactivation_by_non_sysadmin_writes_one_row(app_, factory) -> None:
+    # SR-023 AC 7, SR-034 AC 1
+    admin = _make_account(factory, UserType.ADMIN)
+    target = _make_account(factory, UserType.PATIENT)
+    app_.dependency_overrides[get_current_user] = lambda: admin
+
+    resp = _client(app_).post(
+        f"/api/v1/accounts/{target.id}/deactivate",
+        headers={**HEADERS, **CSRF},
+        cookies=CSRF_COOKIE,
+    )
+
+    assert resp.status_code == 403
+    assert resp.json()["detail"] == "Only SYSADMIN can deactivate accounts."
+    rows = _authz_rows(factory, admin)
+    assert len(rows) == 1
+    _assert_full_row(
+        rows[0], admin.id, AuditAction.AUTHZ_DENIED, "account", str(target.id), AuditOutcome.FAILURE
+    )
+
+
+def test_denied_self_deactivation_writes_one_row(app_, factory) -> None:
+    # SR-023 AC 7, SR-034 AC 1: a SYSADMIN may not deactivate itself
+    sysadmin = _make_account(factory, UserType.SYSADMIN)
+    app_.dependency_overrides[get_current_user] = lambda: sysadmin
+
+    resp = _client(app_).post(
+        f"/api/v1/accounts/{sysadmin.id}/deactivate",
+        headers={**HEADERS, **CSRF},
+        cookies=CSRF_COOKIE,
+    )
+
+    assert resp.status_code == 403
+    assert resp.json()["detail"] == "Cannot deactivate your own account."
+    rows = _authz_rows(factory, sysadmin)
+    assert len(rows) == 1
+    _assert_full_row(
+        rows[0],
+        sysadmin.id,
+        AuditAction.AUTHZ_DENIED,
+        "account",
+        str(sysadmin.id),
+        AuditOutcome.FAILURE,
+    )
+
+
+def test_allowed_deletion_of_own_account_writes_one_row(app_, factory) -> None:
+    # SR-023 AC 7, SR-034 AC 1: an account owner may erase their own account
+    patient = _make_account(factory, UserType.PATIENT)
+    app_.dependency_overrides[get_current_user] = lambda: patient
+
+    resp = _client(app_).request(
+        "DELETE",
+        f"/api/v1/accounts/{patient.id}",
+        json={"confirm_email": patient.email, "confirm_account_type": "PATIENT"},
+        headers={**HEADERS, **CSRF},
+        cookies=CSRF_COOKIE,
+    )
+
+    assert resp.status_code == 200
+    rows = _authz_rows(factory, patient)
+    assert len(rows) == 1
+    _assert_full_row(
+        rows[0],
+        patient.id,
+        AuditAction.AUTHZ_ALLOWED,
+        "account",
+        str(patient.id),
+        AuditOutcome.SUCCESS,
+    )
 
 
 def test_allowed_row_is_lost_when_the_handler_then_fails_prb_060(app_, factory) -> None:

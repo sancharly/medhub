@@ -7,6 +7,9 @@ Decision algorithm (deny-by-default):
   SYSADMIN → account-lifecycle / group / module-admin only
   Default  → DENY
 
+Identity actions (account:create / deactivate / reactivate / delete, activation:resend) are
+decided in ``_eval_identity`` and audited like every other decision (ADR-0006, TASK-188).
+
 Decision carries: allow + basis (OWNER | CONSENT:MANUAL | CONSENT:APPOINTMENT:{id} | ROLE)
 """
 
@@ -42,6 +45,7 @@ class Resource:
     doctor_id: uuid.UUID | None = None  # doctor of an appointment (appointment:read)
     resource_id: str | None = None  # audit target (appointment id, module key)
     module_enabled: bool | None = None  # ModuleAccessGuard result (module:access)
+    target_user_type: UserType | None = None  # type of the account being created (account:create)
 
 
 class AppointmentScopeKind(enum.Enum):
@@ -57,6 +61,17 @@ class AppointmentScope:
 
     kind: AppointmentScopeKind
     account_id: uuid.UUID | None = None
+
+
+_IDENTITY_ACTIONS = frozenset(
+    {
+        "account:create",
+        "account:deactivate",
+        "account:reactivate",
+        "account:delete",
+        "activation:resend",
+    }
+)
 
 
 class AuthorizationService:
@@ -77,6 +92,22 @@ class AuthorizationService:
         """Evaluate the access request and return a Decision.
 
         Raises AuthorizationError (403) on deny after auditing.
+        """
+        decision = self.decide(actor, action, resource)
+        if not decision.allow:
+            raise AuthorizationError("You do not have permission to perform this action.")
+        return decision
+
+    def decide(
+        self,
+        actor: Account,
+        action: str,
+        resource: Resource,
+    ) -> Decision:
+        """Evaluate and audit the access request; never raises on deny.
+
+        For callers that must answer a refusal with a message of their own; the decision
+        is audited exactly as ``authorize`` does (SR-023 AC 7).
         """
         decision = self._evaluate(actor, action, resource)
         target_id = resource.resource_id or str(resource.owner_id or resource.patient_id or "")
@@ -99,7 +130,6 @@ class AuthorizationService:
                 outcome=AuditOutcome.FAILURE,
                 ip=None,
             )
-            raise AuthorizationError("You do not have permission to perform this action.")
 
         return decision
 
@@ -130,6 +160,9 @@ class AuthorizationService:
                 return Decision(allow=True, basis="MODULE:ENABLED")
             return Decision(allow=False, basis="MODULE:DISABLED")
 
+        if action in _IDENTITY_ACTIONS:
+            return self._eval_identity(actor, action, resource)
+
         role = actor.user_type
 
         if role == UserType.PATIENT:
@@ -142,6 +175,39 @@ class AuthorizationService:
             return self._eval_sysadmin(actor, action, resource)
 
         return Decision(allow=False, basis="ROLE")
+
+    def _eval_identity(self, actor: Account, action: str, resource: Resource) -> Decision:
+        """Identity and account-lifecycle decisions (SR-032 AC 1/4/5, SR-034 AC 1).
+
+        The basis of a denial says why, so a caller can keep its refusal message:
+        ``ROLE`` (the role may not), ``TARGET`` (ADMIN creating SYSADMIN), ``SELF``
+        (SYSADMIN deactivating itself).
+        """
+        role = actor.user_type
+        if action == "account:create":
+            if role == UserType.SYSADMIN:
+                return Decision(allow=True, basis="ROLE")
+            if role == UserType.ADMIN:
+                if resource.target_user_type == UserType.SYSADMIN:
+                    return Decision(allow=False, basis="TARGET")
+                return Decision(allow=True, basis="ROLE")
+            return Decision(allow=False, basis="ROLE")
+        if action == "account:deactivate":
+            if role != UserType.SYSADMIN:
+                return Decision(allow=False, basis="ROLE")
+            if resource.owner_id == actor.id:
+                return Decision(allow=False, basis="SELF")
+            return Decision(allow=True, basis="ROLE")
+        if action == "account:reactivate":
+            return Decision(allow=role == UserType.SYSADMIN, basis="ROLE")
+        if action == "account:delete":
+            if role == UserType.SYSADMIN:
+                return Decision(allow=True, basis="ROLE")
+            if resource.owner_id is not None and resource.owner_id == actor.id:
+                return Decision(allow=True, basis="OWNER")
+            return Decision(allow=False, basis="ROLE")
+        # activation:resend
+        return Decision(allow=role in (UserType.ADMIN, UserType.SYSADMIN), basis="ROLE")
 
     def _eval_appointment_read(self, actor: Account, resource: Resource) -> Decision:
         """Visible to the appointment's doctor, its patient, and ADMIN/SYSADMIN (SR-011 AC 4)."""
@@ -201,12 +267,8 @@ class AuthorizationService:
         if action.startswith("clinical:"):
             return Decision(allow=False, basis="ROLE")
         lifecycle_actions = {
-            "account:create",
             "account:read",
             "account:list",
-            "account:deactivate",
-            "account:reactivate",
-            "account:delete",
             "group:manage",
             "module:manage",
             "account:unlock",

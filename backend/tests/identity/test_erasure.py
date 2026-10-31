@@ -12,6 +12,7 @@ import pytest
 from app.api.errors import AuthorizationError, UnauthenticatedError
 from app.auth.password import PasswordService
 from app.auth.session import SessionService
+from app.authz.service import AuthorizationService
 from app.db.models.account import Account, AccountStatus, UserType
 from app.db.models.anonymized_dataset import AnonymizedDataset
 from app.identity.erasure import ErasureService
@@ -44,7 +45,11 @@ def _build_svc(account: Account | None) -> ErasureService:
     pw_svc = PasswordService()
     mock_audit = MagicMock()
 
-    return ErasureService(mock_repo, mock_dataset_repo, session_svc, pw_svc, mock_audit)
+    return ErasureService(mock_repo, mock_dataset_repo, session_svc, pw_svc, mock_audit, _authz())
+
+
+def _authz() -> AuthorizationService:
+    return AuthorizationService(MagicMock(), MagicMock())
 
 
 def test_sysadmin_can_erase_any_account() -> None:
@@ -102,7 +107,7 @@ def test_erase_stores_argon2id_hash_not_plaintext() -> None:
 
     r = fakeredis.FakeRedis()
     svc = ErasureService(
-        mock_repo, mock_dataset_repo, SessionService(r), PasswordService(), MagicMock()
+        mock_repo, mock_dataset_repo, SessionService(r), PasswordService(), MagicMock(), _authz()
     )
 
     result = svc.delete(actor, target.id)
@@ -130,7 +135,7 @@ def test_erase_audits_deletion_and_anonymization() -> None:
     r = fakeredis.FakeRedis()
     mock_audit = MagicMock()
     svc = ErasureService(
-        mock_repo, mock_dataset_repo, SessionService(r), PasswordService(), mock_audit
+        mock_repo, mock_dataset_repo, SessionService(r), PasswordService(), mock_audit, _authz()
     )
 
     svc.delete(actor, target.id)
@@ -170,7 +175,9 @@ def test_retrieve_anonymized_valid_code() -> None:
     mock_dataset_repo.list.return_value = [ds]
 
     r = fakeredis.FakeRedis()
-    svc = ErasureService(MagicMock(), mock_dataset_repo, SessionService(r), pw_svc, MagicMock())
+    svc = ErasureService(
+        MagicMock(), mock_dataset_repo, SessionService(r), pw_svc, MagicMock(), _authz()
+    )
 
     result = svc.retrieve_anonymized(raw_code)
     assert result.id == ds.id
@@ -188,7 +195,9 @@ def test_retrieve_anonymized_wrong_code_raises() -> None:
     mock_dataset_repo.list.return_value = [ds]
 
     r = fakeredis.FakeRedis()
-    svc = ErasureService(MagicMock(), mock_dataset_repo, SessionService(r), pw_svc, MagicMock())
+    svc = ErasureService(
+        MagicMock(), mock_dataset_repo, SessionService(r), pw_svc, MagicMock(), _authz()
+    )
 
     with pytest.raises(UnauthenticatedError):
         svc.retrieve_anonymized("wrong-code")
@@ -211,7 +220,9 @@ def test_retrieve_anonymized_expired_deadline_raises() -> None:
     mock_dataset_repo.list.return_value = [ds]
 
     r = fakeredis.FakeRedis()
-    svc = ErasureService(MagicMock(), mock_dataset_repo, SessionService(r), pw_svc, MagicMock())
+    svc = ErasureService(
+        MagicMock(), mock_dataset_repo, SessionService(r), pw_svc, MagicMock(), _authz()
+    )
 
     with pytest.raises(NotFoundError):
         svc.retrieve_anonymized(raw_code)
@@ -271,7 +282,7 @@ def test_retrieval_code_not_in_audit_log() -> None:
     r = fakeredis.FakeRedis()
     mock_audit = MagicMock()
     svc = ErasureService(
-        mock_repo, mock_dataset_repo, SessionService(r), PasswordService(), mock_audit
+        mock_repo, mock_dataset_repo, SessionService(r), PasswordService(), mock_audit, _authz()
     )
 
     from unittest.mock import patch  # noqa: PLC0415

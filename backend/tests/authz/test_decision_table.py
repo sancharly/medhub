@@ -1,4 +1,5 @@
-"""TC-002.7: decision table of the appointment and module decisions (RISK-004 control).
+"""TC-002.7 / TC-003.6: decision tables of the appointment, module and identity decisions
+(RISK-004 control).
 
 Characterisation first (TASK-187): the table was written and run green against the
 decisions as they were made in ``AppointmentService.list_for``, ``can_view_appointment`` and
@@ -8,6 +9,13 @@ mounted module gate), so it does not depend on where the decision is made.
 
 SR-005 AC 1, AC 3 (one deny-by-default mechanism); SR-011 AC 4 (a not-visible appointment is
 answered as not found); SR-015 (module access follows the enabled groups).
+
+Identity services (TASK-188): the account-creation, deactivate, reactivate, delete and resend
+tables below were written and run green against the role comparisons inside the identity
+services, then those comparisons moved into ``AuthorizationService`` and the same rows stayed
+green. Only the ``_*_service`` builders changed (they inject the real ``AuthorizationService``).
+SR-032 AC 1, AC 4, AC 5 (creation constrained by role); SR-034 AC 1 (SYSADMIN-only lifecycle);
+SR-005 AC 1 (deny by default). Status codes and ``detail`` messages are part of the table.
 """
 
 from __future__ import annotations
@@ -16,6 +24,7 @@ import uuid
 from datetime import UTC, datetime
 from unittest.mock import MagicMock, patch
 
+import fakeredis
 import pytest
 from fastapi import APIRouter, FastAPI
 from fastapi.testclient import TestClient
@@ -24,12 +33,18 @@ from app.api.deps import get_current_user
 from app.api.errors import AuthorizationError, NotFoundError, register_error_handlers
 from app.appointments.service import AppointmentService
 from app.audit.service import AuditService
+from app.auth.password import PasswordService
+from app.auth.session import SessionService
 from app.authz.service import AuthorizationService
 from app.db.models.account import Account, AccountStatus, UserType
 from app.db.models.appointment import Appointment, AppointmentState
 from app.db.repositories.group_repo import GroupRepository
 from app.db.repositories.module_repo import ModuleRepository
 from app.db.repositories.session import get_db
+from app.identity.account_service import AccountCreate, AccountService
+from app.identity.activation import ActivationService
+from app.identity.erasure import ErasureService
+from app.identity.lifecycle import LifecycleService
 from app.modules.router_registry import RouterRegistry
 
 ROLES = [UserType.PATIENT, UserType.DOCTOR, UserType.ADMIN, UserType.SYSADMIN]
@@ -205,3 +220,246 @@ def test_module_access_by_role_and_membership(role: UserType, state: str) -> Non
     if expected == 403:
         # The refusal message is part of the unchanged behaviour (TASK-187).
         assert resp.json()["detail"] == f"Module '{key}' is not enabled for your account."
+
+
+# --- identity services (TASK-188) ---------------------------------------------------------
+
+DENY_CREATE_ROLE = "Only ADMIN or SYSADMIN can create accounts."
+DENY_CREATE_SYSADMIN = "ADMIN cannot create SYSADMIN accounts."
+DENY_DEACTIVATE = "Only SYSADMIN can deactivate accounts."
+DENY_DEACTIVATE_SELF = "Cannot deactivate your own account."
+DENY_REACTIVATE = "Only SYSADMIN can reactivate accounts."
+DENY_DELETE = "Only SYSADMIN or the account owner can request erasure."
+DENY_RESEND = "Only ADMIN or SYSADMIN can resend activation emails."
+
+
+def _unknown_role_actor() -> Account:
+    actor = _account(UserType.PATIENT)
+    actor.user_type = "GUEST"  # type: ignore[assignment]
+    return actor
+
+
+def _real_authz() -> AuthorizationService:
+    return AuthorizationService(MagicMock(), MagicMock())
+
+
+def _account_service(repo: MagicMock) -> AccountService:
+    return AccountService(repo, MagicMock(), _real_authz())
+
+
+def _lifecycle_service(repo: MagicMock) -> LifecycleService:
+    return LifecycleService(repo, SessionService(fakeredis.FakeRedis()), MagicMock(), _real_authz())
+
+
+def _activation_service(repo: MagicMock) -> ActivationService:
+    return ActivationService(repo, PasswordService(), MagicMock(), _real_authz())
+
+
+def _erasure_service(repo: MagicMock) -> ErasureService:
+    return ErasureService(
+        repo,
+        MagicMock(),
+        SessionService(fakeredis.FakeRedis()),
+        PasswordService(),
+        MagicMock(),
+        _real_authz(),
+    )
+
+
+def _assert_outcome(call, expected_detail: str | None) -> None:
+    """Allowed when ``expected_detail`` is None, else a 403 carrying exactly that detail."""
+    if expected_detail is None:
+        call()
+        return
+    with pytest.raises(AuthorizationError) as exc:
+        call()
+    assert exc.value.status == 403
+    assert exc.value.detail == expected_detail
+
+
+# account creation: creator role x target type = 16 cases (SR-032 AC 1, AC 4, AC 5)
+CREATE_TABLE = [
+    (UserType.PATIENT, UserType.PATIENT, DENY_CREATE_ROLE),
+    (UserType.PATIENT, UserType.DOCTOR, DENY_CREATE_ROLE),
+    (UserType.PATIENT, UserType.ADMIN, DENY_CREATE_ROLE),
+    (UserType.PATIENT, UserType.SYSADMIN, DENY_CREATE_ROLE),
+    (UserType.DOCTOR, UserType.PATIENT, DENY_CREATE_ROLE),
+    (UserType.DOCTOR, UserType.DOCTOR, DENY_CREATE_ROLE),
+    (UserType.DOCTOR, UserType.ADMIN, DENY_CREATE_ROLE),
+    (UserType.DOCTOR, UserType.SYSADMIN, DENY_CREATE_ROLE),
+    (UserType.ADMIN, UserType.PATIENT, None),
+    (UserType.ADMIN, UserType.DOCTOR, None),
+    (UserType.ADMIN, UserType.ADMIN, None),
+    (UserType.ADMIN, UserType.SYSADMIN, DENY_CREATE_SYSADMIN),
+    (UserType.SYSADMIN, UserType.PATIENT, None),
+    (UserType.SYSADMIN, UserType.DOCTOR, None),
+    (UserType.SYSADMIN, UserType.ADMIN, None),
+    (UserType.SYSADMIN, UserType.SYSADMIN, None),
+]
+
+
+@pytest.mark.parametrize(("creator_role", "target", "expected"), CREATE_TABLE)
+def test_create_by_role_and_target(
+    creator_role: UserType, target: UserType, expected: str | None
+) -> None:
+    """SR-032 AC 1/4/5: creation is constrained by creator role and target type."""
+    repo = MagicMock()
+    repo.get_by_email.return_value = None
+    svc = _account_service(repo)
+    data = AccountCreate(email="new@example.com", user_type=target)
+
+    with patch("app.workers.email_tasks.send_activation_email"):
+        _assert_outcome(lambda: svc.create(_account(creator_role), data), expected)
+
+    assert repo.add.called is (expected is None)
+
+
+def test_create_denied_for_actor_with_no_known_role() -> None:
+    """SR-005 AC 1: deny by default, an actor with no known role may not create (403)."""
+    repo = MagicMock()
+    data = AccountCreate(email="new@example.com", user_type=UserType.PATIENT)
+    _assert_outcome(
+        lambda: _account_service(repo).create(_unknown_role_actor(), data), DENY_CREATE_ROLE
+    )
+    assert not repo.add.called
+
+
+# deactivate / reactivate: actor role x (other | self) = 8 + 8 cases (SR-034 AC 1)
+DEACTIVATE_TABLE = [
+    (role, relation, expected)
+    for role in ROLES
+    for relation, expected in (
+        ("other", None if role is UserType.SYSADMIN else DENY_DEACTIVATE),
+        (
+            "self",
+            DENY_DEACTIVATE_SELF if role is UserType.SYSADMIN else DENY_DEACTIVATE,
+        ),
+    )
+]
+REACTIVATE_TABLE = [
+    (role, relation, None if role is UserType.SYSADMIN else DENY_REACTIVATE)
+    for role in ROLES
+    for relation in ("other", "self")
+]
+
+
+def _target_for(actor: Account, relation: str) -> Account:
+    return actor if relation == "self" else _account(UserType.PATIENT)
+
+
+@pytest.mark.parametrize(("role", "relation", "expected"), DEACTIVATE_TABLE)
+def test_deactivate_by_role_and_relation(
+    role: UserType, relation: str, expected: str | None
+) -> None:
+    """SR-034 AC 1: only SYSADMIN deactivates, and never its own account."""
+    actor = _account(role)
+    target = _target_for(actor, relation)
+    repo = MagicMock()
+    repo.get_by_id.return_value = target
+    svc = _lifecycle_service(repo)
+
+    with patch("app.workers.session_tasks.propagate_session_kill"):
+        _assert_outcome(lambda: svc.deactivate(actor, target.id), expected)
+
+    assert (target.status == AccountStatus.DEACTIVATED) is (expected is None)
+
+
+@pytest.mark.parametrize(("role", "relation", "expected"), REACTIVATE_TABLE)
+def test_reactivate_by_role_and_relation(
+    role: UserType, relation: str, expected: str | None
+) -> None:
+    """SR-034 AC 1: only SYSADMIN reactivates."""
+    actor = _account(role)
+    target = _target_for(actor, relation)
+    target.status = AccountStatus.DEACTIVATED
+    repo = MagicMock()
+    repo.get_by_id.return_value = target
+    svc = _lifecycle_service(repo)
+
+    _assert_outcome(lambda: svc.reactivate(actor, target.id), expected)
+
+    assert (target.status == AccountStatus.ACTIVE) is (expected is None)
+
+
+@pytest.mark.parametrize("method", ["deactivate", "reactivate"])
+@pytest.mark.parametrize("role", [UserType.PATIENT, UserType.DOCTOR, UserType.ADMIN])
+def test_lifecycle_refusal_precedes_the_lookup(role: UserType, method: str) -> None:
+    """SR-034 AC 1: a refused actor gets 403 even for an unknown account (no 404 oracle)."""
+    repo = MagicMock()
+    repo.get_by_id.return_value = None
+    expected = DENY_DEACTIVATE if method == "deactivate" else DENY_REACTIVATE
+    svc = _lifecycle_service(repo)
+    _assert_outcome(lambda: getattr(svc, method)(_account(role), uuid.uuid4()), expected)
+    assert not repo.get_by_id.called
+
+
+@pytest.mark.parametrize("method", ["deactivate", "reactivate"])
+def test_lifecycle_denied_for_actor_with_no_known_role(method: str) -> None:
+    """SR-005 AC 1: deny by default for an actor with no known role."""
+    expected = DENY_DEACTIVATE if method == "deactivate" else DENY_REACTIVATE
+    svc = _lifecycle_service(MagicMock())
+    _assert_outcome(lambda: getattr(svc, method)(_unknown_role_actor(), uuid.uuid4()), expected)
+
+
+# delete (erasure): actor role x (other | self) = 8 cases (SR-034 AC 1)
+DELETE_TABLE = [
+    (role, relation, None if role is UserType.SYSADMIN or relation == "self" else DENY_DELETE)
+    for role in ROLES
+    for relation in ("other", "self")
+]
+
+
+@pytest.mark.parametrize(("role", "relation", "expected"), DELETE_TABLE)
+def test_delete_by_role_and_relation(role: UserType, relation: str, expected: str | None) -> None:
+    """SR-034 AC 1: SYSADMIN erases any account, anyone else only their own."""
+    actor = _account(role)
+    target = _target_for(actor, relation)
+    repo = MagicMock()
+    repo.get_by_id.return_value = target
+    svc = _erasure_service(repo)
+
+    _assert_outcome(lambda: svc.delete(actor, target.id), expected)
+
+    assert (target.status == AccountStatus.DELETED) is (expected is None)
+
+
+def test_delete_denied_for_actor_with_no_known_role() -> None:
+    """SR-005 AC 1: an actor with no known role may erase only their own account."""
+    actor = _unknown_role_actor()
+    repo = MagicMock()
+    repo.get_by_id.return_value = _account(UserType.PATIENT)
+    _assert_outcome(lambda: _erasure_service(repo).delete(actor, uuid.uuid4()), DENY_DELETE)
+
+
+# resend activation: actor role = 4 cases + unknown role (SR-032 AC 1)
+RESEND_TABLE = [
+    (UserType.PATIENT, DENY_RESEND),
+    (UserType.DOCTOR, DENY_RESEND),
+    (UserType.ADMIN, None),
+    (UserType.SYSADMIN, None),
+]
+
+
+@pytest.mark.parametrize(("role", "expected"), RESEND_TABLE)
+def test_resend_activation_by_role(role: UserType, expected: str | None) -> None:
+    """SR-032 AC 1: only ADMIN and SYSADMIN re-issue an activation token."""
+    target = _account(UserType.PATIENT)
+    target.status = AccountStatus.INACTIVE
+    repo = MagicMock()
+    repo.get_by_id.return_value = target
+    svc = _activation_service(repo)
+
+    with patch("app.workers.email_tasks.send_activation_email"):
+        _assert_outcome(lambda: svc.resend_activation(_account(role), target.id), expected)
+
+    assert (target.activation_token_hash is not None) is (expected is None)
+
+
+def test_resend_activation_denied_for_actor_with_no_known_role() -> None:
+    """SR-005 AC 1: deny by default for an actor with no known role."""
+    _assert_outcome(
+        lambda: _activation_service(MagicMock()).resend_activation(
+            _unknown_role_actor(), uuid.uuid4()
+        ),
+        DENY_RESEND,
+    )

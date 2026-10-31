@@ -1,6 +1,6 @@
 """AccountService — create and profile (TASK-030).
 
-Authorization rules:
+Authorization rules (decided by AuthorizationService, ``account:create``):
   - create: ADMIN can create DOCTOR/PATIENT/ADMIN; SYSADMIN can create all four
   - ADMIN cannot create SYSADMIN
   - profile read: scoped by AuthorizationService + admin projection for ADMIN role
@@ -54,7 +54,20 @@ class AccountService:
           SYSADMIN can create all four user types
           ADMIN cannot create SYSADMIN
         """
-        _check_create_permission(creator, data.user_type)
+        decision = self._authz_svc.decide(
+            creator,
+            "account:create",
+            Resource(
+                resource_type="account",
+                owner_id=None,
+                patient_id=None,
+                target_user_type=data.user_type,
+            ),
+        )
+        if not decision.allow:
+            if decision.basis == "TARGET":
+                raise AuthorizationError("ADMIN cannot create SYSADMIN accounts.")
+            raise AuthorizationError("Only ADMIN or SYSADMIN can create accounts.")
 
         # Unique email check (DB constraint is backup)
         if self._repo.get_by_email(data.email.strip().lower()) is not None:
@@ -114,14 +127,3 @@ class AccountService:
         )
         self._authz_svc.authorize(actor, "account:read", resource)
         return account
-
-
-def _check_create_permission(creator: Account, target_type: UserType) -> None:
-    role = creator.user_type
-    if role == UserType.SYSADMIN:
-        return  # can create all four
-    if role == UserType.ADMIN:
-        if target_type == UserType.SYSADMIN:
-            raise AuthorizationError("ADMIN cannot create SYSADMIN accounts.")
-        return  # can create DOCTOR, PATIENT, ADMIN
-    raise AuthorizationError("Only ADMIN or SYSADMIN can create accounts.")

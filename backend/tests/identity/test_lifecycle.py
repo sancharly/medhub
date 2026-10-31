@@ -10,6 +10,7 @@ import pytest
 
 from app.api.errors import AuthorizationError
 from app.auth.session import SessionService
+from app.authz.service import AuthorizationService
 from app.db.models.account import Account, AccountStatus, UserType
 from app.identity.lifecycle import LifecycleService
 
@@ -29,7 +30,9 @@ def _build_svc(target: Account | None) -> tuple[LifecycleService, MagicMock]:
     r = fakeredis.FakeRedis()
     session_svc = SessionService(r)
     mock_audit = MagicMock()
-    svc = LifecycleService(mock_repo, session_svc, mock_audit)
+    svc = LifecycleService(
+        mock_repo, session_svc, mock_audit, AuthorizationService(MagicMock(), MagicMock())
+    )
     return svc, mock_audit
 
 
@@ -105,7 +108,9 @@ def test_deactivate_flush_called_before_invalidate_all() -> None:
 
     mock_audit = MagicMock()
 
-    svc = LifecycleService(mock_repo, mock_session_svc, mock_audit)
+    svc = LifecycleService(
+        mock_repo, mock_session_svc, mock_audit, AuthorizationService(MagicMock(), MagicMock())
+    )
     svc.deactivate(actor, target.id)
 
     assert "flush" in call_order
