@@ -96,7 +96,7 @@ def test_invalid_setting_refuses_start_up(monkeypatch) -> None:
         Settings()
 
 
-# --- static check: nothing reads the raw TCP peer outside client_address.py ---------------------
+# --- static check: nothing reads the raw TCP peer outside core/client_address.py ---------------
 
 # Every form of reading the peer: request.client.host, scope["client"], request.client[0],
 # scope.get("client"), and any ``.client`` attribute chain ending in ``.host``.
@@ -104,17 +104,21 @@ _PEER_READS = re.compile(
     r"""\.client\b(?!\s*\()      # request.client / self.client (not boto3.client(...))
       | \[\s*['"]client['"]\s*\]  # scope["client"]
       | \.get\(\s*['"]client['"]   # scope.get("client")
+      | getattr\(\s*[^,()]+,\s*['"]client['"]  # getattr(request, "client")
     """,
     re.VERBOSE,
 )
 KNOWN_READS: set[str] = set()
+# The one module allowed to read the peer, by path relative to ``app/`` (not by file name).
+PEER_READER = "core/client_address.py"
 
 
 def _peer_read_offenders(app_dir: Path) -> set[str]:
     return {
-        str(path.relative_to(app_dir))
+        path.relative_to(app_dir).as_posix()
         for path in app_dir.rglob("*.py")
-        if path.name != "client_address.py" and _PEER_READS.search(path.read_text())
+        if path.relative_to(app_dir).as_posix() != PEER_READER
+        and _PEER_READS.search(path.read_text())
     }
 
 
@@ -134,6 +138,8 @@ def test_no_code_reads_the_tcp_peer_outside_client_address() -> None:
         "peer = request.client[0]",
         'peer = scope.get("client")',
         "addr, _ = request.client",
+        'c = getattr(request, "client")',
+        "c = getattr(self.request, 'client', None)",
     ],
 )
 def test_static_check_catches_every_form_of_peer_read(tmp_path: Path, line: str) -> None:
@@ -144,3 +150,12 @@ def test_static_check_catches_every_form_of_peer_read(tmp_path: Path, line: str)
 def test_static_check_ignores_client_factories(tmp_path: Path) -> None:
     (tmp_path / "ok.py").write_text('c = boto3.client("s3")\nself._client = other\n')
     assert _peer_read_offenders(tmp_path) == set()
+
+
+def test_only_the_exact_path_may_read_the_peer(tmp_path: Path) -> None:
+    """A file merely named client_address.py elsewhere is not exempt."""
+    (tmp_path / "core").mkdir()
+    (tmp_path / "core" / "client_address.py").write_text("ip = request.client.host\n")
+    (tmp_path / "other").mkdir()
+    (tmp_path / "other" / "client_address.py").write_text("ip = request.client.host\n")
+    assert _peer_read_offenders(tmp_path) == {"other/client_address.py"}

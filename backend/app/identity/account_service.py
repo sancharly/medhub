@@ -62,6 +62,7 @@ class AccountService:
                 owner_id=None,
                 patient_id=None,
                 target_user_type=data.user_type,
+                resource_id=f"user_type:{data.user_type.value}",
             ),
         )
         if not decision.allow:

@@ -16,6 +16,11 @@ services, then those comparisons moved into ``AuthorizationService`` and the sam
 green. Only the ``_*_service`` builders changed (they inject the real ``AuthorizationService``).
 SR-032 AC 1, AC 4, AC 5 (creation constrained by role); SR-034 AC 1 (SYSADMIN-only lifecycle);
 SR-005 AC 1 (deny by default). Status codes and ``detail`` messages are part of the table.
+
+Router checks (TASK-189): the router table at the end was written and run green against the
+``user_type`` comparisons inside the routers (unlock, module list, consent grant/revoke/list,
+patient roster), then they moved into ``AuthorizationService`` and the rows stayed unchanged.
+SR-005 AC 1, AC 3; SR-008 (consent is the patient's own act); SR-009 (admin projection).
 """
 
 from __future__ import annotations
@@ -314,6 +319,18 @@ def test_create_by_role_and_target(
     assert repo.add.called is (expected is None)
 
 
+@pytest.mark.parametrize("role", ROLES)
+def test_creation_without_a_requested_type_is_denied(role: UserType) -> None:
+    """SR-032 AC 4: deny by default, no role creates without a stated type (SYSADMIN included)."""
+    from app.authz.service import Resource  # noqa: PLC0415
+
+    authz = _real_authz()
+    resource = Resource(resource_type="account", owner_id=None, patient_id=None)
+    assert authz.decide(_account(role), "account:create", resource).allow is False
+    with pytest.raises(AuthorizationError):
+        authz.authorize(_account(role), "account:create", resource)
+
+
 def test_create_denied_for_actor_with_no_known_role() -> None:
     """SR-005 AC 1: deny by default, an actor with no known role may not create (403)."""
     repo = MagicMock()
@@ -324,12 +341,14 @@ def test_create_denied_for_actor_with_no_known_role() -> None:
     assert not repo.add.called
 
 
-# deactivate / reactivate: actor role x (other | self) = 8 + 8 cases (SR-034 AC 1)
+# deactivate / reactivate: actor role x (other | self | other SYSADMIN) = 12 + 8 cases
+# (SR-034 AC 1)
 DEACTIVATE_TABLE = [
     (role, relation, expected)
     for role in ROLES
     for relation, expected in (
         ("other", None if role is UserType.SYSADMIN else DENY_DEACTIVATE),
+        ("other_sysadmin", None if role is UserType.SYSADMIN else DENY_DEACTIVATE),
         (
             "self",
             DENY_DEACTIVATE_SELF if role is UserType.SYSADMIN else DENY_DEACTIVATE,
@@ -344,7 +363,9 @@ REACTIVATE_TABLE = [
 
 
 def _target_for(actor: Account, relation: str) -> Account:
-    return actor if relation == "self" else _account(UserType.PATIENT)
+    if relation == "self":
+        return actor
+    return _account(UserType.SYSADMIN if relation == "other_sysadmin" else UserType.PATIENT)
 
 
 @pytest.mark.parametrize(("role", "relation", "expected"), DEACTIVATE_TABLE)
@@ -401,11 +422,11 @@ def test_lifecycle_denied_for_actor_with_no_known_role(method: str) -> None:
     _assert_outcome(lambda: getattr(svc, method)(_unknown_role_actor(), uuid.uuid4()), expected)
 
 
-# delete (erasure): actor role x (other | self) = 8 cases (SR-034 AC 1)
+# delete (erasure): actor role x (other | self | other SYSADMIN) = 12 cases (SR-034 AC 1)
 DELETE_TABLE = [
     (role, relation, None if role is UserType.SYSADMIN or relation == "self" else DENY_DELETE)
     for role in ROLES
-    for relation in ("other", "self")
+    for relation in ("other", "self", "other_sysadmin")
 ]
 
 
@@ -463,3 +484,100 @@ def test_resend_activation_denied_for_actor_with_no_known_role() -> None:
         ),
         DENY_RESEND,
     )
+
+
+# --- router checks (TASK-189) -------------------------------------------------------------
+
+
+def _router_call(role: UserType | None, route: str, allowed_patches: list) -> tuple[int, dict]:
+    """Call a mounted route as ``role`` (``None`` = no known role); return status and body."""
+    from contextlib import ExitStack  # noqa: PLC0415
+
+    from app.api.deps import get_redis  # noqa: PLC0415
+    from app.main import create_app  # noqa: PLC0415
+
+    application = create_app()
+    actor = _unknown_role_actor() if role is None else _account(role)
+    application.dependency_overrides[get_current_user] = lambda: actor
+    application.dependency_overrides[get_redis] = lambda: fakeredis.FakeRedis()
+
+    def _db():
+        yield MagicMock()
+
+    application.dependency_overrides[get_db] = _db
+    csrf = {"headers": {"X-CSRF-Token": "tok"}, "cookies": {"medhub_csrf": "tok"}}
+    method, path = route.split(" ", 1)
+    path = path.replace("{id}", str(uuid.uuid4()))
+    with ExitStack() as stack:
+        stack.enter_context(patch.object(AuditService, "record"))
+        for target, value in allowed_patches:
+            stack.enter_context(patch(target, return_value=value))
+        resp = TestClient(application, raise_server_exceptions=False).request(
+            method, path, json={"doctorId": str(uuid.uuid4())} if method == "POST" else None, **csrf
+        )
+    return resp.status_code, resp.json() if resp.content else {}
+
+
+# route -> (role allowed, refusal detail, patches that let an allowed call finish, allowed status)
+ROUTER_RULES = {
+    "POST /api/v1/accounts/{id}/unlock": (
+        UserType.SYSADMIN,
+        "Only SYSADMIN can unlock accounts.",
+        [("app.db.repositories.account_repo.AccountRepository.get_by_id", None)],
+        404,
+    ),
+    "GET /api/v1/modules": (
+        UserType.SYSADMIN,
+        "Only sysadmins may list installed modules.",
+        [("app.db.repositories.module_repo.ModuleRepository.list_installed", [])],
+        200,
+    ),
+    "POST /api/v1/consents": (
+        UserType.PATIENT,
+        "Only patients may grant consent.",
+        [("app.authz.consent.ConsentService.grant", MagicMock())],
+        None,  # allowed: any status except the 403 refusal (the stub result is not serialisable)
+    ),
+    "DELETE /api/v1/consents/{id}": (
+        UserType.PATIENT,
+        "Only patients may revoke consent.",
+        [("app.db.repositories.consent_repo.ConsentRepository.get", None)],
+        404,
+    ),
+    "GET /api/v1/me/consents": (
+        UserType.PATIENT,
+        "Only patients may list their consent grants.",
+        [("app.authz.consent.ConsentService.list_grants", [])],
+        200,
+    ),
+    "GET /api/v1/clinical-entries/patients": (
+        UserType.DOCTOR,
+        "Only doctors can access the patient roster.",
+        [("app.clinical.service.ClinicalDataService.list_accessible_patients", [])],
+        200,
+    ),
+}
+ROUTER_CASES = [(route, role) for route in ROUTER_RULES for role in ROLES]
+
+
+@pytest.mark.parametrize(("route", "role"), ROUTER_CASES)
+def test_router_check_by_role(route: str, role: UserType) -> None:
+    """SR-005 AC 1/3, SR-008: each router decision allows its one role, 403 + message otherwise."""
+    allowed_role, detail, patches, allowed_status = ROUTER_RULES[route]
+    status, body = _router_call(role, route, patches)
+    if role is allowed_role:
+        assert status != 403
+        if allowed_status is not None:
+            assert status == allowed_status
+    else:
+        assert status == 403
+        assert body["detail"] == detail
+
+
+@pytest.mark.parametrize("route", list(ROUTER_RULES))
+def test_router_check_denies_actor_with_no_known_role(route: str) -> None:
+    """SR-005 AC 1: deny by default for an actor with no known role."""
+    _, detail, patches, _ = ROUTER_RULES[route]
+    status, body = _router_call(None, route, patches)
+    assert status == 403
+    assert body["detail"] == detail

@@ -10,6 +10,7 @@ from fastapi.testclient import TestClient
 
 from app.api.deps import get_current_user
 from app.db.models.account import Account, AccountStatus, UserType
+from app.db.repositories.session import get_db
 from app.main import create_app
 from app.modules.discovery import discover_modules
 
@@ -149,7 +150,14 @@ class TestModulesEndpoint:
 
     @pytest.fixture()
     def client(self, app):
-        return TestClient(app, raise_server_exceptions=False)
+        # The module list is an audited decision (SR-023 AC 7): no database here, so the
+        # session is a stub and the writer is stubbed; tests/audit covers the real rows.
+        def _db():
+            yield MagicMock()
+
+        app.dependency_overrides[get_db] = _db
+        with patch("app.audit.service.AuditService.record"):
+            yield TestClient(app, raise_server_exceptions=False)
 
     def test_non_sysadmin_denied(self, client) -> None:
         actor = _make_account(UserType.DOCTOR)

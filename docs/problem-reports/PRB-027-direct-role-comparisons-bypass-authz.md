@@ -2,8 +2,8 @@
 id: "PRB-027"
 type: problem-report
 title: "Identity services compare roles directly instead of asking the authorization service"
-status: open
-version: "1.2"
+status: resolved
+version: "1.4"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
 updated: "2026-10-31"
@@ -34,6 +34,7 @@ reported.** Direct `user_type` comparisons that decide access, outside `backend/
 | `backend/app/identity/activation.py:118` | ADMIN or SYSADMIN may resend activation | no |
 | `backend/app/identity/erasure.py:62` | SYSADMIN or the account itself may delete | no |
 | `backend/app/api/routers/accounts.py:134` | SYSADMIN-only unlock | no |
+| `backend/app/auth/lockout.py:102` (`admin_unlock`, `actor_role != "SYSADMIN"`) | a second copy of the unlock rule, found by QA in TASK-189 round 1 | no |
 | `backend/app/api/routers/modules.py:38` | SYSADMIN-only module list | no |
 | `backend/app/api/routers/consents.py:45,67,82` | PATIENT-only consent grant, revoke, list | no |
 | `backend/app/api/routers/clinical.py:114` | DOCTOR-only patient roster | no |
@@ -56,18 +57,48 @@ Contributes to RISK-001 and RISK-006.
 
 ## Resolution
 
-Planned in CR-004: TASK-188 (identity and lifecycle services), TASK-189 (routers, plus a static
-check that no access decision compares `user_type` outside `backend/app/authz/`). ADR-0006 is
-the governing decision; no new ADR. Not yet fixed.
+Fixed by TASK-188 (identity services) and TASK-189 (routers, lockout, static check) under CR-004.
+ADR-0006 is the governing decision; no new ADR. Every row of the Investigation table is closed:
 
-Interim note (2026-10-31, TASK-188): the service part is done. `AuthorizationService` now decides
-`account:create`, `account:deactivate`, `account:reactivate`, `account:delete` and
-`activation:resend` and writes one audited decision each; `account_service.py`, `lifecycle.py`,
-`activation.py` and `erasure.py` hold no role comparison that decides access (decision table,
-`backend/tests/authz/test_decision_table.py`, 55 identity cases; audit tests in
-`backend/tests/audit/test_authz_decision_audit.py`). **The PRB stays `open`**: the router checks
-(`accounts.py` unlock, `modules.py`, `consents.py`, `clinical.py`) and the static check belong to
-TASK-189, which resolves it.
+- `account_service.py` `_check_create_permission`, `lifecycle.py` deactivate and reactivate,
+  `activation.py` resend, `erasure.py` delete (TASK-188): the services call
+  `AuthorizationService.decide()` (`backend/app/authz/service.py`, `_eval_identity`) for
+  `account:create`, `account:deactivate`, `account:reactivate`, `account:delete` and
+  `activation:resend`; each writes one `AUTHZ_ALLOWED`/`AUTHZ_DENIED` row and keeps its refusal
+  message. `account:create` denies every role unless a requested type is stated, and an ADMIN
+  asking for SYSADMIN.
+- `accounts.py` unlock, `modules.py` module list, `consents.py` grant/revoke/list, `clinical.py`
+  roster (TASK-189): the routers call `decide()` with `account:unlock`, `module:list`,
+  `consent:grant`, `consent:revoke`, `consent:list`, `patient_roster:list` (one role each, map
+  `_ROLE_ONLY_ACTIONS`); status codes and messages unchanged.
+- `lockout.py` (TASK-189 round 2): `LockoutService.admin_unlock` no longer takes `actor_role` or
+  checks it; the unlock decision is the router's `account:unlock`, audited.
+- The admin projection choice (`accounts.py`) is `requires_admin_projection(actor)` in
+  `backend/app/authz/admin_projection.py`; the routers compare no role.
+- The rule is permanent: `backend/tests/authz/test_no_role_decisions_outside_authz.py` (AST scan of
+  `backend/app` and `backend/modules`) fails on a role use outside `backend/app/authz/`: a
+  comparison, a `match` value, a subscript or `.get()` keyed on a role, or a method call on a role,
+  where a role is `.user_type`/`.role`, `UserType.<member>`, a role-name string, or a parameter or
+  local name derived from one. Six exact expressions are listed as non-decisions, each with its
+  reason: the SR-010 data rule in `AppointmentService.create` (2), the SR-030 inactivity timeout in
+  `SessionService._inactivity_ttl` (`auth/session.py`), the typed-type confirmation in
+  `delete_account`, the resource descriptor in `AccountService.get_profile`, and the auto-group
+  query filter in `GroupRepository.list_auto_groups_for_type`. A new use inside one of those
+  functions is a different expression and fails. Not followed: a role returned from another
+  function.
+
+Evidence (TS-003 TC-003.6, TS-002 TC-002.7/TC-002.8, TS-009 TC-009.10): the decision tables in
+`backend/tests/authz/test_decision_table.py` were written green against the old code and stay
+green after the move; real-database audit rows in
+`backend/tests/audit/test_authz_decision_audit.py`. Reproduce:
+
+```sh
+cd backend && uv run pytest tests/authz tests/identity tests/api tests/audit tests/auth -q
+cd backend && uv run pytest tests/authz/test_no_role_decisions_outside_authz.py -q
+cd backend && uv run pytest --cov=app --cov-fail-under=85 && uv run ruff check . && uv run mypy app
+```
+
+Limit: as for PRB-026, an allowed decision's row is lost when the request then fails (PRB-060).
 
 ## Source
 
@@ -77,3 +108,5 @@ TASK-189, which resolves it.
 
 - 1.1 (2026-10-31) — CR-004 Plan stage (Software Architect role): `## Investigation` added from the current tree (§9.2); Resolution points at the planned tasks. Status and criticality unchanged.
 - 1.2 (2026-10-31) — TASK-188: interim Resolution note (service part done; TASK-189 resolves). Status and criticality unchanged.
+- 1.3 (2026-10-31) — TASK-189: `## Resolution` written; status `resolved` (CR-004 carries the `resolves` link). Criticality unchanged.
+- 1.4 (2026-10-31) — TASK-189 round 2: `lockout.py` added to the Investigation and Resolution (QA finding 1); the Resolution describes the strengthened static check and its six exceptions. Status stays `resolved`.

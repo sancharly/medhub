@@ -6,7 +6,6 @@ Deny-by-default: only health and openapi endpoints are unauthenticated.
 from __future__ import annotations
 
 from collections.abc import Callable
-from typing import Protocol
 
 import redis as redis_lib
 from fastapi import Depends, Request
@@ -83,20 +82,6 @@ async def get_current_user(
     if account is None or account.status != AccountStatus.ACTIVE:
         raise UnauthenticatedError("Account is not active.")
     return account
-
-
-# ---------------------------------------------------------------------------
-# Authorization protocol
-# ---------------------------------------------------------------------------
-
-
-class AuthorizationServiceProtocol(Protocol):
-    def authorize(
-        self,
-        actor: Account,
-        action: str,
-        resource: object,
-    ) -> object: ...
 
 
 # ---------------------------------------------------------------------------

@@ -133,6 +133,7 @@ def test_sysadmin_can_create_account() -> None:
     actor = _make_account(UserType.SYSADMIN)
     svc = _svc()
     r = _resource("account")
+    r.target_user_type = UserType.DOCTOR
     decision = svc.authorize(actor, "account:create", r)
     assert decision.allow is True
 

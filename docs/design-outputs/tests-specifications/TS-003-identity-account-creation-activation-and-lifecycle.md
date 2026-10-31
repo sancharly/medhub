@@ -3,7 +3,7 @@ id: TS-003
 type: test-specification
 title: Identity, account creation, activation and lifecycle verification
 status: approved
-version: "1.2"
+version: "1.3"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-10-31"
@@ -48,7 +48,7 @@ Exact SOUP versions: the `soup` records in [`../../soup/`](../../soup/).
 | TC-003.3 | SR-033 | `backend/tests/identity/test_activation.py`, `backend/tests/api/test_activation_router.py`, `frontend/src/auth/ActivationPage.test.tsx` | A single-use token expires after 72 hours; resend works; the UI matches the contract | Reuse and expiry both rejected |
 | TC-003.4 | SR-034 | `backend/tests/identity/test_lifecycle.py`, `backend/tests/api/test_lifecycle_router.py`, `backend/tests/workers/test_session_revoke.py` | Deactivation kills sessions within the stated window; deletion requires confirmation and releases the email | Session revocation propagation asserted |
 | TC-003.5 | SR-025, SR-033 | `frontend/src/auth/ChangePasswordPage.test.tsx`, `frontend/src/auth/ForcedPasswordGate.test.tsx` | A forced password change cannot be bypassed | Gate asserted against the real `/me` contract |
-| TC-003.6 | SR-032 AC 1, AC 4, AC 5; SR-034 AC 1 | `backend/tests/authz/test_decision_table.py` (identity tables: `test_create_by_role_and_target`, `test_create_denied_for_actor_with_no_known_role`, `test_deactivate_by_role_and_relation`, `test_reactivate_by_role_and_relation`, `test_lifecycle_refusal_precedes_the_lookup`, `test_lifecycle_denied_for_actor_with_no_known_role`, `test_delete_by_role_and_relation`, `test_delete_denied_for_actor_with_no_known_role`, `test_resend_activation_by_role`, `test_resend_activation_denied_for_actor_with_no_known_role`), `backend/tests/identity/` | Account creation (creator role x target type), deactivate, reactivate, delete (actor role x self/other) and activation resend are decided in `AuthorizationService`; the table written against the old role comparisons stays green after the move, with every status code and `detail` message unchanged | 55 identity table cases pass before and after the move; the table fails if a moved rule is weakened |
+| TC-003.6 | SR-032 AC 1, AC 4, AC 5; SR-034 AC 1 | `backend/tests/authz/test_decision_table.py` (identity tables: `test_create_by_role_and_target`, `test_create_denied_for_actor_with_no_known_role`, `test_deactivate_by_role_and_relation`, `test_reactivate_by_role_and_relation`, `test_lifecycle_refusal_precedes_the_lookup`, `test_lifecycle_denied_for_actor_with_no_known_role`, `test_delete_by_role_and_relation`, `test_delete_denied_for_actor_with_no_known_role`, `test_resend_activation_by_role`, `test_resend_activation_denied_for_actor_with_no_known_role`), `backend/tests/identity/` | Account creation (creator role x target type), deactivate, reactivate, delete (actor role x self/other) and activation resend are decided in `AuthorizationService`; the table written against the old role comparisons stays green after the move, with every status code and `detail` message unchanged | 67 identity table cases pass before and after the move; the table fails if a moved rule is weakened |
 
 ## Acceptance criteria (class B unit level, §5.5.3)
 
@@ -64,3 +64,5 @@ TC-003.1 partly depends on real-DB tests, which were blocked in TR-001 (no Docke
 
 - 1.2 (2026-10-31) — TASK-188: TC-003.6 added (identity and lifecycle access rules decided centrally, table unchanged, SR-032 AC 1/4/5, SR-034 AC 1). Approval record cleared; returned to `in_review`.
 - 1.2 (2026-10-31) — QA review (TASK-188): approved (`in_review → approved`).
+- 1.3 (2026-10-31) — TASK-189 (TASK-188 QA findings 1, 2): TC-003.6 table extended (SYSADMIN target rows for deactivate and delete; no role creates without a requested type, SYSADMIN included). Returned to `in_review`.
+- 1.3 (2026-10-31) — QA review (TASK-189 round 2): approved (`in_review → approved`).

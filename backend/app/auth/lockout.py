@@ -12,7 +12,6 @@ import uuid
 
 import redis
 
-from app.api.errors import AuthorizationError
 from app.audit.actions import AuditAction
 from app.audit.service import AuditService
 from app.db.models.audit import AuditOutcome
@@ -95,14 +94,14 @@ class LockoutService:
     def admin_unlock(
         self,
         account_id: uuid.UUID,
-        actor_role: str,
         email: str = "",
         ip: str | None = None,
     ) -> None:
-        """SYSADMIN-only: clear lockout (both id and email keys) and audit the action."""
-        if actor_role != "SYSADMIN":
-            raise AuthorizationError("Only SYSADMIN can unlock accounts.")
+        """Clear lockout (both id and email keys) and audit the action.
 
+        Who may unlock is decided by the caller through ``account:unlock`` in
+        ``AuthorizationService`` (ADR-0006); this method does not re-decide it.
+        """
         self._redis.delete(_lockout_id_key(account_id))
         if email:
             self._redis.delete(_lockout_key(email.strip().lower()))

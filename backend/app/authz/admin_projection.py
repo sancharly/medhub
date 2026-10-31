@@ -24,6 +24,11 @@ class AdminAccountView:
     date_of_birth: date | None
 
 
+def requires_admin_projection(actor: Account) -> bool:
+    """True when the actor sees accounts only through the admin projection (SR-009)."""
+    return actor.user_type == UserType.ADMIN
+
+
 def project_for_admin(account: Account) -> AdminAccountView:
     """Whitelist projection — never blacklist.
 

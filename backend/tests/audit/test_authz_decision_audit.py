@@ -274,7 +274,12 @@ def test_denied_creation_admin_to_sysadmin_writes_one_row(app_, factory) -> None
     rows = _authz_rows(factory, admin)
     assert len(rows) == 1
     _assert_full_row(
-        rows[0], admin.id, AuditAction.AUTHZ_DENIED, "account", "", AuditOutcome.FAILURE
+        rows[0],
+        admin.id,
+        AuditAction.AUTHZ_DENIED,
+        "account",
+        "user_type:SYSADMIN",
+        AuditOutcome.FAILURE,
     )
 
 
@@ -345,6 +350,150 @@ def test_allowed_deletion_of_own_account_writes_one_row(app_, factory) -> None:
         patient.id,
         AuditAction.AUTHZ_ALLOWED,
         "account",
+        str(patient.id),
+        AuditOutcome.SUCCESS,
+    )
+
+
+def test_denied_activation_resend_writes_one_row(app_, factory) -> None:
+    # SR-023 AC 7, SR-032 AC 1: a PATIENT may not resend an activation
+    patient = _make_account(factory, UserType.PATIENT)
+    target = _make_account(factory, UserType.PATIENT)
+    app_.dependency_overrides[get_current_user] = lambda: patient
+
+    resp = _client(app_).post(
+        f"/api/v1/accounts/{target.id}/resend-activation",
+        headers={**HEADERS, **CSRF},
+        cookies=CSRF_COOKIE,
+    )
+
+    assert resp.status_code == 403
+    assert resp.json()["detail"] == "Only ADMIN or SYSADMIN can resend activation emails."
+    rows = _authz_rows(factory, patient)
+    assert len(rows) == 1
+    _assert_full_row(
+        rows[0],
+        patient.id,
+        AuditAction.AUTHZ_DENIED,
+        "account",
+        str(target.id),
+        AuditOutcome.FAILURE,
+    )
+
+
+# --- router decisions (TASK-189): SR-023 AC 7, SR-005 AC 1/3 ------------------------------
+
+
+def test_denied_unlock_writes_one_row(app_, factory) -> None:
+    admin = _make_account(factory, UserType.ADMIN)
+    target = _make_account(factory, UserType.PATIENT)
+    app_.dependency_overrides[get_current_user] = lambda: admin
+
+    resp = _client(app_).post(
+        f"/api/v1/accounts/{target.id}/unlock", headers={**HEADERS, **CSRF}, cookies=CSRF_COOKIE
+    )
+
+    assert resp.status_code == 403
+    assert resp.json()["detail"] == "Only SYSADMIN can unlock accounts."
+    rows = _authz_rows(factory, admin)
+    assert len(rows) == 1
+    _assert_full_row(
+        rows[0], admin.id, AuditAction.AUTHZ_DENIED, "account", str(target.id), AuditOutcome.FAILURE
+    )
+
+
+def test_denied_module_list_writes_one_row(app_, factory) -> None:
+    doctor = _make_account(factory, UserType.DOCTOR)
+    app_.dependency_overrides[get_current_user] = lambda: doctor
+
+    resp = _client(app_).get("/api/v1/modules", headers=HEADERS)
+
+    assert resp.status_code == 403
+    assert resp.json()["detail"] == "Only sysadmins may list installed modules."
+    rows = _authz_rows(factory, doctor)
+    assert len(rows) == 1
+    _assert_full_row(
+        rows[0], doctor.id, AuditAction.AUTHZ_DENIED, "module", "", AuditOutcome.FAILURE
+    )
+
+
+def test_denied_consent_grant_by_doctor_writes_one_row(app_, factory) -> None:
+    doctor = _make_account(factory, UserType.DOCTOR)
+    app_.dependency_overrides[get_current_user] = lambda: doctor
+
+    resp = _client(app_).post(
+        "/api/v1/consents",
+        json={"doctorId": str(uuid.uuid4())},
+        headers={**HEADERS, **CSRF},
+        cookies=CSRF_COOKIE,
+    )
+
+    assert resp.status_code == 403
+    assert resp.json()["detail"] == "Only patients may grant consent."
+    rows = _authz_rows(factory, doctor)
+    assert len(rows) == 1
+    _assert_full_row(
+        rows[0],
+        doctor.id,
+        AuditAction.AUTHZ_DENIED,
+        "consent",
+        str(doctor.id),
+        AuditOutcome.FAILURE,
+    )
+
+
+def test_denied_consent_revoke_by_doctor_writes_one_row(app_, factory) -> None:
+    # SR-023 AC 7, SR-008: only the patient revokes; the refusal is decided before the lookup
+    doctor = _make_account(factory, UserType.DOCTOR)
+    app_.dependency_overrides[get_current_user] = lambda: doctor
+
+    resp = _client(app_).delete(
+        f"/api/v1/consents/{uuid.uuid4()}", headers={**HEADERS, **CSRF}, cookies=CSRF_COOKIE
+    )
+
+    assert resp.status_code == 403
+    assert resp.json()["detail"] == "Only patients may revoke consent."
+    rows = _authz_rows(factory, doctor)
+    assert len(rows) == 1
+    _assert_full_row(
+        rows[0],
+        doctor.id,
+        AuditAction.AUTHZ_DENIED,
+        "consent",
+        str(doctor.id),
+        AuditOutcome.FAILURE,
+    )
+
+
+def test_denied_roster_by_patient_writes_one_row(app_, factory) -> None:
+    patient = _make_account(factory, UserType.PATIENT)
+    app_.dependency_overrides[get_current_user] = lambda: patient
+
+    resp = _client(app_).get("/api/v1/clinical-entries/patients", headers=HEADERS)
+
+    assert resp.status_code == 403
+    assert resp.json()["detail"] == "Only doctors can access the patient roster."
+    rows = _authz_rows(factory, patient)
+    assert len(rows) == 1
+    _assert_full_row(
+        rows[0], patient.id, AuditAction.AUTHZ_DENIED, "patient_roster", "", AuditOutcome.FAILURE
+    )
+
+
+def test_allowed_consent_list_writes_one_row(app_, factory) -> None:
+    patient = _make_account(factory, UserType.PATIENT)
+    app_.dependency_overrides[get_current_user] = lambda: patient
+
+    resp = _client(app_).get("/api/v1/me/consents", headers=HEADERS)
+
+    assert resp.status_code == 200
+    rows = _authz_rows(factory, patient)
+    assert len(rows) == 1
+    _assert_full_row(
+        rows[0],
+        patient.id,
+        AuditAction.AUTHZ_ALLOWED,
+        "consent",
         str(patient.id),
         AuditOutcome.SUCCESS,
     )

@@ -3,7 +3,7 @@ id: TS-009
 type: test-specification
 title: Audit logging verification
 status: approved
-version: "1.5"
+version: "1.6"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-10-31"
@@ -27,7 +27,7 @@ Levels: unit, integration.
 
 ## Preconditions and environment
 
-Build: branch `fix/review-2026-07-security`, the commit that carries TASK-188 (TC-009.10); TC-009.9 at the commit that carries TASK-137; TC-009.1 to TC-009.8 last verified at the commit that carries TASK-183. Backend Python 3.12 with the
+Build: branch `fix/review-2026-07-security`, the commit that carries TASK-189 (TC-009.10); TC-009.9 at the commit that carries TASK-137; TC-009.1 to TC-009.8 last verified at the commit that carries TASK-183. Backend Python 3.12 with the
 dependencies locked in `backend/uv.lock`; frontend Node 24 LTS (build stage node:24.22.2-trixie-slim; CI node-version 24) with `frontend/package-lock.json`.
 Unit and service tests run with no external services (in-memory repository). Tests marked *real DB* require a
 PostgreSQL 16 container through testcontainers and therefore a working Docker daemon.
@@ -46,12 +46,12 @@ Exact SOUP versions: the `soup` records in [`../../soup/`](../../soup/).
 | TC-009.7 | SR-023 | `backend/modules/dicom_viewer/tests/test_failure_audit_persistence.py` *(real DB; run apart from `backend/tests`)* | `DICOM_STUDY_READ` FAILURE persists after the 403 | Row asserted |
 | TC-009.8 | SR-023 | `backend/tests/audit/test_failure_audit_persistence.py::test_failure_row_persists_while_business_row_and_success_event_roll_back`, `backend/tests/audit/test_audit_writer.py` *(real DB for the first)* | A business row and a SUCCESS event added in a failing request are rolled back while its FAILURE row persists; `record` has no `durable` parameter and the repository has no session-wide commit | Business row and SUCCESS row absent, FAILURE row present |
 | TC-009.9 | SR-023 AC 6, SR-042 AC 2 | `backend/tests/audit/test_audit_client_address.py` *(real DB)*, `backend/tests/audit/test_audit_writer.py::test_explicit_ip_wins_over_request_address`, `::test_request_address_used_when_ip_is_none`, `::test_no_request_context_records_no_address` | A request-caused row (`AUTHZ_DENIED`, `CONSENT_GRANTED`, `LOGIN_FAILURE`) records the originating client address (trusted peer with `X-Forwarded-For`: the client; untrusted peer with a forged header: the peer); an explicit `ip` wins; a row written with no request (worker) records no address and is written | Row `ip` asserted per case; the address tests fail if `record` ignores the client-address variable |
-| TC-009.10 | SR-023 AC 7 (on a request that completes; an allowed row is lost when the request then fails, PRB-060) | `backend/tests/audit/test_authz_decision_audit.py` *(real DB)*, `backend/tests/authz/test_authorization_service.py` (`appointment_scope`, `module:access`), `backend/tests/api/test_appointments_router.py::TestGetAppointment`, the identity tests `test_denied_creation_admin_to_sysadmin_writes_one_row`, `test_denied_deactivation_by_non_sysadmin_writes_one_row`, `test_denied_self_deactivation_writes_one_row`, `test_allowed_deletion_of_own_account_writes_one_row`; `test_allowed_row_is_lost_when_the_handler_then_fails_prb_060` documents the limitation | Every appointment, module and identity authorization decision, allowed or denied, on a request that completes, writes one row with actor, action (`AUTHZ_ALLOWED`/`AUTHZ_DENIED`), target (appointment id, or module key), outcome, timestamp and client address: an allowed and a denied appointment list, an allowed and a denied single read (404 to the client), an allowed and a denied module access, a denied account creation (ADMIN to SYSADMIN), a denied deactivation (non-SYSADMIN), a denied self-deactivation, an allowed deletion of one's own account | One row per decision with all fields asserted; the list tests fail if the scope is decided outside `AuthorizationService`; the identity rows carry the account id as target (empty for a creation) |
+| TC-009.10 | SR-023 AC 7 (on a request that completes; an allowed row is lost when the request then fails, PRB-060) | `backend/tests/audit/test_authz_decision_audit.py` *(real DB)*, `backend/tests/authz/test_authorization_service.py` (`appointment_scope`, `module:access`), `backend/tests/api/test_appointments_router.py::TestGetAppointment`, the identity tests `test_denied_creation_admin_to_sysadmin_writes_one_row`, `test_denied_deactivation_by_non_sysadmin_writes_one_row`, `test_denied_self_deactivation_writes_one_row`, `test_allowed_deletion_of_own_account_writes_one_row`, `test_denied_activation_resend_writes_one_row`, and the router decisions `test_denied_unlock_writes_one_row`, `test_denied_module_list_writes_one_row`, `test_denied_consent_grant_by_doctor_writes_one_row`, `test_denied_consent_revoke_by_doctor_writes_one_row`, `test_denied_roster_by_patient_writes_one_row`, `test_allowed_consent_list_writes_one_row`; `test_allowed_row_is_lost_when_the_handler_then_fails_prb_060` documents the limitation | Every appointment, module, identity and router authorization decision, allowed or denied, on a request that completes, writes one row with actor, action (`AUTHZ_ALLOWED`/`AUTHZ_DENIED`), target (appointment id, or module key), outcome, timestamp and client address: an allowed and a denied appointment list, an allowed and a denied single read (404 to the client), an allowed and a denied module access, a denied account creation (ADMIN to SYSADMIN; target `user_type:SYSADMIN`), a denied activation resend, a denied unlock, module list, consent grant and revoke, and patient roster, a denied deactivation (non-SYSADMIN), a denied self-deactivation, an allowed deletion of one's own account | One row per decision with all fields asserted; the list tests fail if the scope is decided outside `AuthorizationService`; the identity rows carry the account id as target (`user_type:<type>` for a creation) |
 
 ## Acceptance criteria (class B unit level, §5.5.3)
 
 - Self-diagnostics: an audit write failure must not silently drop the event.
-- Data flow: every appointment, module and identity authorization decision, allowed or denied, on a request that completes, is an entry (TC-009.10; PRB-060 for the failing request); the originating client address (SR-042) is part of every request-caused entry; an entry with no request records none (TC-009.9, PRB-010).
+- Data flow: every appointment, module, identity and router authorization decision, allowed or denied, on a request that completes, is an entry (TC-009.10; PRB-060 for the failing request); the originating client address (SR-042) is part of every request-caused entry; an entry with no request records none (TC-009.9, PRB-010).
 
 ## Notes
 
@@ -66,3 +66,6 @@ Append-only is a convention, not a database grant (PRB-005); TC-009.3 therefore 
 - 1.4 (2026-10-31) — QA review (TASK-187 round 2): approved (`in_review → approved`).
 - 1.5 (2026-10-31) — TASK-188: TC-009.10 extended with the identity decisions (account creation, deactivation, self-deactivation, own-account deletion; SR-023 AC 7, same "on a request that completes" limit, PRB-060). Returned to `in_review`.
 - 1.5 (2026-10-31) — QA review (TASK-188): approved (`in_review → approved`).
+- 1.6 (2026-10-31) — TASK-189: TC-009.10 extended with the router decisions (unlock, module list, consent grant, roster; allowed consent list), a denied activation resend, and the `user_type:<type>` target of a creation (TASK-188 QA findings 3, 4). Returned to `in_review`.
+- 1.6 (2026-10-31) — TASK-189 round 2: real-DB test for a denied consent revoke added to TC-009.10.
+- 1.6 (2026-10-31) — QA review (TASK-189 round 2): approved (`in_review → approved`).

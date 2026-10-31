@@ -5,9 +5,7 @@ from __future__ import annotations
 import uuid
 
 import fakeredis
-import pytest
 
-from app.api.errors import AuthorizationError
 from app.auth.lockout import MAX_FAILURES, LockoutService
 
 
@@ -54,13 +52,6 @@ def test_reset_clears_lockout() -> None:
     assert svc.is_locked(acct_id) is False
 
 
-def test_admin_unlock_requires_sysadmin() -> None:
-    svc = _svc()
-    acct_id = uuid.uuid4()
-    with pytest.raises(AuthorizationError):
-        svc.admin_unlock(acct_id, actor_role="ADMIN")
-
-
 def test_admin_unlock_sysadmin_clears_lock() -> None:
     from unittest.mock import MagicMock
 
@@ -70,7 +61,7 @@ def test_admin_unlock_sysadmin_clears_lock() -> None:
     for _ in range(MAX_FAILURES):
         svc.record_failure(acct_id, "user@example.com", None)
     assert svc.is_locked(acct_id) is True
-    svc.admin_unlock(acct_id, actor_role="SYSADMIN", ip="1.2.3.4")
+    svc.admin_unlock(acct_id, ip="1.2.3.4")
     assert svc.is_locked(acct_id) is False
 
 
@@ -80,7 +71,7 @@ def test_admin_unlock_audits_event() -> None:
     mock_audit = MagicMock()
     svc = _svc(mock_audit)
     acct_id = uuid.uuid4()
-    svc.admin_unlock(acct_id, actor_role="SYSADMIN")
+    svc.admin_unlock(acct_id)
     mock_audit.record.assert_called_once()
     call_str = str(mock_audit.record.call_args)
     assert "ACCOUNT_UNLOCK" in call_str
@@ -128,7 +119,7 @@ def test_admin_unlock_clears_email_key() -> None:
     for _ in range(MAX_FAILURES):
         svc.record_failure(acct_id, email, None)
     assert svc.is_email_locked(email) is True
-    svc.admin_unlock(acct_id, actor_role="SYSADMIN", email=email)
+    svc.admin_unlock(acct_id, email=email)
     assert svc.is_email_locked(email) is False
 
 

@@ -74,6 +74,18 @@ _IDENTITY_ACTIONS = frozenset(
 )
 
 
+# Actions that exactly one role may perform, whoever the target is (TASK-189). Router-level
+# checks that used to compare ``user_type`` in the handler; a denial keeps ``basis="ROLE"``.
+_ROLE_ONLY_ACTIONS: dict[str, UserType] = {
+    "account:unlock": UserType.SYSADMIN,
+    "module:list": UserType.SYSADMIN,
+    "consent:grant": UserType.PATIENT,
+    "consent:revoke": UserType.PATIENT,
+    "consent:list": UserType.PATIENT,
+    "patient_roster:list": UserType.DOCTOR,
+}
+
+
 class AuthorizationService:
     def __init__(
         self,
@@ -160,6 +172,8 @@ class AuthorizationService:
                 return Decision(allow=True, basis="MODULE:ENABLED")
             return Decision(allow=False, basis="MODULE:DISABLED")
 
+        if action in _ROLE_ONLY_ACTIONS:
+            return Decision(allow=actor.user_type == _ROLE_ONLY_ACTIONS[action], basis="ROLE")
         if action in _IDENTITY_ACTIONS:
             return self._eval_identity(actor, action, resource)
 
@@ -180,11 +194,14 @@ class AuthorizationService:
         """Identity and account-lifecycle decisions (SR-032 AC 1/4/5, SR-034 AC 1).
 
         The basis of a denial says why, so a caller can keep its refusal message:
-        ``ROLE`` (the role may not), ``TARGET`` (ADMIN creating SYSADMIN), ``SELF``
-        (SYSADMIN deactivating itself).
+        ``ROLE`` (the role may not), ``TARGET`` (ADMIN creating SYSADMIN), ``TARGET_UNSET``
+        (no requested type), ``SELF`` (SYSADMIN deactivating itself).
         """
         role = actor.user_type
         if action == "account:create":
+            # Deny unless the requested type is stated, whatever the role.
+            if resource.target_user_type is None:
+                return Decision(allow=False, basis="TARGET_UNSET")
             if role == UserType.SYSADMIN:
                 return Decision(allow=True, basis="ROLE")
             if role == UserType.ADMIN:
@@ -271,7 +288,6 @@ class AuthorizationService:
             "account:list",
             "group:manage",
             "module:manage",
-            "account:unlock",
             # Phase 3 additions
             "groups:create",
             "groups:list",

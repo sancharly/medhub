@@ -3,7 +3,7 @@ id: TS-002
 type: test-specification
 title: Authorization, consent and visibility verification
 status: approved
-version: "1.2"
+version: "1.3"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-10-31"
@@ -56,6 +56,7 @@ Exact SOUP versions: the `soup` records in [`../../soup/`](../../soup/).
 | TC-002.5 | SR-011 | `backend/tests/authz/test_appointment_visibility.py` | Appointments are visible only to their participants and authorized administrative personnel | Each role asserted separately |
 | TC-002.6 | SR-007, SR-008 | `frontend/src/core/consent/ConsentPage.test.tsx`, `frontend/src/core/clinical/ClinicalEntriesPage.test.tsx`, `frontend/src/core/patients/PatientListPage.test.tsx` | The UI shows only permitted data and reflects consent changes | Rendering asserted per role |
 | TC-002.7 | SR-005 AC 1, AC 3, SR-011 AC 4, SR-015 | `backend/tests/authz/test_decision_table.py` (38 cases: list scope 4 roles, denied list 1; single read 12 role x relation, 1 consent, 4 missing; module access 4 roles x 4 membership states, with the 403 message asserted), `backend/tests/authz/test_authorization_service.py` (`appointment_scope`, `module:access`), `backend/tests/authz/test_appointment_visibility.py`, `backend/tests/api/test_appointments_router.py::TestGetAppointment` | The appointment list scope, single-appointment visibility and module access are decided only in `AuthorizationService`; the decision table was run green against the code before the logic moved (characterisation, RISK-004 control) and stays green, unchanged, after; a not-visible appointment is answered 404 | Same allow/deny and status code per case before and after the move; weakening the visibility rule or the list scope makes the table fail |
+| TC-002.8 | SR-005 AC 1, AC 3, SR-008, SR-009 | `backend/tests/authz/test_decision_table.py` (router rules: 6 routes x 4 roles = 24 cases, 6 no-role cases; `test_router_check_by_role`, `test_router_check_denies_actor_with_no_known_role`), `backend/tests/authz/test_no_role_decisions_outside_authz.py` (static check: comparisons, aliases, subscripts, `.get`, method calls on a role; exact-expression exceptions), `backend/tests/auth/test_lockout.py` (`admin_unlock` holds no role check), `backend/tests/api/test_admin_projection_integration.py` | The account unlock, module list, consent grant/revoke/list and patient roster rules are decided in `AuthorizationService` (status and `detail` unchanged, table written green before the move); no role comparison decides access outside `backend/app/authz/`; the admin projection is unchanged (SR-009) | Same status and message per case before and after; a comparison added outside `app/authz/` makes the static check fail; weakening a moved rule makes the table fail |
 
 ## Acceptance criteria (class B unit level, §5.5.3)
 
@@ -71,3 +72,6 @@ Route-level role guards are missing in the frontend (PRB-014, TASK-142), so clie
 
 - 1.2 (2026-10-31) — TASK-187: TC-002.7 added (decision table of the appointment list scope, appointment visibility and module access; characterisation before and after the move); `verifies` SR-015 added. Returned to `in_review`; approval record cleared.
 - 1.2 (2026-10-31) — QA review (TASK-187 round 2): approved (`in_review → approved`).
+- 1.3 (2026-10-31) — TASK-189: TC-002.8 added (router rules in the decision table, static check against role comparisons outside `app/authz/`). Returned to `in_review`.
+- 1.3 (2026-10-31) — TASK-189 round 2: TC-002.8 static check strengthened (alias tracking, exact-expression exceptions); `LockoutService.admin_unlock` no longer re-decides the unlock rule.
+- 1.3 (2026-10-31) — QA review (TASK-189 round 2): approved (`in_review → approved`).
