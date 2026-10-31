@@ -3,7 +3,7 @@ id: "PRB-005"
 type: problem-report
 title: "Audit log is append-only by convention rather than by the database, and its scrub is pattern-limited"
 status: open
-version: "1.1"
+version: "1.2"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
 updated: "2026-10-31"
@@ -77,10 +77,13 @@ so no secret can be stored in any field; the logout event no longer stores the s
 The design is [ADR-0017](../design/adr/0017-database-roles-and-append-only-audit-log.md). Not yet
 fixed.
 
+**Interim (TASK-192, 2026-10-31): scrub part done.** `AuditService.record` now refuses any `action`, `target_type` or `target_id` outside closed shapes (`AuditFieldError`), and logout records the account id, not the session token (`backend/tests/audit/test_audit_no_secrets.py`, TS-009 TC-009.12). Still open: the append-only part, TASK-190 and TASK-191 (DB-enforced through role privileges). The report moves to `resolved` with TASK-191, the last PRB-005 task.
+
 ## Source
 
 `docs/implementation-plan/AUDIT-FINDINGS.md` — Security, Medium.
 
 ## Version history
 
+- 1.2 (2026-10-31) — TASK-192: interim Resolution note (scrub part done; append-only part open with TASK-190 and TASK-191). Status unchanged.
 - 1.1 (2026-10-31) — CR-004 Plan stage (Software Architect role): `## Investigation` added from the current tree (§9.2); Resolution points at the planned tasks. Status and criticality unchanged.

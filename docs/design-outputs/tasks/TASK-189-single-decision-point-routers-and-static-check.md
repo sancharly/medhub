@@ -258,6 +258,8 @@ The CR-004 Plan places Checkpoint B after tasks 4–7. Task 7 is TASK-192, which
 
 Every criterion that does not depend on TASK-192 passes. Re-run the session-token criterion and close Checkpoint B when TASK-192 is approved.
 
+Final result: see TASK-192 `## Checkpoint B final result` (2026-10-31: PASSED at TASK-192 round 2 approval).
+
 ## Round 2 (software developer, 2026-10-31)
 
 QA round 1 findings 1 to 6, all addressed:
@@ -363,3 +365,5 @@ Verification run by QA (round 2):
 - 1.1 (2026-10-31) — Implemented; handed to QA (`in_review`). Checkboxes left for QA.
 - 1.2 (2026-10-31) — QA round 1: CHANGES REQUESTED (`in_review → draft`); round 2 by the developer, findings 1 to 6 addressed; handed back to QA (`in_review`).
 - 1.2 (2026-10-31) — QA review round 2: APPROVED (`in_review → approved`); TS-002, TS-003, TS-009 approved; Checkpoint B updated (pending TASK-192).
+- 1.2 (2026-10-31) — QA (TASK-192 review): pointer to the Checkpoint B result in TASK-192 added. No other change.
+- 1.2 (2026-10-31) — QA (TASK-192 round 2): pointer updated, Checkpoint B passed. No other change.

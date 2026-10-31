@@ -12,7 +12,7 @@ from app.api.deps import get_current_user
 from app.db.models.account import Account, AccountStatus, UserType
 from app.db.repositories.session import get_db
 from app.main import create_app
-from app.modules.discovery import discover_modules
+from app.modules.discovery import _is_valid_manifest, discover_modules
 
 
 def _fake_manifest(
@@ -225,3 +225,15 @@ class TestStartupSync:
         synced_manifests = mock_sync.call_args[0][0]
         assert len(synced_manifests) == 1
         assert synced_manifests[0].module_key == "dicom-viewer"
+
+
+class TestModuleKeyShape:
+    """One module-key pattern, shared with the audit writer (SR-023 AC 9)."""
+
+    @pytest.mark.parametrize("key", ["dicom-viewer", "test-module", "good-module", "xray", "a_b-c"])
+    def test_valid_keys_are_accepted(self, key: str) -> None:
+        assert _is_valid_manifest(_fake_manifest(module_key=key))
+
+    @pytest.mark.parametrize("key", ["Dicom", "1abc", "has space", "a:b", "x" * 65, "-lead"])
+    def test_invalid_keys_are_rejected(self, key: str) -> None:
+        assert not _is_valid_manifest(_fake_manifest(module_key=key))

@@ -6,6 +6,7 @@ import importlib.metadata
 import logging
 import re
 
+from app.core.module_key import is_valid_module_key
 from app.modules.contract import ModuleManifest
 
 logger = logging.getLogger(__name__)
@@ -22,6 +23,9 @@ def _is_valid_manifest(manifest: object) -> bool:
 
     if not module_key or not isinstance(module_key, str):
         logger.warning("Manifest rejected: module_key missing or empty (%r)", module_key)
+        return False
+    if not is_valid_module_key(module_key):
+        logger.warning("Manifest rejected: module_key not a valid key (%r)", module_key)
         return False
     if not name or not isinstance(name, str):
         logger.warning("Manifest rejected: name missing or empty (%r)", name)

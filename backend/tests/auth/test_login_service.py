@@ -175,3 +175,49 @@ def test_login_sets_session_cookie() -> None:
     svc.login("user@example.com", pw, None, resp)
     cookie_headers = resp.headers.get("set-cookie", "")
     assert "medhub_session" in cookie_headers
+
+
+# --- TASK-192 QA round 1: the lockout counter is incremented before the audit write ---
+
+
+def _failing_audit_svc() -> MagicMock:
+    from app.audit.service import AuditFieldError  # noqa: PLC0415
+
+    audit = MagicMock()
+    audit.record.side_effect = AuditFieldError("audit field 'target_id' is not a permitted shape")
+    return audit
+
+
+def test_known_account_failure_counts_before_a_refused_audit_write() -> None:
+    import pytest  # noqa: PLC0415
+
+    acct, _ = _make_account()
+    repo = MagicMock()
+    repo.get_by_email.return_value = acct
+    lockout = MagicMock()
+    lockout.is_locked.return_value = False
+    svc = LoginService(
+        repo, PasswordService(), MagicMock(spec=SessionService), _failing_audit_svc()
+    )
+
+    with pytest.raises(Exception, match="audit field"):
+        svc.login("user@example.com", "WrongP@ssword1!", "1.1.1.1", Response(), lockout_svc=lockout)
+
+    lockout.record_failure.assert_called_once_with(acct.id, "user@example.com", "1.1.1.1")
+
+
+def test_unknown_email_failure_counts_before_a_refused_audit_write() -> None:
+    import pytest  # noqa: PLC0415
+
+    repo = MagicMock()
+    repo.get_by_email.return_value = None
+    lockout = MagicMock()
+    lockout.is_email_locked.return_value = False
+    svc = LoginService(
+        repo, PasswordService(), MagicMock(spec=SessionService), _failing_audit_svc()
+    )
+
+    with pytest.raises(Exception, match="audit field"):
+        svc.login("nobody@example.com", "SomeP@ss123!", "1.1.1.1", Response(), lockout_svc=lockout)
+
+    lockout.record_failure.assert_called_once_with(None, "nobody@example.com", "1.1.1.1")

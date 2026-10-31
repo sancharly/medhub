@@ -234,7 +234,7 @@ def test_failure_row_persists_while_business_row_and_success_event_roll_back(app
         db.flush()
         audit = AuditService(AuditRepository(db))
         audit.record(actor, AuditAction.AUTH_LOGIN, None, None, AuditOutcome.SUCCESS, None)
-        audit.record(actor, AuditAction.AUTHZ_DENIED, "x", None, AuditOutcome.FAILURE, None)
+        audit.record(actor, AuditAction.AUTHZ_DENIED, "account", None, AuditOutcome.FAILURE, None)
         raise AuthorizationError("denied")
 
     resp = _client(app_).get("/__test/atomicity")

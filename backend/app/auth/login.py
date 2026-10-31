@@ -77,6 +77,10 @@ class LoginService:
         # Always verify to keep timing consistent (anti-enumeration)
         if account is None:
             self._password_svc.verify(get_dummy_hash(), password)  # result discarded
+            # Count the failure first: a refused audit write must not skip the counter.
+            if lockout_svc is not None:
+                if not lockout_svc.is_email_locked(normalised_email):  # type: ignore[attr-defined]
+                    lockout_svc.record_failure(None, normalised_email, ip)  # type: ignore[attr-defined]
             self._audit_svc.record(
                 actor=None,
                 action=AuditAction.LOGIN_FAILURE,
@@ -85,9 +89,6 @@ class LoginService:
                 outcome=AuditOutcome.FAILURE,
                 ip=ip,
             )
-            if lockout_svc is not None:
-                if not lockout_svc.is_email_locked(normalised_email):  # type: ignore[attr-defined]
-                    lockout_svc.record_failure(None, normalised_email, ip)  # type: ignore[attr-defined]
             return LoginFailure()
 
         pw_hash = account.password_hash or get_dummy_hash()
@@ -107,6 +108,9 @@ class LoginService:
 
         # Generic failure for any non-ACTIVE state or wrong password
         if not password_ok or account.status != AccountStatus.ACTIVE:
+            # Count the failure first: a refused audit write must not skip the counter.
+            if lockout_svc is not None:
+                lockout_svc.record_failure(account.id, normalised_email, ip)  # type: ignore[attr-defined]
             self._audit_svc.record(
                 actor=account.id,
                 action=AuditAction.LOGIN_FAILURE,
@@ -115,8 +119,6 @@ class LoginService:
                 outcome=AuditOutcome.FAILURE,
                 ip=ip,
             )
-            if lockout_svc is not None:
-                lockout_svc.record_failure(account.id, normalised_email, ip)  # type: ignore[attr-defined]
             return LoginFailure()
 
         # Success path

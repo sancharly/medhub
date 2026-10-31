@@ -11,6 +11,7 @@ from fastapi.testclient import TestClient
 
 from app.api.deps import get_current_user, get_redis, get_session, get_session_service
 from app.api.routers.auth import _get_login_service
+from app.audit.actions import AuditAction
 from app.auth.login import LoginFailure, LoginService, LoginSuccess
 from app.auth.session import Session as UserSession
 from app.auth.session import SessionService
@@ -154,6 +155,29 @@ class TestLogoutEndpoint:
         client.app.dependency_overrides = {}
         assert resp.status_code == 204
         mock_svc.invalidate.assert_called_once_with("test-session-id")
+
+    def test_logout_audits_the_account_not_the_session_token(self, client):
+        # SR-023 AC 5: the LOGOUT row names the account and carries no session token
+        account = _make_account()
+        _auth_as(client, account)
+        db = MagicMock()
+        client.app.dependency_overrides[get_db] = lambda: db
+
+        resp = client.post(
+            "/api/v1/auth/logout",
+            cookies={"medhub_session": "test-session-id", "medhub_csrf": "token123"},
+            headers={"X-CSRF-Token": "token123"},
+        )
+
+        client.app.dependency_overrides = {}
+        assert resp.status_code == 204
+        (row,) = [c.args[0] for c in db.add.call_args_list]
+        assert row.action == AuditAction.LOGOUT
+        assert row.target_type == "account"
+        assert row.target_id == str(account.id)
+        assert "test-session-id" not in " ".join(
+            str(v) for v in (row.action, row.target_type, row.target_id, row.ip)
+        )
 
     def test_logout_requires_auth(self, client):
         resp = client.post("/api/v1/auth/logout")

@@ -9,7 +9,7 @@ from unittest.mock import MagicMock
 import pytest
 
 from app.audit.actions import AuditAction
-from app.audit.service import AuditService
+from app.audit.service import AuditFieldError, AuditService
 from app.db.models.audit import AuditLog, AuditOutcome
 from app.db.repositories.audit_repo import AuditRepository
 
@@ -103,14 +103,14 @@ def test_clinical_access_event(service, audit_repo_mock):
     service.record(
         actor=actor,
         action=AuditAction.CLINICAL_ACCESS,
-        target_type="patient",
+        target_type="clinical_entry",
         target_id=target_patient,
         outcome=AuditOutcome.SUCCESS,
         ip=None,
     )
     log: AuditLog = audit_repo_mock._added[0]
     assert log.actor_id == actor
-    assert log.target_type == "patient"
+    assert log.target_type == "clinical_entry"
     assert log.target_id == target_patient
     assert log.timestamp is not None
 
@@ -186,34 +186,28 @@ def test_audit_repo_has_only_add():
 # --- SR-023.5: no credentials in stored record ---
 
 
-def test_password_scrubbed_from_action(service, audit_repo_mock):
-    """Passing action with password=... must not appear in stored record."""
-    service.record(
-        actor=uuid.uuid4(),
-        action="AUTH_LOGIN password=secret123",
-        target_type=None,
-        target_id=None,
-        outcome=AuditOutcome.FAILURE,
-        ip=None,
-    )
-    log: AuditLog = audit_repo_mock._added[0]
-    assert "secret123" not in log.action
-    assert "password=secret123" not in log.action
+def test_password_scrubbed_by_second_line():
+    """The key=value scrub stays as a second line behind the closed-set check (SR-023 AC 5)."""
+    from app.audit.service import _scrub
+
+    cleaned = _scrub("AUTH token=abc123 secret=xyz password=hunter2")
+    assert "abc123" not in cleaned
+    assert "xyz" not in cleaned
+    assert "hunter2" not in cleaned
 
 
-def test_multiple_credentials_scrubbed(service, audit_repo_mock):
-    service.record(
-        actor=None,
-        action="AUTH token=abc123 secret=xyz password=hunter2",
-        target_type=None,
-        target_id=None,
-        outcome=AuditOutcome.FAILURE,
-        ip=None,
-    )
-    log: AuditLog = audit_repo_mock._added[0]
-    assert "abc123" not in log.action
-    assert "xyz" not in log.action
-    assert "hunter2" not in log.action
+def test_action_with_embedded_credential_is_refused(service, audit_repo_mock):
+    """An action string carrying key=value credentials is not an AuditAction (SR-023 AC 9)."""
+    with pytest.raises(AuditFieldError):
+        service.record(
+            actor=uuid.uuid4(),
+            action="AUTH_LOGIN password=secret123",
+            target_type=None,
+            target_id=None,
+            outcome=AuditOutcome.FAILURE,
+            ip=None,
+        )
+    assert audit_repo_mock._added == []
 
 
 # --- Two records stored with different server timestamps ---
@@ -223,7 +217,7 @@ def test_two_records_have_timestamps(service, audit_repo_mock):
     actor = uuid.uuid4()
     service.record(
         actor=actor,
-        action="A1",
+        action=AuditAction.AUTH_LOGIN,
         target_type=None,
         target_id=None,
         outcome=AuditOutcome.SUCCESS,
@@ -231,7 +225,7 @@ def test_two_records_have_timestamps(service, audit_repo_mock):
     )
     service.record(
         actor=actor,
-        action="A2",
+        action=AuditAction.LOGIN_FAILURE,
         target_type=None,
         target_id=None,
         outcome=AuditOutcome.SUCCESS,
@@ -320,3 +314,46 @@ def test_request_address_used_when_ip_is_none(service, audit_repo_mock):  # SR-0
 def test_no_request_context_records_no_address(service, audit_repo_mock):  # SR-023 AC 6
     _record_login(service)
     assert audit_repo_mock._added[0].ip is None
+
+
+# --- SR-023 AC 9: valid shapes from every current caller pass ---
+
+_UID = str(uuid.uuid4())
+
+
+@pytest.mark.parametrize(
+    ("action", "target_type", "target_id"),
+    [
+        (AuditAction.ACCOUNT_CREATED, "account", _UID),
+        (AuditAction.AUTHZ_ALLOWED, "account", "user_type:PATIENT"),  # account:create decision
+        (AuditAction.AUTHZ_DENIED, "appointment", ""),  # decision with no resource id
+        (AuditAction.APPOINTMENT_CREATE, "appointment", _UID),
+        (AuditAction.ATTACHMENT_ACCESS, "attachment", _UID),
+        (AuditAction.DICOM_STUDY_READ, "attachment", _UID),
+        (AuditAction.CLINICAL_ACCESS, "clinical_entry", _UID),
+        (AuditAction.CLINICAL_ACCESS, "patient_roster", _UID),
+        (AuditAction.CONSENT_GRANTED, "consent_grant", _UID),
+        (AuditAction.AUTHZ_DENIED, "consent", _UID),
+        (AuditAction.GROUP_CREATE, "group", _UID),
+        (AuditAction.GROUP_MEMBER_ADD, "group_membership", f"{_UID}:{_UID}"),
+        (AuditAction.MODULE_ENABLE, "group_module", f"{_UID}:dicom-viewer"),
+        (AuditAction.MODULE_DISCOVERED, "module", "dicom-viewer"),
+        (AuditAction.MODULE_REGISTRY_SYNC, "module_registry", None),
+        (AuditAction.DATA_ANONYMIZED, "anonymized_dataset", _UID),
+        (AuditAction.LOGIN_FAILURE, "account", None),
+        (AuditAction.LOGOUT, "account", _UID),
+        (AuditAction.PASSWORD_CHANGED, "account", _UID),
+        (AuditAction.AUTH_LOGIN, None, None),
+    ],
+)
+def test_valid_caller_shapes_are_recorded(service, audit_repo_mock, action, target_type, target_id):
+    service.record(
+        actor=None,
+        action=action,
+        target_type=target_type,
+        target_id=target_id,
+        outcome=AuditOutcome.SUCCESS,
+        ip=None,
+    )
+    assert len(audit_repo_mock._added) == 1
+    assert audit_repo_mock._added[0].target_id == target_id

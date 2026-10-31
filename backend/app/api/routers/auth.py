@@ -17,6 +17,7 @@ from app.api.schemas.auth import (
     PasswordChangeRequest,
     SessionExtendResponse,
 )
+from app.audit.actions import AuditAction
 from app.audit.service import AuditService
 from app.auth.cookies import clear_session_cookie
 from app.auth.csrf import require_csrf
@@ -101,9 +102,9 @@ async def logout(
     audit_svc = AuditService(AuditRepository(db))
     audit_svc.record(
         actor=session.account_id,
-        action="LOGOUT",
-        target_type="session",
-        target_id=session.session_id,
+        action=AuditAction.LOGOUT,
+        target_type="account",
+        target_id=str(session.account_id),
         outcome=AuditOutcome.SUCCESS,
         ip=client_address(request),
     )
@@ -163,7 +164,7 @@ def change_password(
     audit_svc = AuditService(AuditRepository(db))
     audit_svc.record(
         actor=actor.id,
-        action="PASSWORD_CHANGED",
+        action=AuditAction.PASSWORD_CHANGED,
         target_type="account",
         target_id=str(actor.id),
         outcome=AuditOutcome.SUCCESS,
