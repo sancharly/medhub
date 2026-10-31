@@ -96,20 +96,51 @@ def test_invalid_setting_refuses_start_up(monkeypatch) -> None:
         Settings()
 
 
-# --- static check: no read of request.client.host outside client_address.py --------------------
+# --- static check: nothing reads the raw TCP peer outside client_address.py ---------------------
 
-# Known exception until TASK-186 replaces it (TASK-137 removed auth.py and accounts.py).
-KNOWN_READS = {
-    "api/routers/anonymized_data.py",
-}
+# Every form of reading the peer: request.client.host, scope["client"], request.client[0],
+# scope.get("client"), and any ``.client`` attribute chain ending in ``.host``.
+_PEER_READS = re.compile(
+    r"""\.client\b(?!\s*\()      # request.client / self.client (not boto3.client(...))
+      | \[\s*['"]client['"]\s*\]  # scope["client"]
+      | \.get\(\s*['"]client['"]   # scope.get("client")
+    """,
+    re.VERBOSE,
+)
+KNOWN_READS: set[str] = set()
 
 
-def test_no_code_reads_client_host_outside_client_address() -> None:
-    app_dir = Path(__file__).resolve().parents[2] / "app"
-    pattern = re.compile(r"\.client\.host\b")
-    offenders = {
+def _peer_read_offenders(app_dir: Path) -> set[str]:
+    return {
         str(path.relative_to(app_dir))
         for path in app_dir.rglob("*.py")
-        if path.name != "client_address.py" and pattern.search(path.read_text())
+        if path.name != "client_address.py" and _PEER_READS.search(path.read_text())
     }
-    assert offenders <= KNOWN_READS, f"new request.client.host read: {offenders - KNOWN_READS}"
+
+
+def test_no_code_reads_the_tcp_peer_outside_client_address() -> None:
+    app_dir = Path(__file__).resolve().parents[2] / "app"
+    offenders = _peer_read_offenders(app_dir)
+    assert offenders <= KNOWN_READS, f"new read of the TCP peer: {offenders - KNOWN_READS}"
+
+
+@pytest.mark.parametrize(
+    "line",
+    [
+        "ip = request.client.host",
+        "ip = self.request.client.host",
+        'peer = scope["client"]',
+        "peer = scope['client'][0]",
+        "peer = request.client[0]",
+        'peer = scope.get("client")',
+        "addr, _ = request.client",
+    ],
+)
+def test_static_check_catches_every_form_of_peer_read(tmp_path: Path, line: str) -> None:
+    (tmp_path / "bad.py").write_text(line + "\n")
+    assert _peer_read_offenders(tmp_path) == {"bad.py"}
+
+
+def test_static_check_ignores_client_factories(tmp_path: Path) -> None:
+    (tmp_path / "ok.py").write_text('c = boto3.client("s3")\nself._client = other\n')
+    assert _peer_read_offenders(tmp_path) == set()

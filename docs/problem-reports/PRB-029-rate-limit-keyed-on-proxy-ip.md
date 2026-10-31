@@ -2,8 +2,8 @@
 id: "PRB-029"
 type: problem-report
 title: "Rate limiting is keyed on the proxy address"
-status: open
-version: "1.1"
+status: resolved
+version: "1.2"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
 updated: "2026-10-31"
@@ -43,9 +43,14 @@ Contributes weakly to RISK-007 (a shared bucket can deny legitimate retrieval).
 
 ## Resolution
 
-Planned in CR-004: TASK-185 (originating client address, ADR-0019), then TASK-186 (count per
-address, atomic increment, fixed 3600-second window from the first counted attempt, refusal
-before the code is evaluated). Not yet fixed.
+Fixed in CR-004 by TASK-185 (originating client address, ADR-0019) and TASK-186 (retrieval limit).
+`POST /anonymized-data/retrieve` counts attempts under
+`rate:anonymized_retrieve:{originating client address}`; the count is one atomic `INCR` plus
+`EXPIRE 3600 NX` transaction, so the 3600-second window starts at the first counted attempt and is
+not extended; the sixth attempt gets 429 before the code is evaluated; a missing peer is refused.
+Reproduce: `cd backend && uv run pytest tests/api/test_anonymized_retrieve.py tests/core/test_client_address.py tests/api/test_client_address_middleware.py -v`
+(TS-016 TC-016.1 to TC-016.5). Before the fix, client B was refused once client A used the shared
+bucket, 10 concurrent attempts evaluated more than 5, and a caller who kept trying was never released.
 
 ## Source
 
@@ -54,3 +59,4 @@ before the code is evaluated). Not yet fixed.
 ## Version history
 
 - 1.1 (2026-10-31) — CR-004 Plan stage (Software Architect role): `## Investigation` added from the current tree (§9.2); Resolution points at the planned tasks. Status and criticality unchanged.
+- 1.2 (2026-10-31) — TASK-186: Resolution written; status `open` → `resolved`. Closure follows the CR-004 close.
