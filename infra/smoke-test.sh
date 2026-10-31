@@ -209,12 +209,12 @@ finally:
 print("ok")' 2>&1 | tail -1)
     check "'backend' stores and reads back an object" "$([ "$ROUND_TRIP" = ok ] && echo ok || echo "$ROUND_TRIP")"
     STORE_ID=$(compose ps -q object-store)
-    PUBLISHED=$(compose port object-store 8333 2>/dev/null || true)
-    HOST_PORTS=$(docker inspect "$STORE_ID" --format '{{json .NetworkSettings.Ports}} {{json .HostConfig.PortBindings}}' | grep -c HostPort || true)
-    if [ -z "$PUBLISHED" ] && [ "$HOST_PORTS" = 0 ]; then
-        check "object-store publishes no host port" "ok"
+    if [ -z "$STORE_ID" ] || ! STORE_BINDINGS=$(docker inspect "$STORE_ID" --format '{{json .NetworkSettings.Ports}} {{json .HostConfig.PortBindings}}' 2>&1); then
+        check "object-store publishes no host port" "docker inspect failed"
+    elif printf '%s' "$STORE_BINDINGS" | grep -q HostPort; then
+        check "object-store publishes no host port" "published: $STORE_BINDINGS"
     else
-        check "object-store publishes no host port" "published: '$PUBLISHED', HostPort entries: $HOST_PORTS"
+        check "object-store publishes no host port" "ok"
     fi
 fi
 

@@ -3,10 +3,10 @@ id: CR-002
 type: change-request
 title: Secure or replace the MinIO object store
 status: in_progress
-version: "1.8"
+version: "1.9"
 author: Carlos Santiago Liceras
 created: "2026-10-30"
-updated: "2026-10-30"
+updated: "2026-10-31"
 branch: bug/minio-object-store
 risk_impact: affects_controls
 links:
@@ -21,6 +21,8 @@ links:
   - target: PRB-052
     relation: resolves
   - target: PRB-055
+    relation: resolves
+  - target: PRB-059
     relation: resolves
   - target: PRB-007
     relation: relates_to
@@ -81,6 +83,8 @@ links:
   - target: TASK-182
     relation: relates_to
   - target: TASK-183
+    relation: relates_to
+  - target: TASK-184
     relation: relates_to
   - target: RISK-006
     relation: relates_to
@@ -181,6 +185,9 @@ Source: GitHub issue sancharly/medhub#33.
    TASK-173's `durable` flag is removed. Real-database tests cover each affected path. The two
    other LOW findings of TASK-173's QA review are fixed with it: the 502 responses declare their
    problem body, and the integrity message no longer reloads the attachment.
+10. **Smoke-test port check (PRB-059, added by D-9).** The `infra/smoke-test.sh` check
+    "object-store publishes no host port" decides from `docker inspect` alone, so it gives the same
+    answer on every Compose version (TASK-184).
 
 ### Requirements decision
 
@@ -361,6 +368,8 @@ Problem reports raised during CR-002:
 - PRB-055 (smoke test requires `minio_data`, minor): `resolved` by TASK-179.
 - PRB-056 (empty `CORS_ORIGINS` in `.env.example`, minor): `open`, outside this CR.
 - PRB-057 (no backup and restore procedure, major): `open`, outside this CR. It is a release-gate condition (see "For the human to accept").
+- PRB-058 (independent audit write lost on pool exhaustion, minor): `open`, outside this CR. Raised in 1.8.
+- PRB-059 (smoke-test port check fails on Compose 5.x, minor): in scope by D-9, resolved by TASK-184.
 
 *Added for PRB-052 (D-7, 2026-10-30, Software Architect role).* `risk_impact` stays
 `affects_controls`. No new hazard, and class B is unchanged: PRB-052 is a new **cause** of the
@@ -639,6 +648,16 @@ Each carries a recommended answer. None is decided here.
   residual pending verification by TASK-183. Q-8 is answered with the recommendation: no
   notification is needed for PRB-052 (no release exists).
 
+- **D-9 (human, in chat, 2026-10-31):** PRB-059 is added to CR-002's scope: "Fix it in CR-002".
+  This answer is the human's approval of the scope change. The Software Architect role amended the
+  CR: `resolves` → PRB-059, scope item 10, TASK-184 (order 10a, before TASK-182) and the AC
+  coverage table. No AC is added: the fix serves AC-16, whose fresh-host run (TASK-182 round 2)
+  stops at 25 of 26 on Compose v5.6.1 because of PRB-059. **§7.4:** `risk_impact` stays
+  `affects_controls`. The change is to a verification script only: no software item of the product
+  and no risk control changes, no hazard is added and class B is unchanged. The check verifies the
+  network control of RISK-012 and RISK-001 (TS-014 TC-014.6); it keeps its mutation sensitivity
+  (TASK-184 M1..M3), and no RISK record is edited.
+
 ## Implementation plan
 
 The plan is the TASK records below. Under the overlay there is no `docs/plans/<feature>.md`.
@@ -653,7 +672,8 @@ ADR.**
   record cleared once in this CR, by the first task that changes it. Later tasks keep that
   version and add to its history entry (CR-001, CR-003). Here that applies to ADD-012:
   TASK-175 bumps it, and TASK-176 and TASK-180 add to it.
-- New records: ADD-025 (Plan stage), TS-014 (TASK-174), SOUP-036 (TASK-172), TASK-183 (D-7).
+- New records: ADD-025 (Plan stage), TS-014 (TASK-174), SOUP-036 (TASK-172), TASK-183 (D-7),
+  TASK-184 (D-9).
 
 | Order | Task | CR-002 AC | SR | Depends on | Size | Docker host / network |
 |---|---|---|---|---|---|---|
@@ -670,7 +690,8 @@ ADR.**
 | — | **Checkpoint B**, after tasks 5–8 | AC-9, AC-16, AC-17 (interim) | — | — | — | Docker host. Network |
 | 9 | [TASK-180](../design-outputs/tasks/TASK-180-update-deploy-guide-add-and-arc42.md) Update the deployment guide, the ADD records and arc42 | AC-20 | SR-040, SR-028 | TASK-177, TASK-178, TASK-179 | M (docs only) | none |
 | 10 | [TASK-181](../design-outputs/tasks/TASK-181-rescore-object-store-risks-from-evidence.md) Re-score RISK-012 and re-evaluate the related risks from the evidence | AC-13, AC-14, AC-12 (risk links), AC-19 (PRB-043, PRB-007) | SR-040, SR-013, SR-022 | TASK-172..179 | S | none |
-| 11 | [TASK-182](../design-outputs/tasks/TASK-182-verify-cr-002-end-to-end.md) Verify CR-002 end to end on a host with no cached images (Checkpoint C) | AC-9, AC-12, AC-15..AC-19 | SR-028, SR-040 | all above | S | Empty Docker daemon, amd64. Network (CI) |
+| 10a | [TASK-184](../design-outputs/tasks/TASK-184-smoke-test-port-check-on-any-compose.md) Decide the smoke test's object-store port check from `docker inspect` (added by D-9) | AC-16 (PRB-059) | SR-040 | TASK-177, TASK-179. **Gate** for TASK-182's fresh-host smoke run | XS | Docker host (Compose 2.20.2) plus an empty `docker:dind` daemon (Compose v5.6.1) |
+| 11 | [TASK-182](../design-outputs/tasks/TASK-182-verify-cr-002-end-to-end.md) Verify CR-002 end to end on a host with no cached images (Checkpoint C) | AC-9, AC-12, AC-15..AC-19 | SR-028, SR-040 | all above, including TASK-184 | S | Empty Docker daemon, amd64. Network (CI) |
 
 **Parallel work.**
 
@@ -733,7 +754,7 @@ TASK-173, 174, 175, 177, 179, 180, 182 and 183 are the same under every answer.
 | AC-13 | Risk stage (RISK-012 1.1, control mapping); TASK-181 (re-score) |
 | AC-14 | Risk stage (change analysis above); TASK-181 |
 | AC-15 | TASK-173 (TS-007), TASK-174..177 (TS-014), TASK-175 and TASK-179 (TS-008), TASK-176 (TS-013); TASK-182 (check) |
-| AC-16 | TASK-182 (Checkpoint B in the interim) |
+| AC-16 | TASK-182 (Checkpoint B in the interim); TASK-184 (PRB-059: smoke-test port check on any Compose version) |
 | AC-17 | every task (its suites); Checkpoints A and B; TASK-182 |
 | AC-18 | every task (scoped); TASK-182 (project) |
 | AC-19 | TASK-175 (PRB-039), TASK-176 (PRB-042), TASK-179 (PRB-036), TASK-181 (PRB-043, PRB-007), TASK-183 (PRB-052), TASK-182 (check) |
@@ -798,3 +819,7 @@ Every AC-1..AC-23 maps to at least one task.
   longer claims that the lockout bounds the burst or that the row is never dropped: on pool
   exhaustion the request fails with a `500` and the row is lost. PRB-058 (minor, outside this CR)
   is raised, and RISK-006 1.2 is corrected to match. No scope, AC or status change.
+- 1.9 (2026-10-31) — D-9: PRB-059 added to scope ("Fix it in CR-002"): `resolves` → PRB-059,
+  scope item 10, TASK-184 (order 10a, gate for TASK-182's fresh-host smoke run), the §7.4 note in
+  D-9 (no product change, no control changed), the PRB list and the AC-16 coverage row. No AC is
+  added. Status stays `in_progress`.
