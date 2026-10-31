@@ -3,10 +3,13 @@ id: RISK-006
 type: risk
 title: Audit trail incomplete, so a wrong disclosure or entry goes undetected
 status: approved
-version: "1.2"
+version: "1.3"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-10-31"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-31"
+approval_note: self-approved at the ship-feature plan gate (sancharly/medhub#27, CR-004)
 hazard: Security-relevant or clinical-data events not recorded, or recorded without the information needed to reconstruct them.
 cause: A code path bypasses `AuditService`, an audit row is rolled back with the failed request that recorded it, the client IP is not captured, the scrub drops needed context, or the log store is writable → an incident cannot be reconstructed → a wrong disclosure or falsified entry is never noticed or corrected.
 harm: "Indirect: the harms of RISK-001/002/005 persist uncorrected, and the legal obligation to notify cannot be met."
@@ -15,10 +18,6 @@ probability_initial: 3
 severity_residual: 2
 probability_residual: 2
 acceptability: acceptable
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-10-31"
-approved_digest: a1e6a6b393b30a13b60fb140166f3442ce17e02902d4a8a4bf845bf4dee78d29
-approval_note: self-approved
 links:
   - target: SOUP-008
     relation: relates_to
@@ -74,6 +73,10 @@ occur); the score is severity × P2, the probability that the hazardous situatio
 | Capture the client IP in authz and consent audit events | Protective | TASK-137 | none yet |
 | Tests asserting an audit row for every security-relevant action | Protective | TASK-113 | none yet |
 | Failure and refusal events committed on their own transaction, independent of the request outcome (ADR-0016); real-database tests per affected path | Design | SR-023, TASK-183 (CR-002) | TS-009 TC-009.4..8, TS-007 TC-007.6 (planned, TASK-183) |
+| Originating client address from one trusted-proxy rule, recorded on every request-caused audit row (CR-004, ADR-0019) | Protective | SR-042 AC 1 to AC 3, SR-023 AC 6; TASK-185, TASK-137 | TS-016 TC-016.1..3, TS-009 TC-009.9 (planned) |
+| Every authorization decision, allowed or denied, audited by the single decision point (CR-004) | Design | SR-023 AC 7; TASK-187, TASK-188, TASK-189 | TS-009 TC-009.10 (planned) |
+| Append-only enforced by privilege: the runtime role cannot `UPDATE`, `DELETE` or `TRUNCATE` `audit_log`; the silent rules dropped (CR-004, ADR-0017) | Design | SR-023 AC 8; TASK-190, TASK-191 | TS-009 TC-009.11 (planned) |
+| Typed audit fields: no field can hold a credential or secret, whatever the caller passes (CR-004) | Design | SR-023 AC 9; TASK-192 | TS-009 TC-009.12 (planned) |
 
 ## Residual risk
 
@@ -89,6 +92,15 @@ That is tolerable only because no release exists (CR-002 A-1) and the access con
 still work (PRB-052, safety evaluation). The scores are **not** changed now. TASK-183's tests are
 the evidence. Once QA approves TASK-183, the expected residual is 2 × 2 → acceptable, unchanged.
 Severity stays 2: the control reduces probability only.
+
+**Change analysis (CR-004, Risk stage, 2026-10-31).** CR-004 removes three of the causes
+named above: the missing source address (PRB-010), the decisions taken outside the audited path
+(PRB-026, PRB-027), and append-only by convention (PRB-005, which also showed that the rules of
+migration 0006 turn tampering into a silent success and that the application connects as a
+superuser). **Expected residual: 2 × 2 → acceptable, unchanged.** It is not lowered to
+probability 1 because two causes stay open outside CR-004: PRB-058 (a failure row lost on pool
+exhaustion) and PRB-032 (no log correlation). Confirmed at verification (TASK-202); the
+"pending verification" note above for TASK-183 is unchanged.
 
 **Decided by:** pending — the owner's acceptance is the approval of this record.
 
@@ -116,6 +128,19 @@ installation sees. No release exists (CR-002 A-1), so no installation relies on 
 stays 2. This does **not** carry over to a release: PRB-058 must be resolved, or evaluated as a
 residual anomaly (§5.8.2–5.8.3) and this residual re-confirmed, before the first release.
 
+CR-004 (2026-10-31):
+
+- Auditing every allowed decision raises the number of rows per request (list endpoints, module
+  checks). No new hazard; it is a volume and performance effect (SR-026), checked by the suites'
+  timing and recorded in TASK-202.
+- A wrong `TRUSTED_PROXIES` fails silently: every address is the proxy's again (this record's
+  cause). A started-stack check that an audit row's address is not the proxy's is part of TS-016.
+- The typed fields refuse a value they do not recognise, so a caller bug now fails the request
+  instead of writing a row; the refusal is logged without the value. This trades a lost row for
+  a visible error, which is the safer direction for this hazard.
+- Privilege-based append-only cannot stop the owner role; the owner credential is given only to
+  `db-migrate` (ADR-0017, SR-041).
+
 ## Version history
 
 - 1.2 (2026-10-30) — CR-002 amendment for PRB-052: new cause (audit rows rolled back with the
@@ -126,3 +151,4 @@ residual anomaly (§5.8.2–5.8.3) and this residual re-confirmed, before the fi
     pool exhaustion the request fails with a `500` and the row is lost. A spray of unknown emails
     is not bounded. PRB-058 is raised. The residual is restated as holding for development only.
     Scores and status unchanged.
+- 1.3 (2026-10-31) — CR-004 Risk stage, §7.4 change analysis (Software Architect role). Control rows added for the CR-004 controls with their planned verification; expected residual stated in "Residual risk"; "Risks introduced by controls" extended. Scores not changed: they are re-scored from the evidence at verification (TASK-202). Content change, so the approval record is cleared and the record returns to review.

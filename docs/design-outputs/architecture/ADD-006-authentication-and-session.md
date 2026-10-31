@@ -3,14 +3,13 @@ id: ADD-006
 type: architecture-doc
 title: Authentication & Session (SI-AUTH)
 status: approved
-version: "1.0"
+version: "1.1"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-10-21"
+updated: "2026-10-31"
 approved_by: Carlos Santiago Liceras
-approved_on: "2026-10-21"
-approved_digest: f71027d7f85e02833e3f43fd71b256aa9b64e4b56bc8305687d8fd856a6aedf6
-approval_note: self-approved
+approved_on: "2026-10-31"
+approval_note: self-approved at the ship-feature plan gate (sancharly/medhub#27, CR-004)
 links:
   - target: SR-002
     relation: implements
@@ -51,6 +50,12 @@ Login, logout, password change, session lifecycle, lockout
 - `U-AUTH-Session` — Redis session create/refresh/invalidate, role timeouts, absolute lifetime, concurrency cap (SR-030).
 - `U-AUTH-PasswordPolicy` — server-side complexity, history(12), max-age(180d), reuse/username checks (SR-025).
 - `U-AUTH-Cookie` — Secure/HttpOnly/SameSite=Strict cookie issuing (SR-030.6).
+- `U-AUTH-Session` (CR-004 change) — the concurrency-cap check, the eviction of the oldest
+  session and the insertion of the new one are one optimistic Redis transaction (`WATCH` on the
+  account's sorted set, `MULTI`/`EXEC`, bounded retry), so concurrent logins cannot exceed the cap
+  (SR-030 AC 7, PRB-023).
+- `U-AUTH-Login` (CR-004 change) — the lockout service is a required, typed dependency; no call
+  path can omit it (SR-029 AC 1, PRB-018). The unused `session_signing_key` setting is removed.
 
 Class B requires decomposition down to software units, not per-unit detailed design
 (§5.4.2–5.4.4 are class C). Each unit above is independently unit-testable and is the granularity
@@ -74,8 +79,12 @@ This record is a summary and traceability anchor, not the narrative. The design 
 arc42 sections — [05 building blocks](../../design/05-building-blocks.md) for the decomposition,
 [04 solution strategy](../../design/04-solution-strategy.md),
 [08 cross-cutting concepts](../../design/08-cross-cutting-concepts.md) and, for deployment,
-[07 deployment view](../../design/07-deployment-view.md). Governing decisions: [ADR-0011](../../design/adr/), [ADR-0012](../../design/adr/), [ADR-0013](../../design/adr/).
+[07 deployment view](../../design/07-deployment-view.md). Governing decisions: [ADR-0011](../../design/adr/), [ADR-0012](../../design/adr/), [ADR-0013](../../design/adr/), [ADR-0012](../../design/adr/0012-authentication-session-mechanism.md).
 
 ## Risk relevance
 
 Participates in RISK-005 (see `docs/risks/`); the control measures are carried by the SRs and TASKs listed there.
+
+## Version history
+
+- 1.1 (2026-10-31) — CR-004 Plan stage (Software Architect role): unit changes for the planned design added (marked "CR-004"), links added. Content change, so the approval record is cleared and the record returns to review. The implementing tasks confirm the unit text when they land.

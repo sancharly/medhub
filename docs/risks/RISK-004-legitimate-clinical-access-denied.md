@@ -3,10 +3,13 @@ id: RISK-004
 type: risk
 title: Legitimate clinical access wrongly denied or delayed
 status: approved
-version: "1.1"
+version: "1.2"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-10-21"
+updated: "2026-10-31"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-31"
+approval_note: self-approved at the ship-feature plan gate (sancharly/medhub#27, CR-004)
 hazard: A clinician with a legitimate care relationship cannot reach the patient's clinical data when needed.
 cause: An over-restrictive or mis-scoped consent evaluation (a declined appointment revoking a grant from another source, a per-source union computed wrongly, a module guard denying an enabled module) → the API denies the request → the clinician proceeds without the available history.
 harm: Care based on incomplete information, or delayed care while access is sorted out; recoverable in most workflows.
@@ -15,10 +18,6 @@ probability_initial: 3
 severity_residual: 3
 probability_residual: 2
 acceptability: alarp
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-10-21"
-approved_digest: 161eec8d4b01d48eb0572564e8aa490dd878c6fcc3f393eee5eb2416fdf768b6
-approval_note: self-approved
 links: []
 tags:
   - hazard:denial-of-care
@@ -62,11 +61,20 @@ occur); the score is severity × P2, the probability that the hazardous situatio
 | Explicit tests for the documented consent cases A/B/C | Protective | SR-036, TASK-113 | TR-001, TS-002 |
 | Denials are audited with the reason, so a wrong denial is diagnosable | Protective | SR-023 | TS-009 |
 | Patient-facing consent UI shows exactly who has access | Information for safety | SR-008 | TR-001, TS-002 |
+| Decision-table characterisation tests, written before the authorization checks are moved into `AuthorizationService` and unchanged after it, so no legitimate access is newly denied (CR-004) | Protective | SR-005, SR-023 AC 7; TASK-187, TASK-188, TASK-189 | TS-002 TC-002.7, TS-003 TC-003.6 (planned) |
 
 ## Residual risk
 
 Severity 3 (unchanged — controls reduce probability, not severity) × probability 2
 (Remote) → **alarp**, derived from `risk_matrix`. Residual ALARP. MedHub is not the only route to clinical information (the treating institution's own records remain), which is what keeps probability and severity from being higher.
+
+**Change analysis (CR-004, Risk stage, 2026-10-31).** CR-004 moves the appointment
+scoping, the appointment visibility rule, the module-access decision and the identity and router
+role checks into `AuthorizationService` (PRB-026, PRB-027). A mistake in the move can deny a
+clinician an appointment list or an enabled module. The new characterisation control keeps the
+probability where it is. **Expected residual: 3 × 2 → alarp, unchanged**; the ALARP justification
+below still holds. Every denial is now audited, which makes a wrong one easier to diagnose.
+Confirmed at verification (TASK-202).
 
 **Decided by:** pending — the owner's acceptance is the approval of this record.
 
@@ -77,3 +85,12 @@ A denial is visible and recoverable — the clinician knows the data is withheld
 ## Risks introduced by controls
 
 Loosening consent scope to avoid denials would raise RISK-001; the balance is held by the per-source union model.
+
+CR-004 (2026-10-31): the module-access refusal and the single-appointment refusal are now
+audited, so a wrong denial leaves an `AUTHZ_DENIED` row with the actor and the target. The
+client route guard (TASK-142) can, if its role table is wrong, hide a view; the server
+response is unchanged, and a test ties the guard to the navigation table.
+
+## Version history
+
+- 1.2 (2026-10-31) — CR-004 Risk stage, §7.4 change analysis (Software Architect role). Control rows added for the CR-004 controls with their planned verification; expected residual stated in "Residual risk"; "Risks introduced by controls" extended. Scores not changed: they are re-scored from the evidence at verification (TASK-202). Content change, so the approval record is cleared and the record returns to review.

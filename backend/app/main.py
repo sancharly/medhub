@@ -9,6 +9,7 @@ from fastapi import FastAPI
 from app.api.errors import register_error_handlers
 from app.api.health import router as health_router
 from app.api.router import api_router
+from app.core.client_address import ClientAddressMiddleware
 from app.core.logging import configure_logging
 from app.core.security_middleware import CsrfEnforcementMiddleware, SecurityHeadersMiddleware
 
@@ -80,6 +81,9 @@ def create_app() -> FastAPI:
     # Security middleware (TASK-069)
     app.add_middleware(SecurityHeadersMiddleware)
     app.add_middleware(CsrfEnforcementMiddleware)
+
+    # Originating client address (TASK-185): added last, so it is the outermost middleware
+    app.add_middleware(ClientAddressMiddleware)
 
     # OpenAPI customization (TASK-068)
     from app.api.openapi import customize_openapi  # noqa: PLC0415

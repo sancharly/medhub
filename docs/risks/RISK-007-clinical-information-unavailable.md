@@ -3,10 +3,13 @@ id: RISK-007
 type: risk
 title: Clinical information unavailable when needed
 status: approved
-version: "1.4"
+version: "1.5"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-10-31"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-31"
+approval_note: self-approved at the ship-feature plan gate (sancharly/medhub#27, CR-004)
 hazard: The application, its database, its object storage or its workers unavailable, or attachments unreadable.
 cause: Single-host outage, database or object-store failure, exhausted connection pool from a session leak, a missing storage SDK (PRB-002), or an encryption key rotation that makes old rows unreadable → the clinician cannot open the record → they proceed without it or wait.
 harm: Delayed care; decisions made without available history. No direct physical harm from the software itself.
@@ -15,10 +18,6 @@ probability_initial: 2
 severity_residual: 3
 probability_residual: 2
 acceptability: alarp
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-10-31"
-approved_digest: e31d60789fdf91a2e5f540a25427dba6115626f2b29c0bc46d1a0b7bdd22dd10
-approval_note: self-approved
 links:
   - target: SOUP-020
     relation: relates_to
@@ -81,11 +80,24 @@ occur); the score is severity × P2, the probability that the hazardous situatio
 | Key identifier in the ciphertext envelope so rotation cannot orphan rows | Design | SR-022, PRB-004 resolution | TR-001, TS-008 |
 | Bucket initialisation ordered after the store is healthy and fail-fast: the backend does not start on a missing or misconfigured bucket (CR-002, PRB-039) | Protective | SR-040 AC 4; TASK-175 (re-run on SeaweedFS by TASK-176) | TS-014 TC-014.4: initialiser starts only after `object-store` is healthy (`docker events` order); an unreachable store gives exit 1 and `backend` stays `Created`; idempotent re-run (TASK-175 and TASK-176 QA reruns) |
 | Checksum refusal fails with a clear error, never with partial or wrong content (CR-002) | Protective | SR-013 AC 5; TASK-173 | TS-007 TC-007.6, TC-007.8: 502 `application/problem+json` naming only the attachment id, no object bytes, committed FAILURE audit row; TC-007.7: an unmodified object is served (TASK-173 QA rerun) |
+| Field values converted to the identified envelope in one transaction that rolls back if any value does not decrypt; tested against a database populated in the old format; an unknown key id is refused, never decrypted with another key (CR-004, ADR-0018) | Protective | SR-022 AC 6, AC 7; TASK-193, TASK-194 | TS-008 TC-008.9, TC-008.10 (planned) |
+| Rotation by a re-encryption command with a `--check` mode, rehearsed on a backup copy before use (CR-004) | Protective | SR-022 AC 8; TASK-195 | TS-008 TC-008.11, rehearsal record (planned) |
+| Attachments moved to the separate SSE key by a copy with checksum comparison, source read only, rehearsed on a backup copy (CR-004) | Protective | SR-041 AC 5; TASK-196 | TS-014 TC-014.7, rehearsal record (planned) |
+| Retrieval rate limit per originating client address, so one caller cannot block retrieval for all (CR-004, PRB-029) | Design | SR-042 AC 4, AC 5; TASK-186 | TS-016 TC-016.4, TC-016.5 (planned) |
 
 ## Residual risk
 
 Severity 3 (unchanged — controls reduce probability, not severity) × probability 2
 (Remote) → **alarp**, derived from `risk_matrix`. Single-host Compose with no high availability is a deliberate MVP decision (arc42 §11, ADR-0010); the residual therefore stays ALARP and needs an explicit human acceptance for each release, with the argument that MedHub is not the only route to the information.
+
+**Change analysis (CR-004, Risk stage, 2026-10-31).** CR-004 both strengthens and threatens
+this record. Strengthened: the "key rotation makes old rows unreadable" cause gets its design
+control (the row above that names PRB-004 is realised by TASK-193..195), and the shared
+rate-limit bucket goes (PRB-029). Threatened, by the change itself: the field migration, the
+rotation and the SSE key separation can each make clinical values or attachments unreadable, and
+the runtime-role grants can make a statement fail. Each has a fail-safe control above and is an
+"ask first" step of CR-004. **Expected residual: 3 × 2 → alarp, unchanged**, set by the
+single-host decision (ADR-0010) and PRB-057 as before. Confirmed at verification (TASK-202).
 
 **Decided by:** pending — the owner's acceptance is the approval of this record.
 
@@ -118,6 +130,17 @@ The CR-002 controls of RISK-012 add availability effects to this record, by desi
   attachments unreadable (SOUP-036 F-4). Key handling is RISK-011's; the missing backup and restore
   procedure for the volume and its key is PRB-057.
 
+CR-004 (2026-10-31), availability effects introduced by its controls:
+
+- Start-up refused on a missing, placeholder or invalid secret, on identical field and SSE keys,
+  or on an invalid `TRUSTED_PROXIES` entry (deployment time, message names the setting).
+- `db-migrate` must complete before the backend and worker start; a failed migration keeps them
+  down (fail closed, like the bucket initialiser).
+- A table without grants makes the runtime role's statement fail until the next `db-migrate`
+  run; `app.db.roles` re-applies grants after every migration (ADR-0017).
+- The frontend now listens on 8080; a proxy still pointing at 80 serves nothing. The smoke test
+  checks the page through the proxy.
+
 ## Version history
 
 - 1.2 (2026-10-21) — Approved (self-approved, 2026-10-21).
@@ -142,3 +165,4 @@ The CR-002 controls of RISK-012 add availability effects to this record, by desi
   - Risks introduced by controls: the CR-002 availability effects listed.
   - Not re-scored: severity 3 × probability 2 → `alarp`, set by the single-host decision
     (ADR-0010). Acceptance is the human's, through approval of this version.
+- 1.5 (2026-10-31) — CR-004 Risk stage, §7.4 change analysis (Software Architect role). Control rows added for the CR-004 controls with their planned verification; expected residual stated in "Residual risk"; "Risks introduced by controls" extended. Scores not changed: they are re-scored from the evidence at verification (TASK-202). Content change, so the approval record is cleared and the record returns to review.

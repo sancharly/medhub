@@ -3,10 +3,13 @@ id: RISK-011
 type: risk
 title: Encryption or key management failure exposes or orphans clinical data
 status: approved
-version: "1.3"
+version: "1.4"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-10-31"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-31"
+approval_note: self-approved at the ship-feature plan gate (sancharly/medhub#27, CR-004)
 hazard: Encrypted clinical fields exposed in clear, or made permanently unreadable.
 cause: The ciphertext envelope carries no key identifier or version → a key rotation cannot tell which key decrypts which row → old rows fail to decrypt (data lost) or rotation is avoided altogether (a compromised key stays in use). Separately, a misconfigured storage endpoint could store attachments without server-side encryption.
 harm: Delayed care from lost history, or privacy harm from exposure.
@@ -15,10 +18,6 @@ probability_initial: 2
 severity_residual: 3
 probability_residual: 2
 acceptability: alarp
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-10-31"
-approved_digest: 4e7dc41b849b34b77a13f4d212275feada131884544f08f0d8afb5f36b169196
-approval_note: self-approved
 links:
   - target: SOUP-011
     relation: relates_to
@@ -78,11 +77,31 @@ occur); the score is severity × P2, the probability that the hazardous situatio
 | Server-side encryption enforced on the object store, verified at bring-up | Protective | SR-022 AC 4 and AC 5, TASK-115; CR-002: TASK-175 (bucket default encryption set and read back at initialisation, fail closed), TASK-179 (end-to-end check against the real store in CI) | TR-001, TS-008: TC-008.6 (bucket default `AES256`, a plain put reported `AES256`, started stack, TASK-175 and TASK-176 QA reruns) and TC-008.8 (CI job `object-store-integration`, 4 tests, mutation-checked; local run of the job steps by QA, hosted run pending TASK-182) |
 | Migration of existing objects and key material by a procedure rehearsed against a backup, comparing checksums before and after each write; the source never modified | Protective | SR-022, SR-013 AC 5; TASK-178 | TS-008 TC-008.7: unit tests with mutations; rehearsal on restored copies (3 copied, 3 of 3 API downloads match, 0 plaintext-marker hits in the new volume, source tree hash unchanged), TASK-178 QA round 2 |
 | Documented key custody and rotation procedure | Information for safety | NFR-007, TASK-115 | none yet |
+| Key identifier in the field envelope, bound as associated data; decryption under any configured key; unknown key refused (CR-004, ADR-0018) | Design | SR-022 AC 6, AC 7; TASK-193, TASK-194 | TS-008 TC-008.9, TC-008.10 (planned) |
+| Documented rotation with a re-encryption command, rehearsed against a backup copy of a populated database (CR-004) | Protective | SR-022 AC 8; TASK-195 | TS-008 TC-008.11; rehearsal recorded for the next TR (planned) |
+| Separate field-encryption and object-store SSE keys, refused when equal; attachments migrated to the new SSE key by a rehearsed copy (CR-004, CR-002 D-6 carried over) | Design | SR-041 AC 5; TASK-196 | TS-014 TC-014.7; TS-015 TC-015.3 (planned) |
+| Placeholder and wrong-length keys refused at start-up by the backend, the worker and the preflight (CR-004) | Protective | SR-041 AC 3; TASK-197 | TS-015 TC-015.3 (planned) |
 
 ## Residual risk
 
 Severity 3 (unchanged — controls reduce probability, not severity) × probability 2
 (Remote) → **alarp**, derived from `risk_matrix`. Residual stays ALARP until the envelope carries a key identifier (PRB-004) and a rotation procedure has been exercised at least once.
+
+**Change analysis (CR-004, Risk stage, 2026-10-31).** CR-004 implements the two items this
+residual has waited for: the key identifier (PRB-004) and an exercised rotation (the rehearsal of
+SR-022 AC 8). It also separates the two keys (SR-041 AC 5), so one key's compromise or loss
+reaches one store, not both.
+
+**Expected residual, for the human to decide at verification:**
+
+- the exposure path (a compromised key stays in use because rotation is unsafe) drops to
+  probability 1 once TASK-193..196 are verified: **3 × 1 → acceptable** by the `risk_matrix`;
+- the loss path (a lost key makes its data permanently unreadable) is unchanged by CR-004,
+  because no backup and restore procedure covers the keys (PRB-057, open, outside CR-004).
+
+So the record can be re-scored to 3 × 1 only if PRB-057 is resolved first or the human accepts the
+loss path as a residual anomaly for development use; otherwise it stays **3 × 2 → alarp** with
+the ALARP justification below. Scores are not changed now; TASK-202 re-scores from the evidence.
 
 **Decided by:** pending — the owner's acceptance is the approval of this record.
 
@@ -111,6 +130,19 @@ procedure covers `object_store_data` together with the key
 CR-002), and `infra/DEPLOY.md` says so only in the migration section. The migration (TASK-178) moved
 objects between stores under the same key; it was rehearsed and needs no new key.
 
+CR-004 (2026-10-31): the controls are themselves operations that can make data unreadable,
+which is this record's hazard:
+
+- migration 0010 (field envelope): one transaction, rolls back on any value that does not
+  decrypt, tested against a database in the old format, rehearsed on a backup copy;
+- the re-encryption command: `--check` before a key is retired, read-back before commit, idempotent;
+- the SSE key copy: source read only, checksums compared per object, rehearsed on a backup copy,
+  the old volume kept until the API reads every attachment back.
+
+Each is a CR-004 "ask first" step: none runs against a database or volume other than a copy until
+the human approves. The operator now holds two keys (three during a rotation); `infra/DEPLOY.md`
+documents generation and custody (TASK-195, TASK-196).
+
 ## Version history
 
 - 1.2 (2026-10-29) — CR-003 (TASK-163, D-5), §7.4 change analysis for the cryptography upgrade
@@ -134,3 +166,4 @@ objects between stores under the same key; it was rehearsed and needs no new key
   - Not re-scored: severity 3 × probability 2 → `alarp`, as derived from `risk_matrix`; the
     residual is still set by PRB-004 (no key identifier) and the unexercised rotation. Acceptance
     is the human's, through approval of this version.
+- 1.4 (2026-10-31) — CR-004 Risk stage, §7.4 change analysis (Software Architect role). Control rows added for the CR-004 controls with their planned verification; expected residual stated in "Residual risk"; "Risks introduced by controls" extended. Scores not changed: they are re-scored from the evidence at verification (TASK-202). Content change, so the approval record is cleared and the record returns to review.

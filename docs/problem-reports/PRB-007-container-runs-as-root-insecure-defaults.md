@@ -3,10 +3,10 @@ id: "PRB-007"
 type: problem-report
 title: "Runtime container runs as root and Compose ships insecure default secrets"
 status: open
-version: "1.1"
+version: "1.2"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
-updated: "2026-10-30"
+updated: "2026-10-31"
 criticality: major
 links: []
 tags: ["security", "configuration-management"]
@@ -22,13 +22,56 @@ tags: ["security", "configuration-management"]
 
 A container escape or a forgotten `.env` becomes a full compromise of PHI. Touches SR-022, SR-031 and NFR-007.
 
+## Investigation
+
+Read on 2026-10-31 (CR-004 Plan stage, Software Architect role; CR-004 Q-1). **Partly stale.
+What is still true is listed last.**
+
+No longer true:
+
+- `backend/Dockerfile:18-19` creates `medhub` and sets `USER medhub` (commit `a928072`,
+  2026-06-30). The backend, the worker, `object-store-preflight` and `object-store-init` all run
+  this image, so none of them runs as root.
+- `infra/docker-compose.yml` has no `${VAR:-default}` on a secret any more. The object-store keys
+  have `:?` guards (`docker-compose.yml:52-53,124-125,144-145,176-177`) and the preflight
+  (CR-002). `AT_REST_ENCRYPTION_KEY` has a `:?` guard where the store reads it (`:147`).
+
+Still true:
+
+1. **Frontend image runs as root.** `frontend/Dockerfile:11-13` is `nginx:1.31.8-alpine` with no
+   `USER`; the master process runs as root and listens on port 80 (`frontend/nginx.conf:2`).
+2. **Known placeholder secrets in the template.** `infra/.env.example` ships
+   `DATABASE_URL=postgresql://medhub:changeme@…` (`:14`), `SESSION_SIGNING_KEY=change-me-to-a-…`
+   (`:38`), `SMTP_PASSWORD=changeme` (`:46`) and `AT_REST_ENCRYPTION_KEY=change-me-to-a-…` (`:52`).
+   Nothing refuses them: `backend/app/core/config.py:31,37,40` only require the settings to be
+   present. `POSTGRES_PASSWORD` is not in the template at all, and the Compose file passes it
+   without a guard (`docker-compose.yml:92`), so an unset value reaches the database image
+   instead of stopping Compose with a message naming it. The backend and worker take everything
+   from `env_file: .env` (`:47,197`) with no guard.
+3. **The application connects as the database superuser** (`medhub`, `POSTGRES_USER`;
+   `docker-compose.yml:90-91`, `.env.example:14`), so a leaked application credential is a
+   superuser credential. Tracked with PRB-005 (ADR-0017).
+4. **One key for two stores.** The object store's SSE key is `AT_REST_ENCRYPTION_KEY`
+   (`docker-compose.yml:146-147`), the field-encryption key. Losing or changing it makes every
+   attachment unreadable (SOUP-036 F-4); a compromise of it exposes both stores (RISK-011).
+5. SMTP: `config.py:36-37` makes `SMTP_USER` and `SMTP_PASSWORD` required although the sender
+   already skips authentication when the user is empty (`backend/app/workers/email_tasks.py:44-45`).
+   CR-004 Q-5 (decided 2026-10-31): SMTP without authentication is supported, and
+   `SMTP_PASSWORD` is required only when `SMTP_USER` is set.
+
+Not recommended for rejection: items 1, 2, 4 and 5 stand.
+
 ## Safety evaluation
 
 Contributes to RISK-001 (unauthorized disclosure) and RISK-005 (account takeover). No deployment incident known.
 
 ## Resolution
 
-Not yet tracked by a task. Proposed: add a non-root `USER` with an owned writable path, and make every secret required (no `:-default`) so bring-up fails loudly. Needs a task and a CR.
+Planned in CR-004: TASK-197 (start-up refusal of missing or placeholder secrets by the backend,
+the worker and the preflight), TASK-203 (no default in Compose, empty template, generation guide), TASK-198 (non-root frontend image;
+UID checks on the images and the running stack), TASK-196 (separate object-store SSE key, with a
+rehearsed migration of the existing attachments), TASK-191 (runtime database role, PRB-005).
+TASK-140 removes `SESSION_SIGNING_KEY` (PRB-018). Not yet fixed.
 
 ## Note: object-store credentials resolved by CR-002 (2026-10-30)
 
@@ -49,3 +92,7 @@ unreadable as well as the encrypted fields (SOUP-036 F-4; RISK-011 1.3).
 ## Source
 
 `docs/implementation-plan/AUDIT-FINDINGS.md` — Security, Medium.
+
+## Version history
+
+- 1.2 (2026-10-31) — CR-004 Plan stage (Software Architect role): `## Investigation` added from the current tree (§9.2); Resolution points at the planned tasks. Status and criticality unchanged.

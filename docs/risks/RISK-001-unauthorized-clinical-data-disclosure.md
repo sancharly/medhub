@@ -3,10 +3,13 @@ id: RISK-001
 type: risk
 title: Clinical data disclosed to a user without authorization or consent
 status: approved
-version: "1.2"
+version: "1.3"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-10-31"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-10-31"
+approval_note: self-approved at the ship-feature plan gate (sancharly/medhub#27, CR-004)
 hazard: Protected health information reaching a person who has neither a role-based right nor the patient's consent to see it.
 cause: A defect or misconfiguration in the authorization or consent evaluation (a route missing the `AuthorizationService` dependency, a wrong consent union, an admin projection not applied) → the API returns clinical data or PII to the caller → the caller reads information about a patient who never granted access.
 harm: "Privacy harm: loss of confidentiality of health data, loss of trust, potential social or employment consequences for the patient; a reportable GDPR breach. No direct physical injury."
@@ -15,10 +18,6 @@ probability_initial: 4
 severity_residual: 2
 probability_residual: 2
 acceptability: acceptable
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-10-31"
-approved_digest: 785f82eb6b3464b190bf20dcd5635ff83a5e7521d02d6f7aa6ef1b6df0de89da
-approval_note: self-approved
 links:
   - target: SOUP-002
     relation: relates_to
@@ -67,6 +66,10 @@ occur); the score is severity × P2, the probability that the hazardous situatio
 | Audit every authorization decision so a wrong disclosure is detectable | Protective | SR-023 | TS-009 |
 | Negative-case tests for every role and consent combination | Protective | TASK-113, TASK-142 | none yet |
 | Object store reachable only by the backend (and its one-shot initialiser), no console, non-default credentials, so attachments cannot be read around the authorization layer (CR-002) | Design | SR-040; TASK-174 (credential preflight), TASK-177 (internal network). Also TASK-176: no console, loopback-only ports; traced to RISK-001 via SR-040 AC 1; the task mitigates RISK-012 | TS-014: TC-014.1..3 (weak or default keys stop start-up), TC-014.5 (no console or admin listener; only 8333 and 18333 off loopback), TC-014.6 (from the proxy, frontend, postgres, redis and worker the store does not resolve and its IP times out, including 18333; no host port). QA reruns in TASK-174, TASK-176, TASK-177 |
+| Single decision point: every access decision on clinical data, personal data, modules and account lifecycle taken and audited by `AuthorizationService` (ADR-0006); a static check fails on a role comparison that decides access elsewhere (CR-004) | Design | SR-005, SR-023 AC 7, SR-032, SR-034; TASK-187, TASK-188, TASK-189 | TS-002 TC-002.7, TC-002.8; TS-003 TC-003.6; TS-009 TC-009.10 (planned) |
+| CSRF exemptions as an exact path set with a route-inventory test (CR-004) | Design | SR-031 AC 3; TASK-139 | TS-011 TC-011.6 (planned) |
+| Route-level role guard in the client, driven by the navigation's role table: defence in depth only, the server stays the control (CR-004 Q-4) | Protective | SR-005; TASK-142 | TS-002 TC-002.9 (planned) |
+| No known or placeholder credential in the deployment; no root process in an image MedHub builds; the application connects with a non-superuser runtime role (CR-004) | Design | SR-041 AC 1 to AC 4, SR-023 AC 8; TASK-197, TASK-203, TASK-198, TASK-190, TASK-191 | TS-015 TC-015.1..4; TS-009 TC-009.11 (planned) |
 
 ## Residual risk
 
@@ -76,11 +79,27 @@ exemptions matched by prefix), PRB-014 (no route-level role guards) and PRB-026/
 (authorization decisions taken outside `AuthorizationService`). The admin-projection finding from
 the audit is closed by TASK-120.
 
+**Change analysis (CR-004, Risk stage, 2026-10-31).** The residual above assumed the
+deny-by-default control and its negative tests "in place and verified", and named PRB-003, PRB-014
+and PRB-026/027 as the open items that kept the actual probability above it. CR-004 closes all
+four and adds the deployment controls of SR-041 (PRB-007). **Expected residual: severity 2 ×
+probability 2 → acceptable**, unchanged, but then realised instead of assumed. It is not lowered to
+probability 1: a policy rule that is itself wrong is still possible, and the single decision point
+makes such a rule apply everywhere at once. Confirmed at verification (TASK-202) from the TS above.
+Scores are not changed now.
+
 **Decided by:** pending — the owner's acceptance is the approval of this record.
 
 ## Risks introduced by controls
 
 Deny-by-default can wrongly deny a legitimate clinician access — that is RISK-004, assessed separately.
+
+CR-004 (2026-10-31): moving every decision into `AuthorizationService` can change a decision
+while moving it. Wrongly allowed is this record's hazard; wrongly denied is RISK-004. Control: a
+decision-table test of the current behaviour of every moved check (role × action × ownership)
+is written **before** each move and must pass unchanged after it (TASK-187..189). The client
+route guard can hide a view from a role that should see it; that is a usability effect only,
+because the server decides.
 
 ## Version history
 
@@ -95,3 +114,4 @@ Deny-by-default can wrongly deny a legitimate clinician access — that is RISK-
   - Not re-scored: severity 2 × probability 2 → `acceptable`, derived from `risk_matrix`. The
     residual is set by the authorization and consent controls and their open PRBs, which CR-002
     does not change. Acceptance is the human's, through approval of this version.
+- 1.3 (2026-10-31) — CR-004 Risk stage, §7.4 change analysis (Software Architect role). Control rows added for the CR-004 controls with their planned verification; expected residual stated in "Residual risk"; "Risks introduced by controls" extended. Scores not changed: they are re-scored from the evidence at verification (TASK-202). Content change, so the approval record is cleared and the record returns to review.

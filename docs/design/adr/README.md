@@ -20,6 +20,9 @@ This folder records the significant architecture decisions for MedHub. One decis
 | [ADR-0014](0014-mui-css-variables-theming.md)             | Design-token theming via MUI CSS variables + native light/dark colorSchemes                      | Accepted |
 | [ADR-0015](0015-object-store-component-after-minio.md)    | Replace MinIO with SeaweedFS; boto3 bucket initialiser; credential preflight; isolated network (amends ADR-0009) | Accepted |
 | [ADR-0016](0016-failure-audit-events-on-own-transaction.md) | Failure audit events are committed on their own transaction (refines ADR-0011; replaces TASK-173's `durable` flag) | Accepted |
+| [ADR-0017](0017-database-roles-and-append-only-audit-log.md) | Separate migration and runtime database roles; audit log append-only by privilege (refines ADR-0011, amends ADR-0010) | Accepted |
+| [ADR-0018](0018-field-encryption-key-identifier-and-key-separation.md) | Field-encryption envelope with a key identifier, rehearsed rotation, separate object-store SSE key (refines ADR-0011, ADR-0015 D2) | Accepted |
+| [ADR-0019](0019-originating-client-address-trusted-proxy-rule.md) | Originating client address from one trusted-proxy rule in the application | Accepted |
 
 ## Trade-off summary
 

@@ -6,8 +6,10 @@ Call get_settings() to obtain the cached singleton instance.
 
 import functools
 
-from pydantic import PostgresDsn, SecretStr
+from pydantic import PostgresDsn, SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+from app.core.client_address import parse_trusted_proxies
 
 
 class Settings(BaseSettings):
@@ -59,6 +61,16 @@ class Settings(BaseSettings):
 
     # CORS
     cors_origins: list[str] = []
+
+    # Originating client address (SR-042 AC 3, ADR-0019): comma-separated IP addresses or CIDR
+    # blocks of the reverse proxy. Empty trusts no forwarded header.
+    trusted_proxies: str = ""
+
+    @field_validator("trusted_proxies")
+    @classmethod
+    def _check_trusted_proxies(cls, value: str) -> str:
+        parse_trusted_proxies(value)  # ValueError names the invalid entry; start-up is refused
+        return value
 
 
 @functools.lru_cache

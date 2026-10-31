@@ -3,14 +3,13 @@ id: ADD-018
 type: architecture-doc
 title: Frontend App Shell (SI-FE-SHELL)
 status: approved
-version: "1.0"
+version: "1.1"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-10-21"
+updated: "2026-10-31"
 approved_by: Carlos Santiago Liceras
-approved_on: "2026-10-21"
-approved_digest: 2515329500ed87035090a5647f65b7f496a19eabffe99336b5acb8cba6972499
-approval_note: self-approved
+approved_on: "2026-10-31"
+approval_note: self-approved at the ship-feature plan gate (sancharly/medhub#27, CR-004)
 links:
   - target: SR-001
     relation: implements
@@ -42,6 +41,12 @@ links:
     relation: relates_to
   - target: SOUP-035
     relation: relates_to
+  - target: SR-005
+    relation: implements
+  - target: SR-009
+    relation: implements
+  - target: RISK-001
+    relation: relates_to
 tags:
   - software-item:SI-FE-SHELL
   - class:B
@@ -60,6 +65,11 @@ Layout, routing, responsive frame, navigation, module mounting, error/confirmati
 - `U-FE-Nav` — consistent navigation/terminology (SR-027.1).
 - `U-FE-Confirm` — confirmation dialogs for destructive actions (SR-027.2).
 - `U-FE-Error` — clear, actionable error surfaces (SR-027.3).
+- `U-FE-RouteGuard` (new, CR-004) — `RequireRole` route wrapper: a route whose role list
+  does not contain the signed-in user's role is not mounted and redirects to `/profile`. The role
+  lists come from the same table as the navigation (`navConfig.ts`), so the two cannot diverge.
+  Defence in depth only: the server stays the control (SR-005, SR-009, SR-031 AC 5; CR-004 Q-4;
+  PRB-014).
 
 Class B requires decomposition down to software units, not per-unit detailed design
 (§5.4.2–5.4.4 are class C). Each unit above is independently unit-testable and is the granularity
@@ -67,7 +77,7 @@ at which unit verification records (TS) are written.
 
 ## Requirements implemented
 
-Software requirements: SR-001, SR-019, SR-020, SR-027.
+Software requirements: SR-001, SR-019, SR-020, SR-027; CR-004 adds SR-005, SR-009 (defence in depth, route guard).
 Non-functional requirements constraining this item: —.
 
 ## Interfaces
@@ -88,3 +98,7 @@ arc42 sections — [05 building blocks](../../design/05-building-blocks.md) for 
 ## Risk relevance
 
 Participates in RISK-002 (see `docs/risks/`); the control measures are carried by the SRs and TASKs listed there.
+
+## Version history
+
+- 1.1 (2026-10-31) — CR-004 Plan stage (Software Architect role): unit changes for the planned design added (marked "CR-004"), links added. Content change, so the approval record is cleared and the record returns to review. The implementing tasks confirm the unit text when they land.

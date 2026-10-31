@@ -3,15 +3,14 @@ id: ADD-025
 type: architecture-doc
 title: Object store deployment (SI-OBJSTORE)
 status: approved
-version: "1.2"
+version: "1.3"
 author: Carlos Santiago Liceras
 created: "2026-10-30"
 updated: "2026-10-31"
-safety_class: B
 approved_by: Carlos Santiago Liceras
 approved_on: "2026-10-31"
-approved_digest: 6f1374a9f5ac519285de748f5072616f0f6c99b9498050615e9ea3a80dd8eac8
-approval_note: self-approved
+approval_note: self-approved at the ship-feature plan gate (sancharly/medhub#27, CR-004)
+safety_class: B
 links:
   - target: SR-040
     relation: implements
@@ -29,6 +28,8 @@ links:
     relation: relates_to
   - target: SOUP-036
     relation: relates_to
+  - target: SR-041
+    relation: implements
 tags:
   - software-item:SI-OBJSTORE
   - class:B
@@ -69,6 +70,13 @@ records.
   reads it back, checks that the bucket has no policy, and exits non-zero on any failure. The
   backend starts only after it has completed successfully (SR-040 AC 4, SR-022 AC 4).
   Implemented by TASK-175.
+- `U-OBJ-Server` (CR-004 change) — the SSE-S3 key comes from its own secret setting,
+  `OBJECT_STORE_SSE_KEY`, no longer from `AT_REST_ENCRYPTION_KEY` (SR-041 AC 5).
+- `U-OBJ-Preflight` (CR-004 change) — also refuses an SSE key that is unset, a placeholder,
+  not 32 bytes after base64 decoding, or equal to `AT_REST_ENCRYPTION_KEY`.
+- Existing objects are moved to a volume under the new key with `backend/scripts/migrate_object_store.py`,
+  checksums compared, source read only, rehearsed on a backup copy
+  ([ADR-0018](../../design/adr/0018-field-encryption-key-identifier-and-key-separation.md)).
 
 Class B requires decomposition down to software units only.
 
@@ -104,8 +112,9 @@ Non-functional requirements constraining this item: NFR-007.
 notes) and [05 building blocks](../../design/05-building-blocks.md) (the item and its units). The
 deployment procedure is in `infra/DEPLOY.md`; TASK-180 brought all three in line with this record. Governing decisions:
 [ADR-0009](../../design/adr/0009-file-object-storage.md),
-[ADR-0010](../../design/adr/0010-deployment-model.md) and
-[ADR-0015](../../design/adr/0015-object-store-component-after-minio.md).
+[ADR-0010](../../design/adr/0010-deployment-model.md),
+[ADR-0015](../../design/adr/0015-object-store-component-after-minio.md) and, from CR-004,
+[ADR-0018](../../design/adr/0018-field-encryption-key-identifier-and-key-separation.md).
 
 ## Risk relevance
 
@@ -122,3 +131,4 @@ RISK-007 (reliable initialisation) and RISK-011 (SSE key material and its migrat
   `object-store`, `object-store-init` in `infra/docker-compose.yml`): no change of units. SOUP links
   checked: SOUP-019 and SOUP-036 only, none to SOUP-022 or SOUP-023. Interface names port 8333;
   verification names TC-008.6 and TC-008.8. Approval not yet given.
+- 1.3 (2026-10-31) — CR-004 Plan stage (Software Architect role): unit changes for the planned design added (marked "CR-004"), links added. Content change, so the approval record is cleared and the record returns to review. The implementing tasks confirm the unit text when they land.

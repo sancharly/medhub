@@ -3,14 +3,13 @@ id: ADD-017
 type: architecture-doc
 title: Async Worker (SI-WORKER)
 status: approved
-version: "1.0"
+version: "1.1"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-10-21"
+updated: "2026-10-31"
 approved_by: Carlos Santiago Liceras
-approved_on: "2026-10-21"
-approved_digest: 2e748a74acfb339ce77e07ff023cbd72c4b6dd21fa335dbf18b494e8a9d474ad
-approval_note: self-approved
+approved_on: "2026-10-31"
+approval_note: self-approved at the ship-feature plan gate (sancharly/medhub#27, CR-004)
 links:
   - target: SR-024
     relation: implements
@@ -30,6 +29,8 @@ links:
     relation: relates_to
   - target: SOUP-021
     relation: relates_to
+  - target: SR-043
+    relation: implements
 tags:
   - software-item:SI-WORKER
   - class:B
@@ -47,6 +48,10 @@ Celery tasks: send activation & appointment emails, session-revocation propagati
 - `U-WK-Email` — render & send activation/appointment emails via SMTP (SR-033, SR-035).
 - `U-WK-SessionRevoke` — propagate deactivation session-kill within 30s (SR-034.2).
 - `U-WK-RetentionErase` — scheduled job that permanently erases anonymized datasets past their 5-year retention deadline (SR-024.4, ADR-0013).
+- Logging (CR-004 change) — worker and scheduler install the same JSON formatter and the
+  shared redaction filter as the API process, through Celery's logging signals, on every handler.
+  The filter replaces email-shaped values in the message and in every structured field before a
+  record is emitted. Log calls name accounts and patients by identifier only (SR-043, PRB-011).
 
 Class B requires decomposition down to software units, not per-unit detailed design
 (§5.4.2–5.4.4 are class C). Each unit above is independently unit-testable and is the granularity
@@ -54,7 +59,7 @@ at which unit verification records (TS) are written.
 
 ## Requirements implemented
 
-Software requirements: SR-024, SR-033, SR-034, SR-035.
+Software requirements: SR-024, SR-033, SR-034, SR-035; CR-004 adds SR-043.
 Non-functional requirements constraining this item: —.
 
 ## Interfaces
@@ -75,3 +80,7 @@ arc42 sections — [05 building blocks](../../design/05-building-blocks.md) for 
 ## Risk relevance
 
 Participates in RISK-008, RISK-009 (see `docs/risks/`); the control measures are carried by the SRs and TASKs listed there.
+
+## Version history
+
+- 1.1 (2026-10-31) — CR-004 Plan stage (Software Architect role): unit changes for the planned design added (marked "CR-004"), links added. Content change, so the approval record is cleared and the record returns to review. The implementing tasks confirm the unit text when they land.

@@ -5,8 +5,17 @@ version: "3.9"
 # communicate on the internal 'medhub' network.
 
 networks:
+  # Fixed subnet so the reverse proxy has a fixed address, which the backend trusts as the only
+  # proxy (SR-042 AC 3, ADR-0019). Containers without a fixed address are given one from
+  # ip_range only, so none of them can take the proxy's address first. To change the network,
+  # edit subnet and ip_range here, the proxy's ipv4_address and the backend's TRUSTED_PROXIES
+  # below (see DEPLOY.md).
   medhub:
     driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.77.0/24
+          ip_range: 172.28.77.128/25
   # Object store network (SR-040 AC 3, ADR-0015 D4): joined only by object-store, object-store-init
   # and backend. internal: no egress and no published port. The store's unauthenticated internal
   # ports are therefore unreachable from the proxy, frontend, postgres, redis and celery-worker.
@@ -36,7 +45,8 @@ services:
       - backend
       - frontend
     networks:
-      - medhub
+      medhub:
+        ipv4_address: 172.28.77.2
     restart: unless-stopped
 
   # ── Backend (FastAPI via Gunicorn + Uvicorn workers) ──────────────────────
@@ -52,6 +62,9 @@ services:
       OBJECT_STORE_ACCESS_KEY: ${OBJECT_STORE_ACCESS_KEY:?OBJECT_STORE_ACCESS_KEY must be set}
       OBJECT_STORE_SECRET_KEY: ${OBJECT_STORE_SECRET_KEY:?OBJECT_STORE_SECRET_KEY must be set}
       OBJECT_STORE_BUCKET: ${OBJECT_STORE_BUCKET:-medhub}
+      # The reverse proxy's fixed address and nothing else (SR-042 AC 3); set here, not in .env,
+      # so a .env value cannot widen it by accident.
+      TRUSTED_PROXIES: 172.28.77.2
     expose:
       - "8000"
     depends_on:

@@ -90,6 +90,25 @@ dependency); PostgreSQL, Redis, the frontend and the Celery worker still start. 
 service's log
 (`docker compose -f infra/docker-compose.yml logs object-store-preflight object-store-init`).
 
+### Trusted proxy and the Compose subnet
+
+The backend takes the caller's address from `X-Forwarded-For` only when the request comes from
+the reverse proxy (SR-042, ADR-0019). Compose therefore gives the `medhub` network a fixed
+subnet (`172.28.77.0/24`, dynamic addresses from `172.28.77.128/25`), the `reverse-proxy` the
+fixed address `172.28.77.2`, and sets the backend's `TRUSTED_PROXIES` to that one address in
+`environment:` (a value in `infra/.env` does not override it). Gunicorn is started with an empty
+`--forwarded-allow-ips=`, so the server never rewrites the peer.
+
+If the subnet collides with a host network, change these lines in `infra/docker-compose.yml`
+together, keeping the proxy address inside `subnet` and outside `ip_range`:
+
+1. `networks.medhub.ipam.config`: `subnet` and `ip_range`;
+2. `reverse-proxy.networks.medhub.ipv4_address`;
+3. `backend.environment.TRUSTED_PROXIES`: the same address as in 2.
+
+`infra/tests/test_compose_trusted_proxy.py` checks that the three agree. A wrong value does not
+stop the start: every request then appears to come from the proxy.
+
 ### 4. Verify the stack
 
 ```bash
