@@ -13,7 +13,9 @@ from app.core.client_address import parse_trusted_proxies
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
+    # extra="ignore": a leftover key (e.g. the removed SESSION_SIGNING_KEY) in an operator's .env
+    # file must not stop start-up.
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
     environment: str = "local"  # local | staging | production
 
@@ -28,9 +30,6 @@ class Settings(BaseSettings):
     object_store_access_key: SecretStr
     object_store_secret_key: SecretStr
     object_store_bucket: str
-
-    # Session security
-    session_signing_key: SecretStr
 
     # SMTP
     smtp_host: str

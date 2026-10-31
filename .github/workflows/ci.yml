@@ -76,7 +76,6 @@ jobs:
       OBJECT_STORE_ACCESS_KEY: test-access-key
       OBJECT_STORE_SECRET_KEY: test-secret-key-24-chars-xx
       OBJECT_STORE_BUCKET: medhub-test
-      SESSION_SIGNING_KEY: test-session-signing-key-32-bytes!
       SMTP_HOST: localhost
       SMTP_USER: test@example.com
       SMTP_PASSWORD: testpassword
@@ -164,7 +163,6 @@ jobs:
       OBJECT_STORE_ACCESS_KEY: test-access-key
       OBJECT_STORE_SECRET_KEY: test-secret-key-24-chars-xx
       OBJECT_STORE_BUCKET: medhub-test
-      SESSION_SIGNING_KEY: test-session-signing-key-32-bytes!
       SMTP_HOST: localhost
       SMTP_USER: test@example.com
       SMTP_PASSWORD: testpassword

@@ -28,7 +28,6 @@ from app.api.deps import get_redis
 from app.audit.actions import AuditAction
 from app.audit.service import _TARGETS, AuditFieldError, AuditService
 from app.auth.password import PasswordService
-from app.core.config import get_settings
 from app.db.models.account import Account, AccountStatus, UserType
 from app.db.models.audit import AuditLog, AuditOutcome
 from app.db.models.base import Base
@@ -252,7 +251,6 @@ def test_flow_rows_hold_no_session_token_and_logout_records_the_address(factory)
         csrf_b,
         _PASSWORD,
         _NEW_PASSWORD,
-        get_settings().session_signing_key.get_secret_value(),
     ]
     for value in forbidden:
         assert not any(value in cell for cell in text)

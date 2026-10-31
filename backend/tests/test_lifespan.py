@@ -14,7 +14,6 @@ VALID_ENV = {
     "OBJECT_STORE_ACCESS_KEY": "test-access-key",
     "OBJECT_STORE_SECRET_KEY": "test-secret-key-24-chars-xx",
     "OBJECT_STORE_BUCKET": "medhub",
-    "SESSION_SIGNING_KEY": "supersecretkey",
     "SMTP_HOST": "smtp.example.com",
     "SMTP_USER": "noreply@example.com",
     "SMTP_PASSWORD": "smtppassword",

@@ -22,7 +22,6 @@ _BASELINE_ENV = {
     "OBJECT_STORE_ACCESS_KEY": "test-access-key",
     "OBJECT_STORE_SECRET_KEY": "test-secret-key-24-chars-xx",
     "OBJECT_STORE_BUCKET": "medhub",
-    "SESSION_SIGNING_KEY": "test-signing-key-at-least-32-bytes-long!",
     "SMTP_HOST": "localhost",
     "SMTP_USER": "test@example.com",
     "SMTP_PASSWORD": "testpassword",

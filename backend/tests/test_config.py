@@ -12,7 +12,6 @@ VALID_ENV = {
     "OBJECT_STORE_ACCESS_KEY": "test-access-key",
     "OBJECT_STORE_SECRET_KEY": "test-secret-key-24-chars-xx",
     "OBJECT_STORE_BUCKET": "medhub",
-    "SESSION_SIGNING_KEY": "supersecretkey",
     "SMTP_HOST": "smtp.example.com",
     "SMTP_USER": "noreply@example.com",
     "SMTP_PASSWORD": "smtppassword",
@@ -57,3 +56,26 @@ def test_get_settings_is_cached(monkeypatch) -> None:
     s2 = get_settings()
     assert s1 is s2
     get_settings.cache_clear()
+
+
+def test_settings_builds_without_session_signing_key(monkeypatch) -> None:
+    """TASK-140 SR-030: sessions are opaque, so no signing key is required (AC 5)."""
+    for k, v in VALID_ENV.items():
+        monkeypatch.setenv(k, v)
+    monkeypatch.delenv("SESSION_SIGNING_KEY", raising=False)
+    assert "session_signing_key" not in Settings.model_fields
+    Settings()
+
+
+def test_stale_session_signing_key_is_ignored(monkeypatch, tmp_path) -> None:
+    """TASK-140 SR-030: an operator's leftover SESSION_SIGNING_KEY, in the environment or in
+    the .env file, does not stop the app from starting."""
+    for k, v in VALID_ENV.items():
+        monkeypatch.setenv(k, v)
+    monkeypatch.setenv("SESSION_SIGNING_KEY", "leftover-from-an-old-deployment")
+    Settings()
+
+    env_file = tmp_path / ".env"
+    env_file.write_text("session_signing_key=leftover-from-an-old-deployment\n")
+    monkeypatch.delenv("SESSION_SIGNING_KEY")
+    Settings(_env_file=str(env_file))

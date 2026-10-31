@@ -15,12 +15,14 @@ cp infra/.env.example infra/.env
 # Edit infra/.env — fill in every value, especially:
 #   DATABASE_URL, POSTGRES_PASSWORD
 #   OBJECT_STORE_ACCESS_KEY, OBJECT_STORE_SECRET_KEY
-#   SESSION_SIGNING_KEY  (≥32 random bytes)
 #   AT_REST_ENCRYPTION_KEY  (base64 of 32 random bytes; see "Generate the object-store keys")
 #   SMTP_HOST, SMTP_USER, SMTP_PASSWORD
 ```
 
 Never commit `infra/.env` to version control.
+
+`SESSION_SIGNING_KEY` is no longer a setting (sessions are opaque random tokens held in Redis,
+not signed). Remove it from an existing `infra/.env`; a leftover value is ignored.
 
 #### Generate the object-store keys
 
