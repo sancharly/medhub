@@ -4,7 +4,7 @@
 ``target_id`` and refuses anything else before a row is built (RISK-005, RISK-006). The unit cases
 cover every secret kind of AC 9 under every field; the real-database cases show that nothing is
 written on a refusal and that the audit rows of a realistic flow (login, logout, change password)
-contain no session token, CSRF token, signing key or password.
+contain no session token, CSRF token, password or any configured secret.
 """
 
 from __future__ import annotations
@@ -28,6 +28,7 @@ from app.api.deps import get_redis
 from app.audit.actions import AuditAction
 from app.audit.service import _TARGETS, AuditFieldError, AuditService
 from app.auth.password import PasswordService
+from app.core.secret_settings import secret_values, settings_env
 from app.db.models.account import Account, AccountStatus, UserType
 from app.db.models.audit import AuditLog, AuditOutcome
 from app.db.models.base import Base
@@ -180,6 +181,28 @@ def _audit_text(factory) -> list[str]:
         ]
 
 
+def _leaked(cells: list[str], values: list[str]) -> list[str]:
+    return [v for v in values if any(v in cell for cell in cells)]
+
+
+def test_flow_scan_catches_a_configured_secret_written_into_an_audit_row(factory) -> None:
+    # Negative control for the flow scan below (TASK-197): a row written around the service with
+    # a configured secret in a free-text column must be found, for every configured secret.
+    configured = secret_values(settings_env())
+    assert len(configured) >= 4  # database password, at-rest key, object-store access and secret
+    with factory() as s:
+        for value in configured:
+            s.add(
+                AuditLog(
+                    action="LOGIN_FAILURE",
+                    outcome=AuditOutcome.FAILURE,
+                    ip=value,
+                )
+            )
+        s.commit()
+    assert _leaked(_audit_text(factory), configured) == configured
+
+
 def test_flow_rows_hold_no_session_token_and_logout_records_the_address(factory) -> None:
     # SR-023 AC 5 (real database): login, logout, change password write no credential, and the
     # logout row records the account and the client address instead of the session token.
@@ -251,6 +274,6 @@ def test_flow_rows_hold_no_session_token_and_logout_records_the_address(factory)
         csrf_b,
         _PASSWORD,
         _NEW_PASSWORD,
+        *secret_values(settings_env()),  # TASK-197: every configured secret, from one list
     ]
-    for value in forbidden:
-        assert not any(value in cell for cell in text)
+    assert _leaked(text, forbidden) == []

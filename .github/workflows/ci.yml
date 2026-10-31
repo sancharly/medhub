@@ -79,7 +79,7 @@ jobs:
       SMTP_HOST: localhost
       SMTP_USER: test@example.com
       SMTP_PASSWORD: testpassword
-      AT_REST_ENCRYPTION_KEY: test-at-rest-key-32-bytes-long!!!
+      AT_REST_ENCRYPTION_KEY: Y2ktYXQtcmVzdC1rZXktMzItYnl0ZXMtbG9uZyEhISE=
     steps:
       - uses: actions/checkout@v4
 
@@ -166,7 +166,7 @@ jobs:
       SMTP_HOST: localhost
       SMTP_USER: test@example.com
       SMTP_PASSWORD: testpassword
-      AT_REST_ENCRYPTION_KEY: test-at-rest-key-32-bytes-long!!!
+      AT_REST_ENCRYPTION_KEY: Y2ktYXQtcmVzdC1rZXktMzItYnl0ZXMtbG9uZyEhISE=
     steps:
       - uses: actions/checkout@v4
 

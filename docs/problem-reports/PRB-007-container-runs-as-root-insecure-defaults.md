@@ -3,7 +3,7 @@ id: "PRB-007"
 type: problem-report
 title: "Runtime container runs as root and Compose ships insecure default secrets"
 status: open
-version: "1.2"
+version: "1.3"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
 updated: "2026-10-31"
@@ -71,7 +71,16 @@ Planned in CR-004: TASK-197 (start-up refusal of missing or placeholder secrets 
 the worker and the preflight), TASK-203 (no default in Compose, empty template, generation guide), TASK-198 (non-root frontend image;
 UID checks on the images and the running stack), TASK-196 (separate object-store SSE key, with a
 rehearsed migration of the existing attachments), TASK-191 (runtime database role, PRB-005).
-TASK-140 removes `SESSION_SIGNING_KEY` (PRB-018). Not yet fixed.
+TASK-140 removes `SESSION_SIGNING_KEY` (PRB-018). Not yet fixed in full; see the interim note below.
+
+**Interim note (2026-10-31, TASK-197).** The start-up refusal is in place: the backend, the worker
+and beat refuse to start when `DATABASE_URL` (its password), `SMTP_PASSWORD` (when `SMTP_USER` is
+set), `AT_REST_ENCRYPTION_KEY`, the object-store keys or the optional owner URL, retired keys and
+SSE key are unset, empty or a known placeholder, and when the encryption key does not decode to 32
+bytes (`backend/app/core/secret_settings.py`; TS-015 TC-015.3). This part of item 2 is
+fixed for the application processes. Still open: the template still ships the placeholders and
+Compose has no `:?` guard on `POSTGRES_PASSWORD` (TASK-203), the frontend image runs as root
+(TASK-198), key separation (TASK-196) and the runtime database role (TASK-191). The report stays `open`.
 
 ## Note: object-store credentials resolved by CR-002 (2026-10-30)
 
@@ -96,3 +105,4 @@ unreadable as well as the encrypted fields (SOUP-036 F-4; RISK-011 1.3).
 ## Version history
 
 - 1.2 (2026-10-31) — CR-004 Plan stage (Software Architect role): `## Investigation` added from the current tree (§9.2); Resolution points at the planned tasks. Status and criticality unchanged.
+- 1.3 (2026-10-31) — TASK-197: interim note under Resolution (start-up refusal in place). Status and criticality unchanged.

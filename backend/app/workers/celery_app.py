@@ -1,7 +1,9 @@
 from celery import Celery
 from celery.schedules import crontab
+from celery.signals import beat_init, worker_init
 
 from app.core.config import get_settings
+from app.core.secret_settings import enforce
 
 
 def _parse_cron(cron_expr: str) -> crontab:
@@ -17,6 +19,13 @@ def _parse_cron(cron_expr: str) -> crontab:
         month_of_year=month_of_year,
         day_of_week=day_of_week,
     )
+
+
+@worker_init.connect  # type: ignore[untyped-decorator]
+@beat_init.connect  # type: ignore[untyped-decorator]
+def _enforce_secret_settings(**_kwargs: object) -> None:
+    """SR-041 AC 3: the worker and beat refuse missing or placeholder secrets at start-up."""
+    enforce()
 
 
 settings = get_settings()

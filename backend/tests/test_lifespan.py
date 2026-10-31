@@ -17,7 +17,7 @@ VALID_ENV = {
     "SMTP_HOST": "smtp.example.com",
     "SMTP_USER": "noreply@example.com",
     "SMTP_PASSWORD": "smtppassword",
-    "AT_REST_ENCRYPTION_KEY": "encryptionkey32byteslong12345678",
+    "AT_REST_ENCRYPTION_KEY": "dGVzdGtleXRlc3RrZXl0ZXN0a2V5dGVzdGtleTEyMzQ=",
 }
 
 
@@ -40,5 +40,26 @@ async def test_lifespan_startup_logs_non_secret_config(monkeypatch, caplog) -> N
         assert response.status_code == 200
         # smtp_host must not leak into startup logs
         assert VALID_ENV["SMTP_HOST"] not in caplog.text
+    finally:
+        get_settings.cache_clear()
+
+
+@pytest.mark.asyncio
+async def test_lifespan_refuses_a_placeholder_secret_before_starting(monkeypatch) -> None:
+    """SR-041 AC 3: the API start-up stops on a placeholder and names the setting, not the value."""
+    for k, v in VALID_ENV.items():
+        monkeypatch.setenv(k, v)
+    monkeypatch.setenv("SMTP_PASSWORD", "changeme")
+
+    from app.core.config import get_settings
+
+    get_settings.cache_clear()
+    try:
+        app = create_app()
+        with pytest.raises(SystemExit) as exc:
+            async with app.router.lifespan_context(app):
+                pass
+        assert "SMTP_PASSWORD" in str(exc.value)
+        assert "changeme" not in str(exc.value)
     finally:
         get_settings.cache_clear()

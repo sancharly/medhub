@@ -21,6 +21,10 @@ async def _lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     configure_logging()
     # Import here to avoid settings being loaded at module import time in tests
     from app.core.config import get_settings  # noqa: PLC0415
+    from app.core.secret_settings import enforce  # noqa: PLC0415
+
+    # SR-041 AC 3: refuse missing or placeholder secrets before anything else starts.
+    enforce()
 
     settings = get_settings()
     logger.info(

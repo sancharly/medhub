@@ -42,7 +42,9 @@ def _send_smtp(notification: Notification) -> None:
     smtp_host = settings.smtp_host
     smtp_port = settings.smtp_port
     smtp_user = settings.smtp_user.strip() if settings.smtp_user else ""
-    smtp_password = settings.smtp_password.get_secret_value() if smtp_user else ""
+    smtp_password = (
+        settings.smtp_password.get_secret_value() if smtp_user and settings.smtp_password else ""
+    )
 
     if settings.smtp_use_ssl:
         # Implicit TLS (port 465)

@@ -5,17 +5,23 @@ Call get_settings() to obtain the cached singleton instance.
 """
 
 import functools
+from typing import Any
 
-from pydantic import PostgresDsn, SecretStr, field_validator
+from pydantic import PostgresDsn, SecretStr, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from app.core.client_address import parse_trusted_proxies
 
+_RETIRED_KEY = "session_signing_key"
+
 
 class Settings(BaseSettings):
-    # extra="ignore": a leftover key (e.g. the removed SESSION_SIGNING_KEY) in an operator's .env
-    # file must not stop start-up.
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
+    # hide_input_in_errors: a validation error names the setting and never echoes a value.
+    # Unknown keys in the .env file are refused (a mistyped setting must not be silently ignored);
+    # the one retired key is dropped by _drop_retired_keys below.
+    model_config = SettingsConfigDict(
+        env_file=".env", env_file_encoding="utf-8", hide_input_in_errors=True
+    )
 
     environment: str = "local"  # local | staging | production
 
@@ -34,8 +40,10 @@ class Settings(BaseSettings):
     # SMTP
     smtp_host: str
     smtp_port: int = 587
-    smtp_user: str
-    smtp_password: SecretStr
+    # SMTP without authentication is supported (CR-004 Q-5): the password is required only
+    # when a user is set.
+    smtp_user: str = ""
+    smtp_password: SecretStr | None = None
 
     # At-rest encryption
     at_rest_encryption_key: SecretStr
@@ -64,6 +72,20 @@ class Settings(BaseSettings):
     # Originating client address (SR-042 AC 3, ADR-0019): comma-separated IP addresses or CIDR
     # blocks of the reverse proxy. Empty trusts no forwarded header.
     trusted_proxies: str = ""
+
+    @model_validator(mode="before")
+    @classmethod
+    def _drop_retired_keys(cls, data: Any) -> Any:
+        """A leftover SESSION_SIGNING_KEY (removed in TASK-140) must not stop start-up."""
+        if isinstance(data, dict):
+            return {k: v for k, v in data.items() if str(k).lower() != _RETIRED_KEY}
+        return data
+
+    @model_validator(mode="after")
+    def _require_smtp_password_with_user(self) -> "Settings":
+        if self.smtp_user.strip() and self.smtp_password is None:
+            raise ValueError("SMTP_PASSWORD is required when SMTP_USER is set")
+        return self
 
     @field_validator("trusted_proxies")
     @classmethod

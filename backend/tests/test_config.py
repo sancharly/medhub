@@ -15,7 +15,7 @@ VALID_ENV = {
     "SMTP_HOST": "smtp.example.com",
     "SMTP_USER": "noreply@example.com",
     "SMTP_PASSWORD": "smtppassword",
-    "AT_REST_ENCRYPTION_KEY": "encryptionkey32byteslong12345678",
+    "AT_REST_ENCRYPTION_KEY": "dGVzdGtleXRlc3RrZXl0ZXN0a2V5dGVzdGtleTEyMzQ=",
 }
 
 
@@ -45,7 +45,7 @@ def test_secret_str_not_revealed_in_repr(monkeypatch) -> None:
     assert "test-secret-key-24-chars-xx" not in r
     assert "supersecretkey" not in r
     assert "smtppassword" not in r
-    assert "encryptionkey" not in r
+    assert "dGVzdGtleXRl" not in r
 
 
 def test_get_settings_is_cached(monkeypatch) -> None:
@@ -79,3 +79,38 @@ def test_stale_session_signing_key_is_ignored(monkeypatch, tmp_path) -> None:
     env_file.write_text("session_signing_key=leftover-from-an-old-deployment\n")
     monkeypatch.delenv("SESSION_SIGNING_KEY")
     Settings(_env_file=str(env_file))
+    # case-insensitive, as environment variables are
+    env_file.write_text("SESSION_SIGNING_KEY=leftover-from-an-old-deployment\n")
+    Settings(_env_file=str(env_file))
+
+
+def test_mistyped_key_in_env_file_is_refused(monkeypatch, tmp_path) -> None:
+    """TASK-197 item 2: only the retired key is dropped; a typo such as TRUSTED_PROXIE fails."""
+    for k, v in VALID_ENV.items():
+        monkeypatch.setenv(k, v)
+    env_file = tmp_path / ".env"
+    env_file.write_text("TRUSTED_PROXIE=10.0.0.0/8\n")
+    with pytest.raises(ValidationError, match="(?i)trusted_proxie"):
+        Settings(_env_file=str(env_file))
+
+
+def test_smtp_without_user_starts_without_password(monkeypatch) -> None:
+    """CR-004 Q-5: SMTP without authentication is supported."""
+    for k, v in VALID_ENV.items():
+        monkeypatch.setenv(k, v)
+    monkeypatch.delenv("SMTP_USER")
+    monkeypatch.delenv("SMTP_PASSWORD")
+    s = Settings()
+    assert s.smtp_user == "" and s.smtp_password is None
+
+
+def test_smtp_user_without_password_is_refused_without_echoing_values(monkeypatch) -> None:
+    """CR-004 Q-5: a user needs a password; the error names the setting, not a secret value."""
+    for k, v in VALID_ENV.items():
+        monkeypatch.setenv(k, v)
+    monkeypatch.delenv("SMTP_PASSWORD")
+    with pytest.raises(ValidationError) as exc:
+        Settings()
+    text = str(exc.value)
+    assert "SMTP_PASSWORD" in text
+    assert VALID_ENV["DATABASE_URL"] not in text and VALID_ENV["AT_REST_ENCRYPTION_KEY"] not in text
