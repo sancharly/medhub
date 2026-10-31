@@ -5,6 +5,7 @@ import re
 import uuid
 
 from app.audit.actions import AuditAction
+from app.core.client_address import current_client_address
 from app.db.models.audit import AuditLog, AuditOutcome
 from app.db.repositories.audit_repo import AuditRepository
 
@@ -41,6 +42,8 @@ class AuditService:
 
         The timestamp is server-assigned here; callers cannot supply it.
         Credential-like patterns in the action string are scrubbed before storage.
+        When ``ip`` is None the originating client address of the current request is used
+        (SR-023 AC 6, SR-042); outside a request there is none and the row records no address.
         An event is independent when its outcome is FAILURE or its action is in
         ``_INDEPENDENT_ACTIONS``: it is committed at once on its own session, so it survives
         the request ending in an error (get_db rolls the request session back on any
@@ -59,7 +62,7 @@ class AuditService:
             target_type=safe_target_type,
             target_id=safe_target_id,
             outcome=outcome,
-            ip=ip,
+            ip=ip if ip is not None else current_client_address(),
             # timestamp has a server_default in the DB; we also set it here
             # so in-memory objects have a value before flush.
             timestamp=datetime.datetime.now(datetime.UTC),

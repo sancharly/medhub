@@ -23,6 +23,7 @@ from app.auth.password import PasswordService  # noqa: F401 (used in resend_acti
 from app.authz.admin_projection import project_for_admin
 from app.authz.consent import ConsentService
 from app.authz.service import AuthorizationService, Resource
+from app.core.client_address import client_address
 from app.db.models.account import Account, UserType
 from app.db.repositories.account_repo import AccountRepository
 from app.db.repositories.audit_repo import AuditRepository
@@ -143,5 +144,5 @@ def unlock_account(
 
     audit_svc = AuditService(AuditRepository(db))
     lockout_svc = LockoutService(r, audit_svc)
-    ip = request.client.host if request.client else None
+    ip = client_address(request)
     lockout_svc.admin_unlock(account_id, actor.user_type.value, email=account.email, ip=ip)

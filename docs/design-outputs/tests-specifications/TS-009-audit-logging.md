@@ -3,12 +3,14 @@ id: TS-009
 type: test-specification
 title: Audit logging verification
 status: approved
-version: "1.2"
+version: "1.3"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-10-30"
+updated: "2026-10-31"
 links:
   - target: SR-023
+    relation: verifies
+  - target: SR-042
     relation: verifies
 tags:
   - level:unit
@@ -19,13 +21,13 @@ tags:
 
 ## Scope
 
-Software requirements covered: SR-023.
+Software requirements covered: SR-023, SR-042 (AC 2, at the audit row).
 Software items under test: SI-AUDIT.
 Levels: unit, integration.
 
 ## Preconditions and environment
 
-Build: branch `bug/minio-object-store`, the commit that carries TASK-183 (subject: "FIX, TEST: Commit failure audit events on their own transaction (TASK-183)"). Backend Python 3.12 with the
+Build: branch `fix/review-2026-07-security`, the commit that carries TASK-137 (TC-009.9); TC-009.1 to TC-009.8 last verified at the commit that carries TASK-183. Backend Python 3.12 with the
 dependencies locked in `backend/uv.lock`; frontend Node 24 LTS (build stage node:24.22.2-trixie-slim; CI node-version 24) with `frontend/package-lock.json`.
 Unit and service tests run with no external services (in-memory repository). Tests marked *real DB* require a
 PostgreSQL 16 container through testcontainers and therefore a working Docker daemon.
@@ -43,11 +45,12 @@ Exact SOUP versions: the `soup` records in [`../../soup/`](../../soup/).
 | TC-009.6 | SR-023 | `backend/tests/audit/test_failure_audit_persistence.py::test_activation_failed_persists_after_401` *(real DB)* | `ACTIVATION_FAILED` persists after the 401 on a wrong token | Row asserted |
 | TC-009.7 | SR-023 | `backend/modules/dicom_viewer/tests/test_failure_audit_persistence.py` *(real DB; run apart from `backend/tests`)* | `DICOM_STUDY_READ` FAILURE persists after the 403 | Row asserted |
 | TC-009.8 | SR-023 | `backend/tests/audit/test_failure_audit_persistence.py::test_failure_row_persists_while_business_row_and_success_event_roll_back`, `backend/tests/audit/test_audit_writer.py` *(real DB for the first)* | A business row and a SUCCESS event added in a failing request are rolled back while its FAILURE row persists; `record` has no `durable` parameter and the repository has no session-wide commit | Business row and SUCCESS row absent, FAILURE row present |
+| TC-009.9 | SR-023 AC 6, SR-042 AC 2 | `backend/tests/audit/test_audit_client_address.py` *(real DB)*, `backend/tests/audit/test_audit_writer.py::test_explicit_ip_wins_over_request_address`, `::test_request_address_used_when_ip_is_none`, `::test_no_request_context_records_no_address`, `backend/tests/workers/test_email_tasks.py` | A request-caused row (`AUTHZ_DENIED`, `CONSENT_GRANTED`, `LOGIN_FAILURE`) records the originating client address (trusted peer with `X-Forwarded-For`: the client; untrusted peer with a forged header: the peer); an explicit `ip` wins; a row written with no request (worker) records no address and is written | Row `ip` asserted per case; the address tests fail if `record` ignores the client-address variable |
 
 ## Acceptance criteria (class B unit level, §5.5.3)
 
 - Self-diagnostics: an audit write failure must not silently drop the event.
-- Data flow: the source address is part of the entry (currently missing for authz events, PRB-010).
+- Data flow: the originating client address (SR-042) is part of every request-caused entry; an entry with no request records none (TC-009.9, PRB-010).
 
 ## Notes
 

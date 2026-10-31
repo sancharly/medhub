@@ -279,3 +279,44 @@ def test_record_has_no_durable_parameter():
 
 def test_repository_has_no_session_wide_commit():
     assert not hasattr(AuditRepository, "commit")
+
+
+# --- SR-023 AC 6 / SR-042: originating client address (TASK-137, TC-009.9) ---
+
+
+def _record_login(service, ip=None) -> None:
+    service.record(
+        actor=uuid.uuid4(),
+        action=AuditAction.AUTH_LOGIN,
+        target_type=None,
+        target_id=None,
+        outcome=AuditOutcome.SUCCESS,
+        ip=ip,
+    )
+
+
+def test_explicit_ip_wins_over_request_address(service, audit_repo_mock):  # SR-023 AC 6
+    from app.core.client_address import _current  # noqa: PLC0415
+
+    token = _current.set("203.0.113.7")
+    try:
+        _record_login(service, ip="198.51.100.1")
+    finally:
+        _current.reset(token)
+    assert audit_repo_mock._added[0].ip == "198.51.100.1"
+
+
+def test_request_address_used_when_ip_is_none(service, audit_repo_mock):  # SR-023 AC 6
+    from app.core.client_address import _current  # noqa: PLC0415
+
+    token = _current.set("203.0.113.7")
+    try:
+        _record_login(service)
+    finally:
+        _current.reset(token)
+    assert audit_repo_mock._added[0].ip == "203.0.113.7"
+
+
+def test_no_request_context_records_no_address(service, audit_repo_mock):  # SR-023 AC 6
+    _record_login(service)
+    assert audit_repo_mock._added[0].ip is None

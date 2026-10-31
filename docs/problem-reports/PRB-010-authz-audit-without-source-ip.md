@@ -2,8 +2,8 @@
 id: "PRB-010"
 type: problem-report
 title: "Authorization and consent audit records carry no source IP"
-status: open
-version: "1.1"
+status: resolved
+version: "1.2"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
 updated: "2026-10-31"
@@ -46,9 +46,15 @@ Contributes to RISK-006 (incomplete audit trail).
 
 ## Resolution
 
-Planned in CR-004: TASK-185 (one trusted-proxy rule for the originating client address,
-SR-042 AC 1 to AC 3, [ADR-0019](../design/adr/0019-originating-client-address-trusted-proxy-rule.md)),
-then TASK-137 (every request-caused audit row records it, SR-023 AC 6). Not yet fixed.
+TASK-185 added the single trusted-proxy rule (SR-042, ADR-0019). TASK-137 makes
+`AuditService.record` take the originating client address from it when the caller passes no `ip`
+(SR-023 AC 6), and replaces the `request.client.host` reads in `auth.py` and `accounts.py`.
+Commit: the commit that carries TASK-137. Tests: `backend/tests/audit/test_audit_client_address.py`
+(authz denial, consent grant and login failure rows through a trusted and an untrusted peer),
+`backend/tests/audit/test_audit_writer.py` (explicit `ip` wins, unset variable, no request),
+TS-009 TC-009.9. Negative control: with `record` ignoring the client-address variable, four tests
+fail (the authz, forged-header, consent and unit address tests); restored, all pass.
+Status `resolved`; closure follows CR-004.
 
 ## Source
 
@@ -57,3 +63,4 @@ then TASK-137 (every request-caused audit row records it, SR-023 AC 6). Not yet 
 ## Version history
 
 - 1.1 (2026-10-31) — CR-004 Plan stage (Software Architect role): `## Investigation` added from the current tree (§9.2); Resolution points at the planned tasks. Status and criticality unchanged.
+- 1.2 (2026-10-31) — TASK-137: Resolution written; status `resolved`.

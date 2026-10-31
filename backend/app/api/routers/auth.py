@@ -25,6 +25,7 @@ from app.auth.login import LoginFailure, LoginService
 from app.auth.password import PasswordPolicyError, PasswordService
 from app.auth.session import Session as UserSession
 from app.auth.session import SessionService
+from app.core.client_address import client_address
 from app.db.models.account import Account
 from app.db.models.audit import AuditOutcome
 from app.db.repositories.account_repo import AccountRepository
@@ -55,7 +56,7 @@ def login(
     r: redis_lib.Redis = Depends(get_redis),
 ) -> LoginResponse:
     """Authenticate; set session+CSRF cookies; return user summary."""
-    ip = request.client.host if request.client else None
+    ip = client_address(request)
     audit_svc = AuditService(AuditRepository(db))
     lockout_svc = LockoutService(r, audit_svc)
     result = svc.login(body.email, body.password, ip, response, lockout_svc=lockout_svc)
@@ -104,7 +105,7 @@ async def logout(
         target_type="session",
         target_id=session.session_id,
         outcome=AuditOutcome.SUCCESS,
-        ip=request.client.host if request.client else None,
+        ip=client_address(request),
     )
 
 
@@ -166,5 +167,5 @@ def change_password(
         target_type="account",
         target_id=str(actor.id),
         outcome=AuditOutcome.SUCCESS,
-        ip=request.client.host if request.client else None,
+        ip=client_address(request),
     )

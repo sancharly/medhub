@@ -98,10 +98,8 @@ def test_invalid_setting_refuses_start_up(monkeypatch) -> None:
 
 # --- static check: no read of request.client.host outside client_address.py --------------------
 
-# Known exceptions until TASK-137 and TASK-186 replace them; TASK-186 empties this set.
+# Known exception until TASK-186 replaces it (TASK-137 removed auth.py and accounts.py).
 KNOWN_READS = {
-    "api/routers/accounts.py",
-    "api/routers/auth.py",
     "api/routers/anonymized_data.py",
 }
 
