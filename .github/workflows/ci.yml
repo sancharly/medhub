@@ -95,8 +95,13 @@ jobs:
         working-directory: backend
         run: uv sync --frozen
 
+      # Migrations run as the owner (DATABASE_OWNER_URL), as the db-migrate service does; the
+      # runtime URL must name another user and password (TASK-191, ADR-0017).
       - name: Run database migrations
         working-directory: backend
+        env:
+          DATABASE_OWNER_URL: postgresql://medhub:testpassword@localhost:5432/medhub_test
+          DATABASE_URL: postgresql://medhub_app:ci-runtime-password-1@localhost:5432/medhub_test
         run: PYTHONPATH=. uv run alembic upgrade head
 
       - name: Run tests with coverage
@@ -243,7 +248,9 @@ jobs:
           secret_key=$(openssl rand -base64 32)
           sse_key=$(openssl rand -hex 32)
           pg=$(openssl rand -hex 24)
+          app_pw=$(openssl rand -hex 24)
           echo "::add-mask::$pg"
+          echo "::add-mask::$app_pw"
           echo "::add-mask::$access_key"
           echo "::add-mask::$secret_key"
           echo "::add-mask::$sse_key"
@@ -253,7 +260,8 @@ jobs:
             echo "OBJECT_STORE_BUCKET=medhub-ci"
             echo "AT_REST_ENCRYPTION_KEY=$sse_key"
             echo "POSTGRES_PASSWORD=$pg"
-            echo "DATABASE_URL=postgresql://medhub:$pg@postgres:5432/medhub"
+            echo "DATABASE_OWNER_URL=postgresql://medhub:$pg@postgres:5432/medhub"
+            echo "DATABASE_URL=postgresql://medhub_app:$app_pw@postgres:5432/medhub"
           } > infra/.env
 
       - name: Start the object store

@@ -7,6 +7,8 @@
 # SR-016: PHI at rest must be encrypted (object-store SSE-S3 AES256)
 # SR-040: object store has no console or admin option
 # SR-041: every image MedHub builds runs as a non-root user (section 11)
+# SR-023 AC 8: the application connects as the runtime role, which cannot alter audit_log (section 12)
+# PRB-061: the Celery worker and beat run (sections 11 and 12)
 
 set -uo pipefail
 
@@ -20,7 +22,8 @@ if [ ! -f "$ENV_FILE" ]; then
     # The template holds no value for a secret and Compose refuses an unset one (SR-041 AC 2), so
     # fill the secret settings with throwaway values: this file only lets `compose config` parse.
     awk -F= '
-        $1 == "POSTGRES_PASSWORD" || $1 == "DATABASE_URL" || $1 == "AT_REST_ENCRYPTION_KEY" \
+        $1 == "POSTGRES_PASSWORD" || $1 == "DATABASE_URL" || $1 == "DATABASE_OWNER_URL" \
+            || $1 == "AT_REST_ENCRYPTION_KEY" \
             || $1 == "OBJECT_STORE_ACCESS_KEY" || $1 == "OBJECT_STORE_SECRET_KEY" \
             { print $1 "=throwaway-" tolower($1); next }
         { print }' "$SCRIPT_DIR/.env.example" > "$ENV_FILE"
@@ -60,7 +63,7 @@ fi
 echo ""
 echo "-- Service topology --"
 COMPOSE_SERVICES=$(docker compose -f "$COMPOSE_FILE" config 2>/dev/null | grep -E "^  [a-z]" | sed 's/://g' | tr -d ' ' || true)
-for svc in reverse-proxy backend frontend postgres redis object-store celery-worker; do
+for svc in reverse-proxy backend frontend postgres redis object-store celery-worker celery-beat db-migrate; do
     if echo "$COMPOSE_SERVICES" | grep -q "^${svc}$"; then
         check "service '${svc}' defined" "ok"
     else
@@ -74,7 +77,7 @@ echo "-- Port exposure (SR-008) --"
 # Check that only reverse-proxy has 'ports:' in the raw compose file (grep-based).
 # The backend, frontend, postgres, redis, object-store, celery-worker use 'expose:' (internal only).
 UNEXPECTED_PORTS=0
-for svc in backend frontend postgres redis object-store celery-worker; do
+for svc in backend frontend postgres redis object-store celery-worker celery-beat db-migrate; do
     # Look for ports: under each service block in the compose file
     if grep -A5 "^  ${svc}:" "$COMPOSE_FILE" | grep -q "^\s*ports:"; then
         check "service '${svc}' does NOT publish external ports" "FAIL — has ports: entry"
@@ -230,8 +233,10 @@ fi
 # covered by itself): the image configuration `Config.User` is set and is not root or 0, and the
 # main process (PID 1) of each running one has a UID other than 0. Skipped, with a message, only
 # when no container of the project exists; a missing container of a built service is a FAIL.
-# Note: the `celery-worker` container runs gunicorn, not Celery (PRB-061, fixed in TASK-191), so
-# its check covers the process the container runs today.
+# A built service that is not running and whose restart policy is not "no" is a FAIL (a crash loop
+# must not pass as "nothing to check"); one-shot services (restart "no") are skipped when stopped.
+# PID 1 is the real process: the entrypoint ends with `exec "$@"`, so for `celery-worker` and
+# `celery-beat` it is Celery itself (PRB-061), and its command line is checked in section 12.
 echo ""
 echo "-- Non-root containers (SR-041 AC 1, AC 6) --"
 non_root_user() {  # USER[:GROUP] -> exit 0 when it names a user other than root / UID 0
@@ -260,7 +265,7 @@ print(" ".join(sorted(n for n, s in services.items() if "build" in s)))' 2>/dev/
         else
             check "'${svc}' image Config.User is non-root (SR-041 AC 1)" "Config.User is '${IMAGE_USER}'"
         fi
-        if [ "$(docker inspect --format '{{.State.Running}}' "$CID" 2>/dev/null)" = "true" ]; then
+        if [ "$(docker inspect --format '{{.State.Status}}' "$CID" 2>/dev/null)" = "running" ]; then
             PID1_UID=$(compose exec -T "$svc" sed -n 's/^Uid:[[:space:]]*\([0-9]*\).*/\1/p' /proc/1/status 2>/dev/null | tr -d '\r')
             EXEC_UID=$(compose exec -T "$svc" id -u 2>/dev/null | tr -d '\r')
             for pair in "PID 1:$PID1_UID" "id -u:$EXEC_UID"; do
@@ -271,6 +276,11 @@ print(" ".join(sorted(n for n, s in services.items() if "build" in s)))' 2>/dev/
                     *)           check "'${svc}' ${what} UID is non-root (SR-041 AC 6)" "ok" ;;
                 esac
             done
+        else
+            POLICY=$(docker inspect --format '{{.HostConfig.RestartPolicy.Name}}' "$CID" 2>/dev/null || true)
+            if [ -n "$POLICY" ] && [ "$POLICY" != "no" ]; then
+                check "'${svc}' is running (restart: ${POLICY})" "not running (state: $(docker inspect --format '{{.State.Status}}' "$CID" 2>/dev/null))"
+            fi
         fi
     done
     # The single-page app is served through the proxy from the frontend on 8080.
@@ -285,6 +295,158 @@ print(" ".join(sorted(n for n, s in services.items() if "build" in s)))' 2>/dev/
         rm -f "$SPA_BODY"
     else
         echo "  [SKIP] curl not available — SPA check skipped"
+    fi
+fi
+
+# ── 12. Database roles and background processes (SR-023 AC 8, SR-041 AC 2, PRB-061) ──────────
+# Started-stack checks, run from inside the containers with the credentials they hold. The
+# backend must be connected as the runtime role (not the owner, not a superuser), the role must be
+# refused UPDATE/DELETE/TRUNCATE on audit_log with SQLSTATE 42501 and refused SET ROLE to any other
+# role, no container but db-migrate may hold the owner URL, and db-migrate must have exited 0.
+# The worker must answer a Celery ping, and beat must run with the retention task scheduled.
+echo ""
+echo "-- Database roles and background processes (SR-023 AC 8, PRB-061) --"
+if [ -z "$(compose ps -q backend 2>/dev/null)" ]; then
+    echo "  [SKIP] stack not running — database role checks skipped (run after docker compose up)"
+else
+    MIGRATE_CID=$(compose ps -aq db-migrate 2>/dev/null | head -n 1)
+    if [ -n "$MIGRATE_CID" ] && [ "$(docker inspect --format '{{.State.Status}} {{.State.ExitCode}}' "$MIGRATE_CID" 2>/dev/null)" = "exited 0" ]; then
+        check "db-migrate ran once and exited 0" "ok"
+    else
+        check "db-migrate ran once and exited 0" "state: $(docker inspect --format '{{.State.Status}} {{.State.ExitCode}}' "$MIGRATE_CID" 2>&1)"
+    fi
+    # The owner (superuser) password must reach no container but postgres (SR-041 AC 2, PRB-007).
+    # Value-based: read it from the postgres container and look for it, without printing it, in
+    # the environment of every other running container (/proc/1/environ and the image/Compose
+    # Config.Env). A name-only check missed env_file passing POSTGRES_PASSWORD (TASK-191 round 2).
+    OWNER_PW_FILE=$(mktemp)
+    chmod 600 "$OWNER_PW_FILE"
+    compose exec -T postgres printenv POSTGRES_PASSWORD 2>/dev/null | tr -d '\r\n' > "$OWNER_PW_FILE"
+    POSTGRES_CID=$(compose ps -q postgres 2>/dev/null | head -n 1)
+    if [ ! -s "$OWNER_PW_FILE" ]; then
+        check "the owner password can be read from the postgres container" "empty or unreadable"
+    else
+        for CID in $(compose ps -q 2>/dev/null); do
+            [ "$CID" = "$POSTGRES_CID" ] && continue
+            [ "$(docker inspect --format '{{.State.Status}}' "$CID" 2>/dev/null)" = "running" ] || continue
+            NAME=$(docker inspect --format '{{index .Config.Labels "com.docker.compose.service"}}' "$CID" 2>/dev/null)
+            ENV_DUMP=$(mktemp)
+            chmod 600 "$ENV_DUMP"
+            # /proc/1/environ is readable only by PID 1's own user (root lacks CAP_SYS_PTRACE).
+            PID1_USER=$(docker exec "$CID" sed -n 's/^Uid:[[:space:]]*\([0-9]*\).*/\1/p' /proc/1/status 2>/dev/null | tr -d '\r')
+            if [ -z "$PID1_USER" ] || ! docker exec -u "$PID1_USER" "$CID" cat /proc/1/environ > "$ENV_DUMP" 2>/dev/null; then
+                check "'${NAME}' holds no owner credential (SR-041 AC 2)" "could not read /proc/1/environ"
+            else
+                docker inspect --format '{{json .Config.Env}}' "$CID" >> "$ENV_DUMP" 2>/dev/null
+                if grep -qaF -f "$OWNER_PW_FILE" "$ENV_DUMP"; then
+                    check "'${NAME}' holds no owner credential (SR-041 AC 2)" "the owner password is in its environment"
+                else
+                    check "'${NAME}' holds no owner credential (SR-041 AC 2)" "ok"
+                fi
+            fi
+            rm -f "$ENV_DUMP"
+        done
+    fi
+    rm -f "$OWNER_PW_FILE"
+    # Exactly one beat: a second one would send every scheduled task twice (round 2).
+    BEATS=0
+    for CID in $(compose ps -q celery-beat 2>/dev/null); do
+        [ "$(docker inspect --format '{{.State.Status}}' "$CID" 2>/dev/null)" = "running" ] && BEATS=$((BEATS + 1))
+    done
+    if [ "$BEATS" -eq 1 ]; then
+        check "exactly one celery-beat container is running" "ok"
+    else
+        check "exactly one celery-beat container is running" "$BEATS running"
+    fi
+    # Prints one `name=value` line per fact; the URL is read from the container, never printed.
+    ROLE_FACTS=$(compose exec -T backend python -c '
+import os
+import psycopg2
+from psycopg2 import errors
+
+url = os.environ["DATABASE_URL"]
+
+
+def refused(statement):
+    conn = psycopg2.connect(url)
+    try:
+        with conn.cursor() as cur:
+            cur.execute(statement)
+        return "executed"
+    except errors.InsufficientPrivilege as exc:
+        return exc.pgcode
+    finally:
+        conn.rollback()
+        conn.close()
+
+
+conn = psycopg2.connect(url)
+with conn.cursor() as cur:
+    cur.execute("SELECT current_user, rolsuper FROM pg_roles WHERE rolname = current_user")
+    user, is_super = cur.fetchone()
+    cur.execute("SELECT count(*) FROM pg_auth_members m JOIN pg_roles r ON r.oid = m.member WHERE r.rolname = current_user")
+    members = cur.fetchone()[0]
+    cur.execute("SELECT rolname FROM pg_roles WHERE rolname <> current_user AND rolname !~ %s", ("^pg_",))
+    others = [r[0] for r in cur.fetchall()]
+conn.close()
+print("user=" + user)
+print("super=" + str(is_super))
+print("members=" + str(members))
+print("update=" + refused("UPDATE audit_log SET action = action WHERE false"))
+print("delete=" + refused("DELETE FROM audit_log WHERE false"))
+print("truncate=" + refused("TRUNCATE audit_log"))
+print("setrole=" + ",".join(sorted({refused("SET ROLE \"" + r + "\"") for r in others}) or ["none"]))
+' 2>&1 | tr -d '\r')
+    fact() { printf '%s\n' "$ROLE_FACTS" | sed -n "s/^$1=//p" | head -n 1; }
+    EXPECTED_USER=$(compose exec -T backend python -c 'import os; from urllib.parse import urlsplit; print(urlsplit(os.environ["DATABASE_URL"]).username)' 2>/dev/null | tr -d '\r')
+    if [ -n "$(fact user)" ] && [ "$(fact user)" = "$EXPECTED_USER" ] && [ "$(fact super)" = "False" ] \
+        && [ "$(fact user)" != "$(compose exec -T postgres printenv POSTGRES_USER 2>/dev/null | tr -d '\r')" ]; then
+        check "'backend' is connected as the runtime role, not the owner or a superuser" "ok"
+    else
+        check "'backend' is connected as the runtime role, not the owner or a superuser" "user='$(fact user)' superuser='$(fact super)'"
+    fi
+    for stmt in update delete truncate; do
+        if [ "$(fact $stmt)" = "42501" ]; then
+            check "runtime role: ${stmt} on audit_log fails with 42501 (SR-023 AC 8)" "ok"
+        else
+            check "runtime role: ${stmt} on audit_log fails with 42501 (SR-023 AC 8)" "got '$(fact $stmt)'"
+        fi
+    done
+    if [ "$(fact setrole)" = "42501" ]; then
+        check "runtime role: SET ROLE to any other role fails with 42501" "ok"
+    else
+        check "runtime role: SET ROLE to any other role fails with 42501" "got '$(fact setrole)'"
+    fi
+    if [ "$(fact members)" = "0" ]; then
+        check "runtime role has no row in pg_auth_members" "ok"
+    else
+        check "runtime role has no row in pg_auth_members" "members='$(fact members)'"
+    fi
+    # Worker and beat: the container's main process is Celery (PRB-061).
+    for entry in celery-worker:worker celery-beat:beat; do
+        svc="${entry%%:*}"; sub="${entry#*:}"
+        CMDLINE=$(compose exec -T "$svc" sh -c 'tr "\0" " " < /proc/1/cmdline' 2>/dev/null | tr -d '\r')
+        case "$CMDLINE" in
+            *celery*" $sub "*|*celery*" $sub") check "'${svc}' runs Celery ${sub} as its main process" "ok" ;;
+            *) check "'${svc}' runs Celery ${sub} as its main process" "main process is '${CMDLINE}'" ;;
+        esac
+    done
+    PING=$(compose exec -T celery-worker celery -A app.workers.celery_app inspect ping 2>&1 | tr -d '\r')
+    if printf '%s' "$PING" | grep -q "pong"; then
+        check "the Celery worker answers 'inspect ping'" "ok"
+    else
+        check "the Celery worker answers 'inspect ping'" "$(printf '%s' "$PING" | tail -n 1)"
+    fi
+    SCHEDULE=$(compose exec -T celery-beat python -c 'from app.workers.celery_app import celery_app; print(sorted(celery_app.conf.beat_schedule))' 2>&1 | tail -n 1 | tr -d '\r')
+    if printf '%s' "$SCHEDULE" | grep -q "erase-expired-anonymized-datasets"; then
+        check "the retention sweep is in the beat schedule" "ok"
+    else
+        check "the retention sweep is in the beat schedule" "schedule: $SCHEDULE"
+    fi
+    if compose logs celery-beat 2>/dev/null | grep -q "beat: Starting"; then
+        check "celery-beat logged 'beat: Starting'" "ok"
+    else
+        check "celery-beat logged 'beat: Starting'" "no start line in the log"
     fi
 fi
 

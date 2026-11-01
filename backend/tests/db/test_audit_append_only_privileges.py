@@ -210,3 +210,175 @@ def test_owner_role_runs_migrations_up_and_down(owner_engine: Engine) -> None:
     command.upgrade(cfg, "head")
     with owner_engine.connect() as conn:
         assert conn.execute(query).scalars().all() == []
+
+
+# --- TASK-191 (carried from the TASK-190 QA review) -------------------------------------------
+
+
+def test_runtime_role_cannot_become_the_owner_and_has_no_memberships(
+    runtime_engine: Engine, owner_engine: Engine
+) -> None:
+    """SET ROLE <owner> is refused (42501) and pg_auth_members holds no row for the role."""
+    owner = owner_engine.url.username
+    with pytest.raises(ProgrammingError) as caught:
+        with runtime_engine.begin() as conn:
+            conn.execute(text(f'SET ROLE "{owner}"'))
+    assert caught.value.orig.pgcode == "42501"
+    with owner_engine.connect() as conn:
+        members = conn.execute(
+            text(
+                "SELECT count(*) FROM pg_auth_members m JOIN pg_roles r ON r.oid = m.member "
+                "WHERE r.rolname = :n"
+            ),
+            {"n": _RUNTIME_USER},
+        ).scalar_one()
+    assert members == 0
+
+
+def test_truncate_cascade_from_a_referenced_table_is_refused(runtime_engine: Engine) -> None:
+    """TRUNCATE ... CASCADE cannot reach audit_log through a table the role may write to."""
+    _refused(runtime_engine, 'TRUNCATE "group" CASCADE')
+
+
+def test_runtime_role_cannot_rewrite_the_migration_history(
+    runtime_engine: Engine, owner_engine: Engine
+) -> None:
+    """alembic_version is readable but not writable by the runtime role."""
+    with runtime_engine.connect() as conn:
+        assert conn.execute(text("SELECT count(*) FROM alembic_version")).scalar_one() == 1
+    for statement in (
+        "UPDATE alembic_version SET version_num = '0001'",
+        "DELETE FROM alembic_version",
+        "INSERT INTO alembic_version (version_num) VALUES ('x')",
+    ):
+        _refused(runtime_engine, statement)
+
+
+def test_role_password_is_stored_and_sent_as_a_scram_verifier(owner_engine: Engine) -> None:
+    with owner_engine.connect() as conn:
+        stored = conn.execute(
+            text("SELECT rolpassword FROM pg_authid WHERE rolname = :n"), {"n": _RUNTIME_USER}
+        ).scalar_one()
+    assert stored.startswith("SCRAM-SHA-256$")
+    assert _RUNTIME_PASSWORD not in stored
+
+
+def test_apply_without_alembic_version_table_still_grants(owner_engine: Engine) -> None:
+    """A create_all database has no alembic_version: the revoke is skipped (to_regclass)."""
+    with owner_engine.begin() as conn:
+        conn.execute(text("ALTER TABLE alembic_version RENAME TO alembic_version_moved"))
+    try:
+        roles.apply(owner_engine, _RUNTIME_USER, _RUNTIME_PASSWORD)
+    finally:
+        with owner_engine.begin() as conn:
+            conn.execute(text("ALTER TABLE alembic_version_moved RENAME TO alembic_version"))
+        roles.apply(owner_engine, _RUNTIME_USER, _RUNTIME_PASSWORD)
+
+
+# apply() on a pre-existing role that has more than the runtime role should (NOINHERIT does not
+# remove an existing membership's INHERIT option in PostgreSQL 16).
+@pytest.mark.parametrize(
+    ("setup", "message"),
+    [
+        ("ALTER ROLE {r} SUPERUSER", "superuser"),
+        ("GRANT pg_read_all_data TO {r}", "member of another role"),
+        ("ALTER TABLE later_owned OWNER TO {r}", "owns objects"),
+    ],
+)
+def test_apply_refuses_a_pre_existing_role_with_extra_privileges(
+    owner_engine: Engine, setup: str, message: str
+) -> None:
+    name = "preexisting_role"
+    with owner_engine.begin() as conn:
+        conn.execute(text("DROP TABLE IF EXISTS later_owned"))
+        conn.execute(text(f"DROP ROLE IF EXISTS {name}"))
+        conn.execute(text(f"CREATE ROLE {name} LOGIN"))
+        conn.execute(text("CREATE TABLE later_owned (id int)"))
+        conn.execute(text(setup.format(r=name)))
+    try:
+        with pytest.raises(ValueError, match=message):
+            roles.apply(owner_engine, name, "pw-1")
+    finally:
+        with owner_engine.begin() as conn:
+            conn.execute(text("DROP TABLE IF EXISTS later_owned"))
+            conn.execute(text(f"DROP ROLE {name}"))
+
+
+# --- SR-041 AC 2 / PRB-061: the migration environment uses the owner URL ---------------------
+
+
+def _upgrade_cfg() -> Config:
+    cfg = Config(str(_BACKEND_DIR / "alembic.ini"))
+    cfg.set_main_option("script_location", str(_BACKEND_DIR / "app" / "db" / "alembic"))
+    return cfg  # no sqlalchemy.url: env.py must take DATABASE_OWNER_URL
+
+
+def test_migrations_use_the_owner_url_from_the_environment(
+    owner_engine: Engine, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv("DATABASE_OWNER_URL", owner_engine.url.render_as_string(hide_password=False))
+    command.upgrade(_upgrade_cfg(), "head")  # already at head: connects as the owner, no change
+
+
+def test_migrations_refuse_to_run_without_the_owner_url(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("DATABASE_OWNER_URL", raising=False)
+    with pytest.raises(RuntimeError, match="DATABASE_OWNER_URL must be set"):
+        command.upgrade(_upgrade_cfg(), "head")
+
+
+def test_migrations_refuse_a_placeholder_secret_before_connecting(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("DATABASE_OWNER_URL", "postgresql://medhub:change-me@localhost:1/medhub")
+    with pytest.raises(SystemExit) as caught:
+        command.upgrade(_upgrade_cfg(), "head")
+    assert "DATABASE_OWNER_URL" in str(caught.value)
+    assert "change-me" not in str(caught.value)
+
+
+# --- TASK-191 round 2: leftover attributes and grants of a pre-existing role -------------------
+
+
+def test_apply_resets_replication_and_bypassrls_on_a_pre_existing_role(
+    owner_engine: Engine,
+) -> None:
+    name = "preexisting_attrs"
+    with owner_engine.begin() as conn:
+        conn.execute(text(f"DROP ROLE IF EXISTS {name}"))
+        conn.execute(text(f"CREATE ROLE {name} LOGIN REPLICATION BYPASSRLS"))
+    try:
+        roles.apply(owner_engine, name, "pw-attrs-1")
+        with owner_engine.connect() as conn:
+            row = conn.execute(
+                text("SELECT rolreplication, rolbypassrls FROM pg_roles WHERE rolname = :n"),
+                {"n": name},
+            ).one()
+        assert tuple(row) == (False, False)
+    finally:
+        with owner_engine.begin() as conn:
+            conn.execute(text(f"REVOKE ALL ON ALL TABLES IN SCHEMA public FROM {name}"))
+            conn.execute(text(f"REVOKE ALL ON SCHEMA public FROM {name}"))
+            conn.execute(text(f"REVOKE ALL ON DATABASE {conn.engine.url.database} FROM {name}"))
+            conn.execute(text(f"DROP ROLE {name}"))
+
+
+def test_apply_removes_extra_direct_grants_on_the_audit_table(
+    owner_engine: Engine, runtime_engine: Engine
+) -> None:
+    with owner_engine.begin() as conn:
+        conn.execute(text(f"GRANT TRIGGER, REFERENCES ON audit_log TO {_RUNTIME_USER}"))
+    roles.apply(owner_engine, _RUNTIME_USER, _RUNTIME_PASSWORD)
+    with owner_engine.connect() as conn:
+        privileges = sorted(
+            conn.execute(
+                text(
+                    "SELECT privilege_type FROM information_schema.role_table_grants "
+                    "WHERE table_name = 'audit_log' AND grantee = :n"
+                ),
+                {"n": _RUNTIME_USER},
+            ).scalars()
+        )
+    assert privileges == ["INSERT", "SELECT"]
+    _refused(
+        runtime_engine, "CREATE TRIGGER t2 BEFORE INSERT ON audit_log EXECUTE FUNCTION no_such_fn()"
+    )

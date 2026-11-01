@@ -183,3 +183,36 @@ def test_preflight_module_runs_without_application_settings() -> None:
         check=False,
     )
     assert proc.returncode == 1 and "OBJECT_STORE_SECRET_KEY" in proc.stderr
+
+
+# TASK-191 / ADR-0017: the runtime role and the owner role differ in name and in password
+OWNER = "postgresql://medhub:Hy4Jd6Fg1Sa0PcZx@postgres:5432/medhub"
+RUNTIME = "postgresql://medhub_app:Zx9Qw3Lm7Rt2Vb5N@postgres:5432/medhub"
+
+
+def test_distinct_owner_and_runtime_roles_pass() -> None:
+    assert check(_env(DATABASE_URL=RUNTIME, DATABASE_OWNER_URL=OWNER)) == []
+
+
+def test_runtime_url_naming_the_owner_user_is_refused() -> None:
+    messages = check(
+        _env(
+            DATABASE_URL=OWNER.replace("Hy4Jd6Fg1Sa0PcZx", "Zx9Qw3Lm7Rt2Vb5N"),
+            DATABASE_OWNER_URL=OWNER,
+        )
+    )
+    assert any("same database user" in m for m in messages)
+
+
+def test_runtime_password_equal_to_the_owner_password_is_refused_without_the_value() -> None:
+    messages = check(_env(DATABASE_URL=RUNTIME, DATABASE_OWNER_URL=RUNTIME.replace("_app", "")))
+    assert any("same password" in m for m in messages)
+    assert not any("Zx9Qw3Lm7Rt2Vb5N" in m for m in messages)
+
+
+def test_owner_url_placeholder_is_refused() -> None:
+    owner = "postgresql://medhub:change-me@postgres:5432/medhub"
+    assert any(
+        "DATABASE_OWNER_URL" in m
+        for m in check(_env(DATABASE_URL=RUNTIME, DATABASE_OWNER_URL=owner))
+    )

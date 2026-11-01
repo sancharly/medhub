@@ -2,8 +2,8 @@
 id: "PRB-061"
 type: problem-report
 title: "The celery-worker container runs gunicorn, not Celery, and no beat process exists"
-status: open
-version: "1.0"
+status: resolved
+version: "1.1"
 author: "Carlos Santiago Liceras"
 created: "2026-11-01"
 updated: "2026-11-01"
@@ -89,19 +89,40 @@ core clinical function (reading and writing records) works.
 
 ## Resolution
 
-Not yet fixed. **Human decision, 2026-10-31:** fix it in TASK-191, which moves the migrations out
-of the entrypoint into the one-shot `db-migrate` service (CR-004 D-3). That task will:
+Fixed in TASK-191 (human decision 2026-10-31, CR-004 D-3).
 
-- change `backend/entrypoint.sh` to `exec "$@"` and give the image `CMD` of the gunicorn command,
-  so a Compose `command:` is honoured and the API still starts by default;
-- run the worker and beat as processes of the stack (beat as its own service or with `-B`; the
-  choice is TASK-191's);
-- prove, on a started stack, that the worker and beat run and consume or fire a task;
-- call `enforce()` before `alembic` in `db-migrate` and in `env.py`, and require
-  `DATABASE_OWNER_URL` in that process.
+- `backend/entrypoint.sh` ends with `exec "$@"` and no longer runs `alembic`; `backend/Dockerfile`
+  has the gunicorn command as its default `CMD` (`--forwarded-allow-ips=` kept, ADR-0019), so
+  `backend` starts as before and a Compose `command:` is honoured.
+- `celery-worker` runs its `command:` (`celery -A app.workers.celery_app worker`); a new
+  `celery-beat` service runs `celery -A app.workers.celery_app beat --schedule=/tmp/celerybeat-schedule`
+  (the image user cannot write to `/app`). Both depend on `db-migrate` and connect as the runtime
+  role.
+- `db-migrate` is the only process that runs `alembic`; it calls `enforce()` first, and
+  `backend/app/db/alembic/env.py` calls it again and takes `DATABASE_OWNER_URL` (required with
+  `:?`, no default, in that service only). The concurrent-migration exposure of the Safety
+  evaluation is gone.
 
-The report stays `open` until TASK-191 has been verified on a started stack. TASK-203 changes
-nothing here; it documents the limit in `infra/DEPLOY.md`.
+Verification, reproducible (scratch Compose project `task191`, copy of the tree, own `.env`):
+
+1. `cd infra && python3 -m unittest discover -s tests`: `test_compose_db_roles.py` checks that no
+   service but `db-migrate` runs `alembic`, that the entrypoint ends with `exec "$@"`, that
+   `celery-worker` and `celery-beat` run Celery and wait for `db-migrate`.
+2. `docker compose -p task191 up -d --build`, then `COMPOSE_PROJECT_NAME=task191 bash infra/smoke-test.sh`:
+   64 passed, 0 failed (round 2). Section 11: PID 1 UID of `celery-worker` and `celery-beat` is non-zero;
+   section 12: PID 1 command line is `celery ... worker` / `celery ... beat`, `celery inspect ping`
+   answers `pong`, the schedule holds `erase-expired-anonymized-datasets`, the log has
+   `beat: Starting`.
+3. A task queued with `send_task("workers.erase_expired_anonymized_datasets")` completed:
+   `Task ... succeeded in 0.37s: {'erased': 0, 'failed': 0}` in the worker log (the task connects
+   as the runtime role).
+4. With `RETENTION_SWEEP_CRON=* * * * *` beat logged `Scheduler: Sending due task
+   erase-expired-anonymized-datasets` and the worker `received` and `succeeded` the task, 0.01 s
+   later.
+5. Negative controls: `OBJECT_STORE_SECRET_KEY=change-me` on `celery-worker` and on `celery-beat`
+   exits 1 with "refusing to start, secret settings rejected" (`worker_init`, `beat_init`);
+   removing `exec "$@"` from the entrypoint makes the containers restart-loop and the smoke test
+   report 8 failures, including "'celery-worker' is running (restart: unless-stopped): not running".
 
 ## Source
 
@@ -110,3 +131,4 @@ Found while implementing TASK-203 (CR-004); human decision recorded in CR-004.
 ## Version history
 
 - 1.0 (2026-11-01) — Created from TASK-203. `open`, `major`.
+- 1.1 (2026-11-01) — TASK-191: fixed and verified on a started stack. Status `open` → `resolved`; criticality unchanged.

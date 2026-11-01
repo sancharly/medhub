@@ -19,7 +19,7 @@ from urllib.parse import unquote, urlsplit
 # Every secret setting, by environment-variable name. ``check`` is driven by this list and so is
 # the audit flow scan (backend/tests/audit/test_audit_no_secrets.py), so the two cannot drift.
 DATABASE_URL = "DATABASE_URL"
-DATABASE_OWNER_URL = "DATABASE_OWNER_URL"  # only in the db-migrate service
+DATABASE_OWNER_URL = "DATABASE_OWNER_URL"  # only in the db-migrate service (TASK-191)
 SMTP_PASSWORD = "SMTP_PASSWORD"  # only checked when SMTP_USER is set (CR-004 Q-5)
 AT_REST_ENCRYPTION_KEY = "AT_REST_ENCRYPTION_KEY"
 AT_REST_ENCRYPTION_RETIRED_KEYS = "AT_REST_ENCRYPTION_RETIRED_KEYS"  # comma-separated, optional
@@ -109,6 +109,28 @@ def _one(name: str, value: str | None) -> list[str]:
     return problems
 
 
+def _database_user(url: str) -> str | None:
+    try:
+        return urlsplit(url).username
+    except ValueError:
+        return None
+
+
+def _roles_problems(env: Mapping[str, str | None]) -> list[str]:
+    """The runtime role and the owner role must differ in name and in password (ADR-0017)."""
+    runtime = (env.get(DATABASE_URL) or "").strip()
+    owner = (env.get(DATABASE_OWNER_URL) or "").strip()
+    if not runtime or not owner:
+        return []
+    problems = []
+    if _database_user(runtime) == _database_user(owner):
+        problems.append(f"{DATABASE_URL} and {DATABASE_OWNER_URL} name the same database user")
+    runtime_password = _database_password(runtime)
+    if runtime_password is not None and runtime_password == _database_password(owner):
+        problems.append(f"{DATABASE_URL} and {DATABASE_OWNER_URL} have the same password")
+    return problems
+
+
 def secret_values(env: Mapping[str, str | None]) -> list[str]:
     """The secret values ``env`` configures, for scans that must never find them in output.
 
@@ -141,6 +163,7 @@ def check(env: Mapping[str, str | None]) -> list[str]:
     for name in (DATABASE_OWNER_URL, OBJECT_STORE_SSE_KEY):
         if (env.get(name) or "").strip():
             problems += _one(name, env.get(name))
+    problems += _roles_problems(env)
     for key in (env.get(AT_REST_ENCRYPTION_RETIRED_KEYS) or "").split(","):
         if key.strip():
             problems += check_value(AT_REST_ENCRYPTION_RETIRED_KEYS, key) or _key_problem(

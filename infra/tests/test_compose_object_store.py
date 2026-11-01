@@ -18,7 +18,8 @@ GOOD = {
     "OBJECT_STORE_ACCESS_KEY": "a1b2c3d4e5f6a1b2c3d4e5f6",
     "OBJECT_STORE_SECRET_KEY": "Zx9Qw3Lm7Rt2Vb5Nk8Hy4Jd6Fg1Sa0Pc",
     "POSTGRES_PASSWORD": "throwaway-postgres-password",
-    "DATABASE_URL": "postgresql://medhub:throwaway-postgres-password@postgres:5432/medhub",
+    "DATABASE_OWNER_URL": "postgresql://medhub:throwaway-postgres-password@postgres:5432/medhub",
+    "DATABASE_URL": "postgresql://medhub_app:throwaway-runtime-password@postgres:5432/medhub",
     "AT_REST_ENCRYPTION_KEY": "throwaway-at-rest-key-for-config-only",
 }
 DEFAULT_STRINGS = ("minioadmin", "changeme")

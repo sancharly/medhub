@@ -3,7 +3,7 @@ id: "CR-004"
 type: change-request
 title: "Close the open security defects from the 2026-07 review and audit"
 status: open
-version: "1.2"
+version: "1.3"
 author: "Carlos Santiago Liceras"
 created: "2026-10-31"
 updated: "2026-11-01"
@@ -405,6 +405,8 @@ New, for the human (Plan stage):
   beat process exists. The fix is part of TASK-191, which already moves the migrations into
   `db-migrate`: the entrypoint becomes `exec "$@"`, gunicorn is the default `CMD`, and the started
   stack must show the worker and beat running. PRB-061 is added to the Scope table and to `links`.
+- **D-4 (human decision 2026-11-01):** accept the window between TASK-190 and TASK-191; branch not
+  merged, tagged or deployed to a shared database until TASK-191 lands.
 
 ## Change analysis (Risk stage, §7.4, 2026-10-31)
 
@@ -631,3 +633,5 @@ per volume, re-key by copy, 196).
     ADD, TS and SOUP coverage; plan risks. `relates_to` links to the new tasks, ADDs and RISK-004.
 - 1.2 (2026-11-01) — PRB-061 added (found in TASK-203): `resolves` link, Scope row, D-3 (human
   decision 2026-10-31, folded into TASK-191). No other change.
+- 1.3 (2026-11-01) — D-4 (human decision 2026-11-01): the audit window between TASK-190 and
+  TASK-191 is accepted. No other change.

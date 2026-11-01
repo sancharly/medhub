@@ -2,8 +2,8 @@
 id: "PRB-005"
 type: problem-report
 title: "Audit log is append-only by convention rather than by the database, and its scrub is pattern-limited"
-status: open
-version: "1.3"
+status: resolved
+version: "1.5"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
 updated: "2026-11-01"
@@ -69,17 +69,54 @@ Contributes to RISK-006 (incomplete audit trail). No tampering observed.
 
 ## Resolution
 
-Planned in CR-004: TASK-190 (separate runtime and migration roles; `UPDATE`, `DELETE` and
-`TRUNCATE` on `audit_log` refused to the runtime role; the silent rules dropped), TASK-191 (the
-deployment connects with the runtime role; migrations run once, as the owner, before the
-application starts; rehearsed on a copy of a populated database), TASK-192 (typed audit fields,
-so no secret can be stored in any field; the logout event no longer stores the session token).
-The design is [ADR-0017](../design/adr/0017-database-roles-and-append-only-audit-log.md). Not yet
-fixed.
+Fixed in CR-004 by three tasks (design: [ADR-0017](../design/adr/0017-database-roles-and-append-only-audit-log.md)).
 
-**Interim (TASK-192, 2026-10-31): scrub part done.** `AuditService.record` now refuses any `action`, `target_type` or `target_id` outside closed shapes (`AuditFieldError`), and logout records the account id, not the session token (`backend/tests/audit/test_audit_no_secrets.py`, TS-009 TC-009.12). Still open: the append-only part, TASK-190 and TASK-191 (DB-enforced through role privileges). The report moves to `resolved` with TASK-191, the last PRB-005 task.
+- **TASK-192 (scrub).** `AuditService.record` refuses any `action`, `target_type` or `target_id`
+  outside closed shapes (`AuditFieldError`); logout records the account id, not the session token
+  (`backend/tests/audit/test_audit_no_secrets.py`, TS-009 TC-009.12).
+- **TASK-190 (database).** Migration 0009 drops the `DO INSTEAD NOTHING` rules of 0006, and
+  `app.db.roles.apply` creates the runtime role with no `UPDATE`, `DELETE` or `TRUNCATE` on
+  `audit_log` (`backend/tests/db/test_audit_append_only_privileges.py`, TS-009 TC-009.11).
+  **Migration 0009 removed the rules before the runtime role was deployed**: between TASK-190
+  (commit `b5294d8`) and TASK-191 an owner-connected `UPDATE` or `DELETE` on `audit_log` succeeded.
+  The human accepted that window (CR-004 D-4, 2026-11-01); the branch was not merged, tagged or
+  deployed to a shared database in it.
+- **TASK-191 (deployment).** The one-shot `db-migrate` service runs, as the owner, the secret
+  check, `alembic upgrade head` and `python -m app.db.roles`; `backend`, `celery-worker` and
+  `celery-beat` connect as the runtime role `medhub_app` and start only after it exits 0. The role
+  also cannot write `alembic_version`, cannot `SET ROLE` to another role and has no membership;
+  `roles.apply` refuses a pre-existing role that is a superuser, a member of a role or an owner
+  of objects, resets `REPLICATION` and `BYPASSRLS`, and leaves only `SELECT` and `INSERT` on
+  `audit_log`.
+- **TASK-191 round 2 (QA finding 1, HIGH).** The first version of the deployment still passed the
+  owner (superuser) password to the application services through `env_file: .env`
+  (`POSTGRES_PASSWORD`), so a compromised application process could reconnect as the owner and
+  alter `audit_log`. Fixed: no service reads `env_file`; each lists only the settings it reads, and
+  the owner password and `DATABASE_OWNER_URL` reach `postgres` and `db-migrate` only. The defect is
+  closed only with this fix: it is verified by value on a started stack (smoke test section 12;
+  `infra/tests/test_compose_db_roles.py`).
 
-**Interim (TASK-190, 2026-11-01): database side done.** Migration 0009 drops the `DO INSTEAD NOTHING` rules of 0006, and `app.db.roles.apply` creates the runtime role with no `UPDATE`, `DELETE` or `TRUNCATE` on `audit_log`; as that role the statements fail with SQLSTATE 42501 (`backend/tests/db/test_audit_append_only_privileges.py`, TS-009 TC-009.11). The deployment still connects as the owner role and does not run `app.db.roles`, so the defect is not fixed in a running system until TASK-191. The report stays `open`.
+Verification, reproducible:
+
+1. `cd backend && uv run pytest tests/db/test_audit_append_only_privileges.py tests/core/test_secret_settings.py`
+   (real PostgreSQL 16 via testcontainers): `UPDATE`, `DELETE` and `TRUNCATE` on `audit_log`,
+   `TRUNCATE "group" CASCADE`, `SET ROLE <owner>`, `DROP`/`ALTER` of the table and writes to
+   `alembic_version` all fail with 42501; `pg_auth_members` holds no row for the role.
+2. `cd infra && python3 -m unittest discover -s tests` (`test_compose_db_roles.py`): `db-migrate`
+   is one-shot, only it has `DATABASE_OWNER_URL`, the application services wait for its success.
+3. Started stack, scratch Compose project (copy of the tree, own `.env`):
+   `docker compose -p <project> up -d --build && COMPOSE_PROJECT_NAME=<project> bash infra/smoke-test.sh`
+   passes 64 checks, among them "runtime role: update/delete/truncate on audit_log fails with
+   42501" and "backend is connected as the runtime role". With `DATABASE_URL` pointed at the owner,
+   five of them fail (negative control).
+4. Rehearsal on a populated database (TASK-191 `## Implementation notes`, TS-009 TC-009.11): the
+   previous release at migration 0008 with the rules in place and 5015 `audit_log` rows was
+   upgraded; counts and a checksum of the 5015 rows were unchanged; as `medhub_app`, `UPDATE`,
+   `DELETE` and `TRUNCATE` failed with 42501 and the 5000 seeded rows remained.
+
+The owner role can still alter `audit_log`; its credential is held only by the `postgres` and
+one-shot `db-migrate` containers, and no application process has it (checked by value, see above).
+A superuser of the database host is outside this report.
 
 ## Source
 
@@ -90,3 +127,5 @@ fixed.
 - 1.3 (2026-11-01) — TASK-190: interim Resolution note (database side done; deployment open with TASK-191). Status unchanged.
 - 1.2 (2026-10-31) — TASK-192: interim Resolution note (scrub part done; append-only part open with TASK-190 and TASK-191). Status unchanged.
 - 1.1 (2026-10-31) — CR-004 Plan stage (Software Architect role): `## Investigation` added from the current tree (§9.2); Resolution points at the planned tasks. Status and criticality unchanged.
+- 1.4 (2026-11-01) — TASK-191: final Resolution (deployment connects as the runtime role; started-stack and rehearsal evidence); migration 0009 removed the rules before the role was deployed (window accepted, CR-004 D-4). Status `open` → `resolved`.
+- 1.5 (2026-11-01) — TASK-191 round 2: the owner password no longer reaches the application services (QA finding 1); Resolution names the fix and the by-value verification. Remains `resolved`.

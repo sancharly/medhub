@@ -47,6 +47,8 @@ class StaticGuards(unittest.TestCase):
         found = 0
         for m in re.finditer(r"\$\{([A-Z_]+)([^}]*)\}", text):
             if m.group(1) in SECRETS:
+                if m.group(0) == "${SMTP_PASSWORD}":
+                    continue  # conditional secret, see test_no_secret_is_set_to_a_literal
                 found += 1
                 self.assertRegex(
                     m.group(0), r"^\$\{(\w+):\?\1 must be set\}$", f"{m.group(1)} is not guarded"
@@ -58,6 +60,11 @@ class StaticGuards(unittest.TestCase):
         for service, block in service_blocks().items():
             for m in re.finditer(r"(?m)^\s+([A-Z_]+):[ \t]*(.*)$", block):
                 if m.group(1) in SECRETS | TARGETS:
+                    if m.group(1) == "SMTP_PASSWORD":
+                        # Conditional secret (required only with SMTP_USER): no default, no guard;
+                        # the application refuses an empty one when a user is set.
+                        self.assertEqual(m.group(2), "${SMTP_PASSWORD}", service)
+                        continue
                     self.assertRegex(m.group(2), r"^\$\{\w+:\?", f"{service} {m.group(1)}")
 
     def test_services_that_use_a_secret_guard_it_in_environment(self):
@@ -105,13 +112,13 @@ class BringUpRefusal(unittest.TestCase):
         )
 
     def test_unset_secret_is_refused_naming_it(self):
-        for name in ("POSTGRES_PASSWORD", "DATABASE_URL", "AT_REST_ENCRYPTION_KEY"):
+        for name in ("POSTGRES_PASSWORD", "DATABASE_URL", "DATABASE_OWNER_URL", "AT_REST_ENCRYPTION_KEY"):
             result, _ = compose_config({k: v for k, v in GOOD.items() if k != name})
             self.assertNotEqual(result.returncode, 0, name)
             self.assertIn(f"{name} must be set", result.stderr)
 
     def test_empty_secret_is_refused_naming_it(self):
-        for name in ("POSTGRES_PASSWORD", "DATABASE_URL", "AT_REST_ENCRYPTION_KEY"):
+        for name in ("POSTGRES_PASSWORD", "DATABASE_URL", "DATABASE_OWNER_URL", "AT_REST_ENCRYPTION_KEY"):
             result, _ = compose_config({**GOOD, name: ""})
             self.assertNotEqual(result.returncode, 0, name)
             self.assertIn(f"{name} must be set", result.stderr)
@@ -125,7 +132,7 @@ class BringUpRefusal(unittest.TestCase):
         }
         result, _ = compose_config(template)
         self.assertNotEqual(result.returncode, 0)
-        self.assertRegex(result.stderr, r"(POSTGRES_PASSWORD|DATABASE_URL|AT_REST_ENCRYPTION_KEY|OBJECT_STORE_\w+_KEY) must be set")
+        self.assertRegex(result.stderr, r"(POSTGRES_PASSWORD|DATABASE_OWNER_URL|DATABASE_URL|AT_REST_ENCRYPTION_KEY|OBJECT_STORE_\w+_KEY) must be set")
 
 
 if __name__ == "__main__":

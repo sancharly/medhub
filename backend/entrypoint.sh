@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
+# Runs the container's command (the image CMD or the Compose `command:`). It does not migrate:
+# the db-migrate service is the only process that runs alembic (TASK-191, ADR-0017).
 set -euo pipefail
-echo "Running database migrations..."
-PYTHONPATH=/app alembic upgrade head
-echo "Starting application..."
-# --forwarded-allow-ips= (empty): the server never rewrites the TCP peer; the application applies
-# the trusted-proxy rule once (SR-042, ADR-0019).
-exec gunicorn -k uvicorn.workers.UvicornWorker -b 0.0.0.0:8000 --forwarded-allow-ips= app.main:app
+exec "$@"

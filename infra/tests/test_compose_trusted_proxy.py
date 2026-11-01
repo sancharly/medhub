@@ -11,7 +11,7 @@ from pathlib import Path
 
 from test_compose_object_store import GOOD, ROOT, compose_config
 
-ENTRYPOINT = ROOT / "backend" / "entrypoint.sh"
+DOCKERFILE = ROOT / "backend" / "Dockerfile"  # the gunicorn command is the image CMD (TASK-191)
 
 
 @unittest.skipUnless(shutil.which("docker"), "docker is not installed")
@@ -73,7 +73,7 @@ class TrustedProxyWiring(unittest.TestCase):
 
     def test_server_forwarded_header_handling_is_off(self):
         """ADR-0019: Gunicorn is started with an empty --forwarded-allow-ips."""
-        self.assertRegex(ENTRYPOINT.read_text(), r"--forwarded-allow-ips=(\s|$)")
+        self.assertRegex(DOCKERFILE.read_text(), r'--forwarded-allow-ips=("|\s|$)')
 
 
 if __name__ == "__main__":

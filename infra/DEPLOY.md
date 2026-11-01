@@ -24,28 +24,28 @@ Never commit `infra/.env` to version control.
 This table is the definition of a *secret setting* (SR-041). `infra/.env.example` holds no value
 for any of them and `infra/docker-compose.yml` has no default for any of them. Generate each one
 with its own command: never reuse a value for two settings (the one exception is the password
-inside `DATABASE_URL`, which must equal `POSTGRES_PASSWORD`), and never copy a value from this
-document or from a ticket.
+inside `DATABASE_OWNER_URL`, which is `POSTGRES_PASSWORD`; the password inside `DATABASE_URL` must
+be a different value), and never copy a value from this document or from a ticket.
 
 | Setting | Used by | How to generate | Rotation |
 |---|---|---|---|
-| `POSTGRES_PASSWORD` | `postgres` (initialises the database user `medhub`) | `openssl rand -hex 24` | The image applies it only when the data volume is first created. To change it later run `ALTER USER medhub PASSWORD '…'` in the running database, then change this value and the password in `DATABASE_URL` together |
-| `DATABASE_URL` | `backend`, `celery-worker` | `postgresql://medhub:<POSTGRES_PASSWORD>@postgres:5432/medhub`; the password must equal `POSTGRES_PASSWORD` (percent-encode it if it is not hex) | With `POSTGRES_PASSWORD`; recreate `backend` and `celery-worker` |
+| `POSTGRES_PASSWORD` | `postgres` (initialises the database owner user `medhub`) | `openssl rand -hex 24` | The image applies it only when the data volume is first created. To change it later run `ALTER USER medhub PASSWORD '…'` in the running database, then change this value and the password in `DATABASE_OWNER_URL` together |
+| `DATABASE_OWNER_URL` | `db-migrate` only; no other service receives it | `postgresql://medhub:<POSTGRES_PASSWORD>@postgres:5432/medhub`; the password is `POSTGRES_PASSWORD` (percent-encode it if it is not hex) | With `POSTGRES_PASSWORD`; run `db-migrate` again |
+| `DATABASE_URL` | `backend`, `celery-worker`, `celery-beat`, and `db-migrate` (which creates the role from it) | `postgresql://medhub_app:<password>@postgres:5432/medhub`; generate the password with a command of its own (`openssl rand -hex 24`): it must differ from `POSTGRES_PASSWORD`, and the user must be a different one from the owner's | Change the password here and run `db-migrate` (it applies the new password to the role), then recreate `backend`, `celery-worker` and `celery-beat` |
 | `OBJECT_STORE_ACCESS_KEY` | `object-store`, `object-store-preflight`, `object-store-init`, `backend`, `celery-worker` | `openssl rand -hex 12` | Change the value and recreate the stack (rules in "Generate the object-store keys") |
 | `OBJECT_STORE_SECRET_KEY` | same as the access key | `openssl rand -base64 32` | As the access key |
 | `AT_REST_ENCRYPTION_KEY` | `backend`, `celery-worker` (field encryption); `object-store` (SSE key) | `openssl rand -base64 32` (base64 of exactly 32 bytes) | Not by editing the value: see [ADR-0018](../docs/design/adr/0018-field-encryption-key-identifier-and-key-separation.md) and "Generate the object-store keys" below |
 | `SMTP_PASSWORD` | `backend`, `celery-worker` | Issued by your mail relay. Required only when `SMTP_USER` is set; leave `SMTP_USER` and `SMTP_PASSWORD` empty for a relay without authentication | Issue a new one at the relay, change the value, recreate `backend` and `celery-worker` |
 
 Optional secret settings, not read by the Compose stack yet; the application checks each one
-**only when it is set** and refuses a placeholder: `DATABASE_OWNER_URL` (the owner connection used
-by the migration service), `OBJECT_STORE_SSE_KEY` (a separate server-side-encryption key,
-`openssl rand -base64 32`) and `AT_REST_ENCRYPTION_RETIRED_KEYS` (comma-separated earlier
-encryption keys, kept so old values stay readable). Their tasks add them to the template and to
-this table.
+**only when it is set** and refuses a placeholder: `OBJECT_STORE_SSE_KEY` (a separate
+server-side-encryption key, `openssl rand -base64 32`) and `AT_REST_ENCRYPTION_RETIRED_KEYS`
+(comma-separated earlier encryption keys, kept so old values stay readable). Their tasks add them
+to the template and to this table.
 
 What refuses an unsafe value, and where:
 
-- **Compose**: `POSTGRES_PASSWORD`, `DATABASE_URL`, `AT_REST_ENCRYPTION_KEY` and the two
+- **Compose**: `POSTGRES_PASSWORD`, `DATABASE_OWNER_URL`, `DATABASE_URL`, `AT_REST_ENCRYPTION_KEY` and the two
   object-store keys use `${NAME:?…}`. `docker compose` stops before creating anything and the
   message names the first setting it finds unset or empty. Check it without starting anything: take
   a filled `.env`, remove one line (for example `POSTGRES_PASSWORD=`) and run
@@ -54,10 +54,11 @@ What refuses an unsafe value, and where:
 - **The application** (backend and worker start-up): refuses a secret that is a known placeholder
   (the weak words, any value starting with the `change-me` prefix and any value earlier templates
   shipped; any case; list in `backend/app/core/secret_settings.py`), a database URL
-  without a password, and an `AT_REST_ENCRYPTION_KEY` that does not decode to 32 bytes. The
-  message names the setting, never the value. Note that the Celery worker container does not run the
-  worker yet (PRB-061), so its refusal does not take effect in the Compose stack until that is
-  fixed; the backend's does.
+  without a password, an `AT_REST_ENCRYPTION_KEY` that does not decode to 32 bytes, and (in
+  `db-migrate`, where both URLs are present) a `DATABASE_URL` that names the same user or has the
+  same password as `DATABASE_OWNER_URL`. The message names the setting, never the value. The
+  backend, the Celery worker and Celery beat refuse at start-up; `db-migrate` refuses before it
+  connects.
 
 `SESSION_SIGNING_KEY` is no longer a setting (sessions are opaque random tokens held in Redis,
 not signed). Remove it from an existing `infra/.env`; a leftover value is ignored.
@@ -124,12 +125,12 @@ openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
 docker compose -f infra/docker-compose.yml up -d
 ```
 
-Compose runs the object-store services in a fixed order (step 5). The `backend` service starts
-only after `object-store-init` has completed successfully, so a rejected key or an unhealthy
-store keeps the backend and the reverse proxy down (`up` exits non-zero and reports the failed
-dependency); PostgreSQL, Redis, the frontend and the Celery worker still start. Read the failed
-service's log
-(`docker compose -f infra/docker-compose.yml logs object-store-preflight object-store-init`).
+Compose runs the database and object-store services in a fixed order (steps 5 and 6). The
+`backend` service starts only after `object-store-init` and `db-migrate` have completed
+successfully, and `celery-worker` and `celery-beat` only after `db-migrate`. A rejected key or an
+unhealthy store keeps the backend and the reverse proxy down (`up` exits non-zero and reports the
+failed dependency); PostgreSQL, Redis and the frontend still start. Read the failed service's log
+(`docker compose -f infra/docker-compose.yml logs object-store-preflight object-store-init db-migrate`).
 
 ### Trusted proxy and the Compose subnet
 
@@ -208,7 +209,8 @@ The backend container can reach the store because it is one of three services on
 
 - Network `object-store` is `internal: true`: no egress and no published port. Only
   `object-store`, `object-store-init` and `backend` join it. The reverse proxy, frontend,
-  PostgreSQL, Redis and the Celery worker cannot reach the store (checked by `infra/smoke-test.sh`).
+  PostgreSQL, Redis, `db-migrate`, the Celery worker and `celery-beat` cannot reach the store
+  (checked by `infra/smoke-test.sh` for the services it lists).
 - Inside the container the master, volume server and filer listen on loopback only; only S3 (8333,
   and its gRPC port 18333) listens on the container address.
 - `infra/compose.ci-object-store.yml` is for the CI job `object-store-integration` only. It
@@ -222,12 +224,74 @@ sources are named in `docs/soup/SOUP-036-seaweedfs.md`). A fix for a hazard-rele
 reaches a deployment as a reviewed change of the pinned image digest in
 `infra/docker-compose.yml`, with the SOUP-036 record updated, then a restart of the stack.
 
-### 6. Run database migrations
+### 6. Database migrations and roles
+
+`db-migrate` is a one-shot service and the only process that migrates. In one run, as the owner
+user `medhub` (`DATABASE_OWNER_URL`), it (1) checks the secret settings, (2) runs
+`alembic upgrade head`, and (3) runs `python -m app.db.roles`, which creates or updates the
+runtime role named in `DATABASE_URL` (`medhub_app`: no superuser, no ownership, no membership,
+SCRAM password) and grants it the statements the application needs. The role can read and insert
+`audit_log` rows but cannot `UPDATE`, `DELETE` or `TRUNCATE` them (SQLSTATE `42501`, SR-023 AC 8),
+and cannot write `alembic_version`. A table added by a later migration is granted by the same run
+that creates it. `backend`, `celery-worker` and `celery-beat` connect as the runtime role and
+start only after `db-migrate` exits 0. Do not run `alembic` in any other container.
 
 ```bash
-docker compose -f infra/docker-compose.yml exec backend \
-  uv run alembic upgrade head
+docker compose -f infra/docker-compose.yml up db-migrate   # re-run at any time; it is idempotent
 ```
+
+`db-migrate` refuses a runtime role that already exists as a superuser, as a member of another
+role, or as an owner of objects, and a `DATABASE_URL` that names the owner's user or password.
+
+The Celery worker (`celery-worker`) and the scheduler (`celery-beat`, which runs the retention
+sweep on `RETENTION_SWEEP_CRON`) are separate containers started from the same image. Run exactly
+one `celery-beat`: a second one sends every scheduled task twice. Compose cannot forbid
+`--scale celery-beat=2`, so `bash infra/smoke-test.sh` (section 12) fails unless exactly one
+`celery-beat` container is running.
+
+No service reads `infra/.env` as a whole (there is no `env_file`). Compose fills each service's
+settings from `infra/.env` or the shell by interpolation, and each service lists only the settings
+it reads, so the owner password (`POSTGRES_PASSWORD`, `DATABASE_OWNER_URL`) reaches `postgres` and
+`db-migrate` only. The smoke test checks this by value: it reads the owner password from the
+`postgres` container and fails when it appears in the environment of any other running container.
+A new setting for a service must be added to that service's `environment:` in
+`infra/docker-compose.yml`; a line in `infra/.env` alone does not reach it. The API container gets no
+SMTP credential (only the worker sends mail), and the beat container gets the secret settings only
+because the start-up rule checks them all.
+
+### Upgrading an installation that connects as the owner
+
+For a host that ran the stack before `db-migrate` existed (`DATABASE_URL` is the owner's
+connection). Applies PRB-005, PRB-007 and PRB-061. Do not merge, tag or deploy this change to a
+shared database until you have rehearsed these steps on a copy of your data.
+
+1. Back up: stop the stack and keep a copy of the `postgres_data` volume and a `pg_dump -Fc`
+   (see "Migrating from MinIO", step 1, for read-only volume copies).
+2. In `infra/.env`: move the current `DATABASE_URL` value to the new `DATABASE_OWNER_URL`
+   (the owner connection, password `POSTGRES_PASSWORD`), then set `DATABASE_URL` to
+   `postgresql://medhub_app:<new password>@postgres:5432/medhub` with a password generated by
+   `openssl rand -hex 24`. Remove no other setting.
+3. `docker compose -f infra/docker-compose.yml up db-migrate`. Expect the migrations since your
+   version (0009 drops the `audit_log` rules that turned `UPDATE` and `DELETE` into silent no-ops)
+   and the line `database roles applied for runtime role medhub_app`; exit code 0. Until this
+   step has run, an owner connection can still alter `audit_log` after 0009 (the window accepted
+   in CR-004 D-4); the stack is never started on the old settings in between.
+4. `docker compose -f infra/docker-compose.yml up -d --build`, then `bash infra/smoke-test.sh`.
+5. Roll back by restoring the volume copy from step 1 and the previous `infra/.env`; the previous
+   release's entrypoint migrates as the owner. **Every row written after the upgrade is lost**
+   (the restore returns the database to step 1). The role `medhub_app` is part of the database,
+   so it is gone after a restore from a backup taken before the upgrade, but a restored volume
+   copy of a database that already ran `db-migrate` keeps it; leaving it is harmless (it can log
+   in only with its own password and no application uses it). To remove it:
+   `DROP OWNED BY medhub_app; DROP ROLE medhub_app;` as the owner.
+
+Rehearsal result (TASK-191, 2026-11-01, scratch Compose projects, removed afterwards): the
+previous release (migrations through 0008, the `audit_log` rules in place, 5015 `audit_log` rows,
+two accounts, one clinical entry with an attachment) was upgraded in this way. `db-migrate` took
+about 3 seconds; table row counts and a checksum of the 5015 pre-existing `audit_log` rows were
+unchanged; an attachment written before the upgrade downloaded byte-identical through the reverse
+proxy; the runtime role was refused `UPDATE`, `DELETE` and `TRUNCATE` on `audit_log` with
+`42501`; the smoke test passed (59 checks). The full record is in TS-009 and TASK-191.
 
 ## Data Residency Note
 

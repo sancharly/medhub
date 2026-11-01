@@ -3,7 +3,7 @@ id: "PRB-007"
 type: problem-report
 title: "Runtime container runs as root and Compose ships insecure default secrets"
 status: open
-version: "1.5"
+version: "1.7"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
 updated: "2026-11-01"
@@ -81,10 +81,11 @@ TASK-140 removes `SESSION_SIGNING_KEY` (PRB-018). Not yet fixed in full; see the
   `SMTP_PASSWORD` is checked only when `SMTP_USER` is set. The optional owner URL, retired keys
   and SSE key are checked **only when set**; they are not refused when unset. The rule is
   `backend/app/core/secret_settings.py` (TS-015 TC-015.3).
-- *The worker does not yet enforce it in the Compose stack.* The rule is wired to `worker_init`
-  and `beat_init` and is tested in process, but the `celery-worker` container runs gunicorn, not
-  Celery, so those hooks never run there (PRB-061, fixed in TASK-191). Until then the refusal is
-  effective for the API container only.
+- *The worker and beat enforce it in the Compose stack (TASK-191, PRB-061).* The `celery-worker`
+  container now runs Celery and a `celery-beat` container runs the scheduler, so `worker_init` and
+  `beat_init` run: with a placeholder `OBJECT_STORE_SECRET_KEY` both exit 1 naming the setting.
+  `db-migrate` checks the secret settings before it connects, and a `DATABASE_URL` that names the
+  owner's user or password is refused there.
 - *Template and Compose (TASK-203).* `infra/.env.example` holds no value for any secret
   (`POSTGRES_PASSWORD` is now in it), `infra/docker-compose.yml` has a `:?` guard and no default
   on `POSTGRES_PASSWORD`, `DATABASE_URL`, `AT_REST_ENCRYPTION_KEY` and the object-store keys, and
@@ -95,10 +96,22 @@ TASK-140 removes `SESSION_SIGNING_KEY` (PRB-018). Not yet fixed in full; see the
   exposes 8080. On a started stack the `backend`, `celery-worker` and `frontend` containers run
   PID 1 as a non-zero UID and every built image has a non-root `Config.User`
   (`infra/tests/test_images_non_root.py`, `infra/smoke-test.sh` section 11; TS-015 TC-015.1).
-  Item 1 is fixed. The `celery-worker` UID check covers gunicorn until PRB-061 is fixed.
-- *Still open.* Key separation (TASK-196), the
-  runtime database role (TASK-191) and the worker container (PRB-061, TASK-191). The report stays
-  `open`.
+  Item 1 is fixed. Since TASK-191 the `celery-worker` and `celery-beat` UID checks cover the Celery processes themselves (`infra/smoke-test.sh` sections 11 and 12).
+- *Runtime database role (TASK-191, corrected in round 2).* `backend`, `celery-worker` and
+  `celery-beat` connect as `medhub_app` (no superuser, no ownership, no membership; a password of its
+  own that must differ from the owner's). Round 1 of the QA review found that `env_file: .env` still
+  passed `POSTGRES_PASSWORD`, the owner (superuser) password, to those three services, so a
+  compromised process could reconnect as the owner. Fixed: no service has `env_file` any more; each
+  lists only the settings it reads, so the owner password and `DATABASE_OWNER_URL` reach `postgres`
+  and `db-migrate` only. Verified by value: `infra/tests/test_compose_db_roles.py`
+  (`test_no_owner_credential_value_reaches_a_service_but_postgres_and_db_migrate`) and smoke-test
+  section 12 (the password read from `postgres` is absent from `/proc/1/environ` and `Config.Env` of
+  every other running container; from `backend` an owner connection fails with no credential;
+  TS-015 TC-015.2). Item 3 is fixed.
+- *Reverse-proxy image (TASK-198 QA, MEDIUM 1).* The official nginx reverse-proxy image runs its
+  master as UID 0; it is not built by MedHub and is outside SR-041 AC 1. The human is to accept
+  this at release.
+- *Still open.* Key separation (TASK-196). The report stays `open` until then.
 
 ## Note: object-store credentials resolved by CR-002 (2026-10-30)
 
@@ -126,3 +139,5 @@ unreadable as well as the encrypted fields (SOUP-036 F-4; RISK-011 1.3).
 - 1.3 (2026-10-31) — TASK-197: interim note under Resolution (start-up refusal in place). Status and criticality unchanged.
 - 1.4 (2026-11-01) — TASK-203: interim note reworded (what is refused when unset, the worker limit from PRB-061) and the template/Compose/guide part recorded. Status and criticality unchanged.
 - 1.5 (2026-11-01) — TASK-198: interim note records the non-root frontend image (item 1). Status and criticality unchanged; TASK-196 and TASK-191 remain.
+- 1.6 (2026-11-01) — TASK-191: interim note updated (worker and beat enforce the secret rule, runtime database role, reverse-proxy root sentence). Status and criticality unchanged; TASK-196 remains.
+- 1.7 (2026-11-01) — TASK-191 round 2 (QA finding 1): the runtime-role paragraph corrected; the owner password no longer reaches the application services (no `env_file`). Status and criticality unchanged; TASK-196 remains.
