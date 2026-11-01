@@ -111,7 +111,13 @@ class RenderedWiring(unittest.TestCase):
         self.assertEqual(svc["restart"], "no")
         self.assertEqual(list(svc["networks"]), ["medhub"])
         text = command_text(svc)
-        positions = [text.find(x) for x in ("enforce()", "alembic upgrade head", "app.db.roles")]
+        steps = (
+            "enforce()",
+            "alembic upgrade head",
+            "app.db.roles",
+            "app.db.reencrypt --verify-key-ids",
+        )
+        positions = [text.find(x) for x in steps]
         self.assertTrue(all(p >= 0 for p in positions), text)
         self.assertEqual(positions, sorted(positions), text)
         self.assertEqual(svc["environment"]["DATABASE_OWNER_URL"], GOOD["DATABASE_OWNER_URL"])

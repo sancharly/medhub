@@ -3,10 +3,10 @@ id: "TASK-201"
 type: task
 title: "Bring arc42, the ADD records and the ADR index in line with CR-004"
 status: draft
-version: "1.0"
+version: "1.1"
 author: "Carlos Santiago Liceras"
 created: "2026-10-31"
-updated: "2026-10-31"
+updated: "2026-11-01"
 links:
   - target: "SR-041"
     relation: implements
@@ -32,6 +32,14 @@ tags: ["documentation", "cr:CR-004", "control:information"]
 - **Depends on:** every CR-004 implementation task (TASK-137..142, TASK-185..200, TASK-203).
 - **Branch:** `fix/review-2026-07-security`.
 - **Size:** M (docs only)
+
+## Carried from the TASK-195 QA review (2026-11-01)
+
+- LOW: `infra/DEPLOY.md`, "Field-encryption key rotation", the paragraph after the command line says
+  that a run which cannot get the table lock within 10 seconds "stops, unchanged". That holds only
+  for the first batch. After it, the earlier batches stay committed: every row is readable, and the
+  instruction ("run it again") is the same. Reword it to match the "If `--check` or `--apply` exits 1"
+  section.
 
 ## Objective
 

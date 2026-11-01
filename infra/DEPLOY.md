@@ -34,8 +34,8 @@ be a different value), and never copy a value from this document or from a ticke
 | `DATABASE_URL` | `backend`, `celery-worker`, `celery-beat`, and `db-migrate` (which creates the role from it) | `postgresql://medhub_app:<password>@postgres:5432/medhub`; generate the password with a command of its own (`openssl rand -hex 24`): it must differ from `POSTGRES_PASSWORD`, and the user must be a different one from the owner's | Change the password here and run `db-migrate` (it applies the new password to the role), then recreate `backend`, `celery-worker` and `celery-beat` |
 | `OBJECT_STORE_ACCESS_KEY` | `object-store`, `object-store-preflight`, `object-store-init`, `backend`, `celery-worker` | `openssl rand -hex 12` | Change the value and recreate the stack (rules in "Generate the object-store keys") |
 | `OBJECT_STORE_SECRET_KEY` | same as the access key | `openssl rand -base64 32` | As the access key |
-| `AT_REST_ENCRYPTION_KEY` | `backend`, `celery-worker` (field encryption); `object-store` (SSE key) | `openssl rand -base64 32` (base64 of exactly 32 bytes) | Not by editing the value (pair it with `AT_REST_ENCRYPTION_KEY_ID`): see [ADR-0018](../docs/design/adr/0018-field-encryption-key-identifier-and-key-separation.md) and "Generate the object-store keys" below |
-| `AT_REST_ENCRYPTION_RETIRED_KEYS` | `backend`, `celery-worker`, `celery-beat`, `db-migrate` (optional; decryption only) | Earlier keys as comma-separated `id:key` entries, each key `openssl rand -base64 32` output; empty unless a rotation is under way. Ids differ from `AT_REST_ENCRYPTION_KEY_ID` and from each other; a key must not equal the current key | Remove an entry once no stored value names its id (rotation procedure follows with TASK-195) |
+| `AT_REST_ENCRYPTION_KEY` | `backend`, `celery-worker` (field encryption); `object-store` (SSE key) | `openssl rand -base64 32` (base64 of exactly 32 bytes) | Not by editing the value (pair it with `AT_REST_ENCRYPTION_KEY_ID`): follow "Field-encryption key rotation" ([ADR-0018](../docs/design/adr/0018-field-encryption-key-identifier-and-key-separation.md)); "Generate the object-store keys" below explains why it cannot simply be replaced while the object store shares it |
+| `AT_REST_ENCRYPTION_RETIRED_KEYS` | `backend`, `celery-worker`, `celery-beat`, `db-migrate` (optional; decryption only) | Earlier keys as comma-separated `id:key` entries, each key `openssl rand -base64 32` output; empty unless a rotation is under way. Ids differ from `AT_REST_ENCRYPTION_KEY_ID` and from each other; a key must not equal the current key | Remove an entry only as the last step of "Field-encryption key rotation", once `--check` shows no value under its id |
 | `SMTP_PASSWORD` | `backend`, `celery-worker` | Issued by your mail relay. Required only when `SMTP_USER` is set; leave `SMTP_USER` and `SMTP_PASSWORD` empty for a relay without authentication | Issue a new one at the relay, change the value, recreate `backend` and `celery-worker` |
 
 `AT_REST_ENCRYPTION_KEY_ID` is **not a secret** but is required, with no default: the identifier of
@@ -338,13 +338,20 @@ values are checked first and nothing is written if one fails; then they are conv
 current key` and the row ids (first 100), and the database is unchanged. Values and ciphertext are
 never printed. Fix the key (or the rows, see "A row that does not decrypt") and run it again; a second run converts nothing that is
 already converted and changes no `mh1:` value. A value that already starts with `mh1:` is never
-touched, whichever key it names (rotation is a separate procedure).
+touched, whichever key it names (rotation is a separate procedure: "Field-encryption key rotation").
 
 Roll back: restore the step-1 backup. The migration also has a `downgrade` (it writes the unprefixed
 format back under the current key and stops, changing nothing, if any value names another key), which
 is tested but not part of this procedure and was not rehearsed on a stack.
 
 ### A row that does not decrypt (migration 0010 refused)
+
+The same procedure applies when the rotation command (`python -m app.db.reencrypt`, see "Field-encryption
+key rotation") refuses with `value(s) do not decrypt`: it names the same row ids and changes nothing.
+Where this section says "run the `db-migrate` command again", run the command that refused again
+(`--check` or `--apply`). A value under a retired key that the command reports as `do not decrypt`
+while the retired key is configured is damaged in the same sense; one that reports `name key id
+'<id>', which is not configured` is not damaged, its key is missing: put the key back first.
 
 `db-migrate` printed `migration 0010 upgrade refused: N clinical_entry.description value(s) do not
 decrypt with the current key` and row ids, and exited 1. Nothing was changed. While it refuses, `backend`,
@@ -413,6 +420,159 @@ column byte-identical (same MD5 over id and stored value); the smoke test passed
 restored `pg_dump` copy, a run with a wrong `AT_REST_ENCRYPTION_KEY` exited 1 naming 1100 rows
 and left the column unchanged, and the run with the right key then converted all 1100. The full
 record is in TASK-194 and TS-008.
+
+### Field-encryption key rotation
+
+Replaces the key that encrypts `clinical_entry.description` (and any later `EncryptedString`
+column) without making a stored value unreadable (SR-022 AC 8, ADR-0018, RISK-011). The tool is
+`python -m app.db.reencrypt`, run from the `db-migrate` image as the database owner. Rotate when a
+key may have been exposed, when someone who held it leaves, or on the schedule your site sets.
+Rehearse it first on a restored copy of your data; the rehearsal result is at the end of this section.
+
+**Do not start while the object store still takes `AT_REST_ENCRYPTION_KEY` as its SSE key.**
+Check: `grep WEED_S3_SSE_KEY infra/docker-compose.yml`. If it names `${AT_REST_ENCRYPTION_KEY…}`,
+replacing that setting also replaces the key the object store encrypts attachments with, and every
+stored attachment becomes unreadable (ADR-0018, SOUP-036 F-4). The separate `OBJECT_STORE_SSE_KEY`
+and its migration (TASK-196, "Separating the object-store SSE key") must be deployed first.
+
+How the keys work: every stored value starts with `mh1:<key id>:` and is decrypted with the key of
+that id. `AT_REST_ENCRYPTION_KEY` (id `AT_REST_ENCRYPTION_KEY_ID`) is the current key and encrypts
+every new value. Keys in `AT_REST_ENCRYPTION_RETIRED_KEYS` (`id:key,id:key`) only decrypt. A rotation
+makes the new key current, keeps the old one retired, re-encrypts every stored value under the new
+key, and only then drops the old one. An id names one key for ever: never give a used id to a different
+key, and never put two keys under one id. (Rotating back to an earlier key, as in "Rolling back",
+uses its own id again; that is the same key.)
+
+The command (all of them print counts, key ids, table and column names and row ids; never a value,
+a ciphertext or a key):
+
+| Option | What it does | Exit code |
+|---|---|---|
+| `--check` | Read only. Decrypts every value and counts them per key id | 0 every value is readable and under the current key; 3 readable, but some are under a retired key (rotation pending); 1 some value names a key id that is not configured, or does not decrypt: the row ids are listed |
+| `--apply [--batch-size N]` | Re-encrypts every value not under the current key. First checks everything as `--check` does and, if anything is unreadable, stops with the counts and row ids before writing a single row. Then converts in batches of 500 (or N). Each batch is one transaction: lock the table against writers (the lock migration 0010 uses; readers continue), decrypt, encrypt under the current key, decrypt the new value and compare it with the plaintext, update, read the rows back from the database and compare again, commit. Any difference or error rolls that batch back and stops | 0 done (or nothing to do); 1 refused or failed, the failing batch was rolled back |
+| `--verify-key-ids` | Read only, does not decrypt. Refuses if a stored value names a key id that is not configured. `db-migrate` runs it as its last step | 0 / 1 |
+
+Run it as `docker compose -f infra/docker-compose.yml run --rm --no-deps --build -T --entrypoint python db-migrate -m app.db.reencrypt --check`
+(`--apply`, `--verify-key-ids` likewise). `--build` makes Compose use the current source, not the
+image of the previous release (PRB-062); `run` returns the command's exit code, so check `echo $?`
+right after it. Each batch commits on its own: if the command is interrupted (a crash, a lost
+connection, `Ctrl-C`) every row is readable under the current or a retired key; run it again and
+it continues, and a run with nothing left to convert writes nothing. If it cannot get the table lock
+within 10 seconds (a long write transaction) it stops, unchanged; run it again.
+
+**The application does not need to be stopped.** The lock is held for one batch at a time and a
+write that arrives meanwhile waits for it. After step 4 the backend and worker write under the new
+key, so a running application never creates work for the command. It must be restarted first
+(step 4), because a process still running with the old key would keep writing values under the old
+id; if one did, `--check` shows it (exit 3) and `--apply` converts it.
+
+1. **Back up.** The values under the old key exist only in the database, and a restored backup is
+   readable only with the key it was written with.
+   - **Mandatory:** a live `pg_dump -Fc` (the stack stays up):
+     `docker compose -f infra/docker-compose.yml exec -T postgres sh -c 'pg_dump -Fc -U "$POSTGRES_USER" "$POSTGRES_DB"' > backup-before-rotation.dump`.
+     Check that the file is not empty.
+   - Optional, and only with the stack stopped: a copy of the `postgres_data` volume, as in
+     "Upgrading an installation that connects as the owner", step 1. Skip it to rotate with the
+     application up.
+   - There is no automated backup (PRB-057): the dump is the minimum.
+   - Copy the current `infra/.env` to your secret store. It holds the old key and its id.
+   - Run `--check` and keep the output (the count per key id before you start). Expect exit 0.
+2. **Generate the new key and a new id.**
+   `openssl rand -base64 32` (run on its own, never reuse a value). The id is new: `[a-z0-9-]`, 1 to
+   32 characters, different from every id this installation has used (for example `k2` after `k1`).
+3. **Edit `infra/.env`.** Move the old key to the retired list and set the new key and id:
+   ```
+   AT_REST_ENCRYPTION_RETIRED_KEYS=<old id>:<old AT_REST_ENCRYPTION_KEY value>   # append with a comma to an existing list
+   AT_REST_ENCRYPTION_KEY=<the new key>
+   AT_REST_ENCRYPTION_KEY_ID=<the new id>
+   ```
+   No spaces or line breaks around the id, and the new key must differ from every retired key; the
+   settings are checked when each service starts and on every `db-migrate` run.
+4. **Restart.** `docker compose -f infra/docker-compose.yml up -d --build`. `db-migrate` runs
+   first (its key-id check passes because the old id is retired), then `backend`, `celery-worker`
+   and `celery-beat` are recreated with the new settings. Confirm the services use the new id:
+   `docker compose -f infra/docker-compose.yml exec -T backend printenv AT_REST_ENCRYPTION_KEY_ID`.
+   Reading an entry still works: old values are decrypted with the retired key.
+5. **Re-encrypt.** `… run --rm --no-deps --build -T --entrypoint python db-migrate -m app.db.reencrypt --apply`.
+   Expect `clinical_entry.description before: <old id>=N`, `converted: N value(s) in B batch(es)`,
+   `after: <new id>=N (current)` and exit 0. Then run `--check`: **it must exit 0 and list only the
+   new id. A count under the old id means the old key is still needed.** If it exits 3, run `--apply` again.
+6. **Only then remove the retired key.** Delete the `<old id>:<old key>` entry from
+   `AT_REST_ENCRYPTION_RETIRED_KEYS` in `infra/.env` (leave the variable empty if that was the only
+   entry) and run `docker compose -f infra/docker-compose.yml up -d --build` again. If a stored value
+   still names the removed id, `db-migrate` prints `stored values need a key that is not
+   configured` with the count and the row ids, exits 1, and `up` ends with `service "db-migrate"
+   didn't complete successfully: exit 1`. Nothing in the database was changed. **The application is
+   down while that is so**: Compose stops `backend`, `celery-worker`, `celery-beat` and
+   `reverse-proxy` before it recreates `db-migrate` and does not start them again. Put the entry
+   back in `infra/.env`, run `up -d --build` again (about 40 seconds with `--wait`; the
+   application returns with its data intact), and go back to step 5. Keep the old key in your secret store for as long as you
+   keep any backup made before step 3: restoring such a backup needs it (set it in
+   `AT_REST_ENCRYPTION_RETIRED_KEYS` for the restore, then run step 5 again).
+7. **Verify.** `bash infra/smoke-test.sh`, then open a clinical entry in the application (a doctor
+   account) and read one that existed before the rotation.
+
+**If `--check` or `--apply` exits 1.** Read the first line it printed.
+- A *refusal* (`refused, nothing was changed`, or `--check` listing problems) changes nothing:
+  - `value(s) name key id '<id>', which is not configured`: the key of that id is missing from the
+    settings. Put it back in `AT_REST_ENCRYPTION_RETIRED_KEYS` (from your secret store or the backup
+    of the old `.env`), restart, run the command again. Nothing is lost; the data was never touched.
+  - `value(s) do not decrypt`: the stored value is damaged or the key under that id is not the one
+    that wrote it. Check the key first; then follow "A row that does not decrypt".
+- A *failure after `--apply` started* (`reencrypt failed: <Class>`, or a batch message ending
+  `batch rolled back`) leaves the batches that were already committed in place and rolls back only
+  the failing one. The table then holds a mix of old and new keys, all readable, and nothing is
+  lost. Find the cause (`<Class>` is the database or Python error class; the database log has the
+  rest: a lost connection, a lock that could not be had within 10 seconds, a full disk), fix it,
+  and run `--apply` again; it continues where it stopped. Then `--check`.
+- `values remain under another key after apply` means the run finished its batches but `--check`'s
+  scan still finds values not under the current key (an old process wrote one meanwhile, or a
+  value was damaged). Nothing was lost. Run `--check`: exit 3 means run `--apply` again, exit 1
+  names the rows (see the two cases above). Do not remove the retired key until `--check` exits 0.
+
+**Rolling back.**
+- *Before step 5, or if step 5 converted nothing:* restore the `.env` copy from step 1 and run
+  `up -d --build`. The database was not changed.
+- *During or after step 5, without losing anything written since:* rotate back. Make the old key
+  current again with its original id and retire the new one (`AT_REST_ENCRYPTION_KEY=<old key>`,
+  `AT_REST_ENCRYPTION_KEY_ID=<old id>`, `AT_REST_ENCRYPTION_RETIRED_KEYS=<new id>:<new key>`),
+  restart as in step 4 and run `--apply`: every value moves back under the old key. Then run
+  `--check` (it must exit 0 and list only the old id) and finish with step 6, removing the
+  now-retired new key, and step 7.
+- *Last resort:* restore the step-1 backup and the `.env` copy. Every row written after the backup is lost.
+
+Rehearsal result (TASK-195, 2026-11-01, scratch Compose projects `task195` and `task195r`, removed
+afterwards, `infra/.env` untouched): a stack at the layout of this tree was seeded through the API
+with 1100 clinical entries under key `k1` (unicode, 25 to about 500 characters) and six attachments.
+The object store took its own SSE key (the TASK-196 layout, simulated in the scratch copy of
+`docker-compose.yml`), as the warning at the top of this section requires. Steps 1 to 7 were run
+as written, with the application up the whole time:
+- Step 1: `pg_dump -Fc` (493 KB) and the `.env` copy; `--check` exit 0, `k1=1100`.
+- Step 4: all three Python services reported `k2`; `--check` exit 3, `k1=1100`; the API returned
+  all 1100 descriptions with the same SHA-256 as before (old values read through the retired key).
+- **Step 6 run too early** (before step 5): `db-migrate` exit 1, `1100 value(s) name key id 'k1',
+  which is not configured` with the first 100 row ids, `up` ended with `service "db-migrate" didn't
+  complete successfully: exit 1`, the application was down (as warned), the database unchanged; with the entry put
+  back, `up -d --build` took 19 seconds (40 with `--wait`) and the API again returned the same 1100 hashes.
+- Step 5: 8 API writes (a background writer started with the command; they were committed before its first scan, so they
+  were already under `k2`), then `--apply --batch-size 200`: `k1=1100, k2=8` before,
+  `converted: 1100 value(s) in 6 batch(es)`, `k2=1108` after, exit 0; `--check` exit 0 listing only `k2`.
+- Step 6 (in order): `db-migrate` exit 0 (`key ids verified; ... k2=1108`), services without any retired key.
+  A SHA-256 of every row's plaintext, computed in a backend container with `AESGCM` and the keys
+  from the environment (so with `k2` only), was identical to the one taken before the rotation for
+  all 1100 pre-existing rows; the API list was identical for the same 1100; all six attachments
+  downloaded with their original SHA-256.
+- Step 7: `bash infra/smoke-test.sh` from a copy of the tree, 65 passed, 0 failed.
+- Not rehearsed on a stack: the volume copy of step 1, rollback by rotating back, a power loss during `--apply`
+  (tested with injected faults in `backend/tests/db/test_reencrypt.py`).
+- On a **restored backup copy** (`task195r`: the step-1 dump restored into a new project, new key
+  only): `db-migrate` exit 1 naming the 1100 values under `k1` (a backup taken before a rotation
+  needs the old key); with `k1:<key>` retired, exit 0 and `--check` exit 3; `--apply` converted 1100
+  in 3 batches, a second `--apply` converted 0 (exit 0); `--check` exit 0; with the retired key
+  removed again `db-migrate` exit 0; all 1100 plaintext hashes equal to the ones taken on the first stack before the rotation.
+- Why the warning at the top exists: on the first stack the object store's SSE key was changed to another
+  value and the store restarted; all six attachment downloads then returned HTTP 500. Putting the
+  key back restored them.
 
 ## Data Residency Note
 

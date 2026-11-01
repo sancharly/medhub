@@ -3,10 +3,10 @@ id: "TASK-196"
 type: task
 title: "Separate the object-store SSE key from the field key and migrate stored attachments"
 status: draft
-version: "1.0"
+version: "1.1"
 author: "Carlos Santiago Liceras"
 created: "2026-10-31"
-updated: "2026-10-31"
+updated: "2026-11-01"
 links:
   - target: "SR-041"
     relation: implements
@@ -55,6 +55,34 @@ tags: ["security", "encryption", "object-store", "data-migration", "cr:CR-004", 
   `EXCEPTIONS`:
   - Assert that every `^    name:` line in the `Settings` body was parsed.
   - Fail on `alias`/`Field(...)` until those forms are handled.
+
+## Carried from the TASK-195 QA review (2026-11-01)
+
+Field-key rotation (`infra/DEPLOY.md`, "Field-encryption key rotation") is forbidden until this
+task lands, because `WEED_S3_SSE_KEY` is `${AT_REST_ENCRYPTION_KEY}`: step 4 of the rotation
+recreates `object-store` with the new key and every attachment returns 500 (TASK-195 rehearsal: 6/6).
+
+- **Make the coupling impossible, not only documented.** A refusal inside `app.db.reencrypt` would
+  be too late, because the damage happens at the restart, before the command runs. Instead:
+  - Add an infra rendered-compose test: `WEED_S3_SSE_KEY` is not interpolated from
+    `AT_REST_ENCRYPTION_KEY` (nor from a retired key).
+  - Add a start-up refusal, in `object-store-preflight` or the secret rule, when
+    `OBJECT_STORE_SSE_KEY` equals `AT_REST_ENCRYPTION_KEY` or a key in
+    `AT_REST_ENCRYPTION_RETIRED_KEYS`. The error names the settings and never the value.
+- **Update the rotation text once the keys are separate.**
+  - Replace the "Do not start while ..." paragraph and its `grep` check (DEPLOY.md, top of
+    "Field-encryption key rotation") with the new state.
+  - Drop "(object-store SSE key)" from the `AT_REST_ENCRYPTION_KEY` row of the secrets table.
+  - Update the matching notes in TS-008 (paragraph after the TC table, "not usable ... until TASK-196")
+    and in PRB-004.
+- **Rehearse a field-key rotation on the shipped Compose file.** TASK-195 rehearsed only with the
+  SSE line edited in a scratch copy. Rotate k1 to k2 with attachments present and record every
+  attachment byte-identical after step 7.
+- **Allow-lists and guards** (from the TASK-191, 193 and 194 reviews):
+  - `OBJECT_STORE_SSE_KEY` goes only to the services that need it; check by *value* in
+    `docker inspect`, not by name.
+  - Every new `:?` guard is listed in the smoke-test awk and in the infra tests that name the
+    first-reported guard (Compose picks one at random).
 
 ## Objective
 

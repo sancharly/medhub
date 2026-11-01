@@ -142,7 +142,10 @@ services:
   # `alembic upgrade head`, then `python -m app.db.roles` (creates the runtime role named in
   # DATABASE_URL and grants it, withholding UPDATE/DELETE/TRUNCATE on audit_log). A table added by
   # a migration is granted by that same run. backend, celery-worker and celery-beat start only
-  # after it exits 0. The runtime settings below are the ones the secret rule checks.
+  # after it exits 0. The runtime settings below are the ones the secret rule checks. The last
+  # step (`app.db.reencrypt --verify-key-ids`) refuses, changing nothing, when a stored field value
+  # names a key id that is neither the current key nor a retired one, so a retired key cannot be
+  # removed while values still need it (SR-022 AC 8, TASK-195). The same module rotates the keys.
   db-migrate:
     build:
       context: ../backend
@@ -154,6 +157,7 @@ services:
         python -c "from app.core.secret_settings import enforce; enforce()"
         && alembic upgrade head
         && python -m app.db.roles
+        && python -m app.db.reencrypt --verify-key-ids
     environment:
       PYTHONPATH: /app
       DATABASE_OWNER_URL: ${DATABASE_OWNER_URL:?DATABASE_OWNER_URL must be set}
