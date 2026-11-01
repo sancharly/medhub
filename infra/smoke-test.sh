@@ -6,6 +6,7 @@
 # SR-008: Data in transit must be encrypted (TLS 1.2+, HTTPS redirect, HSTS)
 # SR-016: PHI at rest must be encrypted (object-store SSE-S3 AES256)
 # SR-040: object store has no console or admin option
+# SR-041: every image MedHub builds runs as a non-root user (section 11)
 
 set -uo pipefail
 
@@ -15,8 +16,14 @@ COMPOSE_FILE="$SCRIPT_DIR/docker-compose.yml"
 # Ensure a .env file exists for docker compose to parse
 ENV_FILE="$SCRIPT_DIR/.env"
 if [ ! -f "$ENV_FILE" ]; then
-    echo "INFO: No infra/.env found — copying .env.example for validation only."
-    cp "$SCRIPT_DIR/.env.example" "$ENV_FILE"
+    echo "INFO: No infra/.env found — copying .env.example with throwaway secrets for validation only."
+    # The template holds no value for a secret and Compose refuses an unset one (SR-041 AC 2), so
+    # fill the secret settings with throwaway values: this file only lets `compose config` parse.
+    awk -F= '
+        $1 == "POSTGRES_PASSWORD" || $1 == "DATABASE_URL" || $1 == "AT_REST_ENCRYPTION_KEY" \
+            || $1 == "OBJECT_STORE_ACCESS_KEY" || $1 == "OBJECT_STORE_SECRET_KEY" \
+            { print $1 "=throwaway-" tolower($1); next }
+        { print }' "$SCRIPT_DIR/.env.example" > "$ENV_FILE"
     CLEANUP_ENV=1
 else
     CLEANUP_ENV=0
@@ -215,6 +222,69 @@ print("ok")' 2>&1 | tail -1)
         check "object-store publishes no host port" "published: $STORE_BINDINGS"
     else
         check "object-store publishes no host port" "ok"
+    fi
+fi
+
+# ── 11. Non-root containers (SR-041 AC 1, AC 6) ─────────────────────────────
+# Every image MedHub builds (each Compose service with a `build:` section, so a new one is
+# covered by itself): the image configuration `Config.User` is set and is not root or 0, and the
+# main process (PID 1) of each running one has a UID other than 0. Skipped, with a message, only
+# when no container of the project exists; a missing container of a built service is a FAIL.
+# Note: the `celery-worker` container runs gunicorn, not Celery (PRB-061, fixed in TASK-191), so
+# its check covers the process the container runs today.
+echo ""
+echo "-- Non-root containers (SR-041 AC 1, AC 6) --"
+non_root_user() {  # USER[:GROUP] -> exit 0 when it names a user other than root / UID 0
+    local u="${1%%:*}"
+    [ -n "$u" ] && [ "$u" != "root" ] && [ "$u" != "0" ]
+}
+if [ -z "$(compose ps -aq 2>/dev/null)" ]; then
+    echo "  [SKIP] stack not running — non-root checks skipped (run after docker compose up)"
+else
+    BUILT=$(compose config --format json 2>/dev/null | python3 -c '
+import json, sys
+services = json.load(sys.stdin)["services"]
+print(" ".join(sorted(n for n, s in services.items() if "build" in s)))' 2>/dev/null || true)
+    if [ -z "$BUILT" ]; then
+        check "built services found in the Compose file" "none listed"
+    fi
+    for svc in $BUILT; do
+        CID=$(compose ps -aq "$svc" 2>/dev/null | head -n 1)
+        if [ -z "$CID" ]; then
+            check "'${svc}' (built image) has a container" "no container; run docker compose up first"
+            continue
+        fi
+        IMAGE_USER=$(docker inspect "$(docker inspect --format '{{.Image}}' "$CID")" --format '{{.Config.User}}' 2>/dev/null || true)
+        if non_root_user "$IMAGE_USER"; then
+            check "'${svc}' image Config.User is non-root (SR-041 AC 1)" "ok"
+        else
+            check "'${svc}' image Config.User is non-root (SR-041 AC 1)" "Config.User is '${IMAGE_USER}'"
+        fi
+        if [ "$(docker inspect --format '{{.State.Running}}' "$CID" 2>/dev/null)" = "true" ]; then
+            PID1_UID=$(compose exec -T "$svc" sed -n 's/^Uid:[[:space:]]*\([0-9]*\).*/\1/p' /proc/1/status 2>/dev/null | tr -d '\r')
+            EXEC_UID=$(compose exec -T "$svc" id -u 2>/dev/null | tr -d '\r')
+            for pair in "PID 1:$PID1_UID" "id -u:$EXEC_UID"; do
+                what="${pair%%:*}"; uid="${pair#*:}"
+                case "$uid" in
+                    ''|*[!0-9]*) check "'${svc}' ${what} UID is non-root (SR-041 AC 6)" "could not read a UID (got '${uid}')" ;;
+                    0)           check "'${svc}' ${what} UID is non-root (SR-041 AC 6)" "UID is 0" ;;
+                    *)           check "'${svc}' ${what} UID is non-root (SR-041 AC 6)" "ok" ;;
+                esac
+            done
+        fi
+    done
+    # The single-page app is served through the proxy from the frontend on 8080.
+    if command -v curl >/dev/null 2>&1; then
+        SPA_BODY=$(mktemp)
+        SPA_STATUS=$(curl -sk -o "$SPA_BODY" -w "%{http_code}" https://localhost/ 2>/dev/null || true)
+        if [ "$SPA_STATUS" = "200" ] && grep -q 'id="root"' "$SPA_BODY"; then
+            check "the SPA index is served through the reverse proxy (200)" "ok"
+        else
+            check "the SPA index is served through the reverse proxy (200)" "got HTTP '${SPA_STATUS}' or no app root in the body"
+        fi
+        rm -f "$SPA_BODY"
+    else
+        echo "  [SKIP] curl not available — SPA check skipped"
     fi
 fi
 

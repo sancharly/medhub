@@ -11,3 +11,10 @@ RUN npm run build
 FROM nginx:1.31.8-alpine@sha256:e2d97c2b8c016f12c2f1a27d095685063b2f281c4edf2babfde6001cf4fb77a8
 COPY --from=build /app/dist /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Runs as the image's unprivileged `nginx` user (UID 101) on port 8080 (SR-041 AC 1, PRB-007):
+# an unprivileged process cannot bind port 80, write /run/nginx.pid or switch user, so the pid
+# file moves to /tmp, `user` is dropped and the cache directory is handed to the user.
+RUN sed -i -e '/^user /d' -e 's#^pid .*#pid /tmp/nginx.pid;#' /etc/nginx/nginx.conf \
+    && chown -R nginx:nginx /var/cache/nginx
+USER nginx

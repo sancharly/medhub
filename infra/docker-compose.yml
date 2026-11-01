@@ -91,13 +91,13 @@ services:
       retries: 3
       start_period: 15s
 
-  # ── Frontend (nginx static) ───────────────────────────────────────────────
+  # ── Frontend (nginx static, non-root user, port 8080: SR-041 AC 1) ────────
   frontend:
     build:
       context: ../frontend
       dockerfile: Dockerfile
     expose:
-      - "80"
+      - "8080"
     networks:
       - medhub
     restart: unless-stopped

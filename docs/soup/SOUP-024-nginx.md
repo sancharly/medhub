@@ -2,18 +2,14 @@
 id: SOUP-024
 type: soup
 title: nginx
-status: approved
-version: "1.2"
+status: in_review
+version: "1.3"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
-updated: "2026-10-23"
+updated: "2026-11-01"
 manufacturer: F5, Inc. / nginx authors
 soup_version: 1.31.8
 anomaly_review: "2026-10-22"
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-10-23"
-approved_digest: 9c567d092e01183ee86caa8331290cd2520c808d04bde37a7b5dc3e26cd41026
-approval_note: self-approved
 links: []
 tags:
   - soup
@@ -25,7 +21,7 @@ tags:
 
 ## Functional and performance requirements
 
-TLS termination, HSTS and security headers at the reverse proxy (SR-001, SR-031), and static serving of the frontend bundle.
+TLS termination, HSTS and security headers at the reverse proxy (SR-001, SR-031), and static serving of the frontend bundle. MedHub relies on the image running as its unprivileged `nginx` user (UID 101) on port 8080 in the `frontend` service, with the pid file under `/tmp` and the cache directory owned by that user (SR-041 AC 1, TASK-198). The reverse proxy keeps the image's default root master and ports 80/443.
 
 ## Required hardware and software environment
 
@@ -93,3 +89,4 @@ accountable. Hazard-relevant anomalies go to `risk-management`; defects affectin
 - 2026-10-22 — Version 1.2: first anomaly-list review at 1.31.8 (TASK-154, CR-001 AC-11): none
   found, no hazard-relevant anomaly. `anomaly_review` set. No version change. Approval record
   cleared for re-approval.
+- 2026-11-01 — Version 1.3 (TASK-198, CR-004): `frontend/Dockerfile` runs this image as `USER nginx` on 8080 (`user` directive removed and `pid /tmp/nginx.pid` set in `/etc/nginx/nginx.conf`, `/var/cache/nginx` chowned); no version change, no new SOUP item. Reliance recorded above; anomaly review unchanged. Approval record cleared for re-approval.
