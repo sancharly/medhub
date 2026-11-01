@@ -3,10 +3,10 @@ id: "PRB-004"
 type: problem-report
 title: "Ciphertext envelope carries no key identifier, so key rotation cannot be performed safely"
 status: open
-version: "1.1"
+version: "1.3"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
-updated: "2026-10-31"
+updated: "2026-11-01"
 criticality: major
 links: []
 tags: ["security", "hazard:availability"]
@@ -57,6 +57,15 @@ format), TASK-195 (re-encryption command, documented rotation, rehearsal on a ba
 design is [ADR-0018](../design/adr/0018-field-encryption-key-identifier-and-key-separation.md).
 Not yet fixed.
 
+**Interim note (2026-11-01, TASK-193 handed to QA, status stays `open`).** The envelope now names
+its key (`mh1:<kid>:` with the prefix as AES-GCM associated data), values under any configured key
+decrypt, an unknown key id is refused, and the key id and retired keys are validated at start-up
+(`backend/app/db/crypto.py`, `backend/app/core/config.py`, `backend/app/core/secret_settings.py`).
+Still open: existing unprefixed values are unreadable through the ORM until TASK-194 converts
+them (the window is accepted in CR-004 D-5: the branch is not merged, tagged or deployed to a
+database holding field-encrypted values until TASK-194 lands), and the re-encryption command, documented rotation
+and rehearsal (TASK-195) do not exist.
+
 ## Source
 
 `docs/implementation-plan/AUDIT-FINDINGS.md` — Security, Medium.
@@ -64,3 +73,5 @@ Not yet fixed.
 ## Version history
 
 - 1.1 (2026-10-31) — CR-004 Plan stage (Software Architect role): `## Investigation` added from the current tree (§9.2); Resolution points at the planned tasks. Status and criticality unchanged.
+- 1.2 (2026-11-01) — Interim note on TASK-193 under "Resolution". Status unchanged.
+- 1.3 (2026-11-01) — Interim note cites CR-004 D-5 instead of "ship together". Status unchanged.

@@ -5,12 +5,14 @@ Call get_settings() to obtain the cached singleton instance.
 """
 
 import functools
-from typing import Any
+import json
+from typing import Annotated, Any
 
 from pydantic import PostgresDsn, SecretStr, field_validator, model_validator
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 from app.core.client_address import parse_trusted_proxies
+from app.core.secret_settings import keyring_problems
 
 _RETIRED_KEY = "session_signing_key"
 
@@ -47,6 +49,10 @@ class Settings(BaseSettings):
 
     # At-rest encryption
     at_rest_encryption_key: SecretStr
+    # Identifier written into every new field ciphertext (SR-022 AC 6, ADR-0018): [a-z0-9-]{1,32}.
+    at_rest_encryption_key_id: str
+    # Earlier keys, "id:base64key,id:base64key", used to decrypt values written under them only.
+    at_rest_encryption_retired_keys: SecretStr | None = None
 
     # Session timeouts (seconds)
     session_inactivity_clinical_seconds: int = 900
@@ -67,7 +73,8 @@ class Settings(BaseSettings):
     retention_sweep_cron: str = "0 2 * * *"  # daily at 02:00
 
     # CORS
-    cors_origins: list[str] = []
+    # An empty value is [], a JSON list or a comma-separated list is accepted (PRB-056, D-6).
+    cors_origins: Annotated[list[str], NoDecode] = []
 
     # Originating client address (SR-042 AC 3, ADR-0019): comma-separated IP addresses or CIDR
     # blocks of the reverse proxy. Empty trusts no forwarded header.
@@ -86,6 +93,30 @@ class Settings(BaseSettings):
         if self.smtp_user.strip() and self.smtp_password is None:
             raise ValueError("SMTP_PASSWORD is required when SMTP_USER is set")
         return self
+
+    @model_validator(mode="after")
+    def _check_key_ring(self) -> "Settings":
+        retired = self.at_rest_encryption_retired_keys
+        problems = keyring_problems(
+            self.at_rest_encryption_key_id,
+            self.at_rest_encryption_key.get_secret_value(),
+            retired.get_secret_value() if retired else None,
+        )
+        if problems:  # the messages name settings and key ids, never a key
+            raise ValueError("; ".join(problems))
+        return self
+
+    @field_validator("cors_origins", mode="before")
+    @classmethod
+    def _parse_cors_origins(cls, value: Any) -> Any:
+        if not isinstance(value, str):
+            return value
+        text = value.strip()
+        if text == "":
+            return []
+        if text.startswith("["):
+            return json.loads(text)  # a malformed list is refused; pydantic checks the items
+        return [origin.strip() for origin in text.split(",") if origin.strip()]
 
     @field_validator("trusted_proxies")
     @classmethod

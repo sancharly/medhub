@@ -57,7 +57,7 @@ class CiObjectStoreJobEnvironment(unittest.TestCase):
     def test_the_step_writes_the_secret_variables(self):
         names = ci_env_names()
         for required in ("POSTGRES_PASSWORD", "DATABASE_OWNER_URL", "DATABASE_URL",
-                         "AT_REST_ENCRYPTION_KEY",
+                         "AT_REST_ENCRYPTION_KEY", "AT_REST_ENCRYPTION_KEY_ID",
                          "OBJECT_STORE_ACCESS_KEY", "OBJECT_STORE_SECRET_KEY"):
             self.assertIn(required, names)
 

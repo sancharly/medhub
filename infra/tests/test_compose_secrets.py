@@ -31,6 +31,15 @@ GUARDED = {
 }
 
 
+# Optional secrets: passed through bare (`${NAME}`), no default and no guard; the application
+# checks them only when set. SMTP_PASSWORD is required only with SMTP_USER, the retired keys only
+# during a key rotation.
+OPTIONAL_PASSTHROUGH = {"SMTP_PASSWORD", "AT_REST_ENCRYPTION_RETIRED_KEYS"}
+# Required settings that are not secrets: guarded like one so Compose names the missing setting.
+GUARDED_NOT_SECRET = {"AT_REST_ENCRYPTION_KEY_ID"}
+PYTHON_SERVICES = ("backend", "celery-worker", "celery-beat", "db-migrate")
+
+
 def service_blocks() -> dict[str, str]:
     text = COMPOSE.read_text()
     body = text[text.index("\nservices:\n") :]
@@ -47,8 +56,8 @@ class StaticGuards(unittest.TestCase):
         found = 0
         for m in re.finditer(r"\$\{([A-Z_]+)([^}]*)\}", text):
             if m.group(1) in SECRETS:
-                if m.group(0) == "${SMTP_PASSWORD}":
-                    continue  # conditional secret, see test_no_secret_is_set_to_a_literal
+                if m.group(0) == "${" + m.group(1) + "}" and m.group(1) in OPTIONAL_PASSTHROUGH:
+                    continue  # optional secret, see test_no_secret_is_set_to_a_literal
                 found += 1
                 self.assertRegex(
                     m.group(0), r"^\$\{(\w+):\?\1 must be set\}$", f"{m.group(1)} is not guarded"
@@ -60,10 +69,10 @@ class StaticGuards(unittest.TestCase):
         for service, block in service_blocks().items():
             for m in re.finditer(r"(?m)^\s+([A-Z_]+):[ \t]*(.*)$", block):
                 if m.group(1) in SECRETS | TARGETS:
-                    if m.group(1) == "SMTP_PASSWORD":
-                        # Conditional secret (required only with SMTP_USER): no default, no guard;
-                        # the application refuses an empty one when a user is set.
-                        self.assertEqual(m.group(2), "${SMTP_PASSWORD}", service)
+                    if m.group(1) in OPTIONAL_PASSTHROUGH:
+                        # Optional or conditional secret: no default, no guard; the application
+                        # refuses an empty SMTP_PASSWORD when a user is set.
+                        self.assertEqual(m.group(2), "${" + m.group(1) + "}", service)
                         continue
                     self.assertRegex(m.group(2), r"^\$\{\w+:\?", f"{service} {m.group(1)}")
 
@@ -77,6 +86,18 @@ class StaticGuards(unittest.TestCase):
                     rf"(?m)^      {name}: \$\{{{name}:\?{name} must be set\}}$",
                     f"{service} does not guard {name}",
                 )
+
+    def test_the_key_id_is_guarded_in_every_python_service(self):
+        """SR-022 AC 6: the key id has no default; Compose stops, naming it (TASK-193)."""
+        blocks = service_blocks()
+        for name in GUARDED_NOT_SECRET:
+            for service in PYTHON_SERVICES:
+                self.assertRegex(
+                    blocks[service],
+                    rf"(?m)^      {name}: \$\{{{name}:\?{name} must be set\}}$",
+                    f"{service} does not guard {name}",
+                )
+        self.assertNotRegex(COMPOSE.read_text(), r"\$\{AT_REST_ENCRYPTION_KEY_ID:?-")
 
     def test_the_secret_list_is_the_application_rule_list(self):
         """The test reads the list the application refuses at start-up, not a copy of it."""
@@ -102,8 +123,10 @@ class BringUpRefusal(unittest.TestCase):
     def test_complete_environment_renders(self):
         result, config = compose_config(GOOD)
         self.assertEqual(result.returncode, 0, result.stderr)
-        for service in ("backend", "celery-worker"):
+        for service in PYTHON_SERVICES:
             env = config["services"][service]["environment"]
+            self.assertEqual(env["AT_REST_ENCRYPTION_KEY_ID"], GOOD["AT_REST_ENCRYPTION_KEY_ID"], service)
+            self.assertEqual(env["AT_REST_ENCRYPTION_RETIRED_KEYS"], "", service)
             self.assertEqual(env["DATABASE_URL"], GOOD["DATABASE_URL"], service)
             self.assertEqual(env["AT_REST_ENCRYPTION_KEY"], GOOD["AT_REST_ENCRYPTION_KEY"], service)
         self.assertEqual(
@@ -112,13 +135,15 @@ class BringUpRefusal(unittest.TestCase):
         )
 
     def test_unset_secret_is_refused_naming_it(self):
-        for name in ("POSTGRES_PASSWORD", "DATABASE_URL", "DATABASE_OWNER_URL", "AT_REST_ENCRYPTION_KEY"):
+        for name in ("POSTGRES_PASSWORD", "DATABASE_URL", "DATABASE_OWNER_URL", "AT_REST_ENCRYPTION_KEY",
+                     "AT_REST_ENCRYPTION_KEY_ID"):
             result, _ = compose_config({k: v for k, v in GOOD.items() if k != name})
             self.assertNotEqual(result.returncode, 0, name)
             self.assertIn(f"{name} must be set", result.stderr)
 
     def test_empty_secret_is_refused_naming_it(self):
-        for name in ("POSTGRES_PASSWORD", "DATABASE_URL", "DATABASE_OWNER_URL", "AT_REST_ENCRYPTION_KEY"):
+        for name in ("POSTGRES_PASSWORD", "DATABASE_URL", "DATABASE_OWNER_URL", "AT_REST_ENCRYPTION_KEY",
+                     "AT_REST_ENCRYPTION_KEY_ID"):
             result, _ = compose_config({**GOOD, name: ""})
             self.assertNotEqual(result.returncode, 0, name)
             self.assertIn(f"{name} must be set", result.stderr)
@@ -132,7 +157,7 @@ class BringUpRefusal(unittest.TestCase):
         }
         result, _ = compose_config(template)
         self.assertNotEqual(result.returncode, 0)
-        self.assertRegex(result.stderr, r"(POSTGRES_PASSWORD|DATABASE_OWNER_URL|DATABASE_URL|AT_REST_ENCRYPTION_KEY|OBJECT_STORE_\w+_KEY) must be set")
+        self.assertRegex(result.stderr, r"(POSTGRES_PASSWORD|DATABASE_OWNER_URL|DATABASE_URL|AT_REST_ENCRYPTION_KEY|AT_REST_ENCRYPTION_KEY_ID|OBJECT_STORE_\w+_KEY) must be set")
 
 
 if __name__ == "__main__":

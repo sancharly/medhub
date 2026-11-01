@@ -65,6 +65,10 @@ services:
     environment:
       DATABASE_URL: ${DATABASE_URL:?DATABASE_URL must be set}
       AT_REST_ENCRYPTION_KEY: ${AT_REST_ENCRYPTION_KEY:?AT_REST_ENCRYPTION_KEY must be set}
+      # Names the current key in every new field ciphertext (SR-022 AC 6, ADR-0018). Required, not secret.
+      AT_REST_ENCRYPTION_KEY_ID: ${AT_REST_ENCRYPTION_KEY_ID:?AT_REST_ENCRYPTION_KEY_ID must be set}
+      # Optional "id:key,id:key" earlier keys, decryption only. No default, no guard (like SMTP_PASSWORD).
+      AT_REST_ENCRYPTION_RETIRED_KEYS: ${AT_REST_ENCRYPTION_RETIRED_KEYS}
       ENVIRONMENT: ${ENVIRONMENT:-local}
       REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
       SMTP_HOST: ${SMTP_HOST:-smtp.example.com}
@@ -77,7 +81,7 @@ services:
       SESSION_ABSOLUTE_LIFETIME_SECONDS: ${SESSION_ABSOLUTE_LIFETIME_SECONDS:-28800}
       SESSION_MAX_CONCURRENT: ${SESSION_MAX_CONCURRENT:-3}
       SESSION_COOKIE_SECURE: ${SESSION_COOKIE_SECURE:-true}
-      CORS_ORIGINS: "${CORS_ORIGINS:-[]}"
+      CORS_ORIGINS: "${CORS_ORIGINS:-}"
       TRUSTED_PROXIES: 172.28.77.2
     expose:
       - "8000"
@@ -155,6 +159,10 @@ services:
       DATABASE_OWNER_URL: ${DATABASE_OWNER_URL:?DATABASE_OWNER_URL must be set}
       DATABASE_URL: ${DATABASE_URL:?DATABASE_URL must be set}
       AT_REST_ENCRYPTION_KEY: ${AT_REST_ENCRYPTION_KEY:?AT_REST_ENCRYPTION_KEY must be set}
+      # Names the current key in every new field ciphertext (SR-022 AC 6, ADR-0018). Required, not secret.
+      AT_REST_ENCRYPTION_KEY_ID: ${AT_REST_ENCRYPTION_KEY_ID:?AT_REST_ENCRYPTION_KEY_ID must be set}
+      # Optional "id:key,id:key" earlier keys, decryption only. No default, no guard (like SMTP_PASSWORD).
+      AT_REST_ENCRYPTION_RETIRED_KEYS: ${AT_REST_ENCRYPTION_RETIRED_KEYS}
       ENVIRONMENT: ${ENVIRONMENT:-local}
       REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
       SMTP_HOST: ${SMTP_HOST:-smtp.example.com}
@@ -271,6 +279,10 @@ services:
     environment:
       DATABASE_URL: ${DATABASE_URL:?DATABASE_URL must be set}
       AT_REST_ENCRYPTION_KEY: ${AT_REST_ENCRYPTION_KEY:?AT_REST_ENCRYPTION_KEY must be set}
+      # Names the current key in every new field ciphertext (SR-022 AC 6, ADR-0018). Required, not secret.
+      AT_REST_ENCRYPTION_KEY_ID: ${AT_REST_ENCRYPTION_KEY_ID:?AT_REST_ENCRYPTION_KEY_ID must be set}
+      # Optional "id:key,id:key" earlier keys, decryption only. No default, no guard (like SMTP_PASSWORD).
+      AT_REST_ENCRYPTION_RETIRED_KEYS: ${AT_REST_ENCRYPTION_RETIRED_KEYS}
       ENVIRONMENT: ${ENVIRONMENT:-local}
       REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
       SMTP_HOST: ${SMTP_HOST:-smtp.example.com}
@@ -309,6 +321,10 @@ services:
     environment:
       DATABASE_URL: ${DATABASE_URL:?DATABASE_URL must be set}
       AT_REST_ENCRYPTION_KEY: ${AT_REST_ENCRYPTION_KEY:?AT_REST_ENCRYPTION_KEY must be set}
+      # Names the current key in every new field ciphertext (SR-022 AC 6, ADR-0018). Required, not secret.
+      AT_REST_ENCRYPTION_KEY_ID: ${AT_REST_ENCRYPTION_KEY_ID:?AT_REST_ENCRYPTION_KEY_ID must be set}
+      # Optional "id:key,id:key" earlier keys, decryption only. No default, no guard (like SMTP_PASSWORD).
+      AT_REST_ENCRYPTION_RETIRED_KEYS: ${AT_REST_ENCRYPTION_RETIRED_KEYS}
       ENVIRONMENT: ${ENVIRONMENT:-local}
       REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
       SMTP_HOST: ${SMTP_HOST:-smtp.example.com}

@@ -80,6 +80,7 @@ jobs:
       SMTP_USER: test@example.com
       SMTP_PASSWORD: testpassword
       AT_REST_ENCRYPTION_KEY: Y2ktYXQtcmVzdC1rZXktMzItYnl0ZXMtbG9uZyEhISE=
+      AT_REST_ENCRYPTION_KEY_ID: ci
     steps:
       - uses: actions/checkout@v4
 
@@ -172,6 +173,7 @@ jobs:
       SMTP_USER: test@example.com
       SMTP_PASSWORD: testpassword
       AT_REST_ENCRYPTION_KEY: Y2ktYXQtcmVzdC1rZXktMzItYnl0ZXMtbG9uZyEhISE=
+      AT_REST_ENCRYPTION_KEY_ID: ci
     steps:
       - uses: actions/checkout@v4
 
@@ -259,6 +261,7 @@ jobs:
             echo "OBJECT_STORE_SECRET_KEY=$secret_key"
             echo "OBJECT_STORE_BUCKET=medhub-ci"
             echo "AT_REST_ENCRYPTION_KEY=$sse_key"
+            echo "AT_REST_ENCRYPTION_KEY_ID=ci"
             echo "POSTGRES_PASSWORD=$pg"
             echo "DATABASE_OWNER_URL=postgresql://medhub:$pg@postgres:5432/medhub"
             echo "DATABASE_URL=postgresql://medhub_app:$app_pw@postgres:5432/medhub"

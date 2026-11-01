@@ -2,11 +2,11 @@
 id: "PRB-056"
 type: problem-report
 title: "The empty CORS_ORIGINS in .env.example makes the backend fail at start-up"
-status: open
-version: "1.0"
+status: resolved
+version: "1.2"
 author: "Carlos Santiago Liceras"
 created: "2026-10-30"
-updated: "2026-10-30"
+updated: "2026-11-01"
 criticality: minor
 links: []
 tags: ["infrastructure", "configuration", "backend"]
@@ -47,6 +47,28 @@ comma-separated value in the settings, and add a test that the example file load
 a CR; outside CR-002's scope. Until it is fixed, verification runs set `CORS_ORIGINS=[]` in their
 temporary `.env`.
 
+## Resolution
+
+Folded into CR-004 by D-6 (human, 2026-11-01) and fixed in TASK-193 (2026-11-01).
+
+- `backend/app/core/config.py`: `cors_origins` is `Annotated[list[str], NoDecode]` with a
+  `mode="before"` validator. The root cause named above is that pydantic-settings decodes a
+  `list[str]` environment value as JSON before validation, so `CORS_ORIGINS=` (empty) and a
+  comma-separated value both failed. Now an empty or blank value is `[]`, a value starting with `[`
+  is a JSON list (a malformed one is refused), and anything else is split on commas.
+- `infra/.env.example`: the comment lists the three accepted forms.
+- `infra/docker-compose.yml`: the `[]` default is no longer needed and is now `${CORS_ORIGINS:-}`,
+  a pass-through.
+- Tests: `backend/tests/test_env_example.py` loads the template through `Settings` (secrets
+  filled with throwaway values, everything else as shipped) and checks eight `CORS_ORIGINS` forms.
+
+Status `resolved` pending QA; a change request, CR-004, links it with `resolves`.
+
 ## Source
 
 Software developer and QA, CR-002 TASK-179 (2026-10-30).
+
+## Version history
+
+- 1.1 (2026-11-01) — Interim note: Compose default and template comment. Status unchanged.
+- 1.2 (2026-11-01) — Fixed in TASK-193 (CR-004 D-6): Resolution written; status `open` → `resolved`.

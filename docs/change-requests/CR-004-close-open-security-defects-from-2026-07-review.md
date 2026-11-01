@@ -3,7 +3,7 @@ id: "CR-004"
 type: change-request
 title: "Close the open security defects from the 2026-07 review and audit"
 status: open
-version: "1.3"
+version: "1.4"
 author: "Carlos Santiago Liceras"
 created: "2026-10-31"
 updated: "2026-11-01"
@@ -37,6 +37,8 @@ links:
   - target: "PRB-029"
     relation: resolves
   - target: "PRB-061"
+    relation: resolves
+  - target: "PRB-056"
     relation: resolves
   - target: "SR-005"
     relation: relates_to
@@ -224,6 +226,7 @@ order and dependencies in "Plan").
 | PRB-027 Direct role comparisons in identity services | major | SR-032 AC 1, AC 4, AC 5; SR-034 AC 1; SR-023 **AC 7 (new)**; ADR-0006 | TASK-188, 189 |
 | PRB-028 Module version regex accepts trailing garbage | minor | SR-016 AC 1 (module contract) | TASK-200 |
 | PRB-029 Rate limit keyed on the proxy address | minor | **SR-042 AC 1 to AC 5 (new)**; SR-024 retrieval path, ADR-0013 | TASK-185, 186 |
+| PRB-056 Empty `CORS_ORIGINS` in the template breaks start-up (added in 1.4) | minor | SR-041 AC 4 (the template starts the stack) | TASK-193 |
 | PRB-061 The celery-worker container runs gunicorn, not Celery (found in TASK-203; added in 1.2) | major | SR-023, SR-024, SR-030, SR-041 AC 3 (worker start-up refusal, effective in the started stack) | TASK-191 |
 
 Existing TASKs whose links will need updating at the Plan stage: TASK-137 (add `implements`
@@ -407,6 +410,14 @@ New, for the human (Plan stage):
   stack must show the worker and beat running. PRB-061 is added to the Scope table and to `links`.
 - **D-4 (human decision 2026-11-01):** accept the window between TASK-190 and TASK-191; branch not
   merged, tagged or deployed to a shared database until TASK-191 lands.
+- **D-5 (human decision 2026-11-01):** accept the window between TASK-193 and TASK-194, in which
+  existing field-encrypted values (unprefixed) cannot be read through the ORM. The branch is not
+  merged, tagged or deployed to a database holding field-encrypted values until TASK-194 lands.
+  No start-up guard: once TASK-194's migration 0010 runs in `db-migrate`, which completes before
+  the application services start, the window closes structurally.
+- **D-6 (human decision 2026-11-01):** PRB-056 (empty `CORS_ORIGINS` in the template) is folded
+  into CR-004 and fixed in TASK-193, which already edits `config.py` and the template. PRB-056 is
+  added to the Scope table and to `links`.
 
 ## Change analysis (Risk stage, §7.4, 2026-10-31)
 
@@ -635,3 +646,6 @@ per volume, re-key by copy, 196).
   decision 2026-10-31, folded into TASK-191). No other change.
 - 1.3 (2026-11-01) — D-4 (human decision 2026-11-01): the audit window between TASK-190 and
   TASK-191 is accepted. No other change.
+- 1.4 (2026-11-01) — D-5 (human decision 2026-11-01): the window between TASK-193 and TASK-194 is
+  accepted. D-6 (human decision 2026-11-01): PRB-056 folded into TASK-193; `resolves` link and
+  Scope row added. No other change.

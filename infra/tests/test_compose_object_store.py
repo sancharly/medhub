@@ -21,6 +21,7 @@ GOOD = {
     "DATABASE_OWNER_URL": "postgresql://medhub:throwaway-postgres-password@postgres:5432/medhub",
     "DATABASE_URL": "postgresql://medhub_app:throwaway-runtime-password@postgres:5432/medhub",
     "AT_REST_ENCRYPTION_KEY": "throwaway-at-rest-key-for-config-only",
+    "AT_REST_ENCRYPTION_KEY_ID": "throwaway-id",
 }
 DEFAULT_STRINGS = ("minioadmin", "changeme")
 

@@ -23,7 +23,7 @@ if [ ! -f "$ENV_FILE" ]; then
     # fill the secret settings with throwaway values: this file only lets `compose config` parse.
     awk -F= '
         $1 == "POSTGRES_PASSWORD" || $1 == "DATABASE_URL" || $1 == "DATABASE_OWNER_URL" \
-            || $1 == "AT_REST_ENCRYPTION_KEY" \
+            || $1 == "AT_REST_ENCRYPTION_KEY" || $1 == "AT_REST_ENCRYPTION_KEY_ID" \
             || $1 == "OBJECT_STORE_ACCESS_KEY" || $1 == "OBJECT_STORE_SECRET_KEY" \
             { print $1 "=throwaway-" tolower($1); next }
         { print }' "$SCRIPT_DIR/.env.example" > "$ENV_FILE"

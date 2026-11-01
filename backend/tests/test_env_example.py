@@ -3,6 +3,8 @@
 import re
 from pathlib import Path
 
+import pytest
+
 from app.core.config import Settings
 
 
@@ -102,3 +104,65 @@ def test_env_example_holds_no_placeholder_value() -> None:
     for placeholder in KNOWN_PLACEHOLDERS - {"admin", "password", "secret"}:
         assert placeholder not in text, placeholder
     assert PLACEHOLDER_PREFIX not in text
+
+
+# PRB-056 / D-6: the template itself loads, and CORS_ORIGINS takes every plausible form
+_THROWAWAY = {
+    "POSTGRES_PASSWORD": "Zx9Qw3Lm7Rt2Vb5N",
+    "DATABASE_URL": "postgresql://medhub_app:Zx9Qw3Lm7Rt2Vb5N@postgres:5432/medhub",
+    "OBJECT_STORE_ACCESS_KEY": "a1b2c3d4e5f6a1b2c3d4e5f6",
+    "OBJECT_STORE_SECRET_KEY": "Zx9Qw3Lm7Rt2Vb5Nk8Hy4Jd6Fg1Sa0Pc",
+    "AT_REST_ENCRYPTION_KEY": "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8=",
+    "AT_REST_ENCRYPTION_KEY_ID": "k1",
+}
+
+
+def test_env_example_loads_through_settings_with_the_secrets_filled(monkeypatch) -> None:
+    """Every other value in the template is used as shipped, including the empty CORS_ORIGINS."""
+    from app.core.config import Settings, get_settings  # noqa: PLC0415
+
+    for name, value in {**_env_example_values(), **_THROWAWAY}.items():
+        monkeypatch.setenv(name, value)
+    get_settings.cache_clear()
+    settings = Settings()
+    assert settings.cors_origins == []
+    assert settings.at_rest_encryption_key_id == "k1"
+    assert not settings.at_rest_encryption_retired_keys  # empty means none
+
+
+@pytest.mark.parametrize(
+    ("raw", "expected"),
+    [
+        ("", []),
+        ("  ", []),
+        ("[]", []),
+        ('["https://a.example"]', ["https://a.example"]),
+        ('["https://a.example", "https://b.example"]', ["https://a.example", "https://b.example"]),
+        ("https://a.example", ["https://a.example"]),
+        ("https://a.example,https://b.example", ["https://a.example", "https://b.example"]),
+        (" https://a.example , https://b.example, ", ["https://a.example", "https://b.example"]),
+    ],
+)
+def test_cors_origins_accepts_empty_json_and_comma_separated(monkeypatch, raw, expected) -> None:
+    from app.core.config import Settings  # noqa: PLC0415
+
+    monkeypatch.setenv("CORS_ORIGINS", raw)
+    assert Settings().cors_origins == expected
+
+
+def test_cors_origins_unset_is_empty(monkeypatch) -> None:
+    from app.core.config import Settings  # noqa: PLC0415
+
+    monkeypatch.delenv("CORS_ORIGINS", raising=False)
+    assert Settings().cors_origins == []
+
+
+@pytest.mark.parametrize("raw", ["[not json", "[1, 2]"])
+def test_cors_origins_refuses_a_malformed_list(monkeypatch, raw) -> None:
+    from pydantic import ValidationError  # noqa: PLC0415
+
+    from app.core.config import Settings  # noqa: PLC0415
+
+    monkeypatch.setenv("CORS_ORIGINS", raw)
+    with pytest.raises((ValidationError, ValueError)):
+        Settings()

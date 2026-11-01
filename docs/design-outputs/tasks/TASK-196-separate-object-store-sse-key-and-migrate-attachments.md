@@ -43,6 +43,19 @@ tags: ["security", "encryption", "object-store", "data-migration", "cr:CR-004", 
   human approves the rehearsal result.
 - **Design:** [ADR-0018](../../design/adr/0018-field-encryption-key-identifier-and-key-separation.md)
 
+## Carried from the TASK-193 QA review (2026-11-01)
+
+- LOW: `infra/tests/test_compose_settings_coverage.py` `settings_fields()` has three silent gaps,
+  found with a probe on synthetic lines:
+  - It skips a field whose annotation contains `=` (`Annotated[str, Field(alias=…)]`).
+  - It counts `Field(...)` as a default.
+  - It ignores `alias`/`validation_alias`.
+
+  None of these occurs in `config.py` today. When this task removes `OBJECT_STORE_SSE_KEY` from
+  `EXCEPTIONS`:
+  - Assert that every `^    name:` line in the `Settings` body was parsed.
+  - Fail on `alias`/`Field(...)` until those forms are handled.
+
 ## Objective
 
 SR-041 AC 5: the field key and the SSE key are separate settings; start-up is refused when they

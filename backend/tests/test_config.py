@@ -16,6 +16,7 @@ VALID_ENV = {
     "SMTP_USER": "noreply@example.com",
     "SMTP_PASSWORD": "smtppassword",
     "AT_REST_ENCRYPTION_KEY": "dGVzdGtleXRlc3RrZXl0ZXN0a2V5dGVzdGtleTEyMzQ=",
+    "AT_REST_ENCRYPTION_KEY_ID": "test",
 }
 
 

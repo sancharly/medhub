@@ -34,18 +34,27 @@ be a different value), and never copy a value from this document or from a ticke
 | `DATABASE_URL` | `backend`, `celery-worker`, `celery-beat`, and `db-migrate` (which creates the role from it) | `postgresql://medhub_app:<password>@postgres:5432/medhub`; generate the password with a command of its own (`openssl rand -hex 24`): it must differ from `POSTGRES_PASSWORD`, and the user must be a different one from the owner's | Change the password here and run `db-migrate` (it applies the new password to the role), then recreate `backend`, `celery-worker` and `celery-beat` |
 | `OBJECT_STORE_ACCESS_KEY` | `object-store`, `object-store-preflight`, `object-store-init`, `backend`, `celery-worker` | `openssl rand -hex 12` | Change the value and recreate the stack (rules in "Generate the object-store keys") |
 | `OBJECT_STORE_SECRET_KEY` | same as the access key | `openssl rand -base64 32` | As the access key |
-| `AT_REST_ENCRYPTION_KEY` | `backend`, `celery-worker` (field encryption); `object-store` (SSE key) | `openssl rand -base64 32` (base64 of exactly 32 bytes) | Not by editing the value: see [ADR-0018](../docs/design/adr/0018-field-encryption-key-identifier-and-key-separation.md) and "Generate the object-store keys" below |
+| `AT_REST_ENCRYPTION_KEY` | `backend`, `celery-worker` (field encryption); `object-store` (SSE key) | `openssl rand -base64 32` (base64 of exactly 32 bytes) | Not by editing the value (pair it with `AT_REST_ENCRYPTION_KEY_ID`): see [ADR-0018](../docs/design/adr/0018-field-encryption-key-identifier-and-key-separation.md) and "Generate the object-store keys" below |
+| `AT_REST_ENCRYPTION_RETIRED_KEYS` | `backend`, `celery-worker`, `celery-beat`, `db-migrate` (optional; decryption only) | Earlier keys as comma-separated `id:key` entries, each key `openssl rand -base64 32` output; empty unless a rotation is under way. Ids differ from `AT_REST_ENCRYPTION_KEY_ID` and from each other; a key must not equal the current key | Remove an entry once no stored value names its id (rotation procedure follows with TASK-195) |
 | `SMTP_PASSWORD` | `backend`, `celery-worker` | Issued by your mail relay. Required only when `SMTP_USER` is set; leave `SMTP_USER` and `SMTP_PASSWORD` empty for a relay without authentication | Issue a new one at the relay, change the value, recreate `backend` and `celery-worker` |
 
-Optional secret settings, not read by the Compose stack yet; the application checks each one
-**only when it is set** and refuses a placeholder: `OBJECT_STORE_SSE_KEY` (a separate
-server-side-encryption key, `openssl rand -base64 32`) and `AT_REST_ENCRYPTION_RETIRED_KEYS`
-(comma-separated earlier encryption keys, kept so old values stay readable). Their tasks add them
-to the template and to this table.
+`AT_REST_ENCRYPTION_KEY_ID` is **not a secret** but is required, with no default: the identifier of
+the current field-encryption key (1 to 32 characters of `a-z`, `0-9`, `-`; for example `k1`). Every
+field value written from now on starts with `mh1:<id>:`, and the backend decrypts a value with the
+key named in that prefix only. Existing installations must add it to `infra/.env` before upgrading;
+pick an identifier for the key already in `AT_REST_ENCRYPTION_KEY` and keep it. Values written by
+earlier versions have no prefix and are refused by this version until the migration of TASK-194
+converts them, so do not deploy this version to a database that holds field-encrypted values
+without that migration (CR-004 D-5). The identifier and each retired id must have no spaces or
+line breaks around them; the application refuses them at start-up.
+
+One optional secret setting is not read by the Compose stack yet: `OBJECT_STORE_SSE_KEY` (a separate
+server-side-encryption key, `openssl rand -base64 32`); the application checks it **only when it is
+set** and refuses a placeholder. Its task adds it to the template and to this table.
 
 What refuses an unsafe value, and where:
 
-- **Compose**: `POSTGRES_PASSWORD`, `DATABASE_OWNER_URL`, `DATABASE_URL`, `AT_REST_ENCRYPTION_KEY` and the two
+- **Compose**: `POSTGRES_PASSWORD`, `DATABASE_OWNER_URL`, `DATABASE_URL`, `AT_REST_ENCRYPTION_KEY`, `AT_REST_ENCRYPTION_KEY_ID` and the two
   object-store keys use `${NAME:?…}`. `docker compose` stops before creating anything and the
   message names the first setting it finds unset or empty. Check it without starting anything: take
   a filled `.env`, remove one line (for example `POSTGRES_PASSWORD=`) and run
@@ -54,7 +63,9 @@ What refuses an unsafe value, and where:
 - **The application** (backend and worker start-up): refuses a secret that is a known placeholder
   (the weak words, any value starting with the `change-me` prefix and any value earlier templates
   shipped; any case; list in `backend/app/core/secret_settings.py`), a database URL
-  without a password, an `AT_REST_ENCRYPTION_KEY` that does not decode to 32 bytes, and (in
+  without a password, an `AT_REST_ENCRYPTION_KEY` that does not decode to 32 bytes, a missing or
+  malformed `AT_REST_ENCRYPTION_KEY_ID`, a retired key that is malformed, repeats an id, does not
+  decode to 32 bytes or equals the current key, and (in
   `db-migrate`, where both URLs are present) a `DATABASE_URL` that names the same user or has the
   same password as `DATABASE_OWNER_URL`. The message names the setting, never the value. The
   backend, the Celery worker and Celery beat refuse at start-up; `db-migrate` refuses before it
@@ -279,11 +290,12 @@ shared database until you have rehearsed these steps on a copy of your data.
 4. `docker compose -f infra/docker-compose.yml up -d --build`, then `bash infra/smoke-test.sh`.
 5. Roll back by restoring the volume copy from step 1 and the previous `infra/.env`; the previous
    release's entrypoint migrates as the owner. **Every row written after the upgrade is lost**
-   (the restore returns the database to step 1). The role `medhub_app` is part of the database,
-   so it is gone after a restore from a backup taken before the upgrade, but a restored volume
-   copy of a database that already ran `db-migrate` keeps it; leaving it is harmless (it can log
-   in only with its own password and no application uses it). To remove it:
-   `DROP OWNED BY medhub_app; DROP ROLE medhub_app;` as the owner.
+   (the restore returns the database to step 1). Roles are cluster-wide, not part of one database,
+   so `medhub_app` is not removed by restoring a `pg_restore` dump into the upgraded server: the
+   role survives it. Only restoring the step-1 volume copy (which predates the role) removes it.
+   Leaving the role in place is harmless (it can log in only with its own password and no
+   application uses it). To remove it, run `DROP OWNED BY medhub_app; DROP ROLE medhub_app;` as the
+   owner.
 
 Rehearsal result (TASK-191, 2026-11-01, scratch Compose projects, removed afterwards): the
 previous release (migrations through 0008, the `audit_log` rules in place, 5015 `audit_log` rows,

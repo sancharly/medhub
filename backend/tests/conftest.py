@@ -22,6 +22,7 @@ _BASELINE_ENV = {
     "SMTP_USER": "test@example.com",
     "SMTP_PASSWORD": "testpassword",
     "AT_REST_ENCRYPTION_KEY": "dGVzdGtleXRlc3RrZXl0ZXN0a2V5dGVzdGtleTEyMzQ=",
+    "AT_REST_ENCRYPTION_KEY_ID": "test",
 }
 
 

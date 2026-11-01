@@ -47,6 +47,18 @@ tags: ["verification", "cr:CR-004"]
 - **Size:** S (records only; runs the suites and the stack)
 - **Needs:** a Docker host; network for CI on the branch head.
 
+## Carried from the TASK-193 QA review (2026-11-01)
+
+- **Before PRB-056 is closed:** the PRB-056 tests in `backend/tests/test_env_example.py` are named
+  in no TS. Add them to TS-015 TC-015.4 (SR-041 AC 4) in its next revision.
+- **LOW:** `CORS_ORIGINS` accepts any non-list string as one origin, for example `{"a":1}`, `null`
+  and `*` (`backend/app/core/config.py:109-119`). No harm today: `cors_origins` is only logged and
+  no `CORSMiddleware` is installed. Record this, or validate each entry as `scheme://host[:port]`
+  before CORS is wired.
+- **LOW:** `backend/tests/db/test_no_raw_sql.py:16-31` matches SQL keywords case-insensitively on
+  any f-string line in `app/`, which flags ordinary English messages. Narrow it to upper-case
+  keywords or to `text()`/`execute()` arguments (or assign it to TASK-201).
+
 ## Objective
 
 One verification run for the whole CR, then the residual risk re-evaluation that the Risk stage

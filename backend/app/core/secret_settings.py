@@ -3,7 +3,8 @@
 One list of secret settings and one list of known placeholders, used by the API start-up, the
 Celery worker and beat start-up, and the ``object-store-preflight`` Compose service. A secret
 that is unset, empty or a known placeholder is refused, and an ``AT_REST_ENCRYPTION_KEY`` that
-does not decode to 32 bytes is refused. The messages name the setting and never carry a value.
+does not decode to 32 bytes is refused. The key identifier and the retired ``id:key`` entries are
+checked too (SR-022 AC 3, AC 6, ADR-0018). The messages name the setting and never carry a value.
 
 This module imports nothing from ``app.core.config`` at import time, so the preflight can use it
 without a complete application environment.
@@ -13,6 +14,7 @@ from __future__ import annotations
 
 import base64
 import os
+import re
 from collections.abc import Mapping
 from urllib.parse import unquote, urlsplit
 
@@ -22,7 +24,11 @@ DATABASE_URL = "DATABASE_URL"
 DATABASE_OWNER_URL = "DATABASE_OWNER_URL"  # only in the db-migrate service (TASK-191)
 SMTP_PASSWORD = "SMTP_PASSWORD"  # only checked when SMTP_USER is set (CR-004 Q-5)
 AT_REST_ENCRYPTION_KEY = "AT_REST_ENCRYPTION_KEY"
-AT_REST_ENCRYPTION_RETIRED_KEYS = "AT_REST_ENCRYPTION_RETIRED_KEYS"  # comma-separated, optional
+# Not a secret: the identifier of the current key, written into every new field ciphertext
+# (SR-022 AC 6, ADR-0018). Required; checked by ``check`` but not in SECRET_SETTINGS.
+AT_REST_ENCRYPTION_KEY_ID = "AT_REST_ENCRYPTION_KEY_ID"
+# Optional, comma-separated ``id:base64key`` entries; used for decryption only (ADR-0018).
+AT_REST_ENCRYPTION_RETIRED_KEYS = "AT_REST_ENCRYPTION_RETIRED_KEYS"
 OBJECT_STORE_SSE_KEY = "OBJECT_STORE_SSE_KEY"  # optional
 OBJECT_STORE_ACCESS_KEY = "OBJECT_STORE_ACCESS_KEY"
 OBJECT_STORE_SECRET_KEY = "OBJECT_STORE_SECRET_KEY"
@@ -52,6 +58,7 @@ PLACEHOLDER_PREFIX = "change-me"  # any value starting with this is a placeholde
 
 MIN_OBJECT_STORE_SECRET_LENGTH = 16
 AT_REST_KEY_BYTES = 32
+KEY_ID_PATTERN = re.compile(r"[a-z0-9-]{1,32}")
 
 
 def is_placeholder(value: str) -> bool:
@@ -83,6 +90,70 @@ def _key_problem(name: str, value: str) -> list[str]:
     if length != AT_REST_KEY_BYTES:
         return [f"{name} must decode to {AT_REST_KEY_BYTES} bytes, got {length}"]
     return []
+
+
+def _decoded(value: str | None) -> bytes | None:
+    """The decoded key bytes, or None when it does not decode (reported elsewhere)."""
+    if not value:
+        return None
+    try:
+        return base64.urlsafe_b64decode(value.strip().encode())
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def key_id_problems(name: str, key_id: str | None) -> list[str]:
+    """A key identifier is 1 to 32 characters of ``[a-z0-9-]``, checked exactly as it is used.
+
+    No stripping: the value is written into every ciphertext as it is, so a space or newline
+    around it would make every value written under it unreadable. A blank value is "not set".
+    """
+    if key_id is None or key_id.strip() == "":
+        return [f"{name} is not set"]
+    if not KEY_ID_PATTERN.fullmatch(key_id):
+        return [f"{name} must be 1 to 32 characters of a-z, 0-9 and '-', with no whitespace"]
+    return []
+
+
+def split_retired_keys(raw: str | None) -> list[tuple[str, str]]:
+    """The ``id:key`` entries of the retired-keys setting, split at the first ``:``.
+
+    Blank entries are skipped. The id is kept exactly as written (``keyring_problems`` refuses
+    whitespace in it); the key part is stripped by its readers. An entry with no ``:`` yields an
+    empty id, which ``keyring_problems`` reports by position.
+    """
+    entries = [e for e in (raw or "").split(",") if e.strip()]
+    return [tuple(e.split(":", 1)) if ":" in e else ("", e) for e in entries]  # type: ignore[misc]
+
+
+def keyring_problems(key_id: str | None, key: str | None, retired_raw: str | None) -> list[str]:
+    """Problems in the key id and the retired keys, each naming the setting (never a key value).
+
+    Refuses a bad or missing id, an entry that is not ``id:key``, a duplicate id (also against the
+    current id), a key that is a placeholder or does not decode to 32 bytes, and a retired key
+    equal to the current key.
+    """
+    problems = key_id_problems(AT_REST_ENCRYPTION_KEY_ID, key_id)
+    name = AT_REST_ENCRYPTION_RETIRED_KEYS
+    seen = {key_id} if key_id and not problems else set()
+    current = _decoded(key)
+    for position, (kid, value) in enumerate(split_retired_keys(retired_raw), start=1):
+        entry_name = f"{name} entry {position}"
+        if kid == "":
+            problems.append(f"{entry_name} is not in the form id:key")
+            continue
+        if not KEY_ID_PATTERN.fullmatch(kid):
+            problems.append(
+                f"{entry_name} has an invalid key id (1 to 32 characters of a-z, 0-9, '-')"
+            )
+        elif kid in seen:
+            problems.append(f"{entry_name} repeats the key id '{kid}'")
+        seen.add(kid)
+        found = check_value(entry_name, value) or _key_problem(entry_name, value)
+        problems += found
+        if not found and current is not None and _decoded(value) == current:
+            problems.append(f"{entry_name} is the same key as AT_REST_ENCRYPTION_KEY")
+    return problems
 
 
 def _database_password(url: str) -> str | None:
@@ -145,7 +216,7 @@ def secret_values(env: Mapping[str, str | None]) -> list[str]:
             password = _database_password(raw)
             values.extend([password] if password else [])
         elif name == AT_REST_ENCRYPTION_RETIRED_KEYS:
-            values.extend(k.strip() for k in raw.split(",") if k.strip())
+            values.extend(key.strip() for _, key in split_retired_keys(raw))
         else:
             values.append(raw.strip())
     return values
@@ -164,11 +235,11 @@ def check(env: Mapping[str, str | None]) -> list[str]:
         if (env.get(name) or "").strip():
             problems += _one(name, env.get(name))
     problems += _roles_problems(env)
-    for key in (env.get(AT_REST_ENCRYPTION_RETIRED_KEYS) or "").split(","):
-        if key.strip():
-            problems += check_value(AT_REST_ENCRYPTION_RETIRED_KEYS, key) or _key_problem(
-                AT_REST_ENCRYPTION_RETIRED_KEYS, key
-            )
+    problems += keyring_problems(
+        env.get(AT_REST_ENCRYPTION_KEY_ID),
+        env.get(AT_REST_ENCRYPTION_KEY),
+        env.get(AT_REST_ENCRYPTION_RETIRED_KEYS),
+    )
     return problems
 
 
@@ -182,10 +253,16 @@ def settings_env() -> dict[str, str | None]:
         "SMTP_USER": s.smtp_user,
         SMTP_PASSWORD: s.smtp_password.get_secret_value() if s.smtp_password else None,
         AT_REST_ENCRYPTION_KEY: s.at_rest_encryption_key.get_secret_value(),
+        AT_REST_ENCRYPTION_KEY_ID: s.at_rest_encryption_key_id,
+        AT_REST_ENCRYPTION_RETIRED_KEYS: (
+            s.at_rest_encryption_retired_keys.get_secret_value()
+            if s.at_rest_encryption_retired_keys
+            else None
+        ),
         OBJECT_STORE_ACCESS_KEY: s.object_store_access_key.get_secret_value(),
         OBJECT_STORE_SECRET_KEY: s.object_store_secret_key.get_secret_value(),
     }
-    for name in (DATABASE_OWNER_URL, AT_REST_ENCRYPTION_RETIRED_KEYS, OBJECT_STORE_SSE_KEY):
+    for name in (DATABASE_OWNER_URL, OBJECT_STORE_SSE_KEY):
         env[name] = os.environ.get(name)
     return env
 
