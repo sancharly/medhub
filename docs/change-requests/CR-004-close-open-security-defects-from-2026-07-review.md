@@ -3,7 +3,7 @@ id: "CR-004"
 type: change-request
 title: "Close the open security defects from the 2026-07 review and audit"
 status: open
-version: "1.4"
+version: "1.5"
 author: "Carlos Santiago Liceras"
 created: "2026-10-31"
 updated: "2026-11-01"
@@ -39,6 +39,8 @@ links:
   - target: "PRB-061"
     relation: resolves
   - target: "PRB-056"
+    relation: resolves
+  - target: "PRB-062"
     relation: resolves
   - target: "SR-005"
     relation: relates_to
@@ -418,6 +420,12 @@ New, for the human (Plan stage):
 - **D-6 (human decision 2026-11-01):** PRB-056 (empty `CORS_ORIGINS` in the template) is folded
   into CR-004 and fixed in TASK-193, which already edits `config.py` and the template. PRB-056 is
   added to the Scope table and to `links`.
+- **D-7 (human decisions 2026-11-01, TASK-194 QA round 1):** PRB-062 (DEPLOY.md runs `db-migrate`
+  without `--build`) is fixed in TASK-194. A row that migration 0010 cannot decrypt gets a documented
+  manual recovery procedure in `infra/DEPLOY.md`, with no code change. The API's `strip()` of clinical
+  descriptions (`clinical/service.py:49`, older than CR-004) is accepted behaviour, with no PRB. The
+  human approves the rehearsal result of migration 0010 (QA's rehearsal: 315 rows, identical per-row
+  hashes, refusal on a wrong key or a damaged row, survival of a SIGKILL).
 
 ## Change analysis (Risk stage, §7.4, 2026-10-31)
 
@@ -649,3 +657,6 @@ per volume, re-key by copy, 196).
 - 1.4 (2026-11-01) — D-5 (human decision 2026-11-01): the window between TASK-193 and TASK-194 is
   accepted. D-6 (human decision 2026-11-01): PRB-056 folded into TASK-193; `resolves` link and
   Scope row added. No other change.
+- 1.5 (2026-11-01) — D-7 (human decisions 2026-11-01, TASK-194 QA round 1): PRB-062 fixed in TASK-194
+  (`resolves` link added); damaged-row procedure documented; API `strip()` accepted; 0010 rehearsal
+  approved. No other change.

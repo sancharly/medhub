@@ -3,7 +3,7 @@ id: "PRB-004"
 type: problem-report
 title: "Ciphertext envelope carries no key identifier, so key rotation cannot be performed safely"
 status: open
-version: "1.3"
+version: "1.4"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
 updated: "2026-11-01"
@@ -66,6 +66,16 @@ them (the window is accepted in CR-004 D-5: the branch is not merged, tagged or 
 database holding field-encrypted values until TASK-194 lands), and the re-encryption command, documented rotation
 and rehearsal (TASK-195) do not exist.
 
+**Interim note (2026-11-01, TASK-194 handed to QA, status stays `open`).** Migration 0010
+(`backend/app/db/alembic/versions/0010_field_encryption_key_id.py`), run by `db-migrate` before the
+backend starts, converts every existing unprefixed `clinical_entry.description` (the only
+field-encrypted column) to `mh1:<id>:` under the current key, so the CR-004 D-5 window closes:
+existing installations are readable again once `db-migrate` has run. It refuses, changing nothing and
+naming the count and the row ids, any value that does not decrypt with the current key. Rehearsed on a
+populated scratch database (1100 rows, all identical before and after) and on a restored copy. Still
+open: the re-encryption command, documented rotation and its rehearsal (TASK-195); the defect stays
+`open` until they exist.
+
 ## Source
 
 `docs/implementation-plan/AUDIT-FINDINGS.md` — Security, Medium.
@@ -75,3 +85,4 @@ and rehearsal (TASK-195) do not exist.
 - 1.1 (2026-10-31) — CR-004 Plan stage (Software Architect role): `## Investigation` added from the current tree (§9.2); Resolution points at the planned tasks. Status and criticality unchanged.
 - 1.2 (2026-11-01) — Interim note on TASK-193 under "Resolution". Status unchanged.
 - 1.3 (2026-11-01) — Interim note cites CR-004 D-5 instead of "ship together". Status unchanged.
+- 1.4 (2026-11-01) — Interim note on TASK-194 under "Resolution". Status unchanged.

@@ -315,6 +315,18 @@ else
     else
         check "db-migrate ran once and exited 0" "state: $(docker inspect --format '{{.State.Status}} {{.State.ExitCode}}' "$MIGRATE_CID" 2>&1)"
     fi
+    # The database is at the head revision of this tree (PRB-062): a db-migrate that ran an old
+    # image exits 0 and leaves new migrations (such as the field conversion of 0010) undone.
+    HEAD_REV=$(bash "$SCRIPT_DIR/alembic-head.sh" "$SCRIPT_DIR/../backend/app/db/alembic/versions" 2>&1)
+    HEAD_OK=$?
+    DB_REV=$(compose exec -T postgres sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Atc "SELECT version_num FROM alembic_version"' 2>/dev/null | tr -d '\r\n')
+    if [ "$HEAD_OK" -ne 0 ]; then
+        check "the database is at the head migration" "the head revision of this tree could not be determined: $HEAD_REV"
+    elif [ "$DB_REV" = "$HEAD_REV" ]; then
+        check "the database is at the head migration ($HEAD_REV)" "ok"
+    else
+        check "the database is at the head migration" "database at '${DB_REV}', this tree's head is '${HEAD_REV}' (run: docker compose -f infra/docker-compose.yml up --build --exit-code-from db-migrate db-migrate)"
+    fi
     # The owner (superuser) password must reach no container but postgres (SR-041 AC 2, PRB-007).
     # Value-based: read it from the postgres container and look for it, without printing it, in
     # the environment of every other running container (/proc/1/environ and the image/Compose
