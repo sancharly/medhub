@@ -12,7 +12,7 @@ Two responsibilities:
 import pytest
 
 _BASELINE_ENV = {
-    "DATABASE_URL": "postgresql://user:pass@localhost:5432/medhub",
+    "DATABASE_URL": "postgresql://user:db-pw-8f3k2xq7@localhost:5432/medhub",
     "REDIS_URL": "redis://localhost:6379/0",
     "OBJECT_STORE_ENDPOINT": "http://localhost:9000",
     "OBJECT_STORE_ACCESS_KEY": "test-access-key",

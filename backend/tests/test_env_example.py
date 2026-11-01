@@ -47,7 +47,58 @@ def test_env_example_has_no_object_store_default_strings() -> None:
     for name in ("OBJECT_STORE_ACCESS_KEY", "OBJECT_STORE_SECRET_KEY"):
         assert values[name].lower() not in KNOWN_DEFAULTS
     text = env_example.read_text().lower()
+    # TASK-203: no exception list; "admin", "password" and "secret" are ordinary words in the
+    # comments, the rest of the default set must not appear anywhere in the file.
     for default in KNOWN_DEFAULTS - {"admin", "password", "secret"}:
-        assert default not in text.replace("postgresql://medhub:changeme@", "").replace(
-            "smtp_password=changeme", ""
-        )
+        assert default not in text
+
+
+# Secret settings of the deployment (SR-041, DEPLOY.md "Secret settings"). POSTGRES_PASSWORD is
+# the database image's password, which is not an application setting.
+_TEMPLATE_SECRETS = (
+    "POSTGRES_PASSWORD",
+    "DATABASE_URL",
+    "SMTP_PASSWORD",
+    "AT_REST_ENCRYPTION_KEY",
+    "OBJECT_STORE_ACCESS_KEY",
+    "OBJECT_STORE_SECRET_KEY",
+)
+
+
+def test_env_example_secret_settings_are_present_and_empty() -> None:
+    """TASK-203 / SR-041 AC 4: the template holds no value for any secret setting."""
+    values = _env_example_values()
+    for name in _TEMPLATE_SECRETS:
+        assert name in values, f"{name} is missing from infra/.env.example"
+        assert values[name] == "", f"{name} must be empty in infra/.env.example"
+
+
+def test_env_example_secret_list_covers_the_application_rule() -> None:
+    """Every secret setting the application refuses is either in the template or optional."""
+    from app.core import secret_settings as rule
+
+    optional_not_in_template = {
+        rule.DATABASE_OWNER_URL,
+        rule.AT_REST_ENCRYPTION_RETIRED_KEYS,
+        rule.OBJECT_STORE_SSE_KEY,
+    }
+    assert set(rule.SECRET_SETTINGS) - optional_not_in_template <= set(_TEMPLATE_SECRETS)
+    # An optional secret that is in the template must be empty too.
+    for name, value in _env_example_values().items():
+        if name in rule.SECRET_SETTINGS:
+            assert value == "", name
+
+
+def test_env_example_holds_no_placeholder_value() -> None:
+    """TASK-203 / SR-041 AC 4: no value of the shared placeholder list, in any case, anywhere."""
+    from app.core.secret_settings import KNOWN_PLACEHOLDERS, PLACEHOLDER_PREFIX, is_placeholder
+
+    env_example = Path(__file__).parents[2] / "infra" / ".env.example"
+    for name, value in _env_example_values().items():
+        assert not is_placeholder(value), f"{name} is a placeholder"
+    text = env_example.read_text().lower()
+    # The generic words occur in comments; every other entry (including the old template values)
+    # and the prefix must not appear at all.
+    for placeholder in KNOWN_PLACEHOLDERS - {"admin", "password", "secret"}:
+        assert placeholder not in text, placeholder
+    assert PLACEHOLDER_PREFIX not in text

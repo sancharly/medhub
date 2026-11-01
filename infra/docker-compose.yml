@@ -57,7 +57,13 @@ services:
     env_file: .env
     # Same expressions as the initialiser and the store: a shell variable cannot point the
     # backend and the initialiser at different buckets or endpoints (environment: wins over env_file).
+    # Every secret setting has a `:?` guard and no default (SR-041 AC 2): Compose stops, naming the
+    # setting, when it is unset or empty. SMTP_PASSWORD is the one secret not listed: it is required
+    # only when SMTP_USER is set, which Compose cannot express, so env_file passes it and the
+    # application refuses a missing one (backend/app/core/secret_settings.py).
     environment:
+      DATABASE_URL: ${DATABASE_URL:?DATABASE_URL must be set}
+      AT_REST_ENCRYPTION_KEY: ${AT_REST_ENCRYPTION_KEY:?AT_REST_ENCRYPTION_KEY must be set}
       OBJECT_STORE_ENDPOINT: ${OBJECT_STORE_ENDPOINT:-http://object-store:8333}
       OBJECT_STORE_ACCESS_KEY: ${OBJECT_STORE_ACCESS_KEY:?OBJECT_STORE_ACCESS_KEY must be set}
       OBJECT_STORE_SECRET_KEY: ${OBJECT_STORE_SECRET_KEY:?OBJECT_STORE_SECRET_KEY must be set}
@@ -102,7 +108,7 @@ services:
     environment:
       POSTGRES_DB: medhub
       POSTGRES_USER: medhub
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     expose:
@@ -208,6 +214,12 @@ services:
       --loglevel=info
       --concurrency=4
     env_file: .env
+    # Same guards as the backend (SR-041 AC 2); environment: wins over env_file.
+    environment:
+      DATABASE_URL: ${DATABASE_URL:?DATABASE_URL must be set}
+      AT_REST_ENCRYPTION_KEY: ${AT_REST_ENCRYPTION_KEY:?AT_REST_ENCRYPTION_KEY must be set}
+      OBJECT_STORE_ACCESS_KEY: ${OBJECT_STORE_ACCESS_KEY:?OBJECT_STORE_ACCESS_KEY must be set}
+      OBJECT_STORE_SECRET_KEY: ${OBJECT_STORE_SECRET_KEY:?OBJECT_STORE_SECRET_KEY must be set}
     depends_on:
       - redis
       - postgres

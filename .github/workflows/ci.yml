@@ -233,6 +233,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Compose interpolates the whole file, so every secret it guards with `:?` must be here even
+      # though only the object-store services start (infra/tests/test_ci_compose_env.py checks it).
       # CI ONLY: this step overwrites infra/.env, and the last step runs `down -v`. To reproduce
       # by hand, back up infra/.env first; the project name `medhub-ci` keeps the dev volumes safe.
       - name: Generate throwaway credentials
@@ -240,6 +242,8 @@ jobs:
           access_key=$(openssl rand -hex 12)
           secret_key=$(openssl rand -base64 32)
           sse_key=$(openssl rand -hex 32)
+          pg=$(openssl rand -hex 24)
+          echo "::add-mask::$pg"
           echo "::add-mask::$access_key"
           echo "::add-mask::$secret_key"
           echo "::add-mask::$sse_key"
@@ -248,6 +252,8 @@ jobs:
             echo "OBJECT_STORE_SECRET_KEY=$secret_key"
             echo "OBJECT_STORE_BUCKET=medhub-ci"
             echo "AT_REST_ENCRYPTION_KEY=$sse_key"
+            echo "POSTGRES_PASSWORD=$pg"
+            echo "DATABASE_URL=postgresql://medhub:$pg@postgres:5432/medhub"
           } > infra/.env
 
       - name: Start the object store

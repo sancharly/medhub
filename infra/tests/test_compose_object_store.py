@@ -18,6 +18,7 @@ GOOD = {
     "OBJECT_STORE_ACCESS_KEY": "a1b2c3d4e5f6a1b2c3d4e5f6",
     "OBJECT_STORE_SECRET_KEY": "Zx9Qw3Lm7Rt2Vb5Nk8Hy4Jd6Fg1Sa0Pc",
     "POSTGRES_PASSWORD": "throwaway-postgres-password",
+    "DATABASE_URL": "postgresql://medhub:throwaway-postgres-password@postgres:5432/medhub",
     "AT_REST_ENCRYPTION_KEY": "throwaway-at-rest-key-for-config-only",
 }
 DEFAULT_STRINGS = ("minioadmin", "changeme")
@@ -32,7 +33,8 @@ def compose_config(env: dict, shell: dict | None = None):
             ["docker", "compose", "-f", str(COMPOSE), "--env-file", str(env_file),
              "config", "--format", "json"],
             capture_output=True, text=True, cwd=tmp,
-            env={**os.environ, **(shell or {})},
+            # The caller's own secrets must not leak in: a shell variable beats --env-file.
+            env={**{k: v for k, v in os.environ.items() if k not in GOOD}, **(shell or {})},
         )
     return result, (json.loads(result.stdout) if result.returncode == 0 else None)
 

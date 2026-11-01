@@ -3,10 +3,10 @@ id: "CR-004"
 type: change-request
 title: "Close the open security defects from the 2026-07 review and audit"
 status: open
-version: "1.1"
+version: "1.2"
 author: "Carlos Santiago Liceras"
 created: "2026-10-31"
-updated: "2026-10-31"
+updated: "2026-11-01"
 branch: fix/review-2026-07-security
 risk_impact: affects_controls
 links:
@@ -35,6 +35,8 @@ links:
   - target: "PRB-028"
     relation: resolves
   - target: "PRB-029"
+    relation: resolves
+  - target: "PRB-061"
     relation: resolves
   - target: "SR-005"
     relation: relates_to
@@ -222,6 +224,7 @@ order and dependencies in "Plan").
 | PRB-027 Direct role comparisons in identity services | major | SR-032 AC 1, AC 4, AC 5; SR-034 AC 1; SR-023 **AC 7 (new)**; ADR-0006 | TASK-188, 189 |
 | PRB-028 Module version regex accepts trailing garbage | minor | SR-016 AC 1 (module contract) | TASK-200 |
 | PRB-029 Rate limit keyed on the proxy address | minor | **SR-042 AC 1 to AC 5 (new)**; SR-024 retrieval path, ADR-0013 | TASK-185, 186 |
+| PRB-061 The celery-worker container runs gunicorn, not Celery (found in TASK-203; added in 1.2) | major | SR-023, SR-024, SR-030, SR-041 AC 3 (worker start-up refusal, effective in the started stack) | TASK-191 |
 
 Existing TASKs whose links will need updating at the Plan stage: TASK-137 (add `implements`
 SR-042), TASK-138 (add `implements` SR-043).
@@ -397,6 +400,11 @@ New, for the human (Plan stage):
     (`fakeredis` runs Lua only with `lupa`).
   - The frontend image stays the pinned `nginx` image, run as its `nginx` user on 8080: no new
     SOUP item.
+- **D-3 (human decision 2026-10-31, PRB-061 folded into TASK-191):** the `celery-worker` container
+  runs gunicorn because `backend/entrypoint.sh` never runs `"$@"` (PRB-061 Investigation), and no
+  beat process exists. The fix is part of TASK-191, which already moves the migrations into
+  `db-migrate`: the entrypoint becomes `exec "$@"`, gunicorn is the default `CMD`, and the started
+  stack must show the worker and beat running. PRB-061 is added to the Scope table and to `links`.
 
 ## Change analysis (Risk stage, §7.4, 2026-10-31)
 
@@ -621,3 +629,5 @@ per volume, re-key by copy, 196).
     (`in_review`) with control rows and expected residuals; scores re-scored by TASK-202.
   - Plan: TASK-137..140, 142 updated; TASK-185..203 created (`draft`); checkpoints A–D, F; AC,
     ADD, TS and SOUP coverage; plan risks. `relates_to` links to the new tasks, ADDs and RISK-004.
+- 1.2 (2026-11-01) — PRB-061 added (found in TASK-203): `resolves` link, Scope row, D-3 (human
+  decision 2026-10-31, folded into TASK-191). No other change.

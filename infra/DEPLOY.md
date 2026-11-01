@@ -12,14 +12,52 @@
 
 ```bash
 cp infra/.env.example infra/.env
-# Edit infra/.env — fill in every value, especially:
-#   DATABASE_URL, POSTGRES_PASSWORD
-#   OBJECT_STORE_ACCESS_KEY, OBJECT_STORE_SECRET_KEY
-#   AT_REST_ENCRYPTION_KEY  (base64 of 32 random bytes; see "Generate the object-store keys")
-#   SMTP_HOST, SMTP_USER, SMTP_PASSWORD
+# Edit infra/.env — the template holds no value for any secret. Fill in every secret in the
+# "Secret settings" table below, plus the non-secret settings for your site:
+#   SMTP_HOST (and SMTP_USER, SMTP_PASSWORD if your mail relay needs authentication)
 ```
 
 Never commit `infra/.env` to version control.
+
+#### Secret settings
+
+This table is the definition of a *secret setting* (SR-041). `infra/.env.example` holds no value
+for any of them and `infra/docker-compose.yml` has no default for any of them. Generate each one
+with its own command: never reuse a value for two settings (the one exception is the password
+inside `DATABASE_URL`, which must equal `POSTGRES_PASSWORD`), and never copy a value from this
+document or from a ticket.
+
+| Setting | Used by | How to generate | Rotation |
+|---|---|---|---|
+| `POSTGRES_PASSWORD` | `postgres` (initialises the database user `medhub`) | `openssl rand -hex 24` | The image applies it only when the data volume is first created. To change it later run `ALTER USER medhub PASSWORD '…'` in the running database, then change this value and the password in `DATABASE_URL` together |
+| `DATABASE_URL` | `backend`, `celery-worker` | `postgresql://medhub:<POSTGRES_PASSWORD>@postgres:5432/medhub`; the password must equal `POSTGRES_PASSWORD` (percent-encode it if it is not hex) | With `POSTGRES_PASSWORD`; recreate `backend` and `celery-worker` |
+| `OBJECT_STORE_ACCESS_KEY` | `object-store`, `object-store-preflight`, `object-store-init`, `backend`, `celery-worker` | `openssl rand -hex 12` | Change the value and recreate the stack (rules in "Generate the object-store keys") |
+| `OBJECT_STORE_SECRET_KEY` | same as the access key | `openssl rand -base64 32` | As the access key |
+| `AT_REST_ENCRYPTION_KEY` | `backend`, `celery-worker` (field encryption); `object-store` (SSE key) | `openssl rand -base64 32` (base64 of exactly 32 bytes) | Not by editing the value: see [ADR-0018](../docs/design/adr/0018-field-encryption-key-identifier-and-key-separation.md) and "Generate the object-store keys" below |
+| `SMTP_PASSWORD` | `backend`, `celery-worker` | Issued by your mail relay. Required only when `SMTP_USER` is set; leave `SMTP_USER` and `SMTP_PASSWORD` empty for a relay without authentication | Issue a new one at the relay, change the value, recreate `backend` and `celery-worker` |
+
+Optional secret settings, not read by the Compose stack yet; the application checks each one
+**only when it is set** and refuses a placeholder: `DATABASE_OWNER_URL` (the owner connection used
+by the migration service), `OBJECT_STORE_SSE_KEY` (a separate server-side-encryption key,
+`openssl rand -base64 32`) and `AT_REST_ENCRYPTION_RETIRED_KEYS` (comma-separated earlier
+encryption keys, kept so old values stay readable). Their tasks add them to the template and to
+this table.
+
+What refuses an unsafe value, and where:
+
+- **Compose**: `POSTGRES_PASSWORD`, `DATABASE_URL`, `AT_REST_ENCRYPTION_KEY` and the two
+  object-store keys use `${NAME:?…}`. `docker compose` stops before creating anything and the
+  message names the first setting it finds unset or empty. Check it without starting anything: take
+  a filled `.env`, remove one line (for example `POSTGRES_PASSWORD=`) and run
+  `docker compose -f infra/docker-compose.yml --env-file <that file> config`; the message is
+  `POSTGRES_PASSWORD must be set`.
+- **The application** (backend and worker start-up): refuses a secret that is a known placeholder
+  (the weak words, any value starting with the `change-me` prefix and any value earlier templates
+  shipped; any case; list in `backend/app/core/secret_settings.py`), a database URL
+  without a password, and an `AT_REST_ENCRYPTION_KEY` that does not decode to 32 bytes. The
+  message names the setting, never the value. Note that the Celery worker container does not run the
+  worker yet (PRB-061), so its refusal does not take effect in the Compose stack until that is
+  fixed; the backend's does.
 
 `SESSION_SIGNING_KEY` is no longer a setting (sessions are opaque random tokens held in Redis,
 not signed). Remove it from an existing `infra/.env`; a leftover value is ignored.
@@ -27,7 +65,8 @@ not signed). Remove it from an existing `infra/.env`; a leftover value is ignore
 #### Generate the object-store keys
 
 `OBJECT_STORE_ACCESS_KEY` and `OBJECT_STORE_SECRET_KEY` have no default. Generate both, and
-generate `AT_REST_ENCRYPTION_KEY` the same way:
+generate `AT_REST_ENCRYPTION_KEY` the same way (the other secrets are in the "Secret settings"
+table above):
 
 ```bash
 openssl rand -hex 12      # OBJECT_STORE_ACCESS_KEY

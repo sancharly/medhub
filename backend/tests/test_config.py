@@ -114,3 +114,19 @@ def test_smtp_user_without_password_is_refused_without_echoing_values(monkeypatc
     text = str(exc.value)
     assert "SMTP_PASSWORD" in text
     assert VALID_ENV["DATABASE_URL"] not in text and VALID_ENV["AT_REST_ENCRYPTION_KEY"] not in text
+
+
+def test_validation_error_never_echoes_a_rejected_value(monkeypatch) -> None:
+    """SR-041 AC 3, TS-015 TC-015.3: `hide_input_in_errors=True` keeps a rejected value out of text.
+
+    A DATABASE_URL with the wrong scheme is rejected by the field type; with the flag off the
+    error text would carry the whole input, password included. (``errors()`` keeps the input
+    whatever the flag says; the start-up path prints the exception text, never ``errors()``.)
+    """
+    for k, v in VALID_ENV.items():
+        monkeypatch.setenv(k, v)
+    monkeypatch.setenv("DATABASE_URL", "mysql://u:SENTINEL@h:5432/d")
+    with pytest.raises(ValidationError) as exc:
+        Settings()
+    assert "DATABASE_URL" in str(exc.value) or "database_url" in str(exc.value)
+    assert "SENTINEL" not in str(exc.value)
