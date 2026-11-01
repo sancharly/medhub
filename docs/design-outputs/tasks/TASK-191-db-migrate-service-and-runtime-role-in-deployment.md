@@ -125,3 +125,23 @@ cd backend && uv run pytest --cov=app --cov-fail-under=85
 - [ ] Infra tests and smoke test pass; backend suite passes.
 - [ ] Rehearsal recorded and presented to the human before any other database is converted.
 - [ ] `traceability-check` shows no error for TASK-191, TS-009, TS-015, SR-023, SR-041, PRB-005.
+
+## Carried from the TASK-190 QA review (2026-11-01)
+
+- **Ordering window.** Migration 0009 (TASK-190) dropped the 0006 rules while the application
+  still connects as the owner. Until this task deploys the runtime role, an owner-connected
+  `UPDATE`/`DELETE` on `audit_log` succeeds. The human decides whether this is accepted (TASK-190
+  QA finding 1). If it is accepted: do not merge, tag or deploy the branch to a shared database
+  between the two commits. PRB-005's Resolution states that the rules went before the role was
+  deployed.
+- **`apply` on a pre-existing role** (`backend/app/db/roles.py`). Refuse a runtime role that is a
+  member of any role, owns any object or is a superuser. In PostgreSQL 16, `ALTER ROLE ...
+  NOINHERIT` leaves an existing grant's INHERIT option in place. Add the smoke check: as the
+  runtime role, `SET ROLE <owner>` fails and `pg_auth_members` is empty.
+- **`alembic_version`.** Revoke `INSERT, UPDATE, DELETE` from the runtime role, guarded by
+  `to_regclass` (the `create_all` test databases have no such table).
+- **Grants after every migration.** `db-migrate` runs `alembic upgrade head && python -m app.db.roles`
+  in one run, and no other process migrates. No default privileges are set, so a table is granted
+  only by the next `apply`.
+- **Optional.** Send a SCRAM verifier (`psycopg2.extensions.encrypt_password`) instead of the
+  plaintext password in `CREATE/ALTER ROLE`, so server statement logs never hold it.

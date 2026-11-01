@@ -30,6 +30,7 @@ from app.audit.actions import AuditAction
 from app.audit.service import AuditService
 from app.auth.password import PasswordService
 from app.authz.service import AuthorizationService
+from app.db import roles
 from app.db.models.account import Account, AccountStatus, UserType
 from app.db.models.attachment import Attachment
 from app.db.models.audit import AuditLog, AuditOutcome
@@ -52,11 +53,25 @@ def pg_engine():
         engine.dispose()
 
 
+@pytest.fixture(scope="module")
+def runtime_engine(pg_engine):
+    """The engine the application runs on: the runtime role of ADR-0017 (TASK-190, AC 2).
+
+    ``pg_engine`` stays the owner connection, used for set-up, read-back and clean-up (the
+    runtime role cannot delete ``audit_log`` rows).
+    """
+    roles.apply(pg_engine, "medhub_app", "runtime-pw-4k9x2m7q")
+    engine = create_engine(pg_engine.url.set(username="medhub_app", password="runtime-pw-4k9x2m7q"))
+    yield engine
+    engine.dispose()
+
+
 @pytest.fixture
-def factory(pg_engine, monkeypatch) -> Iterator[sessionmaker[Session]]:
-    monkeypatch.setattr("app.db.repositories.session.get_engine", lambda: pg_engine)
+def factory(pg_engine, runtime_engine, monkeypatch) -> Iterator[sessionmaker[Session]]:
+    monkeypatch.setattr("app.db.repositories.session.get_engine", lambda: runtime_engine)
     maker = sessionmaker(bind=pg_engine)
     yield maker
+    # ``maker`` is bound to the owner connection: the runtime role cannot delete audit rows.
     with maker() as s:
         s.execute(delete(AuditLog))
         s.execute(delete(Account))

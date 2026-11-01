@@ -22,6 +22,7 @@ from app.api.deps import get_current_user, get_platform_services
 from app.api.errors import AuthorizationError, register_error_handlers
 from app.audit.actions import AuditAction
 from app.audit.service import AuditService
+from app.db import roles
 from app.db.models.account import Account, AccountStatus, UserType
 from app.db.models.audit import AuditLog, AuditOutcome
 from app.db.models.base import Base
@@ -40,6 +41,19 @@ def pg_engine():
         engine.dispose()
 
 
+@pytest.fixture(scope="module")
+def runtime_engine(pg_engine):
+    """The engine the application runs on: the runtime role of ADR-0017 (TASK-190, AC 2).
+
+    ``pg_engine`` stays the owner connection, used for set-up, read-back and clean-up (the
+    runtime role cannot delete ``audit_log`` rows).
+    """
+    roles.apply(pg_engine, "medhub_app", "runtime-pw-4k9x2m7q")
+    engine = create_engine(pg_engine.url.set(username="medhub_app", password="runtime-pw-4k9x2m7q"))
+    yield engine
+    engine.dispose()
+
+
 def _app() -> FastAPI:
     app = FastAPI()
     register_error_handlers(app)
@@ -47,8 +61,10 @@ def _app() -> FastAPI:
     return app
 
 
-def test_dicom_study_read_failure_persists_after_403(pg_engine, monkeypatch) -> None:
-    monkeypatch.setattr("app.db.repositories.session.get_engine", lambda: pg_engine)
+def test_dicom_study_read_failure_persists_after_403(
+    pg_engine, runtime_engine, monkeypatch
+) -> None:
+    monkeypatch.setattr("app.db.repositories.session.get_engine", lambda: runtime_engine)
     actor = MagicMock(spec=Account)
     actor.id = uuid.uuid4()
     actor.user_type = UserType.DOCTOR
@@ -86,6 +102,7 @@ def test_dicom_study_read_failure_persists_after_403(pg_engine, monkeypatch) -> 
             (AuditAction.DICOM_STUDY_READ, AuditOutcome.FAILURE, actor.id)
         ]
     finally:
+        # Owner connection: the runtime role cannot delete audit rows (SR-023 AC 8).
         with maker() as cleanup:
             cleanup.execute(delete(AuditLog))
             cleanup.commit()

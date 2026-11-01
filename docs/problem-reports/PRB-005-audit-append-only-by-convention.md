@@ -3,10 +3,10 @@ id: "PRB-005"
 type: problem-report
 title: "Audit log is append-only by convention rather than by the database, and its scrub is pattern-limited"
 status: open
-version: "1.2"
+version: "1.3"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
-updated: "2026-10-31"
+updated: "2026-11-01"
 criticality: major
 links: []
 tags: ["security", "hazard:detectability"]
@@ -79,11 +79,14 @@ fixed.
 
 **Interim (TASK-192, 2026-10-31): scrub part done.** `AuditService.record` now refuses any `action`, `target_type` or `target_id` outside closed shapes (`AuditFieldError`), and logout records the account id, not the session token (`backend/tests/audit/test_audit_no_secrets.py`, TS-009 TC-009.12). Still open: the append-only part, TASK-190 and TASK-191 (DB-enforced through role privileges). The report moves to `resolved` with TASK-191, the last PRB-005 task.
 
+**Interim (TASK-190, 2026-11-01): database side done.** Migration 0009 drops the `DO INSTEAD NOTHING` rules of 0006, and `app.db.roles.apply` creates the runtime role with no `UPDATE`, `DELETE` or `TRUNCATE` on `audit_log`; as that role the statements fail with SQLSTATE 42501 (`backend/tests/db/test_audit_append_only_privileges.py`, TS-009 TC-009.11). The deployment still connects as the owner role and does not run `app.db.roles`, so the defect is not fixed in a running system until TASK-191. The report stays `open`.
+
 ## Source
 
 `docs/implementation-plan/AUDIT-FINDINGS.md` — Security, Medium.
 
 ## Version history
 
+- 1.3 (2026-11-01) — TASK-190: interim Resolution note (database side done; deployment open with TASK-191). Status unchanged.
 - 1.2 (2026-10-31) — TASK-192: interim Resolution note (scrub part done; append-only part open with TASK-190 and TASK-191). Status unchanged.
 - 1.1 (2026-10-31) — CR-004 Plan stage (Software Architect role): `## Investigation` added from the current tree (§9.2); Resolution points at the planned tasks. Status and criticality unchanged.

@@ -21,6 +21,7 @@ from app.api.routers.attachments import _get_attachment_service
 from app.attachments.service import AttachmentService
 from app.audit.service import AuditService
 from app.authz.service import AuthorizationService
+from app.db import roles
 from app.db.models.account import Account, AccountStatus, UserType
 from app.db.models.attachment import Attachment
 from app.db.models.audit import AuditLog, AuditOutcome
@@ -40,8 +41,21 @@ def pg_engine():
         engine.dispose()
 
 
-def test_failure_audit_row_persists_after_502(pg_engine, monkeypatch) -> None:
-    monkeypatch.setattr("app.db.repositories.session.get_engine", lambda: pg_engine)
+@pytest.fixture(scope="module")
+def runtime_engine(pg_engine):
+    """The engine the application runs on: the runtime role of ADR-0017 (TASK-190, AC 2).
+
+    ``pg_engine`` stays the owner connection, used for set-up, read-back and clean-up (the
+    runtime role cannot delete ``audit_log`` rows).
+    """
+    roles.apply(pg_engine, "medhub_app", "runtime-pw-4k9x2m7q")
+    engine = create_engine(pg_engine.url.set(username="medhub_app", password="runtime-pw-4k9x2m7q"))
+    yield engine
+    engine.dispose()
+
+
+def test_failure_audit_row_persists_after_502(pg_engine, runtime_engine, monkeypatch) -> None:
+    monkeypatch.setattr("app.db.repositories.session.get_engine", lambda: runtime_engine)
 
     actor = MagicMock(spec=Account)
     actor.id = uuid.uuid4()
@@ -97,7 +111,8 @@ def test_failure_audit_row_persists_after_502(pg_engine, monkeypatch) -> None:
     assert rows[0].action == "ATTACHMENT_ACCESS"
     assert rows[0].actor_id == actor.id
 
-    # Independent rows commit outside any test transaction; leave the table clean.
+    # Independent rows commit outside any test transaction; leave the table clean. The owner
+    # connection deletes them: the runtime role cannot (SR-023 AC 8).
     with sessionmaker(bind=pg_engine)() as cleanup:
         cleanup.execute(delete(AuditLog))
         cleanup.commit()
