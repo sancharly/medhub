@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import base64
 import logging
+import os
 import subprocess
 import sys
 
@@ -371,3 +372,43 @@ def test_owner_url_placeholder_is_refused() -> None:
         "DATABASE_OWNER_URL" in m
         for m in check(_env(DATABASE_URL=RUNTIME, DATABASE_OWNER_URL=owner))
     )
+
+
+# TASK-196, SR-041 AC 5 (carried requirement C2): OBJECT_STORE_SSE_KEY is a Settings field
+def test_settings_env_reads_the_sse_key_from_settings(monkeypatch) -> None:
+    from app.core.config import get_settings  # noqa: PLC0415
+
+    monkeypatch.delenv("OBJECT_STORE_SSE_KEY", raising=False)
+    get_settings.cache_clear()
+    assert secret_settings.settings_env()["OBJECT_STORE_SSE_KEY"] is None
+    monkeypatch.setenv("OBJECT_STORE_SSE_KEY", THIRD_KEY)
+    get_settings.cache_clear()
+    assert secret_settings.settings_env()["OBJECT_STORE_SSE_KEY"] == THIRD_KEY
+
+
+def test_sse_key_must_be_32_bytes_and_distinct_from_the_field_keys() -> None:
+    short = base64.urlsafe_b64encode(bytes(31)).decode()
+    assert any("32 bytes" in m for m in check(_env(OBJECT_STORE_SSE_KEY=short)))
+    equal = check(_env(OBJECT_STORE_SSE_KEY=GOOD_KEY))
+    assert len(equal) == 1 and "same key as AT_REST_ENCRYPTION_KEY" in equal[0]
+    retired = check(_env(OBJECT_STORE_SSE_KEY=OTHER_KEY, **{RETIRED: f"old:{OTHER_KEY}"}))
+    assert any("AT_REST_ENCRYPTION_RETIRED_KEYS entry 1" in m for m in retired)
+    assert check(_env(OBJECT_STORE_SSE_KEY=THIRD_KEY)) == []
+    for message in equal + retired:
+        assert GOOD_KEY not in message and OTHER_KEY not in message
+
+
+def test_settings_refuse_an_sse_key_equal_to_the_field_key(monkeypatch) -> None:
+    """The application refuses too when it is given the key (it is not given it by Compose)."""
+    from pydantic import ValidationError  # noqa: PLC0415
+
+    from app.core.config import Settings  # noqa: PLC0415
+
+    monkeypatch.setenv("OBJECT_STORE_SSE_KEY", THIRD_KEY)
+    assert Settings().object_store_sse_key is not None
+    field_key = os.environ["AT_REST_ENCRYPTION_KEY"]
+    monkeypatch.setenv("OBJECT_STORE_SSE_KEY", field_key)
+    with pytest.raises(ValidationError) as exc:
+        Settings()
+    assert "OBJECT_STORE_SSE_KEY" in str(exc.value)
+    assert field_key not in str(exc.value)

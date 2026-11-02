@@ -6,6 +6,7 @@ and checks the static files for default credential strings. Skipped when `docker
 
 import json
 import os
+import re
 import shutil
 import subprocess
 import tempfile
@@ -22,6 +23,7 @@ GOOD = {
     "DATABASE_URL": "postgresql://medhub_app:throwaway-runtime-password@postgres:5432/medhub",
     "AT_REST_ENCRYPTION_KEY": "throwaway-at-rest-key-for-config-only",
     "AT_REST_ENCRYPTION_KEY_ID": "throwaway-id",
+    "OBJECT_STORE_SSE_KEY": "throwaway-object-store-sse-key-config-only",
 }
 DEFAULT_STRINGS = ("minioadmin", "changeme")
 
@@ -138,7 +140,8 @@ class ComposeWiring(unittest.TestCase):
             self.assertIn(option, command)
         self.assertNotIn("ports", svc)
         self.assertEqual([str(p) for p in svc["expose"]], ["8333"])
-        self.assertEqual(svc["environment"]["WEED_S3_SSE_KEY"], GOOD["AT_REST_ENCRYPTION_KEY"])
+        self.assertEqual(svc["environment"]["WEED_S3_SSE_KEY"], GOOD["OBJECT_STORE_SSE_KEY"])
+        self.assertNotEqual(svc["environment"]["WEED_S3_SSE_KEY"], GOOD["AT_REST_ENCRYPTION_KEY"])
         self.assertIn("object_store_data", self.config["volumes"])
         # TASK-178: the MinIO volume is no longer declared here; the legacy file names it external.
         self.assertNotRegex(COMPOSE.read_text(), r"(?m)^  minio_data:")
@@ -221,17 +224,88 @@ class ComposeWiring(unittest.TestCase):
         self.assertEqual(store_env["AWS_ACCESS_KEY_ID"], shell["OBJECT_STORE_ACCESS_KEY"])
 
     def test_unset_keys_are_refused_by_compose_itself(self):
-        for var in ("OBJECT_STORE_ACCESS_KEY", "OBJECT_STORE_SECRET_KEY"):
+        for var in ("OBJECT_STORE_ACCESS_KEY", "OBJECT_STORE_SECRET_KEY", "OBJECT_STORE_SSE_KEY"):
             env = {k: v for k, v in GOOD.items() if k != var}
             result, _ = compose_config(env)
             self.assertNotEqual(result.returncode, 0, var)
             self.assertIn(f"{var} must be set", result.stderr)
 
     def test_empty_keys_are_refused_by_compose_itself(self):
-        for var in ("OBJECT_STORE_ACCESS_KEY", "OBJECT_STORE_SECRET_KEY"):
+        for var in ("OBJECT_STORE_ACCESS_KEY", "OBJECT_STORE_SECRET_KEY", "OBJECT_STORE_SSE_KEY"):
             result, _ = compose_config({**GOOD, var: ""})
             self.assertNotEqual(result.returncode, 0, var)
             self.assertIn(f"{var} must be set", result.stderr)
+
+
+    def test_sse_key_is_its_own_setting_and_reaches_only_the_store_and_the_preflight(self):
+        """SR-041 AC 5, TASK-196: checked by value, over every service, not by name.
+
+        The store takes WEED_S3_SSE_KEY from OBJECT_STORE_SSE_KEY; no service gets the SSE key
+        under a second name, and the field key and the retired keys never reach the store.
+        """
+        shell = {
+            "OBJECT_STORE_SSE_KEY": "unique-sse-value-0123456789",
+            "AT_REST_ENCRYPTION_KEY": "unique-field-value-0123456789",
+            "AT_REST_ENCRYPTION_RETIRED_KEYS": "k0:unique-retired-value-0123456789",
+        }
+        result, config = compose_config(GOOD, shell)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        holders = {
+            key: {
+                name
+                for name, svc in config["services"].items()
+                if any(shell[key] in str(v) for v in svc.get("environment", {}).values())
+            }
+            for key in shell
+        }
+        self.assertEqual(holders["OBJECT_STORE_SSE_KEY"], {"object-store", "object-store-preflight"})
+        self.assertEqual(
+            config["services"]["object-store"]["environment"]["WEED_S3_SSE_KEY"],
+            shell["OBJECT_STORE_SSE_KEY"],
+        )
+        self.assertNotIn("object-store", holders["AT_REST_ENCRYPTION_KEY"])
+        self.assertNotIn("object-store", holders["AT_REST_ENCRYPTION_RETIRED_KEYS"])
+        self.assertIn("object-store-preflight", holders["AT_REST_ENCRYPTION_KEY"])
+        self.assertIn("object-store-preflight", holders["AT_REST_ENCRYPTION_RETIRED_KEYS"])
+        for name in ("object-store", "object-store-preflight"):
+            self.assertNotIn("env_file", config["services"][name])
+
+    def test_the_store_key_is_not_interpolated_from_a_field_key(self):
+        """Make the coupling impossible, not only documented (TASK-195 QA carry-over)."""
+        text = COMPOSE.read_text()
+        sse = re.findall(r"(?m)^\s+WEED_S3_SSE_KEY:\s*(.*)$", text)
+        self.assertEqual(sse, ["${OBJECT_STORE_SSE_KEY:?OBJECT_STORE_SSE_KEY must be set}"])
+        for line in sse:
+            self.assertNotIn("AT_REST", line)
+        # The shell cannot re-couple them either: with the field key changed the store key stays.
+        result, config = compose_config(GOOD, {"AT_REST_ENCRYPTION_KEY": "another-field-key-value"})
+        self.assertEqual(result.returncode, 0, result.stderr)
+        store_env = config["services"]["object-store"]["environment"]
+        self.assertEqual(store_env["WEED_S3_SSE_KEY"], GOOD["OBJECT_STORE_SSE_KEY"])
+
+    def test_the_preflight_receives_both_keys_with_the_values_the_store_gets(self):
+        shell = {"OBJECT_STORE_SSE_KEY": "shell-sse-value-0123456789"}
+        result, config = compose_config(GOOD, shell)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        pre = config["services"]["object-store-preflight"]["environment"]
+        self.assertEqual(pre["OBJECT_STORE_SSE_KEY"], shell["OBJECT_STORE_SSE_KEY"])
+        self.assertEqual(pre["OBJECT_STORE_SSE_KEY"], config["services"]["object-store"]["environment"]["WEED_S3_SSE_KEY"])
+        self.assertEqual(pre["AT_REST_ENCRYPTION_KEY"], GOOD["AT_REST_ENCRYPTION_KEY"])
+        self.assertEqual(pre["AT_REST_ENCRYPTION_RETIRED_KEYS"], "")
+
+    def test_the_object_store_volume_defaults_and_can_be_named(self):
+        """TASK-196: the SSE-key procedure switches the store to another volume by name."""
+        _, default = compose_config(GOOD)
+        self.assertRegex(default["volumes"]["object_store_data"]["name"], r"_object_store_data$")
+        result, named = compose_config({**GOOD, "OBJECT_STORE_VOLUME": "scratch_volume"})
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(named["volumes"]["object_store_data"]["name"], "scratch_volume")
+        mounts = [v["source"] for v in named["services"]["object-store"]["volumes"]]
+        self.assertEqual(mounts, ["object_store_data"])
+        # An empty value (the template ships it empty) keeps the default name.
+        _, empty = compose_config({**GOOD, "OBJECT_STORE_VOLUME": ""})
+        self.assertEqual(empty["volumes"]["object_store_data"]["name"],
+                         default["volumes"]["object_store_data"]["name"])
 
 
 class NoDefaultStrings(unittest.TestCase):

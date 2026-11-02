@@ -12,7 +12,7 @@ from pydantic import PostgresDsn, SecretStr, field_validator, model_validator
 from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 from app.core.client_address import parse_trusted_proxies
-from app.core.secret_settings import keyring_problems
+from app.core.secret_settings import keyring_problems, sse_key_problems
 
 _RETIRED_KEY = "session_signing_key"
 
@@ -53,6 +53,11 @@ class Settings(BaseSettings):
     at_rest_encryption_key_id: str
     # Earlier keys, "id:base64key,id:base64key", used to decrypt values written under them only.
     at_rest_encryption_retired_keys: SecretStr | None = None
+
+    # The object store's SSE key (SR-041 AC 5, ADR-0018). Only the object store and its preflight
+    # use it (Compose gives it to no Python service), so it is optional here; when present it must
+    # be a valid key distinct from the field keys.
+    object_store_sse_key: SecretStr | None = None
 
     # Session timeouts (seconds)
     session_inactivity_clinical_seconds: int = 900
@@ -104,6 +109,20 @@ class Settings(BaseSettings):
         )
         if problems:  # the messages name settings and key ids, never a key
             raise ValueError("; ".join(problems))
+        return self
+
+    @model_validator(mode="after")
+    def _check_sse_key(self) -> "Settings":
+        sse = self.object_store_sse_key
+        if sse is not None and sse.get_secret_value().strip():
+            retired = self.at_rest_encryption_retired_keys
+            problems = sse_key_problems(
+                sse.get_secret_value(),
+                self.at_rest_encryption_key.get_secret_value(),
+                retired.get_secret_value() if retired else None,
+            )
+            if problems:  # the messages name settings, never a key
+                raise ValueError("; ".join(problems))
         return self
 
     @field_validator("cors_origins", mode="before")

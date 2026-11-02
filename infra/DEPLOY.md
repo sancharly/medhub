@@ -34,7 +34,8 @@ be a different value), and never copy a value from this document or from a ticke
 | `DATABASE_URL` | `backend`, `celery-worker`, `celery-beat`, and `db-migrate` (which creates the role from it) | `postgresql://medhub_app:<password>@postgres:5432/medhub`; generate the password with a command of its own (`openssl rand -hex 24`): it must differ from `POSTGRES_PASSWORD`, and the user must be a different one from the owner's | Change the password here and run `db-migrate` (it applies the new password to the role), then recreate `backend`, `celery-worker` and `celery-beat` |
 | `OBJECT_STORE_ACCESS_KEY` | `object-store`, `object-store-preflight`, `object-store-init`, `backend`, `celery-worker` | `openssl rand -hex 12` | Change the value and recreate the stack (rules in "Generate the object-store keys") |
 | `OBJECT_STORE_SECRET_KEY` | same as the access key | `openssl rand -base64 32` | As the access key |
-| `AT_REST_ENCRYPTION_KEY` | `backend`, `celery-worker` (field encryption); `object-store` (SSE key) | `openssl rand -base64 32` (base64 of exactly 32 bytes) | Not by editing the value (pair it with `AT_REST_ENCRYPTION_KEY_ID`): follow "Field-encryption key rotation" ([ADR-0018](../docs/design/adr/0018-field-encryption-key-identifier-and-key-separation.md)); "Generate the object-store keys" below explains why it cannot simply be replaced while the object store shares it |
+| `AT_REST_ENCRYPTION_KEY` | `backend`, `celery-worker`, `celery-beat`, `db-migrate` (field encryption); `object-store-preflight` (compared with the SSE key, nothing else) | `openssl rand -base64 32` (base64 of exactly 32 bytes) | Not by editing the value (pair it with `AT_REST_ENCRYPTION_KEY_ID`): follow "Field-encryption key rotation" ([ADR-0018](../docs/design/adr/0018-field-encryption-key-identifier-and-key-separation.md)) |
+| `OBJECT_STORE_SSE_KEY` | `object-store` (as `WEED_S3_SSE_KEY`) and `object-store-preflight`; no other service | `openssl rand -base64 32` (base64 of exactly 32 bytes), a command of its own: never `AT_REST_ENCRYPTION_KEY` or a retired field key | Not by editing the value: the key belongs to the volume that holds the attachments. Follow "Separating the object-store SSE key" (a copy to a new volume under the new key) |
 | `AT_REST_ENCRYPTION_RETIRED_KEYS` | `backend`, `celery-worker`, `celery-beat`, `db-migrate` (optional; decryption only) | Earlier keys as comma-separated `id:key` entries, each key `openssl rand -base64 32` output; empty unless a rotation is under way. Ids differ from `AT_REST_ENCRYPTION_KEY_ID` and from each other; a key must not equal the current key | Remove an entry only as the last step of "Field-encryption key rotation", once `--check` shows no value under its id |
 | `SMTP_PASSWORD` | `backend`, `celery-worker` | Issued by your mail relay. Required only when `SMTP_USER` is set; leave `SMTP_USER` and `SMTP_PASSWORD` empty for a relay without authentication | Issue a new one at the relay, change the value, recreate `backend` and `celery-worker` |
 
@@ -47,14 +48,23 @@ earlier versions have no prefix and are refused by the application; migration 00
 `db-migrate` runs before the backend starts, converts them (see "Converting existing field values"). The identifier and each retired id must have no spaces or
 line breaks around them; the application refuses them at start-up.
 
-One optional secret setting is not read by the Compose stack yet: `OBJECT_STORE_SSE_KEY` (a separate
-server-side-encryption key, `openssl rand -base64 32`); the application checks it **only when it is
-set** and refuses a placeholder. Its task adds it to the template and to this table.
+`OBJECT_STORE_SSE_KEY` is the object store's server-side-encryption key (SR-041 AC 5, ADR-0018). It is
+a key of its own: the field key and the SSE key are separate settings and the stack refuses to start
+when they are equal, so replacing the field key (rotation) cannot make an attachment unreadable. The
+object store and the preflight are the only services that receive it; the backend, the Celery
+services and `db-migrate` do not (the object store encrypts, the backend only talks S3). The store
+cannot tell which key an object was written under: **the key belongs to the volume**. Changing the
+value on a volume that holds attachments makes them unreadable, so the stack checks it (below) and
+the only way to move to another key is the copy in "Separating the object-store SSE key".
+
+`OBJECT_STORE_VOLUME` is optional and empty by default (the volume is then `<project>_object_store_data`).
+Only "Separating the object-store SSE key" sets it, to switch the store to the volume that holds the
+attachments under the new key.
 
 What refuses an unsafe value, and where:
 
-- **Compose**: `POSTGRES_PASSWORD`, `DATABASE_OWNER_URL`, `DATABASE_URL`, `AT_REST_ENCRYPTION_KEY`, `AT_REST_ENCRYPTION_KEY_ID` and the two
-  object-store keys use `${NAME:?…}`. `docker compose` stops before creating anything and the
+- **Compose**: `POSTGRES_PASSWORD`, `DATABASE_OWNER_URL`, `DATABASE_URL`, `AT_REST_ENCRYPTION_KEY`, `AT_REST_ENCRYPTION_KEY_ID`,
+  `OBJECT_STORE_SSE_KEY` and the two object-store keys use `${NAME:?…}`. `docker compose` stops before creating anything and the
   message names the first setting it finds unset or empty. Check it without starting anything: take
   a filled `.env`, remove one line (for example `POSTGRES_PASSWORD=`) and run
   `docker compose -f infra/docker-compose.yml --env-file <that file> config`; the message is
@@ -69,6 +79,16 @@ What refuses an unsafe value, and where:
   same password as `DATABASE_OWNER_URL`. The message names the setting, never the value. The
   backend, the Celery worker and Celery beat refuse at start-up; `db-migrate` refuses before it
   connects.
+- **`object-store-preflight`** (before the object store starts): refuses an `OBJECT_STORE_SSE_KEY` that
+  is unset, empty, a placeholder, not base64 of exactly 32 bytes, or **the same key as
+  `AT_REST_ENCRYPTION_KEY` or as an entry of `AT_REST_ENCRYPTION_RETIRED_KEYS`** (compared as decoded
+  bytes, so another spelling of the same key does not pass). The message names the settings
+  (`OBJECT_STORE_SSE_KEY is the same key as AT_REST_ENCRYPTION_KEY`), never a value.
+- **`object-store-init`** (after the store is healthy, before the backend starts): reads the first byte
+  of the first object in the bucket. A store started with a key other than the one its volume was
+  written with cannot decrypt it; the initialiser exits 1 with `an object in the bucket cannot be read
+  ... OBJECT_STORE_SSE_KEY is not the key this volume was written with`, so the backend stays down and
+  nothing is written under the wrong key.
 
 `SESSION_SIGNING_KEY` is no longer a setting (sessions are opaque random tokens held in Redis,
 not signed). Remove it from an existing `infra/.env`; a leftover value is ignored.
@@ -76,32 +96,30 @@ not signed). Remove it from an existing `infra/.env`; a leftover value is ignore
 #### Generate the object-store keys
 
 `OBJECT_STORE_ACCESS_KEY` and `OBJECT_STORE_SECRET_KEY` have no default. Generate both, and
-generate `AT_REST_ENCRYPTION_KEY` the same way (the other secrets are in the "Secret settings"
-table above):
+generate `AT_REST_ENCRYPTION_KEY` and `OBJECT_STORE_SSE_KEY` the same way (the other secrets are in
+the "Secret settings" table above):
 
 ```bash
 openssl rand -hex 12      # OBJECT_STORE_ACCESS_KEY
 openssl rand -base64 32   # OBJECT_STORE_SECRET_KEY
 openssl rand -base64 32   # AT_REST_ENCRYPTION_KEY (base64 of 32 random bytes)
+openssl rand -base64 32   # OBJECT_STORE_SSE_KEY (base64 of 32 random bytes)
 ```
 
-Run the last command separately: the secret key and the encryption key must be different values.
+Run each command separately: the four values must all be different.
 
 The `object-store-preflight` service stops the object store and its bucket initialiser, naming
 the setting, when either key is unset or empty, equals a well-known default value
 (list in `backend/app/core/object_store_credentials.py`, compared in any case), or when the secret key is shorter than
-16 characters.
+16 characters, and when `OBJECT_STORE_SSE_KEY` is rejected (rules in "Secret settings").
 
-`AT_REST_ENCRYPTION_KEY` must be base64 that decodes to exactly 32 bytes: the backend
-(`backend/app/db/crypto.py`) refuses any other length, but only when it first encrypts a field
-(for example the first clinical entry), not at start-up. Thirty-two ASCII characters decode to 24
-bytes and `openssl rand -hex 32` to 48 bytes, so neither works. The object store accepts any
-string, so a wrong key does not stop the stack from starting.
+`AT_REST_ENCRYPTION_KEY` and `OBJECT_STORE_SSE_KEY` must be base64 that decodes to exactly 32 bytes.
+Thirty-two ASCII characters decode to 24 bytes and `openssl rand -hex 32` to 48 bytes, so neither
+works; the application and the preflight refuse them at start-up.
 
-Set it **before the first start**. It is also the object store's server-side-encryption key
-(`WEED_S3_SSE_KEY`): with a different value on the same volume the stored objects can no longer
-be read, so it cannot be changed later on a store that holds data. Back it up with the volumes it
-protects.
+Set `OBJECT_STORE_SSE_KEY` **before the first start** and never change it on a store that holds data
+(`WEED_S3_SSE_KEY` is taken from it): with a different value on the same volume the stored
+attachments can no longer be read. Back both keys up with the volumes they protect.
 
 ### 2. Provision TLS certificates
 
@@ -177,9 +195,9 @@ has no console or admin UI, no host port, and sits on its own `object-store` net
 
 | Service (one-shot unless noted) | What it does |
 |---|---|
-| `object-store-preflight` | Checks the two keys (rules in "Generate the object-store keys") with no network; exits non-zero, naming the setting, when one is rejected |
+| `object-store-preflight` | Checks the two credentials and the SSE key (rules in "Generate the object-store keys" and "Secret settings") with no network; exits non-zero, naming the setting, when one is rejected |
 | `object-store` (long-running) | The S3 server. Healthy only when its S3 endpoint answers |
-| `object-store-init` | Waits for a healthy store; creates the bucket `OBJECT_STORE_BUCKET` (default `medhub`) if missing, sets AES256 default encryption, reads it back, and checks the bucket has no policy. Exits non-zero on any failure |
+| `object-store-init` | Waits for a healthy store; creates the bucket `OBJECT_STORE_BUCKET` (default `medhub`) if missing, sets AES256 default encryption, reads it back, checks the bucket has no policy, and reads the first byte of the first stored object (a wrong SSE key for the volume fails here). Exits non-zero on any failure |
 
 Re-run the initialiser at any time (it is safe to repeat):
 
@@ -287,13 +305,18 @@ shared database until you have rehearsed these steps on a copy of your data.
 2. In `infra/.env`: move the current `DATABASE_URL` value to the new `DATABASE_OWNER_URL`
    (the owner connection, password `POSTGRES_PASSWORD`), then set `DATABASE_URL` to
    `postgresql://medhub_app:<new password>@postgres:5432/medhub` with a password generated by
-   `openssl rand -hex 24`. Remove no other setting.
+   `openssl rand -hex 24`. Remove no other setting. **If the object store holds attachments written
+   under `AT_REST_ENCRYPTION_KEY` (every release before this one), also make the `infra/.env` edits of
+   "Separating the object-store SSE key" now (step 3 there): this release's Compose file needs
+   `OBJECT_STORE_SSE_KEY` for every command, including the next one. Then run steps 1 to 3 here,
+   skip step 4, and continue with that section** (its step 7 starts the stack).
 3. `docker compose -f infra/docker-compose.yml up --build --exit-code-from db-migrate db-migrate`. Expect the migrations since your
    version (0009 drops the `audit_log` rules that turned `UPDATE` and `DELETE` into silent no-ops)
    and the line `database roles applied for runtime role medhub_app`; exit code 0. Until this
    step has run, an owner connection can still alter `audit_log` after 0009 (the window accepted
    in CR-004 D-4); the stack is never started on the old settings in between.
-4. `docker compose -f infra/docker-compose.yml up -d --build`, then `bash infra/smoke-test.sh`.
+4. `docker compose -f infra/docker-compose.yml up -d --build`, then `bash infra/smoke-test.sh`
+   (not while attachments are still under the old key: see step 2 and "Separating the object-store SSE key").
 5. Roll back by restoring the volume copy from step 1 and the previous `infra/.env`; the previous
    release's entrypoint migrates as the owner. **Every row written after the upgrade is lost**
    (the restore returns the database to step 1). Roles are cluster-wide, not part of one database,
@@ -329,6 +352,8 @@ as part of the upgrade, and rehearse it first on a restored copy of your data.
    (exit 1) is reported as exit code 0. Expect the line `migration 0010 upgrade: N clinical_entry.description
    value(s) converted` and exit code 0 (check `echo $?` right after the command).
 4. `docker compose -f infra/docker-compose.yml up -d --build`, then `bash infra/smoke-test.sh`.
+   If the object store still holds attachments under the old key, skip this step and continue with
+   "Separating the object-store SSE key" (step 4 there).
 
 Behaviour: the table is locked against writes while the migration runs (readers continue); all
 values are checked first and nothing is written if one fails; then they are converted in batches of
@@ -421,6 +446,287 @@ restored `pg_dump` copy, a run with a wrong `AT_REST_ENCRYPTION_KEY` exited 1 na
 and left the column unchanged, and the run with the right key then converted all 1100. The full
 record is in TASK-194 and TS-008.
 
+### Separating the object-store SSE key
+
+For a host whose object store was written under `AT_REST_ENCRYPTION_KEY` (every release before
+TASK-196 used it as the store's SSE key). SR-041 AC 5, ADR-0018, RISK-011, RISK-007. A host with no
+attachments needs none of this: set `OBJECT_STORE_SSE_KEY` (a new value) and start the stack. A new
+installation sets it from the start. This procedure changes no database row.
+
+**Order on an installation that comes from a release before this one.** Compose reads the whole
+file, so once this release's files are in place every `docker compose` command needs
+`OBJECT_STORE_SSE_KEY`, and the stack cannot be started on a store that holds attachments under the
+old key until step 7 (the initialiser refuses it, as designed). The copy tool also needs the runtime
+database role that `db-migrate` creates. So the sections run in this order, in one maintenance window:
+
+1. Take the `pg_dump` first (it needs a running `postgres`), then stop the stack once, with
+   `docker compose down` from the old release's directory and files (step 1; no `-v`), and take the other backups of the other upgrade sections (the `postgres_data` copy and the `pg_dump`)
+   together with steps 1 and 2 of this section. `down` is needed, not only `stop`: a release before the
+   fixed subnet (`172.28.77.0/24`, see "Trusted proxy and the Compose subnet") leaves a `medhub` network
+   that this release cannot attach the reverse proxy's fixed address to, and `up` then fails with `user
+   specified IP address is supported only when connecting to networks with user configured subnets`.
+2. Edit `infra/.env` as in step 3 of this section **first**: `OBJECT_STORE_SSE_KEY` (new),
+   `OBJECT_STORE_VOLUME` (`$NEW_VOL`) and the temporary `SOURCE_SSE_KEY`; then make the edits the
+   other sections ask for (owner and runtime connection, `AT_REST_ENCRYPTION_KEY_ID`).
+3. Run "Upgrading an installation that connects as the owner" steps 1 to 3 and "Converting existing field
+   values" steps 1 to 3, that is, up to and including their `db-migrate` command (one run does both,
+   so do them in this order and **stop there**). Skip their `up -d` and smoke-test steps: they fail
+   while the attachments are under the old key.
+4. Steps 4 to 7 of this section. Step 7 starts the stack; the smoke test runs after it.
+
+An installation that already has the earlier changes (migrated, `AT_REST_ENCRYPTION_KEY_ID` set) starts
+at step 1 of this section.
+
+Why a copy. SeaweedFS has one SSE key per volume and cannot re-key an object in place (SOUP-036 F-4),
+and it cannot tell which key an object was written under: reading with the wrong key fails with
+HTTP 500. So the key of an object is the key of the volume it is on, and the attachments are moved by
+**copying** every object from a store running on a copy of the old volume under the old key to the
+stack's store running on a new volume under the new key
+(`backend/scripts/migrate_object_store.py`, the tool of "Migrating from MinIO"). For each attachment
+row the tool reads the object from the source, compares its SHA-256 with `attachment.checksum`,
+writes it to the target, reads it back and compares again. The source is only read, nothing is
+deleted anywhere, the run can be repeated (an object that is already on the target with the right
+checksum is skipped), and any object that is missing, mismatched or cannot be read is listed by
+attachment id (never by storage key, which holds the patient id and the file name) with exit code 1.
+
+Variables used in every command below (one project name throughout):
+
+```bash
+P=infra                              # Compose project of the stack (the default is the directory name)
+BK=/secure/path/outside/the/repo     # holds the tar of the old volume; must not be inside a Docker volume
+BKENV=/other/secret/store/path       # holds the copy of the old .env; NOT the same place as $BK
+HELPER=alpine@sha256:ee16d92f96db08d9d2d07da48555a27f3a69d8f0759021dbc601195ed0d2b5bd   # any image pinned by digest
+OLD_VOL=${P}_object_store_data       # the volume of the running stack: backed up, never changed
+SRC_VOL=${P}_object_store_data_src   # a copy of it; the store that reads the old key runs on this
+NEW_VOL=${P}_object_store_data_sse   # new; Compose creates it empty in step 4; the stack's store runs on it under the new key
+```
+
+If you upgrade the code and start the stack before doing this, nothing is lost and nothing is written
+under the wrong key: Compose stops naming `OBJECT_STORE_SSE_KEY` while it is unset; the preflight
+refuses it while it equals `AT_REST_ENCRYPTION_KEY`; with a new key on the old volume `object-store-init`
+exits 1 (`... OBJECT_STORE_SSE_KEY is not the key this volume was written with`) and the backend stays down.
+
+#### 1. Stop the stack and back up (read-only)
+
+```bash
+docker compose -p "$P" -f infra/docker-compose.yml down     # run with the files and .env of the release you are leaving; no -v: removes containers and networks, keeps every volume
+( umask 077; mkdir -p "$BK" "$BKENV"; cp infra/.env "$BKENV/env.before-sse" )
+docker run --rm --network none -v "$OLD_VOL":/src:ro -v "$BK":/out "$HELPER" sh -c \
+  'tar -C /src -cf /out/object_store_data.tar . && cd /out && sha256sum object_store_data.tar > SHA256SUMS-sse && chmod 400 object_store_data.tar SHA256SUMS-sse'
+```
+
+The tar holds the attachments encrypted under the old key, and `env.before-sse` holds that key (it is
+`AT_REST_ENCRYPTION_KEY`): **together they are the attachments in plain text.** Keep them in
+different places, both with restricted access (the commands above create them mode 077 / 400), and never
+copy `env.before-sse` into `$BK`.
+
+Also take the PostgreSQL backup of the section you used for the upgrade; this procedure reads the
+database but does not change it.
+
+#### 2. Restore the backup into the copy
+
+```bash
+docker volume create "$SRC_VOL"
+docker run --rm --network none -v "$SRC_VOL":/dst -v "$BK":/in:ro "$HELPER" \
+  tar -C /dst -xpf /in/object_store_data.tar
+```
+
+#### 3. Configure
+
+In `infra/.env` add:
+
+- `OBJECT_STORE_SSE_KEY=` a new value from `openssl rand -base64 32`, a command of its own.
+- `OBJECT_STORE_VOLUME=` the value of `$NEW_VOL` (the store now runs on the new volume).
+  **Once set, never clear it and never change it.** It is part of the `.env` you back up. An empty value
+  falls back to `$OLD_VOL`, and a mistyped one names a volume that does not exist: Compose creates it
+  empty, the store starts, the initialiser passes (an empty bucket is valid) and every attachment
+  answers 500 while new uploads go to the wrong volume. The smoke test compares the objects in the bucket
+  with the attachment rows and fails in that case. A change of this setting alone does not recreate
+  `object-store` under Compose 2.20.2, so the mistake would surface at a later restart.
+- `SOURCE_SSE_KEY=` the current value of `AT_REST_ENCRYPTION_KEY`: the key the old volume was written
+  under. Temporary; step 7 removes it. Only the migration file below reads it.
+
+`AT_REST_ENCRYPTION_KEY` itself stays as it is.
+
+#### 4. Start the new store on the new volume (uploads stay blocked)
+
+```bash
+docker compose -p "$P" -f infra/docker-compose.yml up -d postgres
+docker compose -p "$P" -f infra/docker-compose.yml up -d --build --force-recreate object-store-init
+docker wait "$(docker compose -p "$P" -f infra/docker-compose.yml ps -a -q object-store-init)"   # prints the initialiser's exit code: 0
+docker inspect "$(docker compose -p "$P" -f infra/docker-compose.yml ps -a -q object-store)" --format '{{range .Mounts}}{{.Name}}{{end}}'   # prints $NEW_VOL
+```
+
+This runs the preflight (it must exit 0: a value equal to the field key is refused here), recreates
+`object-store` on `$NEW_VOL` (`--force-recreate`, so the new volume is mounted even if only
+`OBJECT_STORE_VOLUME` changed), and creates the empty bucket. `up -d` returns before the one-shot
+initialiser has finished, so `docker wait` is how you see its exit code; anything but 0 means stop and
+read `docker compose -p "$P" -f infra/docker-compose.yml logs object-store-preflight object-store-init`.
+Do not start the reverse proxy or the backend yet, so no upload can reach the new store before
+verification passes.
+
+#### 5. Start the source store on the copy and copy
+
+```bash
+export OBJECT_STORE_NETWORK=${P}_object-store DATABASE_NETWORK=${P}_medhub SOURCE_STORE_VOLUME="$SRC_VOL"
+rekey() { docker compose -p "${P}-rekey" -f infra/migration/compose.sse-source.yml --env-file infra/.env "$@"; }
+rekey up -d object-store-source
+rekey run --rm --build migrate; echo "exit=$?"
+```
+
+`rekey` is a shell function, so it works in bash and in zsh. The file `infra/migration/compose.sse-source.yml`
+starts the same pinned SeaweedFS image on `$SRC_VOL` with `SOURCE_SSE_KEY`, on an internal network
+that only the migration container joins. The tool prints six counts: `copied`,
+`already-present-and-matching`, `missing-in-source`, `checksum-mismatch`, `read-or-write-error`,
+`orphans-in-source`, then one `MISSING`, `MISMATCH`, `ERROR` or `ORPHAN` line per exception.
+
+- **Exit 0**: every attachment row is on the new store with the recorded checksum.
+- **Exit 1**: do not go on. `ERROR` lines on every row mean the source could not decrypt: check
+  that `SOURCE_SSE_KEY` is the key the old volume was written with. `MISSING` or `MISMATCH` name rows
+  whose object is absent or damaged in the source: the old volume and the backup are untouched, so
+  investigate before any further step. Fix the cause and run the command again; it copies only what is
+  not yet on the target. `ORPHAN` lines are objects in the old volume that no row refers to: they are
+  reported and never copied.
+- The tool needs the runtime database role to read `attachment`; it changes nothing in the database.
+
+#### 6. Verify
+
+1. Run the `rekey run --rm --build migrate` command again: `copied: 0`, every row
+   `already-present-and-matching`, exit 0.
+2. Start the backend only (still no proxy): `docker compose -p "$P" -f infra/docker-compose.yml up -d --build backend celery-worker celery-beat`.
+   `object-store-init` has read an object back by now. Download every attachment through
+   `GET /api/v1/attachments/<id>` as its owner (the way the section "Migrating from MinIO", step 5, does
+   it) and compare the SHA-256 of each response with `attachment.checksum`; the application also refuses
+   a stored-checksum mismatch with 502.
+3. Search the new volume read-only for a plaintext marker from one of the documents (a phrase you
+   know is inside a stored file). It must find nothing:
+   `docker run --rm --network none -v "$NEW_VOL":/src:ro "$HELPER" grep -rlaF 'a phrase from a stored file' /src`.
+
+The smoke test is not part of this step: the reverse proxy and the frontend are not running yet, so
+several of its checks (login through the proxy, the probe tools in `reverse-proxy` and `frontend`, the
+`frontend` container and image, the single-page app) would fail (five did in the rehearsal). It runs after
+step 7.
+
+#### 7. Retire the source store, open the stack and run the smoke test
+
+Step 7 works in a new shell: define the variables at the top of this section again, then
+
+```bash
+export OBJECT_STORE_NETWORK=${P}_object-store DATABASE_NETWORK=${P}_medhub SOURCE_STORE_VOLUME="$SRC_VOL"
+rekey() { docker compose -p "${P}-rekey" -f infra/migration/compose.sse-source.yml --env-file infra/.env "$@"; }
+rekey --profile migrate down        # no -v: the volumes stay; it still needs SOURCE_SSE_KEY in infra/.env
+# now remove SOURCE_SSE_KEY from infra/.env
+docker compose -p "$P" -f infra/docker-compose.yml up -d --build
+COMPOSE_PROJECT_NAME="$P" bash infra/smoke-test.sh
+```
+
+Without the shell function the first command is `docker compose -p "${P}-rekey" -f infra/migration/compose.sse-source.yml --env-file infra/.env --profile migrate down`.
+The smoke test must report 0 failed. It checks that the store's SSE key differs from the field key and
+is in no container but the store, and that **the bucket holds at least as many objects as there are
+`attachment` rows** (a store on a wrong or empty volume fails it).
+
+Uploads are accepted from this point and exist only on `$NEW_VOL`. Keep `$OLD_VOL`, `$SRC_VOL`, the
+tar and `env.before-sse` until the owner of the data releases them; nothing here deletes them.
+**They hold the attachments under the old key, which is also your field key**, and the tar with
+`env.before-sse` is those attachments in plain text. Until they are deleted, rotating the field key does
+not protect those copies. Delete them (the volumes, the tar, `env.before-sse` and any other copy of the old
+`.env`) as soon as the owner agrees. Deleting them also deletes for good any `ORPHAN` object (an object
+that no attachment row refers to, normally the remains of a failed upload): the tool reports orphans and
+never copies them, so they exist only on `$OLD_VOL`, `$SRC_VOL` and the tar. Decide about them first.
+
+#### Rollback
+
+Only before step 7's `up -d`, while uploads are blocked. The path depends on where the installation came from.
+After uploads have been accepted on `$NEW_VOL` they exist nowhere else; **rolling back loses them**. The tool
+copies in one direction only (swapping the roles of the two stores is possible but has not been rehearsed), so
+after that point fix forward. The current release cannot run on `$OLD_VOL`: a key equal to the field key is refused.
+
+**(a) From `f7d79fc`, an installation that already had the earlier changes** (the owner/runtime roles, the key
+identifier). `docker compose -p "$P" -f infra/docker-compose.yml down` (no `-v`), check out the last release before
+TASK-196 in a second tree (`git worktree add ../medhub-pre-task196 f7d79fc`), put `$BKENV/env.before-sse` back as its
+`infra/.env` and start it; `$OLD_VOL` was never changed, and it is the volume that release mounts.
+
+**(b) From a release before CR-004** (`4d57094`, the owner connection as `DATABASE_URL`, no key identifier).
+`env.before-sse` is that release's `.env`, which `f7d79fc` cannot start with, and `db-migrate` has already taken the
+database to migration 0010 (descriptions are `mh1:k1:…`), which the old release cannot read. So:
+1. `docker compose -p "$P" -f infra/docker-compose.yml down` (no `-v`), with this release's files.
+2. Restore the `postgres_data` copy taken in step 1 of "Upgrading an installation that connects as the owner" (or
+   the `pg_dump` into an empty volume). Without it the old release meets a database it cannot read.
+3. Check out the release you came from in a second tree (`git worktree add ../medhub-pre-cr004 4d57094`) and put
+   `$BKENV/env.before-sse` back as its `infra/.env`.
+4. Start it (`docker compose -p "$P" -f infra/docker-compose.yml up -d --build` in that tree): it mounts `$OLD_VOL`.
+5. Verify: the backend is healthy, every attachment downloads with the status and SHA-256 it had before the upgrade,
+   and the clinical descriptions read as before.
+
+QA ran path (b) on 2026-11-02 (scratch project, from `4d57094`): backend healthy, the store on the original volume,
+5 of 5 downloads with the status and SHA-256 of before the upgrade, 3 of 3 descriptions identical. The role note of
+"Upgrading an installation that connects as the owner", step 5, applies: restoring the volume copy removes
+`medhub_app`; a `pg_restore` does not.
+
+A later change of `OBJECT_STORE_SSE_KEY` is the same procedure with this section's roles: the source is
+a copy of the volume under the current `OBJECT_STORE_SSE_KEY` (`SOURCE_SSE_KEY` is that value) and the
+target a new volume under the new one.
+
+#### Rehearsal result
+
+TASK-196, 2026-11-01 and 2026-11-02, scratch Compose project `task196` (images, volumes and networks created
+for it and removed afterwards, `infra/.env` untouched).
+
+**Path from the release before CR-004 (round 2, the reference path).** Commit `4d57094` with its own layout:
+the owner as the application's database user (`DATABASE_URL`), `env_file`, no key identifier, the store's SSE key
+equal to `AT_REST_ENCRYPTION_KEY`, a leftover `SESSION_SIGNING_KEY`, a fixed-subnet-less `medhub` network.
+Seeded through the API with 30 clinical entries and 16 attachments on 12 of them: 0, 1, 17, 300, 1,023, 1,920,
+4,096, 5,000, 65,537, 70,000, 999,999, 1,048,576, 3,145,728, 8,388,608, 25,165,824 and 50,331,648 bytes
+(89,228,277 bytes in all; one holds a plaintext marker; two have file names outside Latin-1, see PRB-063). The
+sections were followed in the order of this section's introduction:
+- Order 1: live `pg_dump -Fc` (39,147 bytes), `docker compose down` (no `-v`), tar of the object volume (sha256
+  `7b924c81…5ab2`) with mode 400 in `$BK`, `env.before-sse` in `$BKENV` with mode 600; the file-by-file hash of the
+  original volume (67 files) equals that of the restored copy `$SRC_VOL`.
+- Order 2 and 3: the `infra/.env` edits (SSE key, volume, `SOURCE_SSE_KEY`, owner and runtime URLs,
+  `AT_REST_ENCRYPTION_KEY_ID=k1`), then one `up --build --exit-code-from db-migrate db-migrate`: exit 0, 10.7 s,
+  `Running upgrade 0008 -> 0009`, `0009 -> 0010`, 30 values converted, `database roles applied for runtime role
+  medhub_app`, `key ids verified; ... k1=30`. Nothing else was started.
+- Step 4: `object-store-init` exit code 0 (`docker wait`), the store on `$NEW_VOL`.
+- Step 5: `copied: 16`, every other count 0, exit 0 (24 s with the image build). Step 6.1: `copied: 0`,
+  `already-present-and-matching: 16`.
+- Step 6.2 and 6.3: 16 of 16 downloads with the status and SHA-256 they had on the old release (14 with status 200
+  and the SHA-256 of the uploaded bytes; the two names outside Latin-1 answer 500 before and after, PRB-063; the
+  tool compared their bytes); the marker in 0 files of the new volume and of the copy. The smoke test before step 7:
+  64 passed, 5 failed (login through the proxy, the probe tools in `reverse-proxy` and `frontend`, the `frontend`
+  container, the SPA through the proxy), as the text says.
+- Step 7 in a new shell: `rekey --profile migrate down`, `SOURCE_SSE_KEY` removed, `up -d --build`, then the smoke test:
+  **75 passed, 0 failed**, including "the object store holds every attachment" and, for each running container,
+  that the SSE key is in the store's environment only. 16 of 16 downloads identical again. The original volume's
+  file-by-file hash is unchanged.
+- Earlier in the round a first run used `up -d` (without `--build`) and `docker stop` in step 1: the reverse proxy
+  could not start (`user specified IP address is supported only when connecting to networks with user configured
+  subnets`, the old `medhub` network has no fixed subnet) and the frontend image was the old one. That is why step 1
+  uses `docker compose down` and step 7 uses `up -d --build`.
+- A mistyped `OBJECT_STORE_VOLUME` (one character added) with the store force-recreated: the store started on an
+  empty new volume, 0 of 16 attachments downloaded, and the smoke test reported **74 passed, 1 failed** (`the
+  database has 16 attachment rows, the bucket 0 objects`); with the setting restored: 75 passed, 0 failed, 16 of 16
+  identical.
+
+**Path from the last commit before TASK-196 (round 1).** The old layout was the tree of commit `f7d79fc`, seeded
+with 30 clinical entries and 15 attachments (0 B to 50,331,648 B). Steps 1 to 7 were run as written then:
+
+- Refusals, each before the store started (`docker compose up` of the preflight only): `OBJECT_STORE_SSE_KEY`
+  empty (Compose: `OBJECT_STORE_SSE_KEY must be set`), equal to `AT_REST_ENCRYPTION_KEY`, equal to a
+  retired field key, `change-me-to-a-random-32-byte-key!`, 31 bytes and 48 bytes: exit 1 with the messages
+  above and no value. A new key on a copy of the old volume (the upgrade without this procedure): the store
+  started, `object-store-init` exited 1 with `an object in the bucket cannot be read (InternalError):
+  OBJECT_STORE_SSE_KEY is not the key this volume was written with`, and the backend was not started. (The
+  first version of that check read the first listed object; that object had size 0 and a range read on it
+  answers `InvalidRange` before any decryption, so the check passed. An empty object is now read whole,
+  and the smallest object of the first page is the one read.)
+- Step 5: `copied: 15`, others 0, exit 0. With the source store started under a wrong key the tool listed all 15
+  attachment ids as `ERROR`, copied nothing and exited 1; with the right key again it exited 0.
+- Step 6: 15 of 15 downloads identical to the old ones; the marker in 0 files of the new volume and of the copy (and in
+  1 file of a control volume holding it in plain text). The smoke test passed (74) after the stack was open.
+- Rollback: the stack was taken down, the `f7d79fc` tree was started with `env.before-sse`, the
+  PostgreSQL dump and the original volume: 15 of 15 downloads equal to the first ones.
+- The field-key rotation after the separation is rehearsed at the end of "Field-encryption key rotation".
+
 ### Field-encryption key rotation
 
 Replaces the key that encrypts `clinical_entry.description` (and any later `EncryptedString`
@@ -429,11 +735,14 @@ column) without making a stored value unreadable (SR-022 AC 8, ADR-0018, RISK-01
 key may have been exposed, when someone who held it leaves, or on the schedule your site sets.
 Rehearse it first on a restored copy of your data; the rehearsal result is at the end of this section.
 
-**Do not start while the object store still takes `AT_REST_ENCRYPTION_KEY` as its SSE key.**
-Check: `grep WEED_S3_SSE_KEY infra/docker-compose.yml`. If it names `${AT_REST_ENCRYPTION_KEY…}`,
-replacing that setting also replaces the key the object store encrypts attachments with, and every
-stored attachment becomes unreadable (ADR-0018, SOUP-036 F-4). The separate `OBJECT_STORE_SSE_KEY`
-and its migration (TASK-196, "Separating the object-store SSE key") must be deployed first.
+**Precondition (met by the shipped Compose file).** The object store's SSE key is its own setting,
+`OBJECT_STORE_SSE_KEY`, and the stack refuses to start when it equals `AT_REST_ENCRYPTION_KEY` or a
+retired field key (`object-store-preflight`, rendered Compose test `infra/tests/test_compose_object_store.py`).
+Replacing the field key therefore does not touch the key that encrypts the attachments: step 4 may
+restart `object-store` (Compose restarts it with the preflight it depends on), and it comes back with
+the same `WEED_S3_SSE_KEY` on the same volume. An installation that still has attachments under the old shared key first
+completes "Separating the object-store SSE key": the shipped stack cannot be started on such a volume
+(the initialiser refuses), so this rotation cannot be reached by mistake.
 
 How the keys work: every stored value starts with `mh1:<key id>:` and is decrypted with the key of
 that id. `AT_REST_ENCRYPTION_KEY` (id `AT_REST_ENCRYPTION_KEY_ID`) is the current key and encrypts
@@ -544,8 +853,9 @@ id; if one did, `--check` shows it (exit 3) and `--apply` converts it.
 Rehearsal result (TASK-195, 2026-11-01, scratch Compose projects `task195` and `task195r`, removed
 afterwards, `infra/.env` untouched): a stack at the layout of this tree was seeded through the API
 with 1100 clinical entries under key `k1` (unicode, 25 to about 500 characters) and six attachments.
-The object store took its own SSE key (the TASK-196 layout, simulated in the scratch copy of
-`docker-compose.yml`), as the warning at the top of this section requires. Steps 1 to 7 were run
+That rehearsal used a scratch copy of `docker-compose.yml` whose object store had a separate SSE key,
+because the shipped file shared the field key; the rehearsal on the shipped file (TASK-196) follows the
+steps below. Steps 1 to 7 were run
 as written, with the application up the whole time:
 - Step 1: `pg_dump -Fc` (493 KB) and the `.env` copy; `--check` exit 0, `k1=1100`.
 - Step 4: all three Python services reported `k2`; `--check` exit 3, `k1=1100`; the API returned
@@ -570,9 +880,27 @@ as written, with the application up the whole time:
   needs the old key); with `k1:<key>` retired, exit 0 and `--check` exit 3; `--apply` converted 1100
   in 3 batches, a second `--apply` converted 0 (exit 0); `--check` exit 0; with the retired key
   removed again `db-migrate` exit 0; all 1100 plaintext hashes equal to the ones taken on the first stack before the rotation.
-- Why the warning at the top exists: on the first stack the object store's SSE key was changed to another
-  value and the store restarted; all six attachment downloads then returned HTTP 500. Putting the
-  key back restored them.
+- Why the shared key had to go (before TASK-196): on the first stack the object store's SSE key was
+  changed to another value and the store restarted; all six attachment downloads then returned HTTP 500.
+  Putting the key back restored them.
+
+Rehearsal result on the shipped Compose file (TASK-196, 2026-11-01, project `task196`, removed
+afterwards): after "Separating the object-store SSE key", with 30 clinical entries and 15 attachments (the
+set described there), k1 was rotated to k2 as written, steps 1 to 7, with the application up:
+- Step 1: `pg_dump -Fc` (42,743 bytes) and the `.env` copy; `--check` exit 0, `k1=30`.
+- Step 4: `up -d --build` took 20 seconds; `backend`, `celery-worker` and `celery-beat` reported `k2`;
+  `object-store` was recreated by Compose (it depends on the preflight, whose settings changed) and came
+  back with the same `WEED_S3_SSE_KEY`; **all 15 attachments downloaded with the same status and SHA-256
+  as before the rotation**.
+- Step 5: a new 2.5 MB attachment was uploaded under `k2` first; `--apply`: `k1=30` before, `converted: 30
+  value(s) in 1 batch(es)`, `k2=30 (current)` after, exit 0; `--check` exit 0. All 15 old attachments
+  and the new one downloaded identically.
+- Step 6: `db-migrate` alone exit 0 (`key ids verified; ... k2=30`), `up -d --build` 20 seconds; all 16
+  attachments identical again; the SHA-256 of every clinical description returned by the API equal to
+  the one taken before the rotation (30 of 30).
+- Step 7: `bash infra/smoke-test.sh` 74 passed, 0 failed.
+- With the shipped file, rotation of the field key therefore leaves the attachments readable at every
+  step (TASK-195, on the earlier file, ended with six HTTP 500).
 
 ## Data Residency Note
 
@@ -654,9 +982,10 @@ In `infra/.env`:
   the default.
 - New `OBJECT_STORE_ACCESS_KEY` and `OBJECT_STORE_SECRET_KEY` (see "Generate the object-store
   keys"). Keep the old pair as `LEGACY_ACCESS_KEY` and `LEGACY_SECRET_KEY`.
-- `AT_REST_ENCRYPTION_KEY` stays: it is now the new store's encryption key. Add `LEGACY_KMS_KEY` only
-  if the MinIO volume was written under a different key. `MINIO_KMS_SECRET_KEY` is no longer used
-  by the stack.
+- `AT_REST_ENCRYPTION_KEY` stays: it encrypts field values and is what the old MinIO volume was
+  written under. The new store has a key of its own: add `OBJECT_STORE_SSE_KEY` (a new value, see
+  "Generate the object-store keys"). Add `LEGACY_KMS_KEY` only if the MinIO volume was written under a
+  different key. `MINIO_KMS_SECRET_KEY` is no longer used by the stack.
 
 Start the data services and the backend only. Do not start the reverse proxy yet, so no upload can
 reach the new store before verification passes.

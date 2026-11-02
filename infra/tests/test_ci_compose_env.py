@@ -58,6 +58,7 @@ class CiObjectStoreJobEnvironment(unittest.TestCase):
         names = ci_env_names()
         for required in ("POSTGRES_PASSWORD", "DATABASE_OWNER_URL", "DATABASE_URL",
                          "AT_REST_ENCRYPTION_KEY", "AT_REST_ENCRYPTION_KEY_ID",
+                         "OBJECT_STORE_SSE_KEY",
                          "OBJECT_STORE_ACCESS_KEY", "OBJECT_STORE_SECRET_KEY"):
             self.assertIn(required, names)
 
@@ -65,6 +66,16 @@ class CiObjectStoreJobEnvironment(unittest.TestCase):
         result = render(ci_env_names())
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertTrue(STORE_SERVICES <= set(json.loads(result.stdout)["services"]))
+
+    def test_the_job_generates_two_different_valid_keys(self):
+        """The preflight the job starts refuses an SSE key equal to the field key (TASK-196)."""
+        text = WORKFLOW.read_text()
+        start = text.index("- name: Generate throwaway credentials")
+        step = text[start : text.index("\n      - name:", start + 1)]
+        self.assertIn("field_key=$(openssl rand -base64 32)", step)
+        self.assertIn("sse_key=$(openssl rand -base64 32)", step)
+        self.assertIn('echo "AT_REST_ENCRYPTION_KEY=$field_key"', step)
+        self.assertIn('echo "OBJECT_STORE_SSE_KEY=$sse_key"', step)
 
     def test_a_missing_guarded_name_would_stop_the_job(self):
         """The check has teeth: without POSTGRES_PASSWORD the render fails naming it."""

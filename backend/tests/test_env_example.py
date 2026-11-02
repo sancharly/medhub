@@ -62,6 +62,7 @@ _TEMPLATE_SECRETS = (
     "DATABASE_URL",
     "SMTP_PASSWORD",
     "AT_REST_ENCRYPTION_KEY",
+    "OBJECT_STORE_SSE_KEY",
     "OBJECT_STORE_ACCESS_KEY",
     "OBJECT_STORE_SECRET_KEY",
 )
@@ -82,7 +83,6 @@ def test_env_example_secret_list_covers_the_application_rule() -> None:
     optional_not_in_template = {
         rule.DATABASE_OWNER_URL,
         rule.AT_REST_ENCRYPTION_RETIRED_KEYS,
-        rule.OBJECT_STORE_SSE_KEY,
     }
     assert set(rule.SECRET_SETTINGS) - optional_not_in_template <= set(_TEMPLATE_SECRETS)
     # An optional secret that is in the template must be empty too.
@@ -114,6 +114,7 @@ _THROWAWAY = {
     "OBJECT_STORE_SECRET_KEY": "Zx9Qw3Lm7Rt2Vb5Nk8Hy4Jd6Fg1Sa0Pc",
     "AT_REST_ENCRYPTION_KEY": "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8=",
     "AT_REST_ENCRYPTION_KEY_ID": "k1",
+    "OBJECT_STORE_SSE_KEY": "AQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyA=",
 }
 
 

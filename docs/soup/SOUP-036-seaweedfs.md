@@ -2,18 +2,14 @@
 id: SOUP-036
 type: soup
 title: SeaweedFS object store
-status: approved
-version: "1.2"
+status: in_review
+version: "1.3"
 author: Carlos Santiago Liceras
 created: "2026-10-30"
-updated: "2026-10-31"
+updated: "2026-11-01"
 manufacturer: SeaweedFS project (Chris Lu)
 soup_version: "4.51"
 anomaly_review: "2026-10-30"
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-10-31"
-approved_digest: ec35ad4e40c69cec5e2f4fca8cfbdbba6d52aff8c8ebd69953f43fa96e3b5cad
-approval_note: self-approved
 links:
   - target: ADD-025
     relation: relates_to
@@ -65,7 +61,19 @@ TASK-172, "Evidence".
    in-memory bodies.
 9. Objects survive a container restart on the same volume and still decrypt. The SSE key is
    required: with a different `WEED_S3_SSE_KEY` on the same volume, `GetObject` fails
-   (`InternalError`). Losing the key therefore loses the data.
+   (`InternalError`). Losing the key therefore loses the data. This holds for every object,
+   including a zero-byte one (a full read answers `InternalError`; a range read on it answers
+   `InvalidRange` before any decryption).
+13. **One SSE key per volume, re-keyed only by copy** (relied on from TASK-196, ADR-0018). The server
+    cannot report which key an object was written under, and has no in-place re-key: the key of an
+    object is the key its volume was started with. MedHub therefore (a) gives the store its own key
+    `OBJECT_STORE_SSE_KEY`, never a field key; (b) moves data between keys only by reading every object
+    from a store started on a copy of the old volume under the old key and writing it to a store on a new
+    volume under the new key (`backend/scripts/migrate_object_store.py`, SHA-256 checked against
+    `attachment.checksum` before and after); (c) detects a store started with the wrong key by reading
+    back one stored object at start-up (`object-store-init`). Checked on 2026-11-01 with the pinned image:
+    two stores of this release, one per key, a copy of 15 objects from 0 bytes to 48 MiB, every object
+    byte-identical on the target, a wrong-key source read answers `InternalError` for all 15.
 10. A plaintext marker written in an object is not found in the data directory.
 11. Single node, one named volume, one process (master, volume, filer and S3), S3 on port 8333.
 12. The start-up check is `wget -q --spider http://127.0.0.1:8333/status` (see TASK-172). A cold
@@ -174,7 +182,7 @@ the store, identity injection, SSRF):
 | F-1 | In the all-in-one `weed mini` command, the filer (8888), master (9333) and volume server (9340) answer **unauthenticated** HTTP from any peer on the network. A `PUT` to the filer with no credentials planted an object that S3 then served; `HeadObject` reported no encryption for it. A `GET` through the filer returned ciphertext for an SSE object, so SSE itself held. This is a bypass of S3 authentication and of the encryption control | Run on 2026-10-30: `PUT http://<store>:8888/buckets/<bucket>/planted.txt` → 201; S3 `GetObject` returned the bytes; `ServerSideEncryption` absent | Avoided by design: `weed server` with `-ip.bind=127.0.0.1` and `-s3.ip.bind=0.0.0.0`. The same probes from a peer container are refused (9333, 9340, 8888). Input to TASK-176 (command), TASK-177 (network), TASK-173 (checksum on download detects a substituted object) and TASK-181 (RISK-012). The filer log warning "IAM gRPC service on filer is UNAUTHENTICATED" (seen in `weed mini` mode) is on a loopback listener in the hardened mode |
 | F-2 | The S3 gRPC port (18333) stays on the non-loopback address. GHSA-5fx4-c9qp-36jc (≤ 4.45) shows that this service once accepted unauthenticated identity changes. 4.51 is outside the range; the fix was not exercised (no exploit test was run) | `netstat`; advisory text | TASK-177 limits reach to the backend and the initialiser. TASK-181 states it in RISK-012 as a residual reason |
 | F-3 | Telemetry to `telemetry.seaweedfs.com` is on by default (`-master.telemetry`) | `weed mini -h` and `weed server -h` | Switched off in the command line. A start-up check that the flag is present belongs in TASK-176 |
-| F-4 | The SSE key is the only key: a different `WEED_S3_SSE_KEY` on the same volume makes existing objects unreadable (`InternalError`) | Run on 2026-10-30 | Information for DEPLOY.md and the key-handling question Q-7 (PRB-007). No SOUP defect |
+| F-4 | The SSE key is the only key: a different `WEED_S3_SSE_KEY` on the same volume makes existing objects unreadable (`InternalError`) | Run on 2026-10-30 | Information for DEPLOY.md and the key-handling question Q-7 (PRB-007). No SOUP defect. Handled by TASK-196 as relied-on behaviour 13: a store key of its own per volume, re-keying by copy, a start-up read-back |
 | F-5 | In `weed mini` mode, the admin server keeps listening on 127.0.0.1 (12535, 22535, 23646, 33646) although `-admin.ui=false`, and a `.mini_kek_passphrase` file is written to the data volume. Neither occurs under `weed server` | `netstat` and `ls /data` in both modes | Supports the choice of `weed server`. No action |
 
 **Base OS.** Alpine v3.24.3 packages: 0 entries in OSV (above). One package (`fuse` 2.9.9) is
@@ -225,3 +233,7 @@ a tool check.
   check that nothing is stored. `soup_version`, digest and anomaly review unchanged.
 - 2026-10-30 — Version 1.2: TASK-176 round 2. `WEED_S3_SSE_KEY` is any string (HKDF-SHA256), not
   64 hex characters; port 18333 carries only the IAM-cache RPCs. No version, digest or review change.
+- 2026-11-01 — Version 1.3: TASK-196. Relied-on behaviour 13 added (one SSE key per volume, re-keying by
+  copy, a wrong key detected by a read-back; zero-byte objects fail a full read too); finding F-4
+  handled. `soup_version`, digest and anomaly review unchanged. Version 1.2 was approved, so the
+  approval record is cleared and the record returns to `in_review`.

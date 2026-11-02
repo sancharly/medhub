@@ -29,7 +29,10 @@ AT_REST_ENCRYPTION_KEY = "AT_REST_ENCRYPTION_KEY"
 AT_REST_ENCRYPTION_KEY_ID = "AT_REST_ENCRYPTION_KEY_ID"
 # Optional, comma-separated ``id:base64key`` entries; used for decryption only (ADR-0018).
 AT_REST_ENCRYPTION_RETIRED_KEYS = "AT_REST_ENCRYPTION_RETIRED_KEYS"
-OBJECT_STORE_SSE_KEY = "OBJECT_STORE_SSE_KEY"  # optional
+# The object store's server-side-encryption key (SR-041 AC 5, ADR-0018). Required by the Compose
+# stack and by the ``object-store-preflight`` service; the Python services do not receive it, so
+# ``check`` verifies it only when it is present.
+OBJECT_STORE_SSE_KEY = "OBJECT_STORE_SSE_KEY"
 OBJECT_STORE_ACCESS_KEY = "OBJECT_STORE_ACCESS_KEY"
 OBJECT_STORE_SECRET_KEY = "OBJECT_STORE_SECRET_KEY"
 
@@ -156,6 +159,30 @@ def keyring_problems(key_id: str | None, key: str | None, retired_raw: str | Non
     return problems
 
 
+def sse_key_problems(
+    sse_key: str | None, field_key: str | None, retired_raw: str | None
+) -> list[str]:
+    """Problems in the object-store SSE key, each naming a setting (never a key value).
+
+    Refuses an unset, empty or placeholder key, one that is not base64 of 32 bytes, and one that
+    equals ``AT_REST_ENCRYPTION_KEY`` or a retired field key (compared as decoded bytes), because
+    a key shared with field encryption cannot be rotated on its own (ADR-0018).
+    """
+    problems = _one(OBJECT_STORE_SSE_KEY, sse_key)
+    sse = _decoded(sse_key)
+    if problems or sse is None:
+        return problems
+    if sse == _decoded(field_key):
+        problems.append(f"{OBJECT_STORE_SSE_KEY} is the same key as {AT_REST_ENCRYPTION_KEY}")
+    for position, (_, value) in enumerate(split_retired_keys(retired_raw), start=1):
+        if sse == _decoded(value):
+            problems.append(
+                f"{OBJECT_STORE_SSE_KEY} is the same key as "
+                f"{AT_REST_ENCRYPTION_RETIRED_KEYS} entry {position}"
+            )
+    return problems
+
+
 def _database_password(url: str) -> str | None:
     try:
         password = urlsplit(url).password
@@ -175,7 +202,11 @@ def _one(name: str, value: str | None) -> list[str]:
     if name == OBJECT_STORE_SECRET_KEY:
         return check_value(name, value, MIN_OBJECT_STORE_SECRET_LENGTH)
     problems = check_value(name, value)
-    if not problems and name == AT_REST_ENCRYPTION_KEY and value is not None:
+    if (
+        not problems
+        and name in (AT_REST_ENCRYPTION_KEY, OBJECT_STORE_SSE_KEY)
+        and value is not None
+    ):
         problems = _key_problem(name, value)
     return problems
 
@@ -231,9 +262,14 @@ def check(env: Mapping[str, str | None]) -> list[str]:
     if (env.get("SMTP_USER") or "").strip():
         problems += _one(SMTP_PASSWORD, env.get(SMTP_PASSWORD))
     # Optional settings are checked only when present.
-    for name in (DATABASE_OWNER_URL, OBJECT_STORE_SSE_KEY):
-        if (env.get(name) or "").strip():
-            problems += _one(name, env.get(name))
+    if (env.get(DATABASE_OWNER_URL) or "").strip():
+        problems += _one(DATABASE_OWNER_URL, env.get(DATABASE_OWNER_URL))
+    if (env.get(OBJECT_STORE_SSE_KEY) or "").strip():
+        problems += sse_key_problems(
+            env.get(OBJECT_STORE_SSE_KEY),
+            env.get(AT_REST_ENCRYPTION_KEY),
+            env.get(AT_REST_ENCRYPTION_RETIRED_KEYS),
+        )
     problems += _roles_problems(env)
     problems += keyring_problems(
         env.get(AT_REST_ENCRYPTION_KEY_ID),
@@ -244,7 +280,7 @@ def check(env: Mapping[str, str | None]) -> list[str]:
 
 
 def settings_env() -> dict[str, str | None]:
-    """The configured secrets by environment-variable name (Settings fields plus optional ones)."""
+    """The configured secrets by environment-variable name (the owner URL: from the process)."""
     from app.core.config import get_settings  # noqa: PLC0415
 
     s = get_settings()
@@ -261,9 +297,11 @@ def settings_env() -> dict[str, str | None]:
         ),
         OBJECT_STORE_ACCESS_KEY: s.object_store_access_key.get_secret_value(),
         OBJECT_STORE_SECRET_KEY: s.object_store_secret_key.get_secret_value(),
+        OBJECT_STORE_SSE_KEY: (
+            s.object_store_sse_key.get_secret_value() if s.object_store_sse_key else None
+        ),
+        DATABASE_OWNER_URL: os.environ.get(DATABASE_OWNER_URL),
     }
-    for name in (DATABASE_OWNER_URL, OBJECT_STORE_SSE_KEY):
-        env[name] = os.environ.get(name)
     return env
 
 

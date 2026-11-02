@@ -28,7 +28,11 @@ networks:
 volumes:
   postgres_data:
   redis_data:
+  # The object store's data. The name is the project's default unless OBJECT_STORE_VOLUME names
+  # another volume; only the SSE-key procedure in DEPLOY.md sets it, to switch to the volume the
+  # attachments were copied to under the new key (TASK-196). An empty value keeps the default.
   object_store_data:
+    name: ${OBJECT_STORE_VOLUME:-}
 
 services:
   # ── Reverse Proxy (nginx) ─────────────────────────────────────────────────
@@ -194,7 +198,10 @@ services:
     restart: unless-stopped
 
   # ── Object-store credential preflight (one-shot, no network) ──────────────
-  # Refuses weak or default object-store keys before the store starts (SR-040 AC 2).
+  # Refuses weak or default object-store keys before the store starts (SR-040 AC 2), and an SSE key
+  # that is unset, a placeholder, not 32 bytes or equal to the field key or a retired field key
+  # (SR-041 AC 5). It is the only Python service that receives OBJECT_STORE_SSE_KEY, and it
+  # receives the field keys only to compare them with it.
   # The entrypoint is overridden so the backend's entrypoint does not run.
   object-store-preflight:
     build:
@@ -206,6 +213,10 @@ services:
     environment:
       OBJECT_STORE_ACCESS_KEY: ${OBJECT_STORE_ACCESS_KEY:?OBJECT_STORE_ACCESS_KEY must be set}
       OBJECT_STORE_SECRET_KEY: ${OBJECT_STORE_SECRET_KEY:?OBJECT_STORE_SECRET_KEY must be set}
+      OBJECT_STORE_SSE_KEY: ${OBJECT_STORE_SSE_KEY:?OBJECT_STORE_SSE_KEY must be set}
+      AT_REST_ENCRYPTION_KEY: ${AT_REST_ENCRYPTION_KEY:?AT_REST_ENCRYPTION_KEY must be set}
+      # Optional earlier field keys, compared with the SSE key only. No default, no guard.
+      AT_REST_ENCRYPTION_RETIRED_KEYS: ${AT_REST_ENCRYPTION_RETIRED_KEYS}
     network_mode: none
     restart: "no"
 
@@ -226,8 +237,9 @@ services:
       # Admin identity (the only S3 identity)
       AWS_ACCESS_KEY_ID: ${OBJECT_STORE_ACCESS_KEY:?OBJECT_STORE_ACCESS_KEY must be set}
       AWS_SECRET_ACCESS_KEY: ${OBJECT_STORE_SECRET_KEY:?OBJECT_STORE_SECRET_KEY must be set}
-      # SSE-S3 key at rest (SR-016, SR-022); shared with field encryption (CR-002 Q-7)
-      WEED_S3_SSE_KEY: ${AT_REST_ENCRYPTION_KEY:?AT_REST_ENCRYPTION_KEY must be set}
+      # SSE-S3 key at rest (SR-016, SR-022). Its own setting, never the field key (SR-041 AC 5,
+      # ADR-0018): the preflight refuses the stack when they match. The key belongs to the volume.
+      WEED_S3_SSE_KEY: ${OBJECT_STORE_SSE_KEY:?OBJECT_STORE_SSE_KEY must be set}
     volumes:
       - object_store_data:/data
     expose:

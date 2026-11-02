@@ -1,20 +1,30 @@
 #!/usr/bin/env python
-"""Migrate attachment objects from the legacy MinIO to the new object store (TASK-178).
+"""Copy attachment objects from one object store to another (TASK-178, TASK-196).
 
-CR-002 AC-11, SR-022, SR-013. For each ``attachment`` row: read the object from the source (the
-legacy MinIO decrypts it), compare its SHA-256 with ``checksum``, write it to the target with
-``ServerSideEncryption="AES256"``, read it back and compare again. Source objects with no row
-(orphans) are listed and never copied. The source is only read. Safe to re-run: an object already
-on the target with the recorded checksum is left alone.
+Used twice: from the legacy MinIO to the SeaweedFS store (CR-002 AC-11, SR-022, SR-013), and from
+a SeaweedFS store written under the old SSE key (the field key) to one on a new volume under
+``OBJECT_STORE_SSE_KEY`` (SR-041 AC 5, ADR-0018). A store's SSE key belongs to its volume and the
+server cannot say which key an object was written under, so the move is a copy between two
+running stores, each decrypting and encrypting with its own key.
+
+For each ``attachment`` row: read the object from the source (the source store decrypts it),
+compare its SHA-256 with ``checksum``, write it to the target with
+``ServerSideEncryption="AES256"``, read it back (the target decrypts it) and compare again. Source
+objects with no row (orphans) are listed and never copied. The source is only read and nothing is
+ever deleted. Safe to re-run, and resumable: an object already on the target with the recorded
+checksum is left alone. An object that cannot be read or written (for example a wrong source key
+makes the source answer 500) is reported by attachment id as ``error`` and the run goes on to the
+next row, so one run lists every failure.
 
 Environment (values are never printed):
   DATABASE_URL                                  database holding the attachment rows
-  SOURCE_ENDPOINT / _ACCESS_KEY / _SECRET_KEY / _BUCKET   the legacy store
-  OBJECT_STORE_ENDPOINT / _ACCESS_KEY / _SECRET_KEY / _BUCKET   the new store
+  SOURCE_ENDPOINT / _ACCESS_KEY / _SECRET_KEY / _BUCKET   the store to read
+  OBJECT_STORE_ENDPOINT / _ACCESS_KEY / _SECRET_KEY / _BUCKET   the store to write
 
-Exit: 0 every row copied or already present; 1 any object missing or mismatched, or no rows at
-all while the source holds objects (wrong database); 2 bad setup. Output names rows by attachment
-id and orphans by a short hash, never by storage key (it holds the patient id and file name).
+Exit: 0 every row copied or already present; 1 any object missing, mismatched or in error, or no
+rows at all while the source holds objects (wrong database); 2 bad setup. Output names rows by
+attachment id and orphans by a short hash, never by storage key (it holds the patient id and file
+name).
 """
 
 from __future__ import annotations
@@ -53,6 +63,7 @@ class Report:
     already_present: list[str] = field(default_factory=list)
     missing: list[str] = field(default_factory=list)
     mismatched: list[str] = field(default_factory=list)
+    errors: list[str] = field(default_factory=list)
     orphans: list[str] = field(default_factory=list)
     rows: int = 0
     # Printable names: the attachment id for a row, a short hash for an orphan. A storage key holds
@@ -66,7 +77,7 @@ class Report:
 
     @property
     def ok(self) -> bool:
-        return not self.missing and not self.mismatched and not self.wrong_database
+        return not (self.missing or self.mismatched or self.errors or self.wrong_database)
 
 
 def _sha256(data: bytes) -> str:
@@ -81,28 +92,35 @@ def migrate(rows: list[Row], source: Store, target: Store) -> Report:
     report = Report(rows=len(rows))
     for row in rows:
         report.labels[row.storage_key] = row.attachment_id or _hash(row.storage_key)
-        existing = target.get(row.storage_key)
-        if existing is not None and _sha256(existing) == row.checksum:
-            report.already_present.append(row.storage_key)
-            continue
-        data = source.get(row.storage_key)
-        if data is None:
-            report.missing.append(row.storage_key)
-            continue
-        if _sha256(data) != row.checksum:
-            report.mismatched.append(row.storage_key)
-            continue
-        target.put(row.storage_key, data, row.content_type)
-        written = target.get(row.storage_key)
-        if written is None or _sha256(written) != row.checksum:
-            report.mismatched.append(row.storage_key)
-            continue
-        report.copied.append(row.storage_key)
+        try:
+            _copy_one(row, source, target, report)
+        except Exception:  # noqa: BLE001 — the row is reported by id; the message may name a key
+            report.errors.append(row.storage_key)
     known = {row.storage_key for row in rows}
     report.orphans = [key for key in source.keys() if key not in known]
     for key in report.orphans:
         report.labels[key] = _hash(key)
     return report
+
+
+def _copy_one(row: Row, source: Store, target: Store, report: Report) -> None:
+    existing = target.get(row.storage_key)
+    if existing is not None and _sha256(existing) == row.checksum:
+        report.already_present.append(row.storage_key)
+        return
+    data = source.get(row.storage_key)
+    if data is None:
+        report.missing.append(row.storage_key)
+        return
+    if _sha256(data) != row.checksum:
+        report.mismatched.append(row.storage_key)
+        return
+    target.put(row.storage_key, data, row.content_type)
+    written = target.get(row.storage_key)
+    if written is None or _sha256(written) != row.checksum:
+        report.mismatched.append(row.storage_key)
+        return
+    report.copied.append(row.storage_key)
 
 
 def exit_code(report: Report) -> int:
@@ -114,14 +132,21 @@ def print_report(report: Report) -> None:
     print(f"already-present-and-matching: {len(report.already_present)}")
     print(f"missing-in-source: {len(report.missing)}")
     print(f"checksum-mismatch: {len(report.mismatched)}")
+    print(f"read-or-write-error: {len(report.errors)}")
     print(f"orphans-in-source: {len(report.orphans)}")
     for label, keys in (
         ("MISSING", report.missing),
         ("MISMATCH", report.mismatched),
+        ("ERROR", report.errors),
         ("ORPHAN", report.orphans),
     ):
         for key in keys:
             print(f"{label} {report.labels.get(key, _hash(key))}")
+    if report.errors:
+        print(
+            "error: an object could not be read or written; with a SeaweedFS source, check that"
+            " SOURCE_SSE_KEY is the key the source volume was written with"
+        )
     if report.wrong_database:
         print(
             "error: no attachment rows but the source holds objects;"

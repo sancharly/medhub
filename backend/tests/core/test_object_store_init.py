@@ -1,5 +1,6 @@
 """TASK-175: object-store bucket initialiser (SR-040 AC 4, SR-022 AC 4, TS-014 TC-014.4)."""
 
+import io
 import os
 import subprocess
 import sys
@@ -42,6 +43,8 @@ def _tail(stub: Stubber, encryption=ENC_CONFIG, policy_error="NoSuchBucketPolicy
         stub.add_client_error(
             "get_bucket_policy", service_error_code=policy_error, http_status_code=404
         )
+        if policy_error == "NoSuchBucketPolicy":  # the last step reads back what the bucket holds
+            stub.add_response("list_objects_v2", {"KeyCount": 0}, {"Bucket": BUCKET})
     else:
         stub.add_response("get_bucket_policy", {"Policy": "{}"}, {"Bucket": BUCKET})
 
@@ -196,3 +199,163 @@ def test_main_exits_1_when_settings_missing() -> None:
     result = _run_main({})
     assert result.returncode == 1
     assert "OBJECT_STORE_ENDPOINT" in result.stderr
+
+
+# TASK-196, SR-041 AC 5: a store started with the wrong SSE key for its volume is caught here
+_OBJECT = {"Contents": [{"Key": "attachments/p/a/file.pdf", "Size": 20}], "KeyCount": 1}
+
+
+def _up_to_the_probe(stub: Stubber) -> None:
+    stub.add_response("head_bucket", {}, {"Bucket": BUCKET})
+    stub.add_response("put_bucket_encryption", {}, _enc_params())
+    stub.add_response(
+        "get_bucket_encryption",
+        {"ServerSideEncryptionConfiguration": ENC_CONFIG},
+        {"Bucket": BUCKET},
+    )
+    stub.add_client_error(
+        "get_bucket_policy", service_error_code="NoSuchBucketPolicy", http_status_code=404
+    )
+    stub.add_response("list_objects_v2", _OBJECT, {"Bucket": BUCKET})
+
+
+def test_a_readable_stored_object_passes() -> None:
+    c = _client()
+    with Stubber(c) as stub:
+        _up_to_the_probe(stub)
+        stub.add_response(
+            "get_object",
+            {"Body": io.BytesIO(b"%")},
+            {"Bucket": BUCKET, "Key": "attachments/p/a/file.pdf", "Range": "bytes=0-0"},
+        )
+        initialise(c, BUCKET)
+        stub.assert_no_pending_responses()
+
+
+def test_an_unreadable_stored_object_is_refused_naming_the_setting_not_the_key() -> None:
+    c = _client()
+    with Stubber(c) as stub:
+        _up_to_the_probe(stub)
+        stub.add_client_error(
+            "get_object", service_error_code="InternalError", http_status_code=500
+        )
+        with pytest.raises(InitError) as exc:
+            initialise(c, BUCKET)
+    assert "OBJECT_STORE_SSE_KEY" in str(exc.value) and "InternalError" in str(exc.value)
+    assert "attachments/" not in str(exc.value)
+
+
+def test_a_zero_byte_object_is_read_whole_because_a_wrong_key_fails_it_too() -> None:
+    """Rehearsal finding: under a wrong key an empty object answers 500; a range on it is 416."""
+    c = _client()
+    listing = {"Contents": [{"Key": "attachments/p/a/empty", "Size": 0}], "KeyCount": 1}
+    with Stubber(c) as stub:
+        stub.add_response("head_bucket", {}, {"Bucket": BUCKET})
+        stub.add_response("put_bucket_encryption", {}, _enc_params())
+        stub.add_response(
+            "get_bucket_encryption",
+            {"ServerSideEncryptionConfiguration": ENC_CONFIG},
+            {"Bucket": BUCKET},
+        )
+        stub.add_client_error(
+            "get_bucket_policy", service_error_code="NoSuchBucketPolicy", http_status_code=404
+        )
+        stub.add_response("list_objects_v2", listing, {"Bucket": BUCKET})
+        stub.add_client_error(
+            "get_object", service_error_code="InternalError", http_status_code=500
+        )
+        with pytest.raises(InitError, match="OBJECT_STORE_SSE_KEY"):
+            initialise(c, BUCKET)
+
+
+def test_the_smallest_object_of_the_page_is_the_one_read() -> None:
+    c = _client()
+    listing = {
+        "Contents": [
+            {"Key": "big", "Size": 5_000_000},
+            {"Key": "small", "Size": 10},
+            {"Key": "mid", "Size": 4000},
+        ],
+        "KeyCount": 3,
+    }
+    with Stubber(c) as stub:
+        stub.add_response("head_bucket", {}, {"Bucket": BUCKET})
+        stub.add_response("put_bucket_encryption", {}, _enc_params())
+        stub.add_response(
+            "get_bucket_encryption",
+            {"ServerSideEncryptionConfiguration": ENC_CONFIG},
+            {"Bucket": BUCKET},
+        )
+        stub.add_client_error(
+            "get_bucket_policy", service_error_code="NoSuchBucketPolicy", http_status_code=404
+        )
+        stub.add_response("list_objects_v2", listing, {"Bucket": BUCKET})
+        stub.add_response(
+            "get_object",
+            {"Body": io.BytesIO(b"x")},
+            {"Bucket": BUCKET, "Key": "small", "Range": "bytes=0-0"},
+        )
+        initialise(c, BUCKET)
+        stub.assert_no_pending_responses()
+
+
+def _stub_to_listing(stub: Stubber, listing: dict) -> None:
+    stub.add_response("head_bucket", {}, {"Bucket": BUCKET})
+    stub.add_response("put_bucket_encryption", {}, _enc_params())
+    stub.add_response(
+        "get_bucket_encryption",
+        {"ServerSideEncryptionConfiguration": ENC_CONFIG},
+        {"Bucket": BUCKET},
+    )
+    stub.add_client_error(
+        "get_bucket_policy", service_error_code="NoSuchBucketPolicy", http_status_code=404
+    )
+    stub.add_response("list_objects_v2", listing, {"Bucket": BUCKET})
+
+
+def test_a_readable_zero_byte_object_is_read_without_a_range() -> None:
+    """A range on a zero-byte object answers InvalidRange even with the right key."""
+    c = _client()
+    listing = {"Contents": [{"Key": "attachments/p/a/empty", "Size": 0}], "KeyCount": 1}
+    with Stubber(c) as stub:
+        _stub_to_listing(stub, listing)
+        stub.add_response(
+            "get_object",
+            {"Body": io.BytesIO(b"")},
+            {"Bucket": BUCKET, "Key": "attachments/p/a/empty"},
+        )
+        initialise(c, BUCKET)
+        stub.assert_no_pending_responses()
+
+
+@pytest.mark.parametrize("code, status", [("AccessDenied", 403), ("SlowDown", 503)])
+def test_other_probe_errors_are_a_failed_get_object_not_a_wrong_key(code: str, status: int) -> None:
+    c = _client()
+    with Stubber(c) as stub:
+        _stub_to_listing(stub, _OBJECT)
+        stub.add_client_error("get_object", service_error_code=code, http_status_code=status)
+        with pytest.raises(InitError) as exc:
+            initialise(c, BUCKET)
+    assert str(exc.value) == f"get_object failed: {code}"
+    assert "OBJECT_STORE_SSE_KEY" not in str(exc.value)
+
+
+def test_an_object_gone_since_the_listing_is_looked_for_again_once() -> None:
+    c = _client()
+    with Stubber(c) as stub:
+        _stub_to_listing(stub, _OBJECT)
+        stub.add_client_error("get_object", service_error_code="NoSuchKey", http_status_code=404)
+        stub.add_response("list_objects_v2", {"KeyCount": 0}, {"Bucket": BUCKET})
+        initialise(c, BUCKET)
+        stub.assert_no_pending_responses()
+
+
+def test_an_object_gone_twice_is_a_failed_get_object() -> None:
+    c = _client()
+    with Stubber(c) as stub:
+        _stub_to_listing(stub, _OBJECT)
+        stub.add_client_error("get_object", service_error_code="NoSuchKey", http_status_code=404)
+        stub.add_response("list_objects_v2", _OBJECT, {"Bucket": BUCKET})
+        stub.add_client_error("get_object", service_error_code="NoSuchKey", http_status_code=404)
+        with pytest.raises(InitError, match="get_object failed: NoSuchKey"):
+            initialise(c, BUCKET)

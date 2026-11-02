@@ -2,11 +2,11 @@
 id: "PRB-007"
 type: problem-report
 title: "Runtime container runs as root and Compose ships insecure default secrets"
-status: open
-version: "1.7"
+status: resolved
+version: "1.9"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
-updated: "2026-11-01"
+updated: "2026-11-02"
 criticality: major
 links: []
 tags: ["security", "configuration-management"]
@@ -71,7 +71,7 @@ Planned in CR-004: TASK-197 (start-up refusal of missing or placeholder secrets 
 the worker and the preflight), TASK-203 (no default in Compose, empty template, generation guide), TASK-198 (non-root frontend image;
 UID checks on the images and the running stack), TASK-196 (separate object-store SSE key, with a
 rehearsed migration of the existing attachments), TASK-191 (runtime database role, PRB-005).
-TASK-140 removes `SESSION_SIGNING_KEY` (PRB-018). Not yet fixed in full; see the interim note below.
+TASK-140 removes `SESSION_SIGNING_KEY` (PRB-018). All planned tasks are implemented; see the interim notes below.
 
 **Interim note (2026-10-31, TASK-197; reworded 2026-11-01, TASK-203; TASK-198 added 2026-11-01).**
 
@@ -111,7 +111,22 @@ TASK-140 removes `SESSION_SIGNING_KEY` (PRB-018). Not yet fixed in full; see the
 - *Reverse-proxy image (TASK-198 QA, MEDIUM 1).* The official nginx reverse-proxy image runs its
   master as UID 0; it is not built by MedHub and is outside SR-041 AC 1. The human is to accept
   this at release.
-- *Still open.* Key separation (TASK-196). The report stays `open` until then.
+- *Key separation (TASK-196, 2026-11-01).* Item 4 is fixed. The object store's SSE key is a setting of
+  its own, `OBJECT_STORE_SSE_KEY` (base64 of 32 bytes, required, empty in the template, a `:?` guard in
+  Compose), and `WEED_S3_SSE_KEY` is taken from it. The `object-store-preflight` service refuses it when it
+  is unset, a placeholder, not 32 bytes, or equal (decoded bytes) to `AT_REST_ENCRYPTION_KEY` or a retired
+  field key, naming the settings and never a value (`backend/tests/core/test_object_store_credentials.py`,
+  `infra/tests/test_compose_object_store.py`; TS-014 TC-014.7, TS-015 TC-015.3). No Python service
+  receives the key; the smoke test checks by value that only the store holds it. Attachments written
+  under the old shared key are moved by copy to a new volume under the new key
+  (`backend/scripts/migrate_object_store.py`, `infra/migration/compose.sse-source.yml`, `infra/DEPLOY.md`
+  "Separating the object-store SSE key"), verified against `attachment.checksum` before and after each
+  write; rehearsed on a scratch stack with 15 attachments (0 B to 50 MiB) copied, downloaded with the same
+  SHA-256, and then a field-key rotation k1 to k2 with all of them readable throughout. A store started
+  with a key other than its volume's is refused by `object-store-init` before the backend starts.
+- *All items.* Items 1 to 5 are fixed: 1 (TASK-198), 2 (TASK-197, 203), 3 (TASK-191), 4 (TASK-196),
+  5 (TASK-197, CR-004 Q-5); TASK-140 removed `SESSION_SIGNING_KEY`. The status change to `resolved` follows
+  QA approval of TASK-196 (CR-004 D-8); `closed` remains a human step at release.
 
 ## Note: object-store credentials resolved by CR-002 (2026-10-30)
 
@@ -141,3 +156,5 @@ unreadable as well as the encrypted fields (SOUP-036 F-4; RISK-011 1.3).
 - 1.5 (2026-11-01) — TASK-198: interim note records the non-root frontend image (item 1). Status and criticality unchanged; TASK-196 and TASK-191 remain.
 - 1.6 (2026-11-01) — TASK-191: interim note updated (worker and beat enforce the secret rule, runtime database role, reverse-proxy root sentence). Status and criticality unchanged; TASK-196 remains.
 - 1.7 (2026-11-01) — TASK-191 round 2 (QA finding 1): the runtime-role paragraph corrected; the owner password no longer reaches the application services (no `env_file`). Status and criticality unchanged; TASK-196 remains.
+- 1.8 (2026-11-01) — TASK-196: item 4 (one key for two stores) fixed; the note "Still open" replaced by the key-separation note. Status stays `open` for QA to set `resolved` on approval of TASK-196 (CR-004 D-8).
+- 1.9 (2026-11-02) — `resolved` per CR-004 D-8 and D-10: all five items are fixed (TASK-197, 203, 198, 190/191, 196); see Resolution. The reverse-proxy master running as UID 0 (official image, outside SR-041 AC 1) remains for the human to accept at release.

@@ -142,7 +142,7 @@ def test_exit_codes(objects: dict[str, bytes], expected: int) -> None:
     assert mos.exit_code(report) == expected
 
 
-def test_summary_has_four_counts_and_no_content(capsys: pytest.CaptureFixture[str]) -> None:
+def test_summary_has_the_counts_and_no_content(capsys: pytest.CaptureFixture[str]) -> None:
     report = mos.migrate([row("a", b"one")], FakeStore({"a": b"one", "o": b"x"}), FakeStore())
     mos.print_report(report)
     out = capsys.readouterr().out
@@ -150,6 +150,7 @@ def test_summary_has_four_counts_and_no_content(capsys: pytest.CaptureFixture[st
     assert "already-present-and-matching: 0" in out
     assert "missing-in-source: 0" in out
     assert "checksum-mismatch: 0" in out
+    assert "read-or-write-error: 0" in out
     assert "orphans-in-source: 1" in out
 
 
@@ -201,6 +202,99 @@ def test_printed_lines_carry_attachment_id_or_hash_not_the_storage_key(
     assert f"ORPHAN {hashlib.sha256(orphan_key.encode()).hexdigest()[:12]}" in out
     for secret in ("patient-123", "secret-name", "patient-999", "other.txt"):
         assert secret not in out
+
+
+# --- TASK-196: moving attachments to a store under another SSE key, by copy --------------------
+
+
+class KeyedStore(FakeStore):
+    """A store whose objects can be read only with the key it was started with (SeaweedFS: 500)."""
+
+    def __init__(self, key: str, objects: dict[str, bytes] | None = None, volume_key: str = ""):
+        super().__init__(objects)
+        self.key = key
+        self.volume_key = volume_key or key  # the key the stored bytes were written under
+        self.fail_put_after: int | None = None
+
+    def get(self, key: str) -> bytes | None:
+        if key in self.objects and self.key != self.volume_key:
+            raise RuntimeError("InternalError 500")
+        return super().get(key)
+
+    def put(self, key: str, data: bytes, content_type: str) -> None:
+        if self.fail_put_after is not None and len(self.puts) >= self.fail_put_after:
+            raise RuntimeError("connection reset")
+        super().put(key, data, content_type)
+
+
+def _attachments() -> tuple[dict[str, bytes], list[Any]]:
+    data = {
+        "a/small.pdf": b"one",
+        "a/empty.txt": b"",
+        "b/large.bin": bytes(range(256)) * 4096,  # 1 MiB
+        "c/clinical.png": b"\x89PNG" + b"x" * 100,
+    }
+    return data, [row(k, v) for k, v in data.items()]
+
+
+def test_copy_to_a_store_under_the_new_key_keeps_every_byte_and_changes_nothing_in_the_source() -> (
+    None
+):
+    data, rows = _attachments()
+    source = KeyedStore("old-key", data)
+    target = KeyedStore("new-key")
+    before = dict(source.objects)
+    report = mos.migrate(rows, source, target)
+    assert report.ok and len(report.copied) == len(data)
+    assert target.objects == data and source.objects == before
+    assert not hasattr(mos.Store, "delete")  # the protocol has no way to delete from either store
+
+
+def test_a_source_started_with_the_wrong_key_is_reported_by_id_and_writes_nothing(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    data, rows = _attachments()
+    rows = [
+        mos.Row(r.storage_key, r.checksum, r.content_type, f"att-{i}") for i, r in enumerate(rows)
+    ]
+    source = KeyedStore("not-the-volume-key", data, volume_key="old-key")
+    target = KeyedStore("new-key")
+    report = mos.migrate(rows, source, target)
+    assert not report.ok and mos.exit_code(report) == 1
+    assert sorted(report.errors) == sorted(data) and target.objects == {}
+    mos.print_report(report)
+    out = capsys.readouterr().out
+    assert "read-or-write-error: 4" in out and "ERROR att-0" in out and "SOURCE_SSE_KEY" in out
+    assert "small.pdf" not in out and "a/" not in out
+
+
+def test_an_interrupted_copy_is_resumed_and_a_failure_does_not_stop_the_other_objects() -> None:
+    data, rows = _attachments()
+    source = KeyedStore("old-key", data)
+    target = KeyedStore("new-key")
+    target.fail_put_after = 2
+    first = mos.migrate(rows, source, target)
+    assert len(first.copied) == 2 and len(first.errors) == 2 and mos.exit_code(first) == 1
+    target.fail_put_after = None
+    second = mos.migrate(rows, source, target)
+    assert len(second.already_present) == 2 and len(second.copied) == 2 and second.ok
+    third = mos.migrate(rows, source, target)
+    assert len(third.already_present) == 4 and third.copied == [] and third.ok
+    assert target.objects == data
+
+
+def test_a_target_store_on_the_wrong_volume_key_is_an_error_not_a_silent_overwrite() -> None:
+    data, rows = _attachments()
+    target = KeyedStore("new-key", {"a/small.pdf": b"stale"}, volume_key="another-key")
+    report = mos.migrate(rows, KeyedStore("old-key", data), target)
+    assert "a/small.pdf" in report.errors and not report.ok
+
+
+def test_every_object_is_verified_after_the_copy() -> None:
+    """Negative control: a copy that is not read back and compared would pass this silently."""
+    data, rows = _attachments()
+    report = mos.migrate(rows, KeyedStore("old-key", data), FakeStore(corrupt_on_put=True))
+    assert len(report.mismatched) == len(data) and report.copied == [] and not report.ok
 
 
 # --- S3Store adapter, with botocore's Stubber (no network) -------------------------------------

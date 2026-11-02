@@ -3,10 +3,10 @@ id: "CR-004"
 type: change-request
 title: "Close the open security defects from the 2026-07 review and audit"
 status: open
-version: "1.6"
+version: "1.9"
 author: "Carlos Santiago Liceras"
 created: "2026-10-31"
-updated: "2026-11-01"
+updated: "2026-11-02"
 branch: fix/review-2026-07-security
 risk_impact: affects_controls
 links:
@@ -37,6 +37,8 @@ links:
   - target: "PRB-029"
     relation: resolves
   - target: "PRB-061"
+    relation: resolves
+  - target: "PRB-063"
     relation: resolves
   - target: "PRB-056"
     relation: resolves
@@ -146,6 +148,8 @@ links:
     relation: relates_to
   - target: "TASK-203"
     relation: relates_to
+  - target: "TASK-204"
+    relation: relates_to
   - target: "ADD-005"
     relation: relates_to
   - target: "ADD-006"
@@ -230,6 +234,7 @@ order and dependencies in "Plan").
 | PRB-029 Rate limit keyed on the proxy address | minor | **SR-042 AC 1 to AC 5 (new)**; SR-024 retrieval path, ADR-0013 | TASK-185, 186 |
 | PRB-056 Empty `CORS_ORIGINS` in the template breaks start-up (added in 1.4) | minor | SR-041 AC 4 (the template starts the stack) | TASK-193 |
 | PRB-061 The celery-worker container runs gunicorn, not Celery (found in TASK-203; added in 1.2) | major | SR-023, SR-024, SR-030, SR-041 AC 3 (worker start-up refusal, effective in the started stack) | TASK-191 |
+| PRB-063 Attachment download fails for file names outside Latin-1 (found in TASK-196; added in 1.7) | major | SR-013 AC 3 (download of any stored file name); SR-023 AC 2 (a failed download is audited, ADR-0016); RISK-007, RISK-006 | TASK-204 |
 
 Existing TASKs whose links will need updating at the Plan stage: TASK-137 (add `implements`
 SR-042), TASK-138 (add `implements` SR-043).
@@ -430,6 +435,12 @@ New, for the human (Plan stage):
   last step of `db-migrate`. QA approval of a task may set the PRB it resolves to `resolved`, as done so
   far; `closed` remains a human step at release. This clarifies "Out of scope" (Scope): only the human
   sets `closed` or approves records other than tasks and test records.
+- **D-9 (human decision 2026-11-02, TASK-196 QA round 1):** PRB-063 (attachment download fails for file
+  names outside Latin-1) is folded into CR-004 and fixed in a new task TASK-204.
+- **D-10 (human decision 2026-11-02, TASK-196 QA round 2):** after two QA rounds, TASK-196 is accepted with the
+  round-2 text fix (DEPLOY.md rollback split into paths (a) from `f7d79fc` and (b) from a pre-CR-004 release, using
+  QA's verified sequence; step 1 clarifications) and no QA re-review. The orchestrator records TASK-196, TS-008,
+  TS-014 and TS-015 as `approved` and PRB-007 as `resolved` (D-8) on this decision.
 
 ## Change analysis (Risk stage, §7.4, 2026-10-31)
 
@@ -480,6 +491,7 @@ The Software Architect role ran this analysis. Scales and matrix: `docs/medtrace
 | Log redaction (138) | SI-WORKER, SI-API | Removes the uncontrolled PII copy | RISK-008 (strengthened) | TS-017 TC-017.1..3 |
 | CSRF exact match; session cap; route guard (139, 199, 142) | SI-API, SI-AUTH, SI-FE-SHELL | Remove latent bypasses; guard is defence in depth | RISK-005, RISK-001 | TS-011 TC-011.6, TS-001 TC-001.6, TS-002 TC-002.9 |
 | Module version (200) | SI-MODHOST | None (no hazard) | none | TS-010 TC-010.5 |
+| Download file names; failed download audited (204, added in 1.8) | SI-API, SI-ATTACH | Removes the 500 for file names outside Latin-1 and the header-injection path; a failed download now leaves FAILURE evidence. New: none (header built in one place, never raises) | RISK-007, RISK-006 (strengthened) | TS-007 TC-007.9, TC-007.10 |
 
 **Residual scores per record.** Not changed now: the scores depend on the fixes landing.
 TASK-202 re-scores them from the evidence. Each record (`in_review`) states its expected residual:
@@ -546,13 +558,15 @@ the human approves the plan, ADR-0017..0019 and the RISK records' control plans.
 | P3 | [TASK-199](../design-outputs/tasks/TASK-199-atomic-concurrent-session-cap.md) Atomic session cap | 023 | SR-030 AC 7 | 005 | S | — (parallel) | new |
 | P4 | [TASK-200](../design-outputs/tasks/TASK-200-anchor-module-version-expression.md) Module version anchored | 028 | SR-016 AC 1 | none (no hazard) | XS | — (parallel) | new |
 | P5 | [TASK-142](../design-outputs/tasks/TASK-142-frontend-route-level-role-guards.md) Frontend route guard | 014 | SR-005; SR-009 (defence in depth, Q-4) | 001 | M | — (parallel) | updated |
+| P6 | [TASK-204](../design-outputs/tasks/TASK-204-safe-download-file-names-and-failed-download-audit.md) Any file name downloads (RFC 6266); failed download audited | 063 | SR-013 AC 3; SR-023 AC 2 | 007, 006 | M | — (parallel; commit after TASK-196) | new |
 | 18 | [TASK-201](../design-outputs/tasks/TASK-201-arc42-and-design-records-for-cr-004.md) arc42, ADD and ADR index | — | SR-022, 023, 041, 042, 043 | — | M (docs) | all above | new |
 | 19 | [TASK-202](../design-outputs/tasks/TASK-202-verify-cr-004-end-to-end.md) Verify end to end; re-score risks (**Checkpoint F**) | all | all in scope | (relates_to all) | S | all above | new |
 
 **Parallel work and shared files.**
 
-- P1..P5 share no source file with the numbered tasks (P1: `core/logging.py`, `workers/`; P2:
-  `security_middleware.py`; P3: `auth/session.py`; P4: `modules/discovery.py`; P5: `frontend/`).
+- P1..P6 share no source file with the numbered tasks (P1: `core/logging.py`, `workers/`; P2:
+  `security_middleware.py`; P3: `auth/session.py`; P4: `modules/discovery.py`; P5: `frontend/`;
+  P6: `api/routers/attachments.py`, `api/content_disposition.py`, `attachments/service.py`).
   Commit them between any two numbered tasks.
 - TASK-192 runs in parallel with 187..189 (it edits `audit/service.py`, `audit/actions.py`,
   `api/routers/auth.py`; they edit `authz/`, `appointments/`, `identity/`, other routers).
@@ -594,6 +608,7 @@ the human approves the plan, ADR-0017..0019 and the RISK records' control plans.
 | SR-031 AC 3 | 139 |
 | SR-032 AC 1, 4, 5; SR-034 AC 1 | 188 |
 | SR-024 (retrieval path, logs) | 186, 138 |
+| SR-013 AC 3; SR-023 AC 2 (failed download audited) | 204 |
 
 **ADD coverage** (class B, every SR in scope): SR-005 (ADD-007, 018, 020), SR-009 (ADD-007, 018),
 SR-016 (ADD-014), SR-022 (ADD-016, 025, 026), SR-023 (ADD-013, 007, 016, 005, 026), SR-024
@@ -613,6 +628,7 @@ SR-016 (ADD-014), SR-022 (ADD-016, 025, 026), SR-023 (ADD-013, 007, 016, 005, 02
 | TS-011 | 1.1 → 1.2 | TC-011.6 CSRF exact exemptions | 139 |
 | TS-014 | 1.5 → 1.6 | TC-014.7 SSE key separation and migration (adds `verifies` SR-041) | 196 |
 | TS-015 | new | TC-015.1 UIDs; TC-015.2 Compose guards; TC-015.3 start-up refusal; TC-015.4 template and guide (`verifies` SR-041) | 198, 203, 197, 191, 196 |
+| TS-007 | 1.4 → 1.5 | TC-007.9 file names outside Latin-1 and header integrity; TC-007.10 failed download audited (adds `verifies` SR-023) | 204 |
 | TS-016 | new | TC-016.1..3 address rule; TC-016.4..5 rate limit (`verifies` SR-042) | 185, 186 |
 | TS-017 | new | TC-017.1..3 log exclusion (`verifies` SR-043) | 138 |
 
@@ -667,3 +683,12 @@ per volume, re-key by copy, 196).
 - 1.6 (2026-11-01) — D-8 (human decisions 2026-11-01, TASK-195 QA round 1): `--verify-key-ids` guard
   kept in `db-migrate`; QA approval may set a PRB to `resolved`, `closed` stays a release-time human step.
   No other change.
+- 1.7 (2026-11-02) — D-9 (human decision 2026-11-02, TASK-196 QA round 1): PRB-063 (attachment download
+  fails for file names outside Latin-1, found in the TASK-196 rehearsal) folded into CR-004: `resolves`
+  link, Scope row PRB-063 to TASK-204 (the task is written by the Software Architect). No other change.
+- 1.8 (2026-11-02) — TASK-204 written by the Software Architect role for PRB-063 (D-9): Scope row SR corrected
+  from SR-013 (AC unassigned) to SR-013 AC 3 and SR-023 AC 2, with RISK-006 added beside RISK-007; TASK-204 added
+  to the Plan as P6 (independent, before TASK-201); `relates_to` TASK-204 link; TASK-204 rows in the
+  change-analysis, SR AC coverage and TS tables (TS-007 1.4 → 1.5); P6 named in the shared-files note.
+  No other change.
+- 1.9 (2026-11-02) — D-10: TASK-196 accepted by the human with the QA round-2 text fix and no re-review. No other change.

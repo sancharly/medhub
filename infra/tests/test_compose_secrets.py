@@ -28,6 +28,8 @@ GUARDED = {
     "backend": set(secret_settings._REQUIRED),
     "celery-worker": set(secret_settings._REQUIRED),
     "postgres": {"POSTGRES_PASSWORD"},
+    # The preflight compares the SSE key with the field key (SR-041 AC 5, TASK-196).
+    "object-store-preflight": {"OBJECT_STORE_SSE_KEY", "AT_REST_ENCRYPTION_KEY"},
 }
 
 
@@ -129,6 +131,8 @@ class BringUpRefusal(unittest.TestCase):
             self.assertEqual(env["AT_REST_ENCRYPTION_RETIRED_KEYS"], "", service)
             self.assertEqual(env["DATABASE_URL"], GOOD["DATABASE_URL"], service)
             self.assertEqual(env["AT_REST_ENCRYPTION_KEY"], GOOD["AT_REST_ENCRYPTION_KEY"], service)
+            # SR-041 AC 5: the store's SSE key reaches no Python service but the preflight.
+            self.assertNotIn("OBJECT_STORE_SSE_KEY", env, service)
         self.assertEqual(
             config["services"]["postgres"]["environment"]["POSTGRES_PASSWORD"],
             GOOD["POSTGRES_PASSWORD"],
@@ -136,14 +140,14 @@ class BringUpRefusal(unittest.TestCase):
 
     def test_unset_secret_is_refused_naming_it(self):
         for name in ("POSTGRES_PASSWORD", "DATABASE_URL", "DATABASE_OWNER_URL", "AT_REST_ENCRYPTION_KEY",
-                     "AT_REST_ENCRYPTION_KEY_ID"):
+                     "AT_REST_ENCRYPTION_KEY_ID", "OBJECT_STORE_SSE_KEY"):
             result, _ = compose_config({k: v for k, v in GOOD.items() if k != name})
             self.assertNotEqual(result.returncode, 0, name)
             self.assertIn(f"{name} must be set", result.stderr)
 
     def test_empty_secret_is_refused_naming_it(self):
         for name in ("POSTGRES_PASSWORD", "DATABASE_URL", "DATABASE_OWNER_URL", "AT_REST_ENCRYPTION_KEY",
-                     "AT_REST_ENCRYPTION_KEY_ID"):
+                     "AT_REST_ENCRYPTION_KEY_ID", "OBJECT_STORE_SSE_KEY"):
             result, _ = compose_config({**GOOD, name: ""})
             self.assertNotEqual(result.returncode, 0, name)
             self.assertIn(f"{name} must be set", result.stderr)

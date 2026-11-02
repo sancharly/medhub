@@ -248,19 +248,22 @@ jobs:
         run: |
           access_key=$(openssl rand -hex 12)
           secret_key=$(openssl rand -base64 32)
-          sse_key=$(openssl rand -hex 32)
+          field_key=$(openssl rand -base64 32)
+          sse_key=$(openssl rand -base64 32)
           pg=$(openssl rand -hex 24)
           app_pw=$(openssl rand -hex 24)
           echo "::add-mask::$pg"
           echo "::add-mask::$app_pw"
           echo "::add-mask::$access_key"
           echo "::add-mask::$secret_key"
+          echo "::add-mask::$field_key"
           echo "::add-mask::$sse_key"
           {
             echo "OBJECT_STORE_ACCESS_KEY=$access_key"
             echo "OBJECT_STORE_SECRET_KEY=$secret_key"
             echo "OBJECT_STORE_BUCKET=medhub-ci"
-            echo "AT_REST_ENCRYPTION_KEY=$sse_key"
+            echo "AT_REST_ENCRYPTION_KEY=$field_key"
+            echo "OBJECT_STORE_SSE_KEY=$sse_key"
             echo "AT_REST_ENCRYPTION_KEY_ID=ci"
             echo "POSTGRES_PASSWORD=$pg"
             echo "DATABASE_OWNER_URL=postgresql://medhub:$pg@postgres:5432/medhub"

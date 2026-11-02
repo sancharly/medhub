@@ -40,6 +40,13 @@ class SmokeTestThrowawayEnvironment(unittest.TestCase):
         env = filled_template()
         self.assertTrue(env["AT_REST_ENCRYPTION_KEY_ID"].startswith("throwaway-"))
 
+    def test_the_smoke_test_compares_bucket_objects_with_attachment_rows(self):
+        """TASK-196 QA 3: a store on a wrong or empty volume must turn the smoke test red."""
+        script = SMOKE.read_text()
+        self.assertIn("SELECT count(*) FROM attachment", script)
+        self.assertIn("the object store holds every attachment (SR-041 AC 6)", script)
+        self.assertIn('[ "$OBJECTS" -ge "$ROWS" ]', script)
+
 
 if __name__ == "__main__":
     unittest.main()

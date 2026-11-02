@@ -3,10 +3,10 @@ id: TS-008
 type: test-specification
 title: Persistence, FHIR-aligned model and encryption verification
 status: approved
-version: "1.10"
+version: "1.12"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-11-01"
+updated: "2026-11-02"
 links:
   - target: SR-021
     relation: verifies
@@ -61,6 +61,8 @@ Exact SOUP versions: the `soup` records in [`../../soup/`](../../soup/).
 
 TC-008.10 also covers the operator procedure for a row that migration 0010 refuses (`infra/DEPLOY.md`, "A row that does not decrypt"). Option (c) of it (placeholder encrypted under the current key, then `db-migrate` again) was rehearsed on a scratch stack in TASK-194 round 3: exit 1 naming the row, exit 0 after the `UPDATE`, the API returns the placeholder, the attachment is intact. Options (a) and (b) were not run on a stack. The smoke test's head-revision check is tested with synthetic migration directories in `infra/tests/test_alembic_head.py`.
 
-Four of these cases need Docker and were **blocked** in TR-001. The ciphertext envelope carries a key identifier since TASK-193 (TC-008.9, PRB-004); TASK-194 added the conversion of existing values (TC-008.10); TASK-195 added the rotation command, its documented procedure and its rehearsal (TC-008.11). The procedure is not usable on an installation whose object store still takes `AT_REST_ENCRYPTION_KEY` as its SSE key until TASK-196 separates them (DEPLOY.md says so; the rehearsal ran with the TASK-196 layout simulated in a scratch copy of the Compose file).
+Four of these cases need Docker and were **blocked** in TR-001. The ciphertext envelope carries a key identifier since TASK-193 (TC-008.9, PRB-004); TASK-194 added the conversion of existing values (TC-008.10); TASK-195 added the rotation command, its documented procedure and its rehearsal (TC-008.11). The object store has had its own SSE key since TASK-196 (`OBJECT_STORE_SSE_KEY`, TC-014.7 in TS-014), so the rotation no longer touches the attachments' encryption; TASK-196 rehearsed the rotation k1 to k2 on the shipped Compose file with 15 attachments present, all readable and identical at every step (`infra/DEPLOY.md`).
 
 TC-008.5 uses a fixed legacy envelope that was produced under cryptography 49.0.0 (CR-003 AC-9), before the lock moved to 50.0.2, with the key, nonce and plaintext committed as test data. It needs no Docker. It is the §7.4.3 evidence that field values already at rest stay readable across the upgrade. Since TASK-193 only `decrypt_legacy` reads that format; TASK-194 uses it to convert existing rows.
+
+- 1.12 (2026-11-02) — Status `approved`: approved by the human's decision of 2026-11-02 (CR-004 D-10: TASK-196 accepted with the QA round-2 text fix, no QA re-review).

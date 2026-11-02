@@ -3,7 +3,7 @@ id: "PRB-004"
 type: problem-report
 title: "Ciphertext envelope carries no key identifier, so key rotation cannot be performed safely"
 status: resolved
-version: "1.6"
+version: "1.7"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
 updated: "2026-11-01"
@@ -77,8 +77,10 @@ TASK-195 ("Rehearsal record", "QA verification"):
 Every per-row plaintext SHA-256 matched before and after, and the smoke test passed (65 / 0).
 
 Limits that remain (not part of this defect):
-- Do not run a rotation while the object store takes `AT_REST_ENCRYPTION_KEY` as its SSE key
-  (DEPLOY.md says so) until TASK-196 separates the two keys.
+- ~~Do not run a rotation while the object store takes `AT_REST_ENCRYPTION_KEY` as its SSE key.~~
+  Lifted by TASK-196 (2026-11-01): the store has its own `OBJECT_STORE_SSE_KEY`, refused when equal to a
+  field key, and a rotation k1 to k2 was rehearsed on the shipped Compose file with 15 attachments that
+  stayed readable at every step (`infra/DEPLOY.md`).
 - A key is only as safe as its backup (PRB-057, open).
 - `closed` is a release-time human step (CR-004 D-8).
 
@@ -112,8 +114,14 @@ rotation on a restored backup copy; removing k1 too early was refused. All three
 (Scope, Out of scope) reserves that change for the human. Two things bear on that decision: the
 rotation must not be run on an installation whose object store still takes
 `AT_REST_ENCRYPTION_KEY` as its SSE key (rotating it made every attachment unreadable in the
-rehearsal) until TASK-196 separates the two, and the new key is only as safe as its backup
+rehearsal) until TASK-196 separates the two (done: see the next note), and the new key is only as safe as its backup
 (PRB-057, still open).
+
+**Interim note (2026-11-01, TASK-196 handed to QA, status stays `resolved`).** The object store's SSE key
+is now its own setting, `OBJECT_STORE_SSE_KEY`; the preflight refuses it when it equals
+`AT_REST_ENCRYPTION_KEY` or a retired key; `infra/DEPLOY.md` "Separating the object-store SSE key" moves
+existing attachments by copy, and a rotation on the shipped Compose file left all attachments readable
+and byte-identical. The rotation limit of the previous note no longer applies.
 
 ## Source
 
@@ -127,3 +135,4 @@ rehearsal) until TASK-196 separates the two, and the new key is only as safe as 
 - 1.4 (2026-11-01) — Interim note on TASK-194 under "Resolution". Status unchanged.
 - 1.5 (2026-11-01) — Interim note on TASK-195 under "Resolution". Status unchanged.
 - 1.6 (2026-11-01) — QA approved TASK-195 (round 2). The Resolution now covers TASK-193, 194 and 195; status `open` → `resolved` (CR-004 D-8). Criticality unchanged.
+- 1.7 (2026-11-01) — TASK-196: the SSE-key limit on rotation lifted (TASK-196 separates the keys and rehearses a rotation with attachments). Status `resolved` and criticality unchanged.

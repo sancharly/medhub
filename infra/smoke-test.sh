@@ -9,6 +9,7 @@
 # SR-041: every image MedHub builds runs as a non-root user (section 11)
 # SR-023 AC 8: the application connects as the runtime role, which cannot alter audit_log (section 12)
 # PRB-061: the Celery worker and beat run (sections 11 and 12)
+# SR-041 AC 5: the object store's SSE key is its own value and reaches only the store (section 12)
 
 set -uo pipefail
 
@@ -24,6 +25,7 @@ if [ ! -f "$ENV_FILE" ]; then
     awk -F= '
         $1 == "POSTGRES_PASSWORD" || $1 == "DATABASE_URL" || $1 == "DATABASE_OWNER_URL" \
             || $1 == "AT_REST_ENCRYPTION_KEY" || $1 == "AT_REST_ENCRYPTION_KEY_ID" \
+            || $1 == "OBJECT_STORE_SSE_KEY" \
             || $1 == "OBJECT_STORE_ACCESS_KEY" || $1 == "OBJECT_STORE_SECRET_KEY" \
             { print $1 "=throwaway-" tolower($1); next }
         { print }' "$SCRIPT_DIR/.env.example" > "$ENV_FILE"
@@ -360,6 +362,68 @@ else
         done
     fi
     rm -f "$OWNER_PW_FILE"
+    # The object store's SSE key must reach no other running container and must not be the field
+    # key (SR-041 AC 5, ADR-0018). Value-based, like the owner check: the key is read from the store,
+    # the field key from the backend, and neither is printed. The store must not hold the field key.
+    SSE_FILE=$(mktemp)
+    FIELD_FILE=$(mktemp)
+    chmod 600 "$SSE_FILE" "$FIELD_FILE"
+    compose exec -T object-store printenv WEED_S3_SSE_KEY 2>/dev/null | tr -d '\r\n' > "$SSE_FILE"
+    compose exec -T backend printenv AT_REST_ENCRYPTION_KEY 2>/dev/null | tr -d '\r\n' > "$FIELD_FILE"
+    STORE_CID=$(compose ps -q object-store 2>/dev/null | head -n 1)
+    if [ ! -s "$SSE_FILE" ] || [ ! -s "$FIELD_FILE" ]; then
+        check "the SSE key and the field key can be read from their containers" "empty or unreadable"
+    else
+        if cmp -s "$SSE_FILE" "$FIELD_FILE"; then
+            check "the object-store SSE key differs from the field key (SR-041 AC 5)" "the two values are equal"
+        else
+            check "the object-store SSE key differs from the field key (SR-041 AC 5)" "ok"
+        fi
+        for CID in $(compose ps -q 2>/dev/null); do
+            [ "$(docker inspect --format '{{.State.Status}}' "$CID" 2>/dev/null)" = "running" ] || continue
+            NAME=$(docker inspect --format '{{index .Config.Labels "com.docker.compose.service"}}' "$CID" 2>/dev/null)
+            ENV_DUMP=$(mktemp)
+            chmod 600 "$ENV_DUMP"
+            PID1_USER=$(docker exec "$CID" sed -n 's/^Uid:[[:space:]]*\([0-9]*\).*/\1/p' /proc/1/status 2>/dev/null | tr -d '\r')
+            if [ -z "$PID1_USER" ] || ! docker exec -u "$PID1_USER" "$CID" cat /proc/1/environ > "$ENV_DUMP" 2>/dev/null; then
+                check "'${NAME}' holds the right encryption key (SR-041 AC 5)" "could not read /proc/1/environ"
+            else
+                docker inspect --format '{{json .Config.Env}}' "$CID" >> "$ENV_DUMP" 2>/dev/null
+                if [ "$CID" = "$STORE_CID" ]; then
+                    if grep -qaF -f "$FIELD_FILE" "$ENV_DUMP"; then
+                        check "'${NAME}' holds the right encryption key (SR-041 AC 5)" "the field-encryption key is in its environment"
+                    else
+                        check "'${NAME}' holds the right encryption key (SR-041 AC 5)" "ok"
+                    fi
+                elif grep -qaF -f "$SSE_FILE" "$ENV_DUMP"; then
+                    check "'${NAME}' holds the right encryption key (SR-041 AC 5)" "the object-store SSE key is in its environment"
+                else
+                    check "'${NAME}' holds the right encryption key (SR-041 AC 5)" "ok"
+                fi
+            fi
+            rm -f "$ENV_DUMP"
+        done
+    fi
+    rm -f "$SSE_FILE" "$FIELD_FILE"
+    # The store must hold every attachment the database knows (SR-041 AC 6, RISK-007): a store on a
+    # wrong or empty volume starts, passes its initialiser and answers 500 for every download, so
+    # compare the number of objects in the bucket with the number of attachment rows. Counts only;
+    # no key name is printed.
+    ROWS=$(compose exec -T postgres sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Atc "SELECT count(*) FROM attachment"' 2>/dev/null | tr -d '\r\n')
+    OBJECTS=$(compose exec -T backend python -c '
+import os, boto3
+s3 = boto3.client("s3", endpoint_url=os.environ["OBJECT_STORE_ENDPOINT"],
+                  aws_access_key_id=os.environ["OBJECT_STORE_ACCESS_KEY"],
+                  aws_secret_access_key=os.environ["OBJECT_STORE_SECRET_KEY"], region_name="us-east-1")
+pages = s3.get_paginator("list_objects_v2").paginate(Bucket=os.environ["OBJECT_STORE_BUCKET"])
+print(sum(p.get("KeyCount", 0) for p in pages))' 2>/dev/null | tr -d '\r\n')
+    if ! [[ "$ROWS" =~ ^[0-9]+$ && "$OBJECTS" =~ ^[0-9]+$ ]]; then
+        check "the object store holds every attachment (SR-041 AC 6)" "could not count (rows='${ROWS}', objects='${OBJECTS}')"
+    elif [ "$OBJECTS" -ge "$ROWS" ]; then
+        check "the object store holds every attachment (SR-041 AC 6)" "ok"
+    else
+        check "the object store holds every attachment (SR-041 AC 6)" "the database has ${ROWS} attachment rows, the bucket ${OBJECTS} objects (wrong or empty OBJECT_STORE_VOLUME?)"
+    fi
     # Exactly one beat: a second one would send every scheduled task twice (round 2).
     BEATS=0
     for CID in $(compose ps -q celery-beat 2>/dev/null); do
