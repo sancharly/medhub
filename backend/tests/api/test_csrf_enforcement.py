@@ -5,10 +5,13 @@ Covers:
 - Middleware passes valid CSRF tokens through to the route layer
 - Safe methods (GET) are never blocked
 - Public no-session paths (login, activation) are exempt
+- TASK-139 / PRB-003: exemptions are exact (sibling and child paths are enforced) and a
+  route inventory pins every exempt route to a reviewed list (SR-031 AC 3)
 """
 
 from __future__ import annotations
 
+import re
 import uuid
 from datetime import UTC, datetime, timedelta
 from unittest.mock import MagicMock, patch
@@ -19,6 +22,8 @@ from fastapi.testclient import TestClient
 from app.api.deps import get_current_user, get_session_service
 from app.auth.session import Session as UserSession
 from app.auth.session import SessionService
+from app.core import security_middleware
+from app.core.security_middleware import is_csrf_exempt
 from app.db.models.account import Account, AccountStatus, UserType
 from app.db.repositories.session import get_db
 from app.main import create_app
@@ -196,8 +201,8 @@ class TestCsrfExemptPaths:
 
     def test_activation_post_exempt_from_csrf(self, client):
         resp = client.post(
-            "/api/v1/activation",
-            json={"token": "invalid", "password": "Test1234!"},
+            "/api/v1/activation/invalid-token",
+            json={"password": "Test1234!"},
         )
         assert resp.status_code != 403
 
@@ -248,3 +253,157 @@ class TestCsrfProblemJsonShape:
         assert body["status"] == 403
         assert "CSRF" in body["detail"]
         assert body["title"] == "Forbidden"
+
+
+# --- TASK-139 / PRB-003 / SR-031 AC 3 --------------------------------------------------------
+
+_UNSAFE = {"POST", "PUT", "PATCH", "DELETE"}
+
+# Reviewed list: the only unsafe routes allowed to be CSRF-exempt (no session exists at them).
+# Adding a route here is a security decision; a reviewer must agree why it has no session.
+_REVIEWED_EXEMPT_ROUTES = {
+    ("POST", "/api/v1/auth/login"),
+    ("POST", "/api/v1/activation/{token}"),
+    ("POST", "/api/v1/anonymized-data/retrieve"),  # ADR-0013
+}
+_REVIEWED_EXEMPT_PATHS = {
+    "/api/v1/auth/login",
+    "/api/v1/anonymized-data/retrieve",
+    "/api/v1/healthz",
+    "/api/v1/openapi.json",
+    "/healthz",
+}
+_REVIEWED_EXEMPT_PATTERNS = {r"/api/v1/activation/[^/]+"}
+
+
+def _unsafe_routes(routes, prefix=""):
+    """Yield (method, path template) for every state-changing route, through nested includes."""
+    for route in routes:
+        if hasattr(route, "original_router"):  # FastAPI lazily included router
+            yield from _unsafe_routes(
+                route.original_router.routes, prefix + route.include_context.prefix
+            )
+        elif getattr(route, "methods", None):
+            for method in route.methods & _UNSAFE:
+                yield method, prefix + route.path
+        elif hasattr(route, "routes"):
+            yield from _unsafe_routes(route.routes, prefix + getattr(route, "path", ""))
+
+
+def _concrete(template: str) -> str:
+    return re.sub(r"\{[^}]+\}", "x", template)
+
+
+class TestCsrfExemptionIsExact:
+    """SR-031 AC 3 (TASK-139, PRB-003): prefix siblings are enforced, exact routes stay exempt."""
+
+    @pytest.mark.parametrize(
+        ("method", "path"),
+        [
+            ("POST", "/api/v1/activation-x"),
+            ("POST", "/api/v1/activation"),
+            ("POST", "/api/v1/activation/abc/extra"),
+            ("POST", "/api/v1/auth/password-reset"),
+            ("POST", "/api/v1/auth/password-reset-force"),
+            ("POST", "/api/v1/auth/login-x"),
+            ("POST", "/api/v1/auth/login/extra"),
+            ("POST", "/api/v1/anonymized-data/retrieve-all"),
+            ("POST", "/api/v1/anonymized-data/other"),
+            ("POST", "/api/v1/healthz-x"),
+            ("POST", "/api/v1/openapi.json.bak"),
+            ("POST", "/healthz/deep"),
+            ("PUT", "/api/v1/activation-x"),
+            ("DELETE", "/api/v1/activation/abc/extra"),
+        ],
+    )
+    def test_sibling_path_without_token_is_403_problem_json(self, client, method, path):
+        """AC 3: sibling and child paths of an exempt route are CSRF-enforced."""
+        resp = client.request(method, path)
+        assert resp.status_code == 403
+        assert resp.headers["content-type"] == "application/problem+json"
+        assert "CSRF" in resp.json()["detail"]
+
+    @pytest.mark.parametrize(
+        "path",
+        [
+            "/api/v1/auth/login",
+            "/api/v1/auth/login/",
+            "/api/v1/activation/abc",
+            "/api/v1/anonymized-data/retrieve",
+            "/api/v1/healthz",
+            "/api/v1/openapi.json",
+            "/healthz",
+        ],
+    )
+    def test_exact_exempt_paths_work_without_session_or_token(self, client, path):
+        """AC 2: the legitimately exempt routes are reachable sessionless (not 403 CSRF)."""
+        resp = client.post(path, json={})
+        assert not (resp.status_code == 403 and "CSRF token missing" in resp.text)
+
+    def test_is_csrf_exempt_table(self):
+        """AC 1/2: matcher truth table (method-independent; exemption is by exact path)."""
+        exempt = [
+            "/api/v1/auth/login",
+            "/api/v1/auth/login/",
+            "/api/v1/activation/abc",
+            "/api/v1/anonymized-data/retrieve",
+            "/api/v1/healthz",
+            "/api/v1/openapi.json",
+            "/healthz",
+        ]
+        enforced = [
+            "/api/v1/auth/login-x",
+            "/api/v1/auth/login//",
+            "/api/v1/auth/login/extra",
+            "/api/v1/auth/password-reset",
+            "/api/v1/auth/logout",
+            "/api/v1/activation",
+            "/api/v1/activation/",
+            "/api/v1/activation-x",
+            "/api/v1/activation/abc/extra",
+            "/api/v1/anonymized-data",
+            "/api/v1/anonymized-data/retrieve-all",
+            "/api/v1/healthz-x",
+            "/healthz/deep",
+            "/api/v1/accounts/x/resend-activation",
+        ]
+        assert all(is_csrf_exempt(p) for p in exempt)
+        assert not any(is_csrf_exempt(p) for p in enforced)
+
+    def test_new_sibling_route_is_enforced_not_silently_exempt(self, app):
+        """AC 3: a route added later next to an exempt one is enforced without a decision."""
+
+        @app.post("/api/v1/activation-admin")
+        def _new_route() -> dict[str, bool]:
+            return {"ok": True}
+
+        resp = TestClient(app, raise_server_exceptions=False).post("/api/v1/activation-admin")
+        assert resp.status_code == 403
+
+
+class TestCsrfRouteInventory:
+    """AC 3 (negative control): exemptions are pinned to a reviewed list."""
+
+    def test_inventory_finds_the_application_routes(self, app):
+        routes = set(_unsafe_routes(app.routes))
+        assert ("POST", "/api/v1/auth/login") in routes
+        assert ("POST", "/api/v1/appointments") in routes
+        assert len(routes) >= 20  # guards against the walker silently seeing nothing
+
+    def test_exempt_routes_equal_the_reviewed_list(self, app):
+        exempt = {(m, t) for m, t in _unsafe_routes(app.routes) if is_csrf_exempt(_concrete(t))}
+        assert exempt == _REVIEWED_EXEMPT_ROUTES
+
+    def test_every_other_unsafe_route_is_403_without_a_token(self, client):
+        for method, template in sorted(_unsafe_routes(client.app.routes)):
+            if (method, template) in _REVIEWED_EXEMPT_ROUTES:
+                continue
+            resp = client.request(method, _concrete(template))
+            assert resp.status_code == 403, (method, template)
+
+    def test_exemption_constants_equal_the_reviewed_list(self):
+        """A new exact path or pattern fails here until it is added to the reviewed list."""
+        assert set(security_middleware._CSRF_EXEMPT_PATHS) == _REVIEWED_EXEMPT_PATHS
+        assert {p.pattern for p in security_middleware._CSRF_EXEMPT_PATTERNS} == (
+            _REVIEWED_EXEMPT_PATTERNS
+        )

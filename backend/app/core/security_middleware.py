@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 import secrets
 from collections.abc import Awaitable, Callable
 
@@ -49,16 +50,31 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
 
 _UNSAFE_METHODS = frozenset({"POST", "PUT", "PATCH", "DELETE"})
 
-# Paths exempt from CSRF because no session exists at these points.
-_CSRF_EXEMPT_PREFIXES = (
-    "/api/v1/auth/login",
-    "/api/v1/auth/password-reset",
-    "/api/v1/activation",
-    "/api/v1/anonymized-data/",  # ADR-0013: no-session retrieval
-    "/api/v1/healthz",
-    "/api/v1/openapi.json",
-    "/healthz",
+# Paths exempt from CSRF because no session exists at these points (SR-031 AC 3, PRB-003).
+# Exemptions are exact: a sibling or child path is enforced unless it is listed here.
+_CSRF_EXEMPT_PATHS = frozenset(
+    {
+        "/api/v1/auth/login",  # POST login: the session does not exist yet
+        "/api/v1/anonymized-data/retrieve",  # ADR-0013: no-session retrieval
+        "/api/v1/healthz",  # health probe, no session
+        "/api/v1/openapi.json",  # contract document, no session
+        "/healthz",  # container health probe, no session
+    }
 )
+# Routes with a path parameter: one whole-path pattern per route, one segment per parameter.
+_CSRF_EXEMPT_PATTERNS = (
+    # POST /api/v1/activation/{token}: the invited user has no session yet
+    re.compile(r"/api/v1/activation/[^/]+"),
+)
+
+
+def is_csrf_exempt(path: str) -> bool:
+    """True when ``path`` is a deliberately no-session route (one trailing slash ignored)."""
+    path = path.removesuffix("/")
+    return path in _CSRF_EXEMPT_PATHS or any(
+        pattern.fullmatch(path) for pattern in _CSRF_EXEMPT_PATTERNS
+    )
+
 
 _CSRF_COOKIE = "medhub_csrf"
 _CSRF_HEADER = "X-CSRF-Token"
@@ -83,9 +99,7 @@ class CsrfEnforcementMiddleware(BaseHTTPMiddleware):
         request: Request,
         call_next: Callable[[Request], Awaitable[Response]],
     ) -> Response:
-        if request.method in _UNSAFE_METHODS and not any(
-            request.url.path.startswith(prefix) for prefix in _CSRF_EXEMPT_PREFIXES
-        ):
+        if request.method in _UNSAFE_METHODS and not is_csrf_exempt(request.url.path):
             cookie_token = request.cookies.get(_CSRF_COOKIE)
             header_token = request.headers.get(_CSRF_HEADER)
             if (
