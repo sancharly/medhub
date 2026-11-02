@@ -21,6 +21,8 @@ class PlatformServices(Protocol):
 class ModuleManifest(Protocol):
     module_key: str
     name: str
+    # Semantic version (semver.org), ASCII only, nothing before or after it; checked at
+    # discovery (SR-016 AC 1).
     version: str
     required_permissions: list[str]
 

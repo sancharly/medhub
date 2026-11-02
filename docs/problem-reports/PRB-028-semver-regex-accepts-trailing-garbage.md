@@ -2,11 +2,11 @@
 id: "PRB-028"
 type: problem-report
 title: "Module version regex accepts trailing garbage"
-status: open
-version: "1.1"
+status: resolved
+version: "1.4"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
-updated: "2026-10-31"
+updated: "2026-11-02"
 criticality: minor
 links: []
 tags: ["security"]
@@ -36,8 +36,12 @@ No hazard at MVP (ADR-0005: modules are reviewed, trusted code).
 
 ## Resolution
 
-Planned in CR-004: TASK-200 (a fully anchored semantic-version expression, `fullmatch`, with
-rejection cases). Not yet fixed.
+TASK-200 (CR-004), 2026-11-02: `_SEMVER_RE` in `backend/app/modules/discovery.py` is now the module contract's
+version rule (SR-016 AC 1: the semver.org expression, ASCII only, no leading zeros, optional pre-release and build) and `_is_valid_manifest` uses `fullmatch`,
+so `1.2.3x`, `1.2.3 `, `1.2.3\n`, `1.2.3-evil!`, `1.2.3.4`, `01.2.3`, `v1.2.3`, `1.0.0-01`, `1.0.0-a..b`, `1.2.3` followed by a non-ASCII digit and an empty version are
+rejected with the existing warning and skip. Verified by TS-010 TC-010.5
+(`TestModuleVersionShape`, 9 accepted, 23 rejected and a timing case); with `fullmatch` put back to `match`, 16 cases fail, and with `\d` instead of `re.ASCII` 3 fail. The bundled
+`dicom-viewer` version (`0.1.0`) still passes. QA approved TASK-200 on 2026-11-02 (round 2); status `resolved` (CR-004 D-8). `closed` is a human step at release.
 
 ## Source
 
@@ -46,3 +50,6 @@ rejection cases). Not yet fixed.
 ## Version history
 
 - 1.1 (2026-10-31) — CR-004 Plan stage (Software Architect role): `## Investigation` added from the current tree (§9.2); Resolution points at the planned tasks. Status and criticality unchanged.
+- 1.2 (2026-11-02) — TASK-200: `## Resolution` written; status left `open` pending QA approval (D-8).
+- 1.3 (2026-11-02) — TASK-200 round 2: Resolution follows QA round 1 (ASCII digits, strict identifiers, wording).
+- 1.4 (2026-11-02) — QA round 2 approved TASK-200: status `resolved` (CR-004 D-8).

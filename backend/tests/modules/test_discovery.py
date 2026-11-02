@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import time
 import uuid
 from unittest.mock import MagicMock, patch
 
@@ -237,3 +238,60 @@ class TestModuleKeyShape:
     @pytest.mark.parametrize("key", ["Dicom", "1abc", "has space", "a:b", "x" * 65, "-lead"])
     def test_invalid_keys_are_rejected(self, key: str) -> None:
         assert not _is_valid_manifest(_fake_manifest(module_key=key))
+
+
+class TestModuleVersionShape:
+    """The manifest version follows the module contract's version rule (SR-016 AC 1, PRB-028)."""
+
+    @pytest.mark.parametrize(
+        "version",
+        [
+            "0.0.0",
+            "1.2.3",
+            "10.20.30",
+            "0.1.0-rc.1",
+            "1.0.0-alpha",
+            "1.0.0+build.5",
+            "1.0.0-rc.1+b5",
+            "1.0.0--",
+            "1.0.0+001",
+        ],
+    )
+    def test_valid_versions_are_accepted(self, version: str) -> None:
+        assert _is_valid_manifest(_fake_manifest(version=version))
+
+    @pytest.mark.parametrize(
+        "version",
+        [
+            "1.2.3x",
+            "1.2.3 ",
+            " 1.2.3",
+            "1.2.3\n",
+            "1.2.3-evil!",
+            "1.2.3.4",
+            "01.2.3",
+            "1.2",
+            "v1.2.3",
+            "1.2.3-",
+            "1.2.3+",
+            "",
+            "1.0.0-01",
+            "1.0.0-a..b",
+            "1.0.0-a.",
+            "1.0.0+a..b",
+            "1.0.0-.a",
+            "1.0.0+.",
+            "1.2.3\u0663",
+            "1\u0663.2.3",
+            "1\uff11.0.0",
+            pytest.param("1.2.3-" + "a" * 100_000 + "!", id="long-prerelease"),
+            pytest.param("1." + "0" * 100_000, id="long-patch"),
+        ],
+    )
+    def test_invalid_versions_are_rejected(self, version: str) -> None:
+        assert not _is_valid_manifest(_fake_manifest(version=version))
+
+    def test_adversarial_million_character_version_is_rejected_quickly(self) -> None:
+        start = time.perf_counter()
+        assert not _is_valid_manifest(_fake_manifest(version="1.0.0-" + "a." * 500_000 + "!"))
+        assert time.perf_counter() - start < 2
