@@ -31,6 +31,11 @@ _SETTINGS_DEFAULTS = {
 }
 
 
+# Optimistic-transaction attempts for the cap. Each failed attempt means another login for the
+# same account committed, so 20 covers a burst of 10 simultaneous logins with margin.
+_MAX_CAP_ATTEMPTS = 20
+
+
 def _session_key(session_id: str) -> str:
     return f"session:{session_id}"
 
@@ -48,6 +53,10 @@ class Session:
     last_seen_at: datetime
     ip: str | None
     absolute_expires_at: datetime
+
+
+class SessionCapContentionError(RuntimeError):
+    """The concurrent-session cap could not be applied: the account's sessions kept changing."""
 
 
 @dataclass
@@ -92,26 +101,57 @@ class SessionService:
         payload = _session_to_dict(session)
         account_key = _account_sessions_key(str(account.id))
 
-        # Evict oldest session if at cap
-        evicted_session_id: str | None = None
-        existing: list[bytes | str] = self._redis.zrange(account_key, 0, -1)  # type: ignore[assignment]
-        if len(existing) >= self._max_concurrent:
-            raw_oldest = existing[0]
-            oldest_id: str = (
-                raw_oldest.decode() if isinstance(raw_oldest, bytes) else str(raw_oldest)
-            )
-            self._redis.delete(_session_key(oldest_id))
-            self._redis.zrem(account_key, oldest_id)
-            evicted_session_id = oldest_id
-
-        # Store session
-        self._redis.setex(_session_key(session_id), ttl, json.dumps(payload))
-        # Add to account's sorted set (score = created_at timestamp)
-        self._redis.zadd(account_key, {session_id: now.timestamp()})
-        # TTL the sorted set to absolute lifetime to prevent orphans
-        self._redis.expire(account_key, self._absolute_lifetime)
+        evicted_session_id = self._store_with_cap(account_key, session_id, now, ttl, payload)
 
         return CreateSessionResult(session=session, evicted_session_id=evicted_session_id)
+
+    def _store_with_cap(
+        self,
+        account_key: str,
+        session_id: str,
+        now: datetime,
+        ttl: int,
+        payload: dict[str, object],
+    ) -> str | None:
+        """Store the session and evict the oldest above the cap as one optimistic transaction.
+
+        WATCH the account's sorted set, read it, then queue the eviction and the insertion in
+        MULTI/EXEC. If another login changed the set meanwhile, EXEC fails (WatchError) and the
+        whole step is retried, at most ``_MAX_CAP_ATTEMPTS`` times (SR-030 AC 7, PRB-023).
+        Returns the id of the oldest evicted session, if any.
+        """
+        for _ in range(_MAX_CAP_ATTEMPTS):
+            with self._redis.pipeline() as pipe:
+                try:
+                    pipe.watch(account_key)  # type: ignore[no-untyped-call]
+                    existing: list[tuple[bytes | str, float]] = pipe.zrange(  # type: ignore[assignment]
+                        account_key, 0, -1, withscores=True
+                    )
+                    ids = [m.decode() if isinstance(m, bytes) else str(m) for m, _ in existing]
+                    # Score = commit order: never below the newest existing score, so a login
+                    # that read its clock before a rival committed is still ranked newest.
+                    score = (
+                        max(now.timestamp(), existing[-1][1] + 1e-6)
+                        if existing
+                        else now.timestamp()
+                    )
+                    # Existing sessions are ordered oldest first; the new one always stays.
+                    evicted = ids[: max(0, len(ids) + 1 - self._max_concurrent)]
+                    pipe.multi()
+                    if evicted:
+                        pipe.delete(*(_session_key(sid) for sid in evicted))
+                        pipe.zrem(account_key, *evicted)
+                    pipe.set(_session_key(session_id), json.dumps(payload), ex=ttl)
+                    pipe.zadd(account_key, {session_id: score})
+                    # TTL the sorted set to absolute lifetime to prevent orphans
+                    pipe.expire(account_key, self._absolute_lifetime)
+                    pipe.execute()
+                except redis.WatchError:
+                    continue
+                return evicted[0] if evicted else None
+        raise SessionCapContentionError(
+            f"session cap not applied after {_MAX_CAP_ATTEMPTS} attempts: {account_key}"
+        )
 
     def resolve(self, session_id: str) -> Session | None:
         """Look up a session by ID, refresh its sliding TTL, return None if expired/missing."""

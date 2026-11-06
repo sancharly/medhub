@@ -7,8 +7,15 @@ from datetime import datetime, timedelta
 from unittest.mock import patch
 
 import fakeredis
+import pytest
 
-from app.auth.session import SessionService, _account_sessions_key, _session_key
+from app.auth.session import (
+    _MAX_CAP_ATTEMPTS,
+    SessionCapContentionError,
+    SessionService,
+    _account_sessions_key,
+    _session_key,
+)
 from app.db.models.account import Account, AccountStatus, UserType
 
 
@@ -101,6 +108,67 @@ def test_concurrency_cap_evicts_oldest() -> None:
     assert not r.exists(_session_key(s1.session_id))
     assert r.exists(_session_key(s2.session_id))
     assert r.exists(_session_key(result4.session.session_id))
+
+
+def test_cap_holds_over_many_sequential_logins() -> None:
+    """SR-030 AC 7 (sequential): never more than 3 sessions; each login past the cap evicts one."""
+    r = _redis()
+    svc = _svc(r)
+    acct = _make_account()
+    results = [svc.create_session(acct) for _ in range(8)]
+    ids = [x.session.session_id for x in results]
+    assert svc.list_account_session_ids(acct.id) == ids[-3:]
+    assert [x.evicted_session_id for x in results] == [None, None, None, *ids[:5]]
+    assert len(r.keys("session:*")) == 3
+
+
+def _interfere_on_zrange(
+    monkeypatch: pytest.MonkeyPatch, r: fakeredis.FakeRedis, account_key: str, times: int  # type: ignore[type-arg]
+) -> list[int]:
+    """Write to the account's set between WATCH and EXEC the first `times` times."""
+    pipe_cls = type(r.pipeline())
+    real = pipe_cls.zrange
+    calls = [0]
+
+    def zrange(self, *args, **kwargs):  # type: ignore[no-untyped-def]
+        out = real(self, *args, **kwargs)
+        calls[0] += 1
+        if calls[0] <= times:
+            r.zadd(account_key, {f"rival-{calls[0]}": 1.0})  # concurrent login on the same account
+        return out
+
+    monkeypatch.setattr(pipe_cls, "zrange", zrange)
+    return calls
+
+
+def test_cap_transaction_retries_after_concurrent_write(monkeypatch: pytest.MonkeyPatch) -> None:
+    """SR-030 AC 7: a write between WATCH and EXEC aborts the attempt; the retry re-reads."""
+    r = _redis()
+    svc = _svc(r)
+    acct = _make_account()
+    key = _account_sessions_key(str(acct.id))
+    for _ in range(2):
+        svc.create_session(acct)
+    calls = _interfere_on_zrange(monkeypatch, r, key, times=1)
+    result = svc.create_session(acct)
+    assert calls[0] == 2  # one aborted attempt, one that committed
+    # The retry saw the rival: 2 + rival at the cap, so the oldest (the rival, score 1.0) went.
+    assert result.evicted_session_id == "rival-1"
+    assert r.zcard(key) == 3
+    assert r.exists(_session_key(result.session.session_id))
+
+
+def test_cap_transaction_gives_up_after_bounded_attempts(monkeypatch: pytest.MonkeyPatch) -> None:
+    """SR-030 AC 7: contention that never clears raises instead of looping or skipping the cap."""
+    r = _redis()
+    svc = _svc(r)
+    acct = _make_account()
+    key = _account_sessions_key(str(acct.id))
+    calls = _interfere_on_zrange(monkeypatch, r, key, times=10_000)
+    with pytest.raises(SessionCapContentionError):
+        svc.create_session(acct)
+    assert calls[0] == _MAX_CAP_ATTEMPTS
+    assert not r.keys("session:*")  # nothing stored without the cap applied
 
 
 # --- resolve ---
