@@ -3,10 +3,10 @@ id: "TASK-202"
 type: task
 title: "Verify CR-004 end to end and re-score the risks from the evidence"
 status: draft
-version: "1.0"
+version: "1.1"
 author: "Carlos Santiago Liceras"
 created: "2026-10-31"
-updated: "2026-10-31"
+updated: "2026-11-02"
 links:
   - target: "SR-022"
     relation: implements
@@ -58,6 +58,17 @@ tags: ["verification", "cr:CR-004"]
 - **LOW:** `backend/tests/db/test_no_raw_sql.py:16-31` matches SQL keywords case-insensitively on
   any f-string line in `app/`, which flags ordinary English messages. Narrow it to upper-case
   keywords or to `text()`/`execute()` arguments (or assign it to TASK-201).
+
+## Carried from the TASK-204 plan (2026-11-02)
+
+- **Decide whether a PRB is needed:** the DICOM route (`backend/modules/dicom_viewer/dicom_viewer/router.py:41-65`)
+  writes a `DICOM_STUDY_READ` FAILURE row only on `AuthorizationError`. Its own failures after `open`
+  succeeds (for example `stream_dicom` raising) leave no FAILURE row; TASK-204 covers only failures
+  inside `AttachmentService.open`.
+- **Record:** the storage key embeds the raw uploaded file name
+  (`attachments/{patient_id}/{uuid}/{filename}`, `backend/app/attachments/service.py:78`). No fault
+  known today.
+- **Record:** TS-007's version history has no 1.2 entry (1.1 is followed by 1.3).
 
 ## Objective
 

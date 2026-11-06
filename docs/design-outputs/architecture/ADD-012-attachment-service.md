@@ -2,15 +2,11 @@
 id: ADD-012
 type: architecture-doc
 title: Attachment Service (SI-ATTACH)
-status: approved
-version: "1.3"
+status: in_review
+version: "1.4"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-10-31"
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-10-31"
-approved_digest: 41c6f34815be42ad541e07eaa3ed9806bca842db0939ef54e06a6017538a8ec6
-approval_note: self-approved
+updated: "2026-11-06"
 links:
   - target: SR-013
     relation: implements
@@ -85,3 +81,5 @@ Participates in RISK-002, RISK-007, RISK-011 (see `docs/risks/`); the control me
 - 1.2 (2026-10-30): TASK-176. The link to SOUP-022 (MinIO) removed.
 - 1.3 (2026-10-30): TASK-180. `U-ATT-Fetch` verifies the stored checksum and refuses with an audit
   FAILURE (TASK-173); ADR-0015 named among the governing decisions. Still `in_review`, not approved.
+- 1.4 (2026-11-06): TASK-204 (PRB-063). `U-ATT-Fetch` records an `ATTACHMENT_ACCESS` FAILURE on every server-side
+  failure after authorization, not only a checksum mismatch. Approval record cleared; `in_review`.

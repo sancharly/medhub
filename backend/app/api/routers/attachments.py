@@ -9,6 +9,7 @@ from fastapi import APIRouter, Depends, UploadFile, status
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 
+from app.api.content_disposition import content_disposition
 from app.api.deps import get_current_user
 from app.api.schemas.attachments import AttachmentResponse
 from app.attachments.service import AttachmentService
@@ -104,8 +105,14 @@ def fetch_attachment(
         for i in range(0, len(b), size):
             yield b[i : i + size]
 
-    return StreamingResponse(
-        _chunks(data, _CHUNK_SIZE),
-        media_type=content_type,
-        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
-    )
+    # SR-023 AC 2 / ADR-0016: the open succeeded but no content is served; the independent
+    # FAILURE row is the record of the attempt.
+    try:
+        return StreamingResponse(
+            _chunks(data, _CHUNK_SIZE),
+            media_type=content_type,
+            headers={"Content-Disposition": content_disposition(filename)},
+        )
+    except Exception:
+        svc.record_access_failure(actor, attachment_id)
+        raise

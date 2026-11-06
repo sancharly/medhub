@@ -216,3 +216,64 @@ class TestListAttachments:
     def test_list_attachments_requires_auth(self, client):
         resp = client.get(f"/api/v1/clinical-entries/{uuid.uuid4()}/attachments")
         assert resp.status_code == 401
+
+
+_NON_LATIN1_CASES = [
+    (
+        "résumé 患者 #1.txt",
+        'attachment; filename="resume __ #1.txt"; '
+        "filename*=UTF-8''r%C3%A9sum%C3%A9%20%E6%82%A3%E8%80%85%20%231.txt",
+    ),
+    (
+        "report’s summary.pdf",
+        'attachment; filename="report_s summary.pdf"; '
+        "filename*=UTF-8''report%E2%80%99s%20summary.pdf",
+    ),
+]
+
+
+class TestFetchAttachmentFileNames:
+    """PRB-063 / TASK-204: any file name downloads (AC-1, AC-2); a failure is audited (AC-3)."""
+
+    @staticmethod
+    def _fetch(client, filename: str, body: bytes = b"PAYLOAD"):
+        actor = _make_account(UserType.DOCTOR)
+        _auth_as(client, actor)
+        svc = MagicMock(spec=AttachmentService)
+        svc.open.return_value = (body, "text/plain", filename)
+        client.app.dependency_overrides[_get_attachment_service] = lambda: svc
+        att_id = uuid.uuid4()
+        try:
+            return client.get(f"/api/v1/attachments/{att_id}"), svc, actor, att_id
+        finally:
+            client.app.dependency_overrides = {}
+
+    @pytest.mark.parametrize(("filename", "header"), _NON_LATIN1_CASES)
+    def test_non_latin1_name_downloads_with_encoded_header(self, client, filename, header):
+        """AC-1: 200, identical bytes, RFC 6266/5987 header."""
+        resp, *_ = self._fetch(client, filename)
+        assert resp.status_code == 200
+        assert resp.content == b"PAYLOAD"
+        assert resp.headers["content-disposition"] == header
+
+    @pytest.mark.parametrize("filename", ['a"b\\c.pdf', "x\r\nX-Injected: 1.txt", "t\tab\x7f.txt"])
+    def test_quote_backslash_and_controls_keep_one_well_formed_header(self, client, filename):
+        """AC-2: exactly one Content-Disposition, no injected header."""
+        resp, *_ = self._fetch(client, filename)
+        assert resp.status_code == 200
+        raw = [v for k, v in resp.headers.raw if k.lower() == b"content-disposition"]
+        assert len(raw) == 1
+        raw[0].decode("ascii")
+        assert "x-injected" not in resp.headers
+        assert b"\r" not in raw[0] and b"\n" not in raw[0]
+
+    def test_response_build_failure_records_access_failure(self, client, monkeypatch):
+        """AC-3: a failure while building the response is audited, then the 500 is returned."""
+
+        def _boom(*_a, **_k):
+            raise RuntimeError("cannot build header")
+
+        monkeypatch.setattr("app.api.routers.attachments.content_disposition", _boom)
+        resp, svc, actor, att_id = self._fetch(client, "test.pdf")
+        assert resp.status_code == 500
+        svc.record_access_failure.assert_called_once_with(actor, att_id)

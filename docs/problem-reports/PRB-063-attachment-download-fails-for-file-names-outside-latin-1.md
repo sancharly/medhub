@@ -2,11 +2,11 @@
 id: "PRB-063"
 type: problem-report
 title: "Attachment download answers 500 when the file name has a character outside Latin-1"
-status: open
-version: "1.0"
+status: resolved
+version: "1.3"
 author: "Carlos Santiago Liceras"
 created: "2026-11-01"
-updated: "2026-11-01"
+updated: "2026-11-06"
 criticality: major
 links: []
 tags: ["attachments", "hazard:availability", "found-in:TASK-196-rehearsal"]
@@ -45,12 +45,34 @@ Criticality **major**: clinical information is stored and not retrievable by the
 nothing tells the uploader at upload time. No occurrence outside the rehearsal is known. The class of
 the defect is availability, not integrity or confidentiality. The human sets the final criticality.
 
+## Investigation
+
+Survey of every place that builds a `Content-Disposition` header (TASK-204, 2026-11-06):
+
+- `backend/app/api/routers/attachments.py` (`fetch_attachment`) was the only builder, from the stored
+  file name. `starlette.responses.StreamingResponse` encodes header values as Latin-1, so any character
+  above U+00FF raised `UnicodeEncodeError` (reproduced on the unfixed code with `résumé 患者 #1.txt` and
+  `report’s summary.pdf`: HTTP 500). A `"` or `\` produced a malformed header; a CR or LF would have been
+  a header-injection vector.
+- The DICOM route (`/studies/{id}`) builds a plain `Response` and discards the name; it is not affected,
+  though the frontend's "Open in viewer" link goes through the attachments route, so DICOM files with such
+  names failed there too.
+- No export endpoint sets the header, `FileResponse` is not used, and no frontend code parses it
+  (`AttachmentItem.tsx` is a plain link, so the browser applies the header).
+- The 500 left no audit evidence: `AttachmentService.open` wrote the SUCCESS `ATTACHMENT_ACCESS` row in
+  the request transaction, and `get_db` rolled it back on the exception (ADR-0016: only FAILURE rows are
+  independent).
+
 ## Resolution
 
-Not fixed. Folded into CR-004 by the human on 2026-11-02 (D-9, Scope row PRB-063 to TASK-204; the task is
-written by the Software Architect). A fix would, for example, send
-`filename*=UTF-8''<percent-encoded name>` (RFC 6266) and an ASCII-safe `filename=` fallback, with a test
-that downloads an attachment whose name is `résumé 患者 #1.txt` and one that contains a double quote.
+TASK-204 (CR-004 D-9; commit pending QA approval). New helper `backend/app/api/content_disposition.py`
+(standard library only, never raises): `attachment; filename="<ASCII fallback>"; filename*=UTF-8''<percent-encoded>`
+per RFC 6266/5987, control characters and lone surrogates mapped to `_`; `fetch_attachment` is its only
+user and a static test fails if anything else builds the header. New
+`AttachmentService.record_access_failure` writes an independent `ATTACHMENT_ACCESS` FAILURE row on a storage
+error, a missing object, a checksum mismatch and a failure while the response is built. Verified by
+TS-007 TC-007.9 and TC-007.10 and on a started stack (scratch project `task204`). Status stays `open`
+until QA approves TASK-204, then `resolved` (CR-004 D-8). QA approved TASK-204 on 2026-11-06; `resolved`. Not covered: very long names can exceed the reverse proxy's 4 KB response-header buffer (TASK-204 QA finding 1, carried).
 
 ## Source
 
@@ -60,3 +82,5 @@ TASK-196 rehearsal; backend log of the `backend` container.
 
 - 1.0 (2026-11-01) — Created from TASK-196. `open`, `major`.
 - 1.1 (2026-11-02) — TASK-196 QA round 1: Impact widened (any non-Latin-1 character, no audit event on a failed download); folded into CR-004 (D-9). `open`, `major`.
+- 1.2 (2026-11-06) — TASK-204: Investigation and Resolution written; frontmatter version corrected (it said 1.0 while this history records 1.1). `open`, `major`.
+- 1.3 (2026-11-06) — TASK-204 QA approval: `resolved` (CR-004 D-8). `major`.
