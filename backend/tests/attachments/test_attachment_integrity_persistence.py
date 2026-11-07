@@ -137,6 +137,7 @@ def test_failure_audit_row_persists_after_502(pg_engine, runtime_engine, monkeyp
     assert rows[0].outcome == AuditOutcome.FAILURE
     assert rows[0].action == "ATTACHMENT_ACCESS"
     assert rows[0].actor_id == actor.id
+    assert rows[0].ip == "testclient"  # SR-023 AC 6: client address on a FAILURE row
 
 
 def test_failure_audit_row_persists_after_storage_error(
@@ -152,6 +153,7 @@ def test_failure_audit_row_persists_after_storage_error(
     assert rows[0].outcome == AuditOutcome.FAILURE
     assert rows[0].action == "ATTACHMENT_ACCESS"
     assert rows[0].actor_id == actor.id
+    assert rows[0].ip == "testclient"  # SR-023 AC 6: client address on a FAILURE row
 
 
 def test_failure_audit_row_persists_when_response_cannot_be_built(
@@ -169,6 +171,7 @@ def test_failure_audit_row_persists_when_response_cannot_be_built(
     assert [r.outcome for r in rows] == [AuditOutcome.FAILURE]
     assert rows[0].action == "ATTACHMENT_ACCESS"
     assert rows[0].actor_id == actor.id
+    assert rows[0].ip == "testclient"  # SR-023 AC 6: client address on a FAILURE row
 
 
 def test_non_latin1_name_downloads_and_commits_success_row(

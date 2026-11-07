@@ -94,7 +94,7 @@ def send_activation_email(self: object, account_id: str, activation_token: str) 
             logger.warning("send_activation_email: account %s not found", account_id)
             return
 
-        link = f"{settings.public_base_url}/activate?token={activation_token}"
+        link = f"{settings.public_base_url}/activation/{activation_token}"
         subject, body = render_activation_email(account.first_name, link)
         notification = Notification(
             channel=NotificationChannel.EMAIL,

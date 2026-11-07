@@ -3,10 +3,10 @@ id: "CR-004"
 type: change-request
 title: "Close the open security defects from the 2026-07 review and audit"
 status: open
-version: "1.12"
+version: "1.16"
 author: "Carlos Santiago Liceras"
 created: "2026-10-31"
-updated: "2026-11-06"
+updated: "2026-11-07"
 branch: fix/review-2026-07-security
 risk_impact: affects_controls
 links:
@@ -51,6 +51,14 @@ links:
   - target: "PRB-066"
     relation: resolves
   - target: "PRB-067"
+    relation: resolves
+  - target: "PRB-068"
+    relation: resolves
+  - target: "PRB-069"
+    relation: resolves
+  - target: "PRB-070"
+    relation: resolves
+  - target: "PRB-071"
     relation: resolves
   - target: "SR-005"
     relation: relates_to
@@ -160,6 +168,8 @@ links:
     relation: relates_to
   - target: "TASK-205"
     relation: relates_to
+  - target: "TASK-206"
+    relation: relates_to
   - target: "ADD-005"
     relation: relates_to
   - target: "ADD-006"
@@ -249,6 +259,10 @@ order and dependencies in "Plan").
 | PRB-065 Expired session ids count toward the session cap (found in the TASK-199 review; added in 1.10) | minor | SR-030 AC 7 (oldest active); RISK-005 | TASK-205 |
 | PRB-066 Login never reports an evicted session (found in the TASK-199 review; added in 1.10) | minor | SR-030 AC 7 (notification); RISK-005 | TASK-205 |
 | PRB-067 A failing /me request is re-requested in a tight loop (found in the TASK-142 review; added in 1.11) | major | availability; not an SR criterion (SR-005 and SR-009 guard unchanged) | TASK-142 |
+| PRB-068 The activation token is written to the backend error log and the proxy access log (found in the TASK-138 review; added in 1.13) | major | SR-043 AC 4 (new in SR-043 1.1, approved 2026-11-07) and AC 2 (logs), SR-033 (single-use activation link); RISK-005 | TASK-206 |
+| PRB-069 Attachment file names have no length limit, so a long name makes the proxy answer 502 (found in the TASK-204 review; added in 1.13) | minor | SR-013 AC 1, AC 3; SR-023 AC 2; RISK-007, RISK-006 | TASK-206 |
+| PRB-070 The e-mailed activation link does not match the app's activation route (found while planning TASK-206; added in 1.14) | major | SR-033 AC 1, AC 3, AC 7; RISK-009 | TASK-206 |
+| PRB-071 The API process cannot enqueue Celery tasks, so no e-mail is sent and no session kill is propagated by the worker (found on the TASK-206 started stack; added in 1.16) | critical | SR-033 AC 1, AC 3, AC 7 (activation e-mail), SR-034 AC 2 (session-kill propagation), SR-024 (erasure code e-mail), SR-035 (appointment notification); RISK-009, RISK-005 | TASK-206 |
 
 Existing TASKs whose links will need updating at the Plan stage: TASK-137 (add `implements`
 SR-042), TASK-138 (add `implements` SR-043).
@@ -459,6 +473,15 @@ New, for the human (Plan stage):
   review) are folded into CR-004 and fixed in TASK-205.
 - **D-12 (human decision 2026-11-06):** PRB-067 (the /me refetch loop found in the TASK-142 review) is folded into CR-004 and fixed in TASK-142.
 - **D-13 (human decision 2026-11-06):** administrators get the Appointments page and its navigation entry (SR-010 AC 4, SR-011 AC 3).
+- **D-14 (human decision 2026-11-07):** PRB-068 (activation token in logs) and PRB-069 (unbounded attachment names) are
+  folded into CR-004 and fixed in TASK-206, together with forwarding Celery's --loglevel (TASK-138 QA follow-up).
+- **D-15 (human decision 2026-11-07):** TASK-142, after three QA rounds, takes QA's verified one-line fix for R3-1
+  followed by one short QA check.
+- **D-16 (human decisions 2026-11-07):** SR-043 gains an AC for credentials and secrets in operational and proxy
+  logs; PRB-070 (activation link does not match the app route) is folded into CR-004 and fixed in TASK-206; the
+  attachment name limit is 255 UTF-8 bytes.
+- **D-17 (human decision 2026-11-07):** PRB-071 (the API process cannot enqueue Celery tasks) is `critical` and is fixed in
+  TASK-206, not left to a later change request.
 
 ## Change analysis (Risk stage, §7.4, 2026-10-31)
 
@@ -511,6 +534,7 @@ The Software Architect role ran this analysis. Scales and matrix: `docs/medtrace
 | Module version (200) | SI-MODHOST | None (no hazard) | none | TS-010 TC-010.5 |
 | Download file names; failed download audited (204, added in 1.8) | SI-API, SI-ATTACH | Removes the 500 for file names outside Latin-1 and the header-injection path; a failed download now leaves FAILURE evidence. New: none (header built in one place, never raises) | RISK-007, RISK-006 (strengthened) | TS-007 TC-007.9, TC-007.10 |
 | Session refresh, expired members, eviction report (205, added in 1.10) | SI-AUTH, SI-API | Removes a race that brings back an ended session (logout, eviction, password-change kill); the cap counts live sessions only; the eviction notice is shown. New: a refresh that loses the race answers 401 (the safe direction); cap contention answers 503 with `Retry-After` | RISK-005 (strengthened) | TS-001 TC-001.8..10 |
+| Token-free logs, activation link, bounded names, worker log level (206, added in 1.13; activation link and SR-043 1.1 AC 4 in 1.14; API task dispatch, PRB-071, in 1.16) | SI-API, SI-ATTACH, SI-WORKER, SI-DEPLOY, SI-FE-CORE | Removes a stored credential from the backend, proxy and frontend-container logs (SR-043 1.1 AC 4: no request line, query string or header in any proxy log format, no Referer from the activation page); the e-mailed activation link reaches the activation page (PRB-070); the API process dispatches tasks to the configured broker, so activation, erasure-code and appointment e-mails are sent and the deactivation task reaches the worker (PRB-071; `app/main.py` lifespan sets the configured Celery app as the process default); a long name can no longer make a download fail at the proxy; `--loglevel` works again. New: names over 255 UTF-8 bytes are refused at upload (400, shown to the user); long stored names download under a shortened name; nginx error-log entries for activation paths only at `crit` | RISK-005, RISK-007, RISK-006, RISK-009 (strengthened) | TS-017 TC-017.4, .5; TS-007 TC-007.11; TS-003 TC-003.3 |
 
 **Residual scores per record.** Not changed now: the scores depend on the fixes landing.
 TASK-202 re-scores them from the evidence. Each record (`in_review`) states its expected residual:
@@ -579,6 +603,7 @@ the human approves the plan, ADR-0017..0019 and the RISK records' control plans.
 | P5 | [TASK-142](../design-outputs/tasks/TASK-142-frontend-route-level-role-guards.md) Frontend route guard | 014 | SR-005; SR-009 (defence in depth, Q-4) | 001 | M | — (parallel) | updated |
 | P6 | [TASK-204](../design-outputs/tasks/TASK-204-safe-download-file-names-and-failed-download-audit.md) Any file name downloads (RFC 6266); failed download audited | 063 | SR-013 AC 3; SR-023 AC 2 | 007, 006 | M | — (parallel; commit after TASK-196) | new |
 | P7 | [TASK-205](../design-outputs/tasks/TASK-205-session-refresh-dead-members-and-eviction-notice.md) Session refresh race, expired cap members, eviction report | 064, 065, 066 | SR-030 AC 1–3, 5, 7 | 005 | M | 199 (committed); parallel | new |
+| P8 | [TASK-206](../design-outputs/tasks/TASK-206-token-free-logs-bounded-file-names-celery-loglevel.md) Token-free logs, activation link, bounded attachment names, Celery `--loglevel`, API task dispatch | 068, 069, 070, 071 | SR-043 AC 4, AC 2; SR-033; SR-013 AC 1, 3; SR-023 AC 2, 6 | 005, 007, 006, 009 | L | 138, 204 (committed); parallel | new |
 | 18 | [TASK-201](../design-outputs/tasks/TASK-201-arc42-and-design-records-for-cr-004.md) arc42, ADD and ADR index | — | SR-022, 023, 041, 042, 043 | — | M (docs) | all above | new |
 | 19 | [TASK-202](../design-outputs/tasks/TASK-202-verify-cr-004-end-to-end.md) Verify end to end; re-score risks (**Checkpoint F**) | all | all in scope | (relates_to all) | S | all above | new |
 
@@ -633,6 +658,7 @@ the human approves the plan, ADR-0017..0019 and the RISK records' control plans.
 | SR-024 (retrieval path, logs) | 186, 138 |
 | SR-013 AC 3; SR-023 AC 2 (failed download audited) | 204 |
 | SR-030 AC 1–3, AC 5 (ended session stays ended), AC 7 (oldest active; notification) | 205 |
+| SR-043 1.1 AC 4 (new, approved 2026-11-07) and AC 2, SR-033 (no credential or secret in logs); SR-033 AC 1, AC 3, AC 7 (activation link); SR-013 AC 1, AC 3 and SR-023 AC 2, AC 6 (bounded names; FAILURE-row address); SR-033 AC 1, AC 3, AC 7 and SR-034 AC 2 (tasks dispatched from the API, PRB-071) | 206 |
 
 **ADD coverage** (class B, every SR in scope): SR-005 (ADD-007, 018, 020), SR-009 (ADD-007, 018),
 SR-016 (ADD-014), SR-022 (ADD-016, 025, 026), SR-023 (ADD-013, 007, 016, 005, 026), SR-024
@@ -654,6 +680,9 @@ SR-016 (ADD-014), SR-022 (ADD-016, 025, 026), SR-023 (ADD-013, 007, 016, 005, 02
 | TS-015 | new | TC-015.1 UIDs; TC-015.2 Compose guards; TC-015.3 start-up refusal; TC-015.4 template and guide (`verifies` SR-041) | 198, 203, 197, 191, 196 |
 | TS-007 | 1.4 → 1.5 | TC-007.9 file names outside Latin-1 and header integrity; TC-007.10 failed download audited (adds `verifies` SR-023) | 204 |
 | TS-001 | 1.3 → 1.4 | TC-001.8 refresh never re-creates an ended session; TC-001.9 expired members pruned, oldest active evicted; TC-001.10 eviction reported, contention 503 | 205 |
+| TS-007 | 1.5 → 1.6 | TC-007.11 name bounded at upload, header bounded for any name; TC-007.6 asserts the client address; TC-007.9 bidi case | 206 |
+| TS-017 | 1.1 → 1.2 | TC-017.4 SR-043 AC 4 pass criterion (no credential or secret in any log); TC-017.5 `--loglevel` honoured and redacted (adds `verifies` SR-033) | 206 |
+| TS-003 | 1.3 → 1.4 | TC-003.3 activation link built in the app route's form (link-route tests) | 206 |
 | TS-016 | new | TC-016.1..3 address rule; TC-016.4..5 rate limit (`verifies` SR-042) | 185, 186 |
 | TS-017 | new | TC-017.1..3 log exclusion (`verifies` SR-043) | 138 |
 
@@ -723,3 +752,18 @@ per volume, re-key by copy, 196).
   its overlaps with committed tasks (TASK-199, TASK-192) in the shared-files note. No other change.
 - 1.11 (2026-11-06) — D-12 (human decision 2026-11-06): PRB-067 (the /me refetch loop found in the TASK-142 review) folded into CR-004 and fixed in TASK-142: `resolves` link and Scope row. No other change.
 - 1.12 (2026-11-07) — D-13 (human decision 2026-11-06): administrators get the Appointments page and its navigation entry (SR-010 AC 4, SR-011 AC 3); the route-guard change-analysis row mentions the PRB-067 fix. No other change.
+- 1.13 (2026-11-07) — D-14 (human decision 2026-11-07): PRB-068 and PRB-069 folded into CR-004 and fixed in TASK-206
+  with the Celery `--loglevel` follow-up: `resolves` links, `relates_to` TASK-206, Scope rows, Plan row P8, rows in the
+  change-analysis, SR AC coverage and TS tables (TS-007 1.5 → 1.6, TS-017 1.1 → 1.2). D-15 (human decision
+  2026-11-07): TASK-142 takes QA's one-line fix for R3-1 and one short QA check. No other change.
+- 1.14 (2026-11-07) — D-16 (human decisions 2026-11-07): SR-043 gains AC 4 (SR-043 1.1, `in_review`) for credentials and
+  secrets in operational and proxy logs; PRB-070 (activation link) folded into CR-004 and fixed in TASK-206; attachment
+  name limit 255 UTF-8 bytes. `resolves` PRB-070, Scope row PRB-070, PRB-068 row cites SR-043 AC 4; TASK-206's
+  change-analysis, SR AC coverage, TS (TS-017 TC-017.4 reworded, TS-003 1.3 → 1.4) and Plan P8 rows updated. No other change.
+- 1.15 (2026-11-07) — SR-043 1.1 (AC 4) approved by the human in chat on 2026-11-07: "pending approval" changed to
+  approved in the PRB-068 Scope row and the SR AC coverage row. TASK-206 built and handed to QA (`in_review`); PRB-071
+  (the API process cannot enqueue Celery tasks, found while checking PRB-070 on a started stack) raised and left `open`,
+  outside CR-004's scope until the human decides. No other change.
+- 1.16 (2026-11-07) — D-17 (human decision 2026-11-07): PRB-071 is `critical` and fixed in TASK-206. `resolves` PRB-071, Scope
+  row PRB-071, Plan P8 and the TASK-206 change-analysis and coverage rows updated. PRB-071 stays `open` until QA approves
+  TASK-206 (D-8). No other change.

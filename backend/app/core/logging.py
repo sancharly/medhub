@@ -27,6 +27,13 @@ _EMAIL = re.compile(
     r"(?:@|%40)"
     r"(?:[^\W_][\w\-]{0,62}\.){1,126}(?:[^\W\d_]{2,63}|xn--[\w\-]{1,59})"
 )
+# Celery's debug records print the task headers (``TaskPool: Apply ... 'argsrepr': "('<id>',
+# '<activation token>')"``): the value of ``argsrepr`` and ``kwargsrepr`` is replaced, whatever the
+# quoting. Linear: each alternative is a quoted string with bounded backtracking.
+_TASK_ARGUMENTS = re.compile(
+    r"""(?P<key>['"]?(?:args|kwargs)repr['"]?\s*:\s*)"""
+    r"""(?:"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')"""
+)
 _MAX_DEPTH = 20
 _FAILED = "[log record could not be redacted: {}]"
 
@@ -77,7 +84,9 @@ def _safe_text(value: object) -> str:
 
 
 def redact_text(text: str) -> str:
-    """Replace every email-shaped value in ``text``."""
+    """Replace every email-shaped value and every Celery task-argument dump in ``text``."""
+    if "argsrepr" in text:
+        text = _TASK_ARGUMENTS.sub(lambda m: m.group("key") + repr(FIELD_PLACEHOLDER), text)
     if "@" not in text and "%40" not in text:
         return text
     return _EMAIL.sub(EMAIL_PLACEHOLDER, text)
@@ -165,17 +174,18 @@ def _attach_filter(handler: logging.Handler) -> None:
         handler.addFilter(RedactionFilter())
 
 
-def configure_logging() -> None:
+def configure_logging(level: int | str = logging.INFO) -> None:
     """Configure root logger to emit structured JSON to stdout, with redaction on every handler.
 
     Called by the API lifespan, and by the worker and scheduler through Celery's
-    ``setup_logging`` signal.
+    ``setup_logging`` signal, which passes the ``--loglevel`` value (an int or a level name). The
+    filter sits on the handler, so records of every level pass it.
     """
     handler = logging.StreamHandler(sys.stdout)
     handler.setFormatter(_JsonFormatter())
     root = logging.getLogger()
     root.handlers = [handler]
-    root.setLevel(logging.INFO)
+    root.setLevel(level)
     # Loggers that keep their own handlers (uvicorn, gunicorn) get the same filter.
     for existing in (root, *logging.Logger.manager.loggerDict.values()):
         if isinstance(existing, logging.Logger):

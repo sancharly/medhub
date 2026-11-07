@@ -42,3 +42,15 @@ def _test_settings_env(monkeypatch: pytest.MonkeyPatch) -> None:
     get_settings.cache_clear()
     yield
     get_settings.cache_clear()
+
+
+@pytest.fixture(autouse=True)
+def _restore_default_celery_app():
+    """The API lifespan makes the configured Celery app the process default (PRB-071). A test that
+    runs the lifespan must not leave it as the default for later tests, which would then dispatch
+    ``.delay()`` calls to a broker that is not there."""
+    from celery import _state
+
+    saved = _state.default_app
+    yield
+    _state.default_app = saved

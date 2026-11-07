@@ -3,10 +3,10 @@ id: RISK-007
 type: risk
 title: Clinical information unavailable when needed
 status: in_review
-version: "1.6"
+version: "1.7"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-11-06"
+updated: "2026-11-07"
 hazard: The application, its database, its object storage or its workers unavailable, or attachments unreadable.
 cause: Single-host outage, database or object-store failure, exhausted connection pool from a session leak, a missing storage SDK (PRB-002), or an encryption key rotation that makes old rows unreadable → the clinician cannot open the record → they proceed without it or wait.
 harm: Delayed care; decisions made without available history. No direct physical harm from the software itself.
@@ -83,6 +83,7 @@ occur); the score is severity × P2, the probability that the hazardous situatio
 | Rotation by a re-encryption command with a `--check` mode, rehearsed on a backup copy before use (CR-004) | Protective | SR-022 AC 8; TASK-195 | TS-008 TC-008.11, rehearsal record (planned) |
 | Attachments moved to the separate SSE key by a copy with checksum comparison, source read only, rehearsed on a backup copy (CR-004) | Protective | SR-041 AC 5; TASK-196 | TS-014 TC-014.7, rehearsal record (planned) |
 | File names encoded per RFC 6266/5987 with an ASCII fallback; the header is built in one place | Design | SR-013 AC 3; TASK-204 | TS-007 TC-007.9 |
+| A file name is refused above 255 UTF-8 bytes at upload, and the `Content-Disposition` value is bounded (about 1 KB) for any stored name, so a long name cannot make the download fail at the proxy (CR-004, PRB-069) | Design | SR-013 AC 1, AC 3; TASK-206 | TS-007 TC-007.11 |
 | Retrieval rate limit per originating client address, so one caller cannot block retrieval for all (CR-004, PRB-029) | Design | SR-042 AC 4, AC 5; TASK-186 | TS-016 TC-016.4, TC-016.5 (planned) |
 
 ## Residual risk
@@ -167,3 +168,4 @@ CR-004 (2026-10-31), availability effects introduced by its controls:
     (ADR-0010). Acceptance is the human's, through approval of this version.
 - 1.5 (2026-10-31) — CR-004 Risk stage, §7.4 change analysis (Software Architect role). Control rows added for the CR-004 controls with their planned verification; expected residual stated in "Residual risk"; "Risks introduced by controls" extended. Scores not changed: they are re-scored from the evidence at verification (TASK-202). Content change, so the approval record is cleared and the record returns to review.
 - 1.6 (2026-11-06) — CR-004 TASK-204 (PRB-063), §7.4 change analysis: cause "a stored file name that cannot be represented in an HTTP header makes the attachment undownloadable" added to the sequence of events, and one control row (RFC 6266/5987 file names, one header builder; TS-007 TC-007.9). Residual unchanged (3 × 2, `alarp`); this cause was never part of the scored estimate. Content change, so the approval record is cleared and the record returns to review.
+- 1.7 (2026-11-07) — TASK-206 (PRB-069): one control row, bounded attachment names and header (TS-007 TC-007.11). Residual unchanged.

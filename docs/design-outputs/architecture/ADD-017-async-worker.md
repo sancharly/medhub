@@ -2,14 +2,11 @@
 id: ADD-017
 type: architecture-doc
 title: Async Worker (SI-WORKER)
-status: approved
-version: "1.1"
+status: in_review
+version: "1.2"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-10-31"
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-10-31"
-approval_note: self-approved at the ship-feature plan gate (sancharly/medhub#27, CR-004)
+updated: "2026-11-07"
 links:
   - target: SR-024
     relation: implements
@@ -52,6 +49,10 @@ Celery tasks: send activation & appointment emails, session-revocation propagati
   shared redaction filter as the API process, through Celery's logging signals, on every handler.
   The filter replaces email-shaped values in the message and in every structured field before a
   record is emitted. Log calls name accounts and patients by identifier only (SR-043, PRB-011).
+  The `setup_logging` receiver passes Celery's `--loglevel` to `configure_logging(level)`, so the worker's and
+  beat's root level follows the option (default INFO); the filter sits on the handler, so debug records are
+  redacted too, and the value of `argsrepr`/`kwargsrepr` in Celery's debug task-header records (which holds the
+  activation token) is replaced (SR-043 AC 2, AC 4; TASK-206).
 
 Class B requires decomposition down to software units, not per-unit detailed design
 (§5.4.2–5.4.4 are class C). Each unit above is independently unit-testable and is the granularity
@@ -84,3 +85,4 @@ Participates in RISK-008, RISK-009 (see `docs/risks/`); the control measures are
 ## Version history
 
 - 1.1 (2026-10-31) — CR-004 Plan stage (Software Architect role): unit changes for the planned design added (marked "CR-004"), links added. Content change, so the approval record is cleared and the record returns to review. The implementing tasks confirm the unit text when they land.
+- 1.2 (2026-11-07): TASK-206. Logging unit: `--loglevel` honoured and debug task headers redacted. Approval record cleared; `in_review`.

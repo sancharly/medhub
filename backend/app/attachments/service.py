@@ -6,7 +6,12 @@ import hashlib
 import hmac
 import uuid
 
-from app.api.errors import AttachmentIntegrityError, NotFoundError, ValidationProblem
+from app.api.errors import (
+    AttachmentIntegrityError,
+    NotFoundError,
+    ProblemDetail,
+    ValidationProblem,
+)
 from app.audit.actions import AuditAction
 from app.audit.service import AuditService
 from app.authz.service import AuthorizationService, Resource
@@ -15,6 +20,8 @@ from app.db.models.attachment import Attachment
 from app.db.models.audit import AuditOutcome
 from app.db.repositories.attachment_repo import AttachmentRepository
 from app.db.repositories.clinical_repo import ClinicalRepository
+
+MAX_FILENAME_BYTES = 255
 
 
 class AttachmentService:
@@ -65,6 +72,20 @@ class AttachmentService:
         if len(data) > max_bytes:
             raise ValidationProblem(
                 f"Attachment size {len(data)} exceeds maximum {max_bytes} bytes."
+            )
+
+        # File name bound (SR-013 AC 1, PRB-069): refused, never truncated, as the stored name is
+        # part of the clinical record (SR-013 AC 2). 255 bytes is NAME_MAX and bounds the header.
+        if len(filename.encode("utf-8", "surrogatepass")) > MAX_FILENAME_BYTES:
+            raise ValidationProblem(
+                "The file name is longer than 255 bytes.",
+                errors=[
+                    ProblemDetail(
+                        field="file",
+                        rule="filename_max_bytes",
+                        message="The file name is longer than 255 bytes.",
+                    )
+                ],
             )
 
         # DICOM validation

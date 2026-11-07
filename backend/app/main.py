@@ -16,6 +16,23 @@ from app.core.security_middleware import CsrfEnforcementMiddleware, SecurityHead
 logger = logging.getLogger(__name__)
 
 
+def _bind_celery_app() -> None:
+    """PRB-071: make the configured Celery app the default app of this API process.
+
+    The tasks are ``@shared_task``, which bind to the current app, and a sync route runs in a worker
+    thread. Importing the app only makes it current in the importing thread (thread-local), so a
+    route's ``.delay()`` used Celery's built-in app and its ``amqp://localhost`` broker and failed.
+    ``set_default()`` is process-global: every thread resolves the configured Redis broker.
+
+    Called from the lifespan, so it runs once per gunicorn worker, after the secret rule, and
+    settings are not read at import time (tests import this module without them). Building the app
+    only connects receivers: the secret rule runs on ``worker_init``/``beat_init``, never here.
+    """
+    from app.workers.celery_app import celery_app  # noqa: PLC0415
+
+    celery_app.set_default()
+
+
 @asynccontextmanager
 async def _lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     configure_logging()
@@ -25,6 +42,7 @@ async def _lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
     # SR-041 AC 3: refuse missing or placeholder secrets before anything else starts.
     enforce()
+    _bind_celery_app()
 
     settings = get_settings()
     logger.info(

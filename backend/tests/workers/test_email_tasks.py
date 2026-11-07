@@ -259,3 +259,35 @@ def test_send_activation_email_token_not_in_audit() -> None:
     assert len(captured) == 1
     all_audit_str = str(captured)
     assert "secret-token-xyz" not in all_audit_str
+
+
+def test_activation_email_link_uses_the_activation_route() -> None:
+    """PRB-070: the e-mailed link is ``/activation/<token>``, the route the SPA serves."""
+    acct_id = str(uuid.uuid4())
+    mock_account = MagicMock()
+    mock_account.first_name = "Test"
+    mock_account.email = "test@example.com"
+    mock_smtp = MagicMock()
+
+    import app.audit.service as audit_mod  # noqa: PLC0415
+    import app.db.repositories.account_repo as ar  # noqa: PLC0415
+    import app.db.repositories.audit_repo as audr  # noqa: PLC0415
+    import app.db.repositories.session as sess_mod  # noqa: PLC0415
+    import app.workers.email_tasks as et  # noqa: PLC0415
+
+    with (
+        patch.object(sess_mod, "get_db", return_value=iter([MagicMock()])),
+        patch.object(ar.AccountRepository, "__init__", return_value=None),
+        patch.object(ar.AccountRepository, "get_by_id", return_value=mock_account),
+        patch.object(audr.AuditRepository, "__init__", return_value=None),
+        patch.object(audit_mod.AuditService, "__init__", return_value=None),
+        patch.object(audit_mod.AuditService, "record"),
+        patch.object(et, "_send_smtp", mock_smtp),
+        patch.object(et, "get_settings") as get_settings,
+    ):
+        get_settings.return_value.public_base_url = "https://medhub.example"
+        et.send_activation_email.run(acct_id, "tok_en-123")  # type: ignore[attr-defined]
+
+    body = mock_smtp.call_args[0][0].body
+    assert "https://medhub.example/activation/tok_en-123" in body
+    assert "?token=" not in body

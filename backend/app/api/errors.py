@@ -186,7 +186,11 @@ def register_error_handlers(app: FastAPI) -> None:
 
     @app.exception_handler(Exception)
     async def generic_error_handler(request: Request, exc: Exception) -> JSONResponse:
-        logger.exception("Unhandled exception for %s %s", request.method, request.url.path)
+        # SR-043 AC 4: log the matched route's template, never the raw path (it can carry a
+        # credential such as an activation token).
+        route = request.scope.get("route")
+        path = getattr(route, "path", None) or "<unmatched>"
+        logger.exception("Unhandled exception for %s %s", request.method, path)
         problem = {
             "type": f"{_BASE_URI}internal-error",
             "title": "Internal Server Error",

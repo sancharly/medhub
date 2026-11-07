@@ -3,10 +3,10 @@ id: SOUP-024
 type: soup
 title: nginx
 status: in_review
-version: "1.3"
+version: "1.4"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
-updated: "2026-11-01"
+updated: "2026-11-07"
 manufacturer: F5, Inc. / nginx authors
 soup_version: 1.31.8
 anomaly_review: "2026-10-22"
@@ -21,7 +21,7 @@ tags:
 
 ## Functional and performance requirements
 
-TLS termination, HSTS and security headers at the reverse proxy (SR-001, SR-031), and static serving of the frontend bundle. MedHub relies on the image running as its unprivileged `nginx` user (UID 101) on port 8080 in the `frontend` service, with the pid file under `/tmp` and the cache directory owned by that user (SR-041 AC 1, TASK-198). The reverse proxy keeps the image's default root master and ports 80/443.
+TLS termination, HSTS and security headers at the reverse proxy (SR-001, SR-031), and static serving of the frontend bundle. For SR-043 AC 4 MedHub also relies on: the `map` directive on `$uri` and `log_format ... escape=json` with an allow-list of variables, so the access log holds no request line, query string or header; `access_log off` in a `server` block; a per-location `error_log ... crit`, below which nginx writes no per-request upstream error (`connect() failed`, `upstream timed out`, ...); and `add_header ... always` in a location replacing the server-level headers (so they are repeated). Tested by `infra/tests/test_proxy_access_log.py` and `infra/log-secrets-check.sh` (TS-017 TC-017.4). MedHub relies on the image running as its unprivileged `nginx` user (UID 101) on port 8080 in the `frontend` service, with the pid file under `/tmp` and the cache directory owned by that user (SR-041 AC 1, TASK-198). The reverse proxy keeps the image's default root master and ports 80/443.
 
 ## Required hardware and software environment
 
@@ -90,3 +90,4 @@ accountable. Hazard-relevant anomalies go to `risk-management`; defects affectin
   found, no hazard-relevant anomaly. `anomaly_review` set. No version change. Approval record
   cleared for re-approval.
 - 2026-11-01 — Version 1.3 (TASK-198, CR-004): `frontend/Dockerfile` runs this image as `USER nginx` on 8080 (`user` directive removed and `pid /tmp/nginx.pid` set in `/etc/nginx/nginx.conf`, `/var/cache/nginx` chowned); no version change, no new SOUP item. Reliance recorded above; anomaly review unchanged. Approval record cleared for re-approval.
+- 2026-11-07 — Version 1.4 (TASK-206, CR-004): logging directives relied on (`map`, `log_format ... escape=json`, per-location `error_log`, `access_log off`). Behaviour confirmed on a started stack (1.31.8): an upstream timeout on a non-activation location is written at `error`; none is written for the activation locations. No version change. Approval record cleared; `in_review`.

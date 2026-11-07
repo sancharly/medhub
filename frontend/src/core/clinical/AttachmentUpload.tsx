@@ -2,7 +2,9 @@ import { useRef } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
+import Alert from "@mui/material/Alert";
 import { apiClient } from "../../api";
+import { ApiError } from "../../api/client";
 
 interface AttachmentUploadProps {
   entryId: string;
@@ -21,6 +23,13 @@ export function AttachmentUpload({ entryId, patientId }: AttachmentUploadProps) 
       queryClient.invalidateQueries({ queryKey: ["clinicalEntries", patientId] });
     },
   });
+
+  // The server's reason (for example a file name over 255 bytes) is shown to the user (PRB-069).
+  const errorMessage = mutation.isError
+    ? mutation.error instanceof ApiError && mutation.error.problem.detail
+      ? mutation.error.problem.detail
+      : "The file could not be uploaded."
+    : null;
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const files = e.target.files;
@@ -47,6 +56,11 @@ export function AttachmentUpload({ entryId, patientId }: AttachmentUploadProps) 
           Upload file
         </Button>
       </label>
+      {errorMessage && (
+        <Alert severity="error" sx={{ mt: 1 }}>
+          {errorMessage}
+        </Alert>
+      )}
     </Box>
   );
 }

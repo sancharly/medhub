@@ -7,6 +7,7 @@ import unicodedata
 from email.message import Message
 from email.utils import collapse_rfc2231_value
 from pathlib import Path
+from urllib.parse import unquote
 
 import pytest
 
@@ -101,3 +102,61 @@ def test_content_disposition_is_built_only_by_the_helper():
                 ):
                     offenders.append(f"{path.relative_to(_BACKEND)}:{n}")
     assert offenders == []
+
+
+# --- TASK-206 slice B (PRB-069; TASK-204 QA finding 3) ---
+
+
+def _parts(value: str) -> tuple[str, str]:
+    m = re.fullmatch(r"attachment; filename=\"(.*)\"; filename\*=UTF-8''(.*)", value)
+    assert m, value
+    return m.group(1), unquote(m.group(2))
+
+
+@pytest.mark.parametrize(
+    "name",
+    ["\ufdfa" * 255 + ".pdf", "患" * 10000 + ".txt", "😀" * 10000 + ".dcm", "a" * 10000 + ".pdf"],
+    ids=["u-fdfa", "cjk", "emoji", "ascii"],
+)
+def test_value_is_bounded_for_any_name(name):
+    value = content_disposition(name)
+    assert len(value.encode("ascii")) <= 1024
+    fallback, star = _parts(value)
+    assert fallback.endswith(name[-4:]) and star.endswith(name[-4:])
+
+
+def test_fallback_cut_to_150_keeping_extension():
+    fallback, _ = _parts(content_disposition("a" * 400 + ".pdf"))
+    assert len(fallback) == 150
+    assert fallback.endswith(".pdf")
+
+
+def test_fallback_without_a_short_extension_is_cut_at_150():
+    fallback, _ = _parts(content_disposition("a" * 400 + "." + "b" * 30))
+    assert len(fallback) == 150
+
+
+def test_filename_star_cut_at_character_boundary():
+    _, star = _parts(content_disposition("患" * 300 + ".txt"))
+    encoded = star.encode("utf-8")
+    assert len(encoded) <= 255
+    encoded.decode("utf-8")  # valid UTF-8, no split character
+    assert star.endswith(".txt") and star.startswith("患")
+
+
+def test_name_within_the_bound_is_not_cut():
+    name = "患" * 83 + "ab.txt"  # 255 bytes
+    assert _parts(content_disposition(name))[1] == name
+
+
+def test_bidi_controls_mapped_to_underscore():
+    controls = "\u061c\u200e\u200f\u202a\u202b\u202c\u202d\u202e\u2066\u2067\u2068\u2069"
+    value = content_disposition(f"a{controls}b.txt")
+    _, star = _parts(value)
+    assert star == "a" + "_" * len(controls) + "b.txt"
+    assert "%E2%80%AE" not in value and "%D8%9C" not in value
+
+
+def test_zero_width_joiner_kept():
+    name = "👨\u200d👩.txt"
+    assert _parts(content_disposition(name))[1] == name

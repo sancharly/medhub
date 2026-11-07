@@ -144,3 +144,41 @@ def test_dicom_upload_stores_metadata() -> None:
     stored: Attachment = mock_repo.add.call_args[0][0]
     assert stored.dicom_metadata is not None
     assert stored.dicom_metadata.get("modality") == "CT"
+
+
+def test_filename_over_255_bytes_is_rejected_with_400() -> None:
+    """TASK-206 AC-2 (PRB-069): 256 bytes is refused; nothing is written."""
+    patient = _make_account(UserType.PATIENT)
+    doctor = _make_account(UserType.DOCTOR)
+    entry = _make_entry(patient.id)
+    svc, repo, storage, audit = _build_svc(effective_access=True, entry=entry)
+
+    with pytest.raises(ValidationProblem) as exc:
+        svc.store(doctor, entry.id, "a" * 252 + ".pdf", "application/pdf", b"data")
+    assert exc.value.status == 400
+    assert exc.value.errors[0].field == "file"
+    assert exc.value.errors[0].rule == "filename_max_bytes"
+    storage.put_object.assert_not_called()
+    repo.add.assert_not_called()
+
+
+def test_filename_bound_counts_utf8_bytes_not_characters() -> None:
+    patient = _make_account(UserType.PATIENT)
+    doctor = _make_account(UserType.DOCTOR)
+    entry = _make_entry(patient.id)
+    svc, repo, storage, _ = _build_svc(effective_access=True, entry=entry)
+
+    with pytest.raises(ValidationProblem):
+        svc.store(doctor, entry.id, "患" * 84 + ".txt", "text/plain", b"data")  # 256 bytes
+    storage.put_object.assert_not_called()
+
+
+def test_filename_of_exactly_255_bytes_is_accepted() -> None:
+    patient = _make_account(UserType.PATIENT)
+    doctor = _make_account(UserType.DOCTOR)
+    entry = _make_entry(patient.id)
+    svc, repo, storage, _ = _build_svc(effective_access=True, entry=entry)
+
+    svc.store(doctor, entry.id, "患" * 83 + "ab.txt", "text/plain", b"data")  # 255 bytes
+    storage.put_object.assert_called_once()
+    repo.add.assert_called_once()

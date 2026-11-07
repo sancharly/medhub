@@ -277,3 +277,39 @@ class TestFetchAttachmentFileNames:
         resp, svc, actor, att_id = self._fetch(client, "test.pdf")
         assert resp.status_code == 500
         svc.record_access_failure.assert_called_once_with(actor, att_id)
+
+
+class TestFileNameBound:
+    """TASK-206 AC-2 (PRB-069): the upload bound and the bounded header."""
+
+    def test_upload_of_a_256_byte_name_answers_400_problem(self, client):
+        actor = _make_account(UserType.DOCTOR)
+        _auth_as(client, actor)
+        entry = MagicMock()
+        entry.patient_id = uuid.uuid4()
+        clinical = MagicMock()
+        clinical.get.return_value = entry
+        storage = MagicMock()
+        repo = MagicMock()
+        svc = AttachmentService(repo, clinical, MagicMock(), MagicMock(), storage)
+        client.app.dependency_overrides[_get_attachment_service] = lambda: svc
+        try:
+            resp = client.post(
+                f"/api/v1/clinical-entries/{uuid.uuid4()}/attachments",
+                files={"file": ("a" * 252 + ".pdf", b"PDF content", "application/pdf")},
+                headers={"X-CSRF-Token": "tok"},
+                cookies={"medhub_csrf": "tok"},
+            )
+        finally:
+            client.app.dependency_overrides = {}
+        assert resp.status_code == 400
+        assert resp.headers["content-type"].startswith("application/problem+json")
+        assert resp.json()["errors"][0]["rule"] == "filename_max_bytes"
+        storage.put_object.assert_not_called()
+        repo.add.assert_not_called()
+
+    def test_download_of_a_stored_over_long_name_answers_200_with_a_bounded_header(self, client):
+        resp, *_ = TestFetchAttachmentFileNames._fetch(client, "\ufdfa" * 255)
+        assert resp.status_code == 200
+        assert resp.content == b"PAYLOAD"
+        assert len(resp.headers["content-disposition"].encode("ascii")) <= 1024

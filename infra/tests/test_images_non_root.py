@@ -84,7 +84,9 @@ class FrontendPort(unittest.TestCase):
         """The proxy's upstream for `/` is the port the frontend listens on, and Compose exposes it."""
         text = PROXY_NGINX.read_text()
         targets = re.findall(r"proxy_pass\s+http://frontend:(\d+)\s*;", text)
-        self.assertEqual(targets, ["8080"])
+        # `/` and the activation page location (TASK-206) both proxy to the frontend.
+        self.assertTrue(targets)
+        self.assertEqual(set(targets), {"8080"})
         block = service_blocks()["frontend"]
         self.assertRegex(block, r'expose:\n\s+- "8080"')
         self.assertNotRegex(block, r'- "80"')

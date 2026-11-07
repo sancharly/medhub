@@ -526,6 +526,33 @@ print("setrole=" + ",".join(sorted({refused("SET ROLE \"" + r + "\"") for r in o
     fi
 fi
 
+# ── 14. Activation token in logs (SR-043 AC 4, PRB-068) ──────────────────────
+# Non-destructive. Three requests carry a random marker in the three token forms; the activation
+# page must send no Referer; no service log may then contain the marker. Skipped only when the
+# stack is not running; the full pass criterion is infra/log-secrets-check.sh (destructive).
+echo ""
+echo "-- Activation token in logs (SR-043 AC 4) --"
+if [ -z "$(compose ps -q reverse-proxy 2>/dev/null)" ] || ! command -v curl >/dev/null 2>&1; then
+    echo "  [SKIP] stack not running or curl missing — activation token log check skipped"
+else
+    MARKER="SMOKE$(python3 -c 'import secrets; print(secrets.token_hex(12))')"
+    curl -sk -o /dev/null "https://localhost/api/v1/activation/$MARKER" 2>/dev/null || true
+    PAGE_HEADERS=$(curl -sk -D - -o /dev/null "https://localhost/activation/$MARKER" 2>/dev/null | tr -d '\r')
+    curl -sk -o /dev/null "https://localhost/activate?token=$MARKER" 2>/dev/null || true
+    sleep 1
+    if printf '%s' "$PAGE_HEADERS" | grep -qi '^referrer-policy: no-referrer$'; then
+        check "the activation page answers Referrer-Policy: no-referrer" "ok"
+    else
+        check "the activation page answers Referrer-Policy: no-referrer" "header missing"
+    fi
+    MATCHES=$(compose logs --no-color 2>&1 | grep -cF "$MARKER" || true)
+    if [ "$MATCHES" = "0" ]; then
+        check "no service log contains the activation token marker" "ok"
+    else
+        check "no service log contains the activation token marker" "$MATCHES log line(s) contain it"
+    fi
+fi
+
 # ── Summary ──────────────────────────────────────────────────────────────────
 echo ""
 echo "=== Results: ${PASS} passed, ${FAIL} failed ==="

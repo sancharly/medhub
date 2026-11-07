@@ -1,3 +1,5 @@
+import logging
+
 from celery import Celery
 from celery.schedules import crontab
 from celery.signals import beat_init, setup_logging, worker_init
@@ -30,10 +32,11 @@ def _enforce_secret_settings(**_kwargs: object) -> None:
 
 
 @setup_logging.connect  # type: ignore[untyped-decorator]
-def _configure_worker_logging(**_kwargs: object) -> None:
+def _configure_worker_logging(loglevel: int | str | None = None, **_kwargs: object) -> None:
     """SR-043 AC 2: the worker and beat own their logging, so Celery's own task retry and failure
-    records go through the same JSON handler and redaction filter as the API."""
-    configure_logging()
+    records go through the same JSON handler and redaction filter as the API. Celery passes the
+    ``--loglevel`` value, which is applied (default INFO)."""
+    configure_logging(loglevel or logging.INFO)
 
 
 settings = get_settings()

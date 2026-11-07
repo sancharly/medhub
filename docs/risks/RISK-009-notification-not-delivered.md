@@ -2,22 +2,19 @@
 id: RISK-009
 type: risk
 title: Appointment or activation notification not delivered
-status: approved
-version: "1.1"
+status: in_review
+version: "1.3"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-10-21"
+updated: "2026-11-07"
 hazard: A patient never learns about an appointment, or cannot activate their account, because a notification was not delivered.
-cause: A dead broker, a swallowed enqueue exception, an email provider rejection, or an expired activation token with no resend → no notification reaches the patient → they miss the appointment or cannot access their data.
+cause: A dead broker, a swallowed enqueue exception, an email provider rejection, or an expired activation token with no resend → no notification reaches the patient → they miss the appointment or cannot access their data. The e-mailed activation link does not reach the activation page (PRB-070). The API process dispatches tasks to the wrong broker, so no e-mail is sent (PRB-071).
 harm: Missed or delayed care; frustration and extra administrative work. No direct physical harm.
 severity_initial: 2
 probability_initial: 3
 severity_residual: 2
 probability_residual: 2
 acceptability: acceptable
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-10-21"
-approved_digest: 6d31e69ce1996676d0f77253544d2fa14c9520a748ead273d3707a7a8da7025f
 approval_note: self-approved
 links:
   - target: SOUP-014
@@ -65,6 +62,8 @@ occur); the score is severity × P2, the probability that the hazardous situatio
 | Dual-channel notification: in-app plus email | Design | SR-035 | TR-001, TS-006 |
 | Celery retries with backoff, and enqueue failures logged rather than swallowed | Protective | TASK-141 | none yet |
 | Administrator-initiated resend of activation | Protective | SR-033 | TR-001, TS-003 |
+| Activation link built in the route's form (`/activation/<token>`) and tied to the SPA route by a test (CR-004, PRB-070) | Design | SR-033; TASK-206 | TS-003 TC-003.3 |
+| The API process sets the configured Celery app as the process default at start-up, so every `.delay()` goes to the Redis broker; a test starts the lifespan and checks the broker from a worker thread (CR-004, PRB-071) | Design | SR-033, SR-034 AC 2; TASK-206 | TS-003 TC-003.3 |
 | Appointment visible in the patient's own view regardless of email | Design | SR-011, SR-035 | TR-001, TS-002, TS-006 |
 
 ## Residual risk
@@ -77,3 +76,8 @@ Severity 2 (unchanged — controls reduce probability, not severity) × probabil
 ## Risks introduced by controls
 
 None identified.
+
+## Version history
+
+- 1.2 (2026-11-07) — TASK-206 (PRB-070): new cause, the e-mailed link does not reach the activation page; one control row. Approval cleared (`in_review`). Residual unchanged. 
+- 1.3 (2026-11-07) — TASK-206 (PRB-071, CR-004 D-17): cause "the API process dispatches tasks to the wrong broker" and its control row. Still `in_review`. Residual unchanged.

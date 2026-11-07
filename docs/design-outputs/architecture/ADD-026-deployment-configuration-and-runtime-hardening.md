@@ -3,10 +3,10 @@ id: "ADD-026"
 type: architecture-doc
 title: "Deployment configuration, secrets and runtime users (SI-DEPLOY)"
 status: in_review
-version: "1.1"
+version: "1.2"
 author: "Carlos Santiago Liceras"
 created: "2026-10-31"
-updated: "2026-10-31"
+updated: "2026-11-07"
 safety_class: B
 links:
   - target: "SR-041"
@@ -73,6 +73,12 @@ concerns were spread over ADR-0010 and the deployment guide with no design recor
   listening on 8080, pid and temp paths under a writable directory; the reverse proxy targets
   `frontend:8080`). The pulled images (reverse proxy, PostgreSQL, Redis, SeaweedFS) are not built
   by MedHub and are outside SR-041 AC 1 (SR-041 AC 1).
+- `U-DEP-ProxyLogging` — `infra/reverse-proxy/nginx.conf` and `frontend/nginx.conf`: the proxy's access log is an
+  allow-list JSON format (`medhub_redacted`: time, client address, method, normalised path with the two activation
+  routes replaced by `[redacted]`, protocol, status, bytes, time, upstream status; no request line, query string
+  or header variable). The two locations that carry the activation token in the path log errors at `crit` only,
+  and the activation page sends `Referrer-Policy: no-referrer`. The frontend container logs no access and only
+  `crit` errors. No backend access log option is set in the image or in Compose (SR-043 AC 4, SR-033; TASK-206).
 
 Class B requires decomposition down to software units only.
 
@@ -118,3 +124,4 @@ names the setting; a missing grant makes a statement fail until the next `db-mig
 
 - 1.0 (2026-10-31) — Created at the CR-004 Plan stage (Software Architect role), `in_review`.
 - 1.1 (2026-10-31) — TASK-185: unit text confirmed against the implementation; `ip_range` added to `U-DEP-Compose` (found on the started stack: without it Docker gave the proxy's fixed address to another container). Content change, so the approval record is cleared and the record returns to review.
+- 1.2 (2026-11-07): TASK-206 (PRB-068). New unit `U-DEP-ProxyLogging`. `in_review`.
