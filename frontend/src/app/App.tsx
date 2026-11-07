@@ -21,7 +21,12 @@ import { AccountsPage } from "../core/admin/accounts";
 import { GroupsPage } from "../core/admin/groups";
 import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "../api";
-import type { UserType } from "../api/generated/types";
+import { routeRoles, type RoutePath } from "../core/nav/routeRoles";
+import { RequireRole } from "./RequireRole";
+
+function guarded(path: RoutePath, element: React.ReactElement) {
+  return <RequireRole roles={routeRoles[path]}>{element}</RequireRole>;
+}
 
 function AuthenticatedApp() {
   const { data: me } = useQuery({
@@ -29,30 +34,27 @@ function AuthenticatedApp() {
     queryFn: () => apiClient.me(),
   });
 
-  const userType: UserType = me?.userType ?? "PATIENT";
-
   return (
-    <AppLayout navigation={<AppNavigation userType={userType} />}>
+    <AppLayout navigation={me ? <AppNavigation userType={me.userType} /> : null}>
       <Routes>
-        <Route path="/password" element={<ChangePasswordPage />} />
-        <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/patients" element={<PatientListPage />} />
+        <Route path="/password" element={guarded("/password", <ChangePasswordPage />)} />
+        <Route path="/profile" element={guarded("/profile", <ProfilePage />)} />
+        <Route path="/patients" element={guarded("/patients", <PatientListPage />)} />
         <Route
           path="/patients/:patientId/clinical-entries"
-          element={
+          element={guarded(
+            "/patients/:patientId/clinical-entries",
             <ClinicalEntriesPage
               userType={
-                me?.userType === "DOCTOR" || me?.userType === "PATIENT"
-                  ? me.userType
-                  : "PATIENT"
+                me?.userType === "DOCTOR" || me?.userType === "PATIENT" ? me.userType : "PATIENT"
               }
             />
-          }
+          )}
         />
-        <Route path="/appointments" element={<AppointmentsPage />} />
-        <Route path="/consent" element={<ConsentPage />} />
-        <Route path="/admin/accounts" element={<AccountsPage />} />
-        <Route path="/admin/groups" element={<GroupsPage />} />
+        <Route path="/appointments" element={guarded("/appointments", <AppointmentsPage />)} />
+        <Route path="/consent" element={guarded("/consent", <ConsentPage />)} />
+        <Route path="/admin/accounts" element={guarded("/admin/accounts", <AccountsPage />)} />
+        <Route path="/admin/groups" element={guarded("/admin/groups", <GroupsPage />)} />
         <Route path="/*" element={<Navigate to="/profile" replace />} />
       </Routes>
     </AppLayout>

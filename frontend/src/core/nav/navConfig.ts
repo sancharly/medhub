@@ -1,34 +1,15 @@
 import type { NavEntry } from "./types";
+import { routeRoles, type RoutePath } from "./routeRoles";
+
+function entry(label: string, path: RoutePath): NavEntry {
+  return { label, path, roles: [...routeRoles[path]] };
+}
 
 export const navConfig: NavEntry[] = [
-  {
-    label: "Profile",
-    path: "/profile",
-    roles: ["PATIENT", "DOCTOR", "ADMIN", "SYSADMIN"],
-  },
-  {
-    label: "Appointments",
-    path: "/appointments",
-    roles: ["PATIENT", "DOCTOR"],
-  },
-  {
-    label: "Consent",
-    path: "/consent",
-    roles: ["PATIENT"],
-  },
-  {
-    label: "Patients",
-    path: "/patients",
-    roles: ["DOCTOR"],
-  },
-  {
-    label: "Accounts",
-    path: "/admin/accounts",
-    roles: ["ADMIN", "SYSADMIN"],
-  },
-  {
-    label: "Groups",
-    path: "/admin/groups",
-    roles: ["SYSADMIN"],
-  },
+  entry("Profile", "/profile"),
+  entry("Appointments", "/appointments"),
+  entry("Consent", "/consent"),
+  entry("Patients", "/patients"),
+  entry("Accounts", "/admin/accounts"),
+  entry("Groups", "/admin/groups"),
 ];

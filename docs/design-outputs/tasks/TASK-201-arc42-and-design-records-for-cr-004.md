@@ -3,10 +3,10 @@ id: "TASK-201"
 type: task
 title: "Bring arc42, the ADD records and the ADR index in line with CR-004"
 status: draft
-version: "1.1"
+version: "1.2"
 author: "Carlos Santiago Liceras"
 created: "2026-10-31"
-updated: "2026-11-01"
+updated: "2026-11-07"
 links:
   - target: "SR-041"
     relation: implements
@@ -40,6 +40,13 @@ tags: ["documentation", "cr:CR-004", "control:information"]
   for the first batch. After it, the earlier batches stay committed: every row is readable, and the
   instruction ("run it again") is the same. Reword it to match the "If `--check` or `--apply` exits 1"
   section.
+
+## Carried from the TASK-142 QA review (2026-11-06)
+
+- LOW: ADD-018, `U-FE-RouteGuard`, names `navConfig.ts` as the role table. Replace "The role lists
+  come from the same table as the navigation (`navConfig.ts`), so the two cannot diverge" with:
+  "The role table is `frontend/src/core/nav/routeRoles.ts`; `navConfig.ts` derives its role lists
+  from it, so the two cannot diverge." ADD-018 is human-approved, so the change needs re-approval.
 
 ## Objective
 
