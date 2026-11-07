@@ -13,7 +13,7 @@ from app.core.config import get_settings
 @lru_cache(maxsize=1)
 def get_engine() -> Engine:
     """Create the application-wide SQLAlchemy engine (one connection pool, cached)."""
-    return create_engine(str(get_settings().database_url))
+    return create_engine(str(get_settings().database_url), hide_parameters=True)
 
 
 def get_session_factory(engine: Engine) -> sessionmaker[Session]:

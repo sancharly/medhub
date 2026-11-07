@@ -201,7 +201,7 @@ def load_rows(database_url: str) -> list[Row]:
 
     from app.db.models.attachment import Attachment
 
-    engine = create_engine(database_url)
+    engine = create_engine(database_url, hide_parameters=True)
     with Session(engine) as session:
         result = session.execute(
             select(

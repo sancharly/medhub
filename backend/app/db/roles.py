@@ -116,7 +116,7 @@ def main() -> None:
     runtime = make_url(runtime_url)
     if not runtime.username or not runtime.password:
         sys.exit("DATABASE_URL must carry the runtime user and password")
-    engine = create_engine(owner_url)
+    engine = create_engine(owner_url, hide_parameters=True)
     try:
         apply(engine, runtime.username, runtime.password)
     finally:

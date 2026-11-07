@@ -66,6 +66,7 @@ def run_migrations_online() -> None:
         configuration,
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
+        hide_parameters=True,
     )
     with connectable.connect() as connection:
         context.configure(connection=connection, target_metadata=target_metadata)

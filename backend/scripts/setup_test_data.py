@@ -22,7 +22,7 @@ DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localho
 
 def get_engine():
     """Create database engine."""
-    return create_engine(DATABASE_URL, echo=False)
+    return create_engine(DATABASE_URL, echo=False, hide_parameters=True)
 
 
 def hash_password(password: str) -> str:

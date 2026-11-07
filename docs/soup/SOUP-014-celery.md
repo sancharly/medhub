@@ -2,18 +2,14 @@
 id: SOUP-014
 type: soup
 title: Celery
-status: approved
-version: "1.1"
+status: in_review
+version: "1.2"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
-updated: "2026-10-23"
+updated: "2026-11-06"
 manufacturer: Celery project
 soup_version: 5.6.3
 anomaly_review: "2026-10-22"
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-10-23"
-approved_digest: 4bf8cda01887b5df902d591af247aa44e04ecf560dc7b6362ac37e44c64fe994
-approval_note: self-approved
 links: []
 tags:
   - soup
@@ -26,6 +22,23 @@ tags:
 ## Functional and performance requirements
 
 Asynchronous tasks with retry and backoff: activation and appointment notifications (SR-033, SR-035), session-revocation propagation (SR-034) and retention erasure (SR-024).
+
+MedHub also relies on, and tests (TS-017), these Celery behaviors for SR-043 (personal data excluded from
+logs):
+
+- The `setup_logging` signal: when a receiver is connected, Celery does not configure logging itself.
+  The receiver in `app/workers/celery_app.py` calls `configure_logging()`, so the worker and beat share the
+  API's JSON handler and redaction filter, and Celery's own loggers (`celery.app.trace`,
+  `celery.worker.strategy`) propagate to that handler. Consequence: the worker's `--loglevel` option is
+  ignored. The root level is fixed at INFO in `configure_logging()` (`app/core/logging.py`); changing it
+  means changing that function.
+- Which Celery log records carry task arguments (Celery 5.6.3): the task-failure record
+  (`celery/app/trace.py`, `_log_error`) carries `args`, `kwargs`, `exc` and `traceback` in its `data`
+  field, and the "task received" record (`celery/worker/strategy.py`) carries `args` and `kwargs` for
+  every task, successful or not. Task retry records carry only `id`, `name` and `exc`. Activation
+  tokens, retrieval codes and recipient addresses are task arguments, so MedHub's redaction filter
+  replaces `args`/`kwargs` fields and email-shaped values (also in `exc` and `traceback`) before a record
+  is emitted.
 
 ## Required hardware and software environment
 
@@ -73,3 +86,5 @@ accountable. Hazard-relevant anomalies go to `risk-management`; defects affectin
 - 2026-10-21 — Record created at the locked/declared version when the SOUP list moved from
   ADD-004 to one `soup` record per component (medical-records 0.3.2).
 - 2026-10-22 — 5.6.3 (unchanged). First anomaly-list review (TASK-154, CR-001 AC-11/AC-12): none found for 5.6.3 or its transitive dependencies; nothing hazard-relevant. Record 1.0 → 1.1; approval record removed for re-review.
+- 2026-11-06 — 5.6.3 (unchanged). Version 1.2: relied-on requirements extended with the `setup_logging` signal and the task-argument content of retry and failure log records (TASK-138, SR-043, PRB-011). No version change; anomaly review (2026-10-22) is unchanged and within 365 days. Approval record cleared for re-approval.
+- 2026-11-06 — 5.6.3 (unchanged). Version 1.2 text corrected after QA (TASK-138 round 1): retry records carry no task arguments (the failure and "task received" records do), and the worker's `--loglevel` is ignored. Still `in_review`.

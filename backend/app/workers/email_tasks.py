@@ -7,7 +7,8 @@ SMTP config comes from Settings. Best-effort: bounded retries with
 exponential backoff. Never blocks the request path.
 
 Audit:
-  ACTIVATION_LINK_SENT — logs email + timestamp, NOT the token.
+  ACTIVATION_LINK_SENT — audit row by account id; no email address, NOT the token.
+Logs carry identifiers only (SR-043): never an address, name or token.
 """
 
 from __future__ import annotations
@@ -105,7 +106,7 @@ def send_activation_email(self: object, account_id: str, activation_token: str) 
         _send_smtp(notification)
         notification.mark_sent()
 
-        # Audit: log email + timestamp, NEVER the token
+        # Audit by account id, NEVER the token or the address
         audit_svc = AuditService(AuditRepository(db))
         audit_svc.record(
             actor=None,
@@ -120,7 +121,6 @@ def send_activation_email(self: object, account_id: str, activation_token: str) 
             "Activation email sent",
             extra={
                 "account_id": account_id,
-                "email": account.email,
                 "ts": datetime.now(UTC).isoformat(),
             },
         )
@@ -169,7 +169,7 @@ def send_erasure_code_email(self: object, recipient_email: str, retrieval_code: 
     notification.mark_sent()
     logger.info(
         "Erasure retrieval code email sent",
-        extra={"recipient": recipient_email, "ts": datetime.now(UTC).isoformat()},
+        extra={"ts": datetime.now(UTC).isoformat()},
     )
 
 

@@ -1,8 +1,9 @@
 from celery import Celery
 from celery.schedules import crontab
-from celery.signals import beat_init, worker_init
+from celery.signals import beat_init, setup_logging, worker_init
 
 from app.core.config import get_settings
+from app.core.logging import configure_logging
 from app.core.secret_settings import enforce
 
 
@@ -26,6 +27,13 @@ def _parse_cron(cron_expr: str) -> crontab:
 def _enforce_secret_settings(**_kwargs: object) -> None:
     """SR-041 AC 3: the worker and beat refuse missing or placeholder secrets at start-up."""
     enforce()
+
+
+@setup_logging.connect  # type: ignore[untyped-decorator]
+def _configure_worker_logging(**_kwargs: object) -> None:
+    """SR-043 AC 2: the worker and beat own their logging, so Celery's own task retry and failure
+    records go through the same JSON handler and redaction filter as the API."""
+    configure_logging()
 
 
 settings = get_settings()
