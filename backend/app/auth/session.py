@@ -3,7 +3,8 @@
 Token: secrets.token_urlsafe(32) — no user data embedded.
 Redis keys:
   session:{session_id}              → JSON; TTL = inactivity timeout
-  account_sessions:{account_id}     → sorted set; score = created_at timestamp
+  account_sessions:{account_id}     → sorted set; score = commit order (never below the
+                                      newest existing score)
 """
 
 from __future__ import annotations
@@ -115,9 +116,12 @@ class SessionService:
     ) -> str | None:
         """Store the session and evict the oldest above the cap as one optimistic transaction.
 
-        WATCH the account's sorted set, read it, then queue the eviction and the insertion in
-        MULTI/EXEC. If another login changed the set meanwhile, EXEC fails (WatchError) and the
-        whole step is retried, at most ``_MAX_CAP_ATTEMPTS`` times (SR-030 AC 7, PRB-023).
+        WATCH the account's sorted set, read it and which of its members still have a key, then
+        queue the pruning, the eviction and the insertion in MULTI/EXEC. Members whose key has
+        expired are dead: they are neither counted nor evicted, and are removed from the set
+        (PRB-065). The reads happen in immediate mode, before MULTI.
+        If another login changed the set meanwhile, EXEC fails (WatchError) and the whole step is
+        retried, at most ``_MAX_CAP_ATTEMPTS`` times (SR-030 AC 7, PRB-023).
         Returns the id of the oldest evicted session, if any.
         """
         for _ in range(_MAX_CAP_ATTEMPTS):
@@ -128,6 +132,11 @@ class SessionService:
                         account_key, 0, -1, withscores=True
                     )
                     ids = [m.decode() if isinstance(m, bytes) else str(m) for m, _ in existing]
+                    # A deleted session key is never written again (resolve() refreshes with
+                    # SET ... XX), so an id found dead stays dead until EXEC.
+                    alive = [bool(pipe.exists(_session_key(sid))) for sid in ids]
+                    live_ids = [sid for sid, ok in zip(ids, alive, strict=True) if ok]
+                    dead_ids = [sid for sid, ok in zip(ids, alive, strict=True) if not ok]
                     # Score = commit order: never below the newest existing score, so a login
                     # that read its clock before a rival committed is still ranked newest.
                     score = (
@@ -135,9 +144,11 @@ class SessionService:
                         if existing
                         else now.timestamp()
                     )
-                    # Existing sessions are ordered oldest first; the new one always stays.
-                    evicted = ids[: max(0, len(ids) + 1 - self._max_concurrent)]
+                    # Live sessions are ordered oldest first; the new one always stays.
+                    evicted = live_ids[: max(0, len(live_ids) + 1 - self._max_concurrent)]
                     pipe.multi()
+                    if dead_ids:
+                        pipe.zrem(account_key, *dead_ids)
                     if evicted:
                         pipe.delete(*(_session_key(sid) for sid in evicted))
                         pipe.zrem(account_key, *evicted)
@@ -183,9 +194,16 @@ class SessionService:
             ip=session.ip,
             absolute_expires_at=session.absolute_expires_at,
         )
-        self._redis.setex(
-            _session_key(session_id), effective_ttl, json.dumps(_session_to_dict(session))
+        # XX: write only if the key still exists. A logout, eviction or password-change kill
+        # that deleted it after the GET above must not be undone by this refresh (PRB-064).
+        refreshed = self._redis.set(
+            _session_key(session_id),
+            json.dumps(_session_to_dict(session)),
+            ex=effective_ttl,
+            xx=True,
         )
+        if not refreshed:
+            return None
         return session
 
     def invalidate(self, session_id: str) -> None:

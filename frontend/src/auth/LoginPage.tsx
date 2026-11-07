@@ -7,6 +7,7 @@ import Typography from "@mui/material/Typography";
 import Alert from "@mui/material/Alert";
 import Paper from "@mui/material/Paper";
 import { useLogin } from "./useLogin";
+import { ApiError } from "../api/client";
 import type { UserType } from "../api/generated/types";
 
 function roleLanding(userType: UserType): string {
@@ -42,6 +43,8 @@ export function LoginPage() {
   }
 
   const hasError = login.isError;
+  // 503: the session cap could not be applied (TASK-205); the credentials were not refused.
+  const isBusy = login.error instanceof ApiError && login.error.problem.status === 503;
 
   return (
     <Box
@@ -68,13 +71,13 @@ export function LoginPage() {
               </Button>
             }
           >
-            Your previous session was ended because you signed in elsewhere.
+            Your oldest active session was signed out because the limit of concurrent sessions was reached.
           </Alert>
         )}
 
         {hasError && (
           <Alert severity="error" sx={{ mb: 2 }} data-testid="login-error">
-            Invalid email or password.
+            {isBusy ? "Sign-in is busy. Please try again." : "Invalid email or password."}
           </Alert>
         )}
 

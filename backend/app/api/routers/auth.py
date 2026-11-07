@@ -9,7 +9,11 @@ from fastapi import APIRouter, Depends, Request, Response, status
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user, get_redis, get_session, get_session_service
-from app.api.errors import UnauthenticatedError, ValidationProblem
+from app.api.errors import (
+    SessionCapContentionProblem,
+    UnauthenticatedError,
+    ValidationProblem,
+)
 from app.api.schemas.auth import (
     LoginRequest,
     LoginResponse,
@@ -25,7 +29,7 @@ from app.auth.lockout import LockoutService
 from app.auth.login import LoginFailure, LoginService
 from app.auth.password import PasswordPolicyError, PasswordService
 from app.auth.session import Session as UserSession
-from app.auth.session import SessionService
+from app.auth.session import SessionCapContentionError, SessionService
 from app.core.client_address import client_address
 from app.db.models.account import Account
 from app.db.models.audit import AuditOutcome
@@ -47,7 +51,11 @@ def _get_login_service(
     return LoginService(AccountRepository(db), password_svc, session_svc, audit_svc)
 
 
-@router.post("/login", response_model=LoginResponse)
+@router.post(
+    "/login",
+    response_model=LoginResponse,
+    responses={503: {"description": "Session cap contention; retry after 1 second."}},
+)
 def login(
     body: LoginRequest,
     request: Request,
@@ -60,7 +68,10 @@ def login(
     ip = client_address(request)
     audit_svc = AuditService(AuditRepository(db))
     lockout_svc = LockoutService(r, audit_svc)
-    result = svc.login(body.email, body.password, ip, response, lockout_svc=lockout_svc)
+    try:
+        result = svc.login(body.email, body.password, ip, response, lockout_svc=lockout_svc)
+    except SessionCapContentionError as exc:
+        raise SessionCapContentionProblem() from exc
 
     if isinstance(result, LoginFailure):
         raise UnauthenticatedError("Invalid credentials.")
@@ -83,7 +94,7 @@ def login(
             user_type=account.user_type,
         ),
         must_change_password=must_change,
-        evicted_session=False,
+        evicted_session=result.evicted_session,
     )
 
 

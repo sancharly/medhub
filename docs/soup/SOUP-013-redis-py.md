@@ -3,10 +3,10 @@ id: SOUP-013
 type: soup
 title: redis-py
 status: in_review
-version: "1.2"
+version: "1.3"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
-updated: "2026-11-02"
+updated: "2026-11-06"
 manufacturer: Redis Ltd.
 soup_version: 8.0.0
 anomaly_review: "2026-10-22"
@@ -32,10 +32,15 @@ must send as documented and return the server's reply for unchanged):
 - Optimistic locking for the concurrent-session cap (SR-030 AC 7, PRB-023, TASK-199):
   `Pipeline.watch(key)` followed by an immediate-mode read, then `Pipeline.multi()`, queued commands
   and `Pipeline.execute()`, which must raise `redis.WatchError` when the watched key changed between
-  `WATCH` and `EXEC` and must discard the queued commands. The commands in the transaction are
-  `ZRANGE … WITHSCORES`, `DEL`, `ZREM`, `SET … EX`, `ZADD` and `EXPIRE`. The atomic primitive is
+  `WATCH` and `EXEC` and must discard the queued commands. `ZRANGE … WITHSCORES` and one `EXISTS`
+  per member are read in immediate mode after `WATCH` and before `MULTI` (TASK-205, PRB-065); they
+  are not queued in the transaction. The commands in the transaction are `ZREM` (expired members),
+  `DEL`, `ZREM` (evicted), `SET … EX`, `ZADD` and `EXPIRE`. The atomic primitive is
   `WATCH`/`MULTI`/`EXEC`, not a Lua script and not a database row lock.
-- `SETEX`, `GET`, `DEL`, `ZRANGE`, `ZREM` for session resolve, invalidate and revoke-all.
+- `Redis.set(name, value, ex=seconds, xx=True)` for the sliding refresh of a session (TASK-205,
+  PRB-064): sent as `SET key value EX seconds XX`, and returning a falsy value (`None`) when the key
+  does not exist, in which case the client must not have created it.
+- `GET`, `DEL`, `ZRANGE`, `ZREM` for session resolve, invalidate and revoke-all.
 
 ## Required hardware and software environment
 
@@ -85,3 +90,4 @@ accountable. Hazard-relevant anomalies go to `risk-management`; defects affectin
   ADD-004 to one `soup` record per component (medical-records 0.3.2).
 - 2026-10-22 — 8.0.0 (unchanged). First anomaly-list review (TASK-154, CR-001 AC-11/AC-12): none found for 8.0.0; 8.0.1/8.1.0 bug fixes reviewed, none on MedHub's paths; nothing hazard-relevant. Record 1.0 → 1.1; approval record removed for re-review.
 - 2026-11-02 — 8.0.0 (unchanged). Version 1.2: relied-on requirements extended with `INCR`, `MULTI`/`EXEC`, `EXPIRE … NX` (retrieval rate limiter, carried from the TASK-186 QA review) and `WATCH`/`MULTI`/`EXEC` with `WatchError` (atomic session cap, TASK-199, PRB-023). No version change, no new anomaly review. Approval record cleared for re-approval.
+- 2026-11-06 — 8.0.0 (unchanged). Version 1.3: relied-on requirements extended with `set(..., ex=..., xx=True)` returning `None` when the key is absent (conditional session refresh, TASK-205, PRB-064) and `EXISTS` read before `MULTI` (live-member count, PRB-065); corrected that `ZRANGE … WITHSCORES` is an immediate-mode read after `WATCH`, not one of the commands in the transaction (TASK-199 QA finding 4); `SETEX` no longer used. No version change, no new anomaly review. Record stays `in_review`.

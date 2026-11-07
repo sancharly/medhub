@@ -3,10 +3,10 @@ id: SOUP-021
 type: soup
 title: Redis server
 status: in_review
-version: "1.4"
+version: "1.5"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
-updated: "2026-11-02"
+updated: "2026-11-06"
 manufacturer: Redis Ltd.
 soup_version: 7.4.12
 anomaly_review: "2026-10-29"
@@ -30,10 +30,15 @@ Relied-on behaviour (commands MedHub sends to the server):
 - `WATCH`/`MULTI`/`EXEC` optimistic transaction for the concurrent-session cap (SR-030 AC 7,
   PRB-023, TASK-199): `EXEC` must return a nil reply, applying none of the queued commands, when a
   watched key was modified by another client after `WATCH`; otherwise the queued commands run as one
-  uninterrupted unit. The queued commands are `DEL`, `ZREM`, `SET … EX`, `ZADD` and `EXPIRE`;
-  `ZRANGE … WITHSCORES` is read after `WATCH`. The concurrency test
+  uninterrupted unit. The queued commands are `ZREM`, `DEL`, `SET … EX`, `ZADD` and `EXPIRE`;
+  `ZRANGE … WITHSCORES` and `EXISTS` are read after `WATCH`, before `MULTI`. The concurrency test
   (`backend/tests/auth/test_session_cap_concurrency.py`) runs against this pinned image.
-- `SETEX`/`SET … EX`, `GET`, `DEL`, key expiry and the sorted-set commands for the session store.
+- `SET key value EX seconds XX` (TASK-205, PRB-064): the server writes only if the key exists, in one
+  atomic command, and replies nil otherwise; this is how a session refresh avoids re-creating a
+  session ended by logout, eviction or a password change. Supported since Redis 2.6.12.
+- `EXISTS` (TASK-205, PRB-065): tells whether a session key is still alive, so expired sessions are
+  not counted toward the cap.
+- `SET … EX`, `GET`, `DEL`, key expiry and the sorted-set commands for the session store.
 
 ## Required hardware and software environment
 
@@ -245,3 +250,4 @@ The base OS leaves Debian LTS support on 2028-06-30, and Redis 7.4 reaches end o
   Existing `redis_data` volume loaded, session round trip passed on the real server. Digest equals
   the one CR-003 selected. Approval record cleared for re-approval.
 - 2026-11-02 — 7.4.12 (unchanged). Version 1.4: relied-on requirements extended with `INCR`, `MULTI`/`EXEC`, `EXPIRE … NX` (Redis 7.0 or later; retrieval rate limiter, carried from the TASK-186 QA review) and `WATCH`/`MULTI`/`EXEC` (atomic session cap, TASK-199, PRB-023). No version or image change, no new anomaly review. Approval record cleared for re-approval.
+- 2026-11-06 — 7.4.12 (unchanged). Version 1.5: relied-on requirements extended with `SET … EX … XX` (conditional session refresh, TASK-205, PRB-064) and `EXISTS` (live-member count, PRB-065); the queued commands of the session-cap transaction restated. No version or image change, no new anomaly review. Record stays `in_review`.

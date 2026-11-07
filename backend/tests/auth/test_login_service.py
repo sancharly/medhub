@@ -88,6 +88,29 @@ def test_login_success_returns_session_and_csrf() -> None:
     assert result.csrf_token is not None
 
 
+def _login_with_eviction(evicted_session_id: str | None) -> LoginSuccess:
+    acct, pw = _make_account()
+    mock_repo = MagicMock()
+    mock_repo.get_by_email.return_value = acct
+    mock_session_svc = MagicMock(spec=SessionService)
+    mock_session_svc.create_session.return_value = CreateSessionResult(
+        session=_make_session(acct), evicted_session_id=evicted_session_id
+    )
+    svc = LoginService(mock_repo, PasswordService(), mock_session_svc, MagicMock())
+    result = svc.login("user@example.com", pw, None, Response(), lockout_svc=_lockout())
+    assert isinstance(result, LoginSuccess)
+    return result
+
+
+def test_login_reports_eviction_when_cap_reached() -> None:
+    """SR-030 AC 7 (PRB-066): a login that evicted a session says so."""
+    assert _login_with_eviction("old-session").evicted_session is True
+
+
+def test_login_reports_no_eviction_below_cap() -> None:
+    assert _login_with_eviction(None).evicted_session is False
+
+
 def test_login_normalises_email() -> None:
     acct, pw = _make_account()
     mock_repo = MagicMock()

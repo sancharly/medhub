@@ -3,10 +3,10 @@ id: "CR-004"
 type: change-request
 title: "Close the open security defects from the 2026-07 review and audit"
 status: open
-version: "1.9"
+version: "1.12"
 author: "Carlos Santiago Liceras"
 created: "2026-10-31"
-updated: "2026-11-02"
+updated: "2026-11-06"
 branch: fix/review-2026-07-security
 risk_impact: affects_controls
 links:
@@ -43,6 +43,14 @@ links:
   - target: "PRB-056"
     relation: resolves
   - target: "PRB-062"
+    relation: resolves
+  - target: "PRB-064"
+    relation: resolves
+  - target: "PRB-065"
+    relation: resolves
+  - target: "PRB-066"
+    relation: resolves
+  - target: "PRB-067"
     relation: resolves
   - target: "SR-005"
     relation: relates_to
@@ -150,6 +158,8 @@ links:
     relation: relates_to
   - target: "TASK-204"
     relation: relates_to
+  - target: "TASK-205"
+    relation: relates_to
   - target: "ADD-005"
     relation: relates_to
   - target: "ADD-006"
@@ -235,6 +245,10 @@ order and dependencies in "Plan").
 | PRB-056 Empty `CORS_ORIGINS` in the template breaks start-up (added in 1.4) | minor | SR-041 AC 4 (the template starts the stack) | TASK-193 |
 | PRB-061 The celery-worker container runs gunicorn, not Celery (found in TASK-203; added in 1.2) | major | SR-023, SR-024, SR-030, SR-041 AC 3 (worker start-up refusal, effective in the started stack) | TASK-191 |
 | PRB-063 Attachment download fails for file names outside Latin-1 (found in TASK-196; added in 1.7) | major | SR-013 AC 3 (download of any stored file name); SR-023 AC 2 (a failed download is audited, ADR-0016); RISK-007, RISK-006 | TASK-204 |
+| PRB-064 Session refresh can re-create an ended session (found in the TASK-199 review; added in 1.10) | major | SR-030 AC 5, AC 1 to AC 3, AC 7; RISK-005 | TASK-205 |
+| PRB-065 Expired session ids count toward the session cap (found in the TASK-199 review; added in 1.10) | minor | SR-030 AC 7 (oldest active); RISK-005 | TASK-205 |
+| PRB-066 Login never reports an evicted session (found in the TASK-199 review; added in 1.10) | minor | SR-030 AC 7 (notification); RISK-005 | TASK-205 |
+| PRB-067 A failing /me request is re-requested in a tight loop (found in the TASK-142 review; added in 1.11) | major | availability; not an SR criterion (SR-005 and SR-009 guard unchanged) | TASK-142 |
 
 Existing TASKs whose links will need updating at the Plan stage: TASK-137 (add `implements`
 SR-042), TASK-138 (add `implements` SR-043).
@@ -441,6 +455,10 @@ New, for the human (Plan stage):
   round-2 text fix (DEPLOY.md rollback split into paths (a) from `f7d79fc` and (b) from a pre-CR-004 release, using
   QA's verified sequence; step 1 clarifications) and no QA re-review. The orchestrator records TASK-196, TS-008,
   TS-014 and TS-015 as `approved` and PRB-007 as `resolved` (D-8) on this decision.
+- **D-11 (human decision 2026-11-06):** PRB-064, PRB-065 and PRB-066 (session defects found in the TASK-199
+  review) are folded into CR-004 and fixed in TASK-205.
+- **D-12 (human decision 2026-11-06):** PRB-067 (the /me refetch loop found in the TASK-142 review) is folded into CR-004 and fixed in TASK-142.
+- **D-13 (human decision 2026-11-06):** administrators get the Appointments page and its navigation entry (SR-010 AC 4, SR-011 AC 3).
 
 ## Change analysis (Risk stage, §7.4, 2026-10-31)
 
@@ -489,9 +507,10 @@ The Software Architect role ran this analysis. Scales and matrix: `docs/medtrace
 | Key envelope; migration; rotation (193, 194, 195) | SI-PERSIST | Makes rotation possible. New: unreadable values (cause 1) | RISK-011, RISK-007 | TS-008 TC-008.9..11, rehearsal |
 | SSE key separation (196) | SI-OBJSTORE, SI-DEPLOY | One key no longer reaches both stores. New: unreadable attachments (cause 1) | RISK-011, RISK-007 | TS-014 TC-014.7, TS-015 TC-015.3, rehearsal |
 | Log redaction (138) | SI-WORKER, SI-API | Removes the uncontrolled PII copy | RISK-008 (strengthened) | TS-017 TC-017.1..3 |
-| CSRF exact match; session cap; route guard (139, 199, 142) | SI-API, SI-AUTH, SI-FE-SHELL | Remove latent bypasses; guard is defence in depth | RISK-005, RISK-001 | TS-011 TC-011.6, TS-001 TC-001.6, TS-002 TC-002.9 |
+| CSRF exact match; session cap; route guard (139, 199, 142) | SI-API, SI-AUTH, SI-FE-SHELL | Remove latent bypasses; guard is defence in depth; PRB-067 availability fix (a failing `/me` is no longer refetched in a loop and shows a retry alert) | RISK-005, RISK-001 | TS-011 TC-011.6, TS-001 TC-001.6, TS-002 TC-002.9 |
 | Module version (200) | SI-MODHOST | None (no hazard) | none | TS-010 TC-010.5 |
 | Download file names; failed download audited (204, added in 1.8) | SI-API, SI-ATTACH | Removes the 500 for file names outside Latin-1 and the header-injection path; a failed download now leaves FAILURE evidence. New: none (header built in one place, never raises) | RISK-007, RISK-006 (strengthened) | TS-007 TC-007.9, TC-007.10 |
+| Session refresh, expired members, eviction report (205, added in 1.10) | SI-AUTH, SI-API | Removes a race that brings back an ended session (logout, eviction, password-change kill); the cap counts live sessions only; the eviction notice is shown. New: a refresh that loses the race answers 401 (the safe direction); cap contention answers 503 with `Retry-After` | RISK-005 (strengthened) | TS-001 TC-001.8..10 |
 
 **Residual scores per record.** Not changed now: the scores depend on the fixes landing.
 TASK-202 re-scores them from the evidence. Each record (`in_review`) states its expected residual:
@@ -559,6 +578,7 @@ the human approves the plan, ADR-0017..0019 and the RISK records' control plans.
 | P4 | [TASK-200](../design-outputs/tasks/TASK-200-anchor-module-version-expression.md) Module version anchored | 028 | SR-016 AC 1 | none (no hazard) | XS | — (parallel) | new |
 | P5 | [TASK-142](../design-outputs/tasks/TASK-142-frontend-route-level-role-guards.md) Frontend route guard | 014 | SR-005; SR-009 (defence in depth, Q-4) | 001 | M | — (parallel) | updated |
 | P6 | [TASK-204](../design-outputs/tasks/TASK-204-safe-download-file-names-and-failed-download-audit.md) Any file name downloads (RFC 6266); failed download audited | 063 | SR-013 AC 3; SR-023 AC 2 | 007, 006 | M | — (parallel; commit after TASK-196) | new |
+| P7 | [TASK-205](../design-outputs/tasks/TASK-205-session-refresh-dead-members-and-eviction-notice.md) Session refresh race, expired cap members, eviction report | 064, 065, 066 | SR-030 AC 1–3, 5, 7 | 005 | M | 199 (committed); parallel | new |
 | 18 | [TASK-201](../design-outputs/tasks/TASK-201-arc42-and-design-records-for-cr-004.md) arc42, ADD and ADR index | — | SR-022, 023, 041, 042, 043 | — | M (docs) | all above | new |
 | 19 | [TASK-202](../design-outputs/tasks/TASK-202-verify-cr-004-end-to-end.md) Verify end to end; re-score risks (**Checkpoint F**) | all | all in scope | (relates_to all) | S | all above | new |
 
@@ -567,7 +587,10 @@ the human approves the plan, ADR-0017..0019 and the RISK records' control plans.
 - P1..P6 share no source file with the numbered tasks (P1: `core/logging.py`, `workers/`; P2:
   `security_middleware.py`; P3: `auth/session.py`; P4: `modules/discovery.py`; P5: `frontend/`;
   P6: `api/routers/attachments.py`, `api/content_disposition.py`, `attachments/service.py`).
-  Commit them between any two numbered tasks.
+  Commit them between any two numbered tasks. P7 shares no source file with P1..P6 still open or with
+  the open numbered tasks; it edits `auth/session.py` after TASK-199 (P3, committed) and
+  `api/routers/auth.py` after TASK-192 (committed), and also `auth/login.py`, `api/errors.py` and
+  `frontend/src/auth/LoginPage.tsx`.
 - TASK-192 runs in parallel with 187..189 (it edits `audit/service.py`, `audit/actions.py`,
   `api/routers/auth.py`; they edit `authz/`, `appointments/`, `identity/`, other routers).
 - TASK-190 (code) can run any time; TASK-191 waits for 203.
@@ -609,6 +632,7 @@ the human approves the plan, ADR-0017..0019 and the RISK records' control plans.
 | SR-032 AC 1, 4, 5; SR-034 AC 1 | 188 |
 | SR-024 (retrieval path, logs) | 186, 138 |
 | SR-013 AC 3; SR-023 AC 2 (failed download audited) | 204 |
+| SR-030 AC 1–3, AC 5 (ended session stays ended), AC 7 (oldest active; notification) | 205 |
 
 **ADD coverage** (class B, every SR in scope): SR-005 (ADD-007, 018, 020), SR-009 (ADD-007, 018),
 SR-016 (ADD-014), SR-022 (ADD-016, 025, 026), SR-023 (ADD-013, 007, 016, 005, 026), SR-024
@@ -629,6 +653,7 @@ SR-016 (ADD-014), SR-022 (ADD-016, 025, 026), SR-023 (ADD-013, 007, 016, 005, 02
 | TS-014 | 1.5 → 1.6 | TC-014.7 SSE key separation and migration (adds `verifies` SR-041) | 196 |
 | TS-015 | new | TC-015.1 UIDs; TC-015.2 Compose guards; TC-015.3 start-up refusal; TC-015.4 template and guide (`verifies` SR-041) | 198, 203, 197, 191, 196 |
 | TS-007 | 1.4 → 1.5 | TC-007.9 file names outside Latin-1 and header integrity; TC-007.10 failed download audited (adds `verifies` SR-023) | 204 |
+| TS-001 | 1.3 → 1.4 | TC-001.8 refresh never re-creates an ended session; TC-001.9 expired members pruned, oldest active evicted; TC-001.10 eviction reported, contention 503 | 205 |
 | TS-016 | new | TC-016.1..3 address rule; TC-016.4..5 rate limit (`verifies` SR-042) | 185, 186 |
 | TS-017 | new | TC-017.1..3 log exclusion (`verifies` SR-043) | 138 |
 
@@ -692,3 +717,9 @@ per volume, re-key by copy, 196).
   change-analysis, SR AC coverage and TS tables (TS-007 1.4 → 1.5); P6 named in the shared-files note.
   No other change.
 - 1.9 (2026-11-02) — D-10: TASK-196 accepted by the human with the QA round-2 text fix and no re-review. No other change.
+- 1.10 (2026-11-06) — D-11 (human decision 2026-11-06): PRB-064, PRB-065 and PRB-066 (session defects found in
+  the TASK-199 review) folded into CR-004 and fixed in TASK-205: `resolves` links, `relates_to` TASK-205, Scope
+  rows, Plan row P7, rows in the change-analysis, SR AC coverage and TS tables (TS-001 1.3 → 1.4), and P7 with
+  its overlaps with committed tasks (TASK-199, TASK-192) in the shared-files note. No other change.
+- 1.11 (2026-11-06) — D-12 (human decision 2026-11-06): PRB-067 (the /me refetch loop found in the TASK-142 review) folded into CR-004 and fixed in TASK-142: `resolves` link and Scope row. No other change.
+- 1.12 (2026-11-07) — D-13 (human decision 2026-11-06): administrators get the Appointments page and its navigation entry (SR-010 AC 4, SR-011 AC 3); the route-guard change-analysis row mentions the PRB-067 fix. No other change.

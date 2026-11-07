@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import uuid
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from unittest.mock import patch
 
 import fakeredis
@@ -122,6 +122,67 @@ def test_cap_holds_over_many_sequential_logins() -> None:
     assert len(r.keys("session:*")) == 3
 
 
+# --- expired members and score (TASK-205, PRB-065; TASK-199 QA finding 1) ---
+
+
+def _expire(r: fakeredis.FakeRedis, session_id: str) -> None:  # type: ignore[type-arg]
+    """Simulate inactivity expiry: the session key is gone, its id stays in the account set."""
+    r.delete(_session_key(session_id))
+
+
+def _members(r: fakeredis.FakeRedis, acct: Account) -> list[str]:  # type: ignore[type-arg]
+    raw = r.zrange(_account_sessions_key(str(acct.id)), 0, -1)
+    return [m.decode() if isinstance(m, bytes) else m for m in raw]
+
+
+def test_cap_ignores_expired_members() -> None:
+    """SR-030 AC 7: an expired session does not count toward the cap and is pruned."""
+    r = _redis()
+    svc = _svc(r)
+    acct = _make_account()
+    a, b, c = (svc.create_session(acct).session.session_id for _ in range(3))
+    _expire(r, b)
+    result = svc.create_session(acct)
+    assert result.evicted_session_id is None
+    assert r.exists(_session_key(a)) and r.exists(_session_key(c))
+    assert _members(r, acct) == [a, c, result.session.session_id]
+
+
+def test_cap_evicts_oldest_live_not_dead() -> None:
+    """SR-030 AC 7: A (oldest, live), B (dead), C, D live at the cap: the next login evicts A."""
+    r = _redis()
+    svc = _svc(r)
+    acct = _make_account()
+    a, b, c = (svc.create_session(acct).session.session_id for _ in range(3))
+    _expire(r, b)
+    d = svc.create_session(acct).session.session_id  # prunes b; a, c, d live: at the cap
+    # Re-introduce the dead id, as an expiry between two logins would leave it.
+    r.zadd(_account_sessions_key(str(acct.id)), {b: 0.5})
+    result = svc.create_session(acct)
+    assert result.evicted_session_id == a
+    assert not r.exists(_session_key(a))
+    assert r.exists(_session_key(c)) and r.exists(_session_key(d))
+    assert r.exists(_session_key(result.session.session_id))
+    assert _members(r, acct) == [c, d, result.session.session_id]
+
+
+def test_new_member_score_above_a_future_scored_member() -> None:
+    """Score = commit order: never below the newest existing score; the seeded member goes first."""
+    r = _redis()
+    svc = _svc(r)
+    acct = _make_account()
+    key = _account_sessions_key(str(acct.id))
+    future = datetime.now(UTC).timestamp() + 10
+    r.set(_session_key("future"), "{}")
+    r.zadd(key, {"future": future})
+    first = svc.create_session(acct).session.session_id
+    assert r.zscore(key, first) > future
+    second = svc.create_session(acct)
+    assert second.evicted_session_id is None  # future, first, second = 3 = cap
+    third = svc.create_session(acct)
+    assert third.evicted_session_id == "future"
+
+
 def _interfere_on_zrange(
     monkeypatch: pytest.MonkeyPatch, r: fakeredis.FakeRedis, account_key: str, times: int  # type: ignore[type-arg]
 ) -> list[int]:
@@ -134,7 +195,8 @@ def _interfere_on_zrange(
         out = real(self, *args, **kwargs)
         calls[0] += 1
         if calls[0] <= times:
-            r.zadd(account_key, {f"rival-{calls[0]}": 1.0})  # concurrent login on the same account
+            r.set(_session_key(f"rival-{calls[0]}"), "{}")  # a live session ...
+            r.zadd(account_key, {f"rival-{calls[0]}": 1.0})  # ... of a concurrent login
         return out
 
     monkeypatch.setattr(pipe_cls, "zrange", zrange)
@@ -168,7 +230,8 @@ def test_cap_transaction_gives_up_after_bounded_attempts(monkeypatch: pytest.Mon
     with pytest.raises(SessionCapContentionError):
         svc.create_session(acct)
     assert calls[0] == _MAX_CAP_ATTEMPTS
-    assert not r.keys("session:*")  # nothing stored without the cap applied
+    # nothing stored without the cap applied (only the interference's rival keys exist)
+    assert all(k.startswith(b"session:rival-") for k in r.keys("session:*"))
 
 
 # --- resolve ---
@@ -211,6 +274,45 @@ def test_resolve_refreshes_ttl() -> None:
     # TTL should be refreshed back toward 900
     ttl_after = r.ttl(_session_key(s.session_id))
     assert ttl_after > 100
+
+
+class _DeleteAfterGet:
+    """Redis client proxy: deletes a key right after a GET of it returns (a racing logout)."""
+
+    def __init__(self, inner: fakeredis.FakeRedis, key: str) -> None:  # type: ignore[type-arg]
+        self._inner = inner
+        self._key = key
+
+    def get(self, name: str) -> bytes | None:
+        value: bytes | None = self._inner.get(name)
+        if name == self._key:
+            self._inner.delete(name)
+        return value
+
+    def __getattr__(self, name: str) -> object:
+        return getattr(self._inner, name)
+
+
+def test_resolve_does_not_recreate_a_deleted_session() -> None:
+    """SR-030 AC 5 (PRB-064): a key deleted after resolve()'s GET is not written back."""
+    r = _redis()
+    acct = _make_account()
+    s = _svc(r).create_session(acct).session
+    racing = SessionService(_DeleteAfterGet(r, _session_key(s.session_id)))  # type: ignore[arg-type]
+    assert racing.resolve(s.session_id) is None
+    assert not r.exists(_session_key(s.session_id))
+    assert _svc(r).resolve(s.session_id) is None
+
+
+def test_resolve_refreshes_ttl_of_a_live_session() -> None:
+    """Sliding TTL unchanged by the conditional write; the key is rewritten with fresh last_seen."""
+    r = _redis()
+    svc = _svc(r)
+    s = svc.create_session(_make_account(UserType.PATIENT)).session
+    r.expire(_session_key(s.session_id), 100)
+    resolved = svc.resolve(s.session_id)
+    assert resolved is not None
+    assert 890 <= r.ttl(_session_key(s.session_id)) <= 910
 
 
 def test_resolve_returns_none_after_absolute_expiry() -> None:

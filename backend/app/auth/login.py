@@ -33,6 +33,7 @@ class LoginSuccess:
     kind: Literal["success"] = "success"
     session: Session | None = None
     csrf_token: str | None = None
+    evicted_session: bool = False  # the login ended the oldest session at the cap (SR-030 AC 7)
 
 
 @dataclass
@@ -136,4 +137,8 @@ class LoginService:
             ip=ip,
         )
 
-        return LoginSuccess(session=result.session, csrf_token=csrf_token)
+        return LoginSuccess(
+            session=result.session,
+            csrf_token=csrf_token,
+            evicted_session=result.evicted_session_id is not None,
+        )
