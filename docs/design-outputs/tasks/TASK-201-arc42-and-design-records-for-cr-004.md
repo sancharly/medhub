@@ -3,7 +3,7 @@ id: "TASK-201"
 type: task
 title: "Bring arc42, the ADD records and the ADR index in line with CR-004"
 status: draft
-version: "1.2"
+version: "1.3"
 author: "Carlos Santiago Liceras"
 created: "2026-10-31"
 updated: "2026-11-07"
@@ -47,6 +47,15 @@ tags: ["documentation", "cr:CR-004", "control:information"]
   come from the same table as the navigation (`navConfig.ts`), so the two cannot diverge" with:
   "The role table is `frontend/src/core/nav/routeRoles.ts`; `navConfig.ts` derives its role lists
   from it, so the two cannot diverge." ADD-018 is human-approved, so the change needs re-approval.
+
+## Carried from the TASK-206 QA review (2026-11-07), via TASK-207
+
+- LOW (finding 7): ADD-017 does not describe `_bind_celery_app()` (`backend/app/main.py`, the API lifespan sets the
+  configured Celery app as the process default; PRB-071). Add it. ADD edits stay in this task.
+- Residual note (human decision 2026-11-07, CR-004 D-19): list for the release's residual-anomaly evaluation, against
+  SR-043 AC 4: a hand-crafted `Referer` that carries a token, or a token in the query string of another path, sent to a
+  non-activation location during an upstream failure or a 413, is written to the proxy error log. No MedHub URL or
+  browser flow produces it. SR-043's text is not edited.
 
 ## Objective
 

@@ -527,7 +527,7 @@ print("setrole=" + ",".join(sorted({refused("SET ROLE \"" + r + "\"") for r in o
 fi
 
 # ── 14. Activation token in logs (SR-043 AC 4, PRB-068) ──────────────────────
-# Non-destructive. Three requests carry a random marker in the three token forms; the activation
+# Non-destructive. Seven requests carry a random marker (three token forms and four case variants); the activation
 # page must send no Referer; no service log may then contain the marker. Skipped only when the
 # stack is not running; the full pass criterion is infra/log-secrets-check.sh (destructive).
 echo ""
@@ -539,11 +539,23 @@ else
     curl -sk -o /dev/null "https://localhost/api/v1/activation/$MARKER" 2>/dev/null || true
     PAGE_HEADERS=$(curl -sk -D - -o /dev/null "https://localhost/activation/$MARKER" 2>/dev/null | tr -d '\r')
     curl -sk -o /dev/null "https://localhost/activate?token=$MARKER" 2>/dev/null || true
+    # TASK-207: the matching ignores case (React Router does), so every case variant is covered.
+    VARIANT_HEADERS=$(curl -sk -D - -o /dev/null "https://localhost/ACTIVATION/$MARKER" 2>/dev/null | tr -d '\r')
+    VARIANT_HEADERS="$VARIANT_HEADERS
+$(curl -sk -D - -o /dev/null "https://localhost/Activation/$MARKER" 2>/dev/null | tr -d '\r')"
+    curl -sk -o /dev/null "https://localhost/API/V1/ACTIVATION/$MARKER" 2>/dev/null || true
+    curl -sk -o /dev/null "https://localhost/api/v1/Activation/$MARKER" 2>/dev/null || true
     sleep 1
     if printf '%s' "$PAGE_HEADERS" | grep -qi '^referrer-policy: no-referrer$'; then
         check "the activation page answers Referrer-Policy: no-referrer" "ok"
     else
         check "the activation page answers Referrer-Policy: no-referrer" "header missing"
+    fi
+    VARIANT_POLICIES=$(printf '%s\n' "$VARIANT_HEADERS" | grep -ci '^referrer-policy: no-referrer$' || true)
+    if [ "$VARIANT_POLICIES" = "2" ]; then
+        check "the /ACTIVATION/ and /Activation/ page variants answer Referrer-Policy: no-referrer" "ok"
+    else
+        check "the /ACTIVATION/ and /Activation/ page variants answer Referrer-Policy: no-referrer" "header on $VARIANT_POLICIES of 2"
     fi
     MATCHES=$(compose logs --no-color 2>&1 | grep -cF "$MARKER" || true)
     if [ "$MATCHES" = "0" ]; then

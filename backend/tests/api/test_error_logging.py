@@ -78,3 +78,32 @@ def test_problem_body_instance_still_echoes_the_path_to_the_client() -> None:
     client = TestClient(_app(), raise_server_exceptions=False)
     body = client.get(f"/api/v1/activation/{TOKEN}").json()
     assert body["instance"] == f"/api/v1/activation/{TOKEN}"
+
+
+def test_real_app_500_logs_the_router_template(caplog: pytest.LogCaptureFixture) -> None:
+    """TASK-207 (finding 3): through the real app the record names ``/activation/{token}``
+    (the router prefix, not ``/api/v1``), identifies the endpoint and carries no token."""
+    from unittest.mock import MagicMock  # noqa: PLC0415
+
+    from app.api.routers.activation import _get_activation_service  # noqa: PLC0415
+    from app.main import create_app  # noqa: PLC0415
+
+    service = MagicMock()
+    service.activate.side_effect = RuntimeError("boom")
+    app = create_app()
+    app.dependency_overrides[_get_activation_service] = lambda: service
+    client = TestClient(app, raise_server_exceptions=False)
+    body = {
+        "accountId": "00000000-0000-0000-0000-000000000001",
+        "password": "x",
+        "confirmPassword": "x",
+    }
+    with caplog.at_level(logging.ERROR):
+        response = client.post(f"/api/v1/activation/{TOKEN}", json=body)
+    assert response.status_code == 500
+    records = _records(caplog)
+    assert len(records) == 1
+    text = records[0].getMessage() + (records[0].exc_text or "")
+    assert "/activation/{token}" in text
+    assert TOKEN not in text
+    assert TOKEN not in caplog.text

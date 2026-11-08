@@ -3,7 +3,7 @@ id: "PRB-068"
 type: problem-report
 title: "The activation token is written to the backend error log and the proxy access log"
 status: resolved
-version: "1.2"
+version: "1.3"
 author: "Carlos Santiago Liceras"
 created: "2026-11-07"
 updated: "2026-11-07"
@@ -72,7 +72,7 @@ final criticality.
 
 Fixed by TASK-206 (CR-004 D-14, D-16); status `resolved` on QA approval (D-8).
 
-- Backend: the 500 record names the matched route template (`/api/v1/activation/{token}`) or `<unmatched>`,
+- Backend: the 500 record names the matched route template (`/activation/{token}`: the router prefix, without `/api/v1`) or `<unmatched>`,
   never the raw path (`backend/app/api/errors.py`); the traceback is kept.
 - Reverse proxy: an allow-list `medhub_redacted` JSON access log (normalised path with the two activation
   routes replaced by `[redacted]`; no request line, query string or header variable, so no Referer, Cookie or
@@ -97,3 +97,4 @@ TASK-138 QA review (`docs/design-outputs/tasks/TASK-138-pii-scrubbing-for-worker
 - 1.0 (2026-11-07) — Created from the TASK-138 QA review. `open`, `major`.
 - 1.1 (2026-11-07) — Resolution written by the Software Developer role (TASK-206). Left `open` (CR-004 D-8).
 - 1.2 (2026-11-07) — QA approved TASK-206: status `resolved` (CR-004 D-8).
+- 1.3 (2026-11-07) — TASK-207 (TASK-206 QA finding 3): the Resolution's route template corrected to `/activation/{token}`, the form the real app logs. Status stays `resolved`.

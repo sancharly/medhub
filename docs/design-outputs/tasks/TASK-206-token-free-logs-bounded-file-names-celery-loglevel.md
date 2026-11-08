@@ -3,7 +3,7 @@ id: "TASK-206"
 type: task
 title: "Keep the activation token out of logs, bound attachment names, honour Celery's log level"
 status: approved
-version: "1.4"
+version: "1.5"
 author: "Carlos Santiago Liceras"
 created: "2026-11-07"
 updated: "2026-11-07"
@@ -15,6 +15,12 @@ links:
   - target: "SR-013"
     relation: implements
   - target: "SR-023"
+    relation: implements
+  - target: "SR-034"
+    relation: implements
+  - target: "SR-024"
+    relation: implements
+  - target: "SR-035"
     relation: implements
   - target: "RISK-005"
     relation: mitigates
@@ -54,7 +60,7 @@ tags: ["security", "privacy", "logging", "attachments", "cr:CR-004", "control:de
 - **Software items / units:** SI-API `U-API-ErrorHandler`, `U-API-Routers` (ADD-005); SI-ATTACH
   `U-ATT-Upload` (ADD-012); SI-WORKER logging (ADD-017); SI-DEPLOY reverse proxy and frontend image
   (ADD-026); SI-FE-CORE attachment upload (ADD-020).
-- **PRBs:** PRB-068 (major), PRB-069 (minor), PRB-070 (major). **CR:** CR-004 (D-14, D-16). Also the TASK-138 QA follow-up
+- **PRBs:** PRB-068 (major), PRB-069 (minor), PRB-070 (major), PRB-071 (critical). **CR:** CR-004 (D-14, D-16, D-17). Also the TASK-138 QA follow-up
   (`--loglevel`) and two carried TASK-204 QA items (findings 2 and 3).
 - **Depends on:** TASK-138 (be9fb56) and TASK-204 (33daae8), both committed. No open task.
 - **Branch:** `fix/review-2026-07-security`.
@@ -87,13 +93,16 @@ them (below) and needs no change to them.
 - **PRB-068:** no log written by MedHub's own processes contains an activation token: not the backend's
   500 record (`backend/app/api/errors.py:189`), not the reverse proxy's access or error log
   (`infra/reverse-proxy/nginx.conf`, no `access_log` today), not the frontend container's access log
-  (`frontend/nginx.conf`). The token forms are `/api/v1/activation/{token}`, the SPA page
+  (`frontend/nginx.conf`). The token forms are `/api/v1/activation/{token}` (the 500 record names it `/activation/{token}`), the SPA page
   `/activation/{token}`, the e-mail link `/activate?token=…`, and any of them as a `Referer`.
 - **PRB-069:** an attachment name is bounded when it is stored, and the `Content-Disposition` value is
   bounded whatever is stored, so a download always fits the proxy's 4 KB header buffer.
 - **PRB-070:** the e-mailed activation link opens the activation page. Today it is
   `/activate?token=…` (`backend/app/workers/email_tasks.py:97`), which the SPA does not route
   (`frontend/src/app/App.tsx:73` serves only `/activation/:token`), so the user ends on the sign-in page.
+- **PRB-071 (added in 1.3, D-17):** the API process enqueues every task on the configured Redis broker, so the
+  activation e-mail, the session-kill propagation, the erasure-code e-mail and the appointment notification
+  are sent (AC-5, AC-6).
 - **TASK-138 QA follow-up:** the worker and beat honour `--loglevel` again, and debug records still pass
   the redaction filter.
 
@@ -106,7 +115,8 @@ them (below) and needs no change to them.
 - In `generic_error_handler` (`backend/app/api/errors.py:187-198`), log the matched route's template:
   `route = request.scope.get("route")`, `path = getattr(route, "path", None) or "<unmatched>"`.
   `logger.exception("Unhandled exception for %s %s", request.method, path)`. For the activation routes
-  this logs `/api/v1/activation/{token}`.
+  this logs `/activation/{token}` on the real app (the router prefix, without `/api/v1`; TASK-207 tests it through
+  `create_app()`). The synthetic test app below declares the full path.
 - Why the template and not a list of token routes to redact: it holds no parameter values at all, so a
   future secret in any path parameter is covered with no list to maintain. The record stays useful: it
   names the method, the endpoint and carries the traceback. The patient or account UUIDs that the raw path
@@ -239,8 +249,9 @@ on 33daae8; SR-023 AC 6).
 
 - `backend/tests/api/test_error_logging.py` (new):
   - `test_unhandled_exception_logs_route_template_not_token` — a test route `/api/v1/activation/{token}`
-    raising inside the app (or the real one with the service patched to raise): the captured record
-    contains `/api/v1/activation/{token}` and not the token value; status 500.
+    raising inside a synthetic app: the captured record contains `/api/v1/activation/{token}` and not the
+    token value; status 500. On the real app the record reads `/activation/{token}`
+    (TASK-207 `test_real_app_500_logs_the_router_template`).
   - `test_unhandled_exception_on_unmatched_path_logs_placeholder` — a middleware-level failure with no
     matched route logs `<unmatched>`.
   - `test_unhandled_exception_log_keeps_method_and_traceback`.
@@ -338,7 +349,9 @@ on 33daae8; SR-023 AC 6).
       backend access log can be enabled (`infra/tests/test_proxy_access_log.py`); the non-destructive
       regression on every smoke run (`infra/smoke-test.sh` token check).
 - [x] **AC-2 (SR-013 AC 1, AC 3; SR-023 AC 2; PRB-069):** an upload whose name is longer than 255 UTF-8
-      bytes is refused with 400 problem+json and nothing is stored, and the user sees the reason; the
+      bytes is refused with 400 and nothing is stored, and the user sees the reason (problem+json from the service check;
+      names around 8 KB and over are refused first by the multipart parser with a plain 400, `application/json`,
+      "There was an error parsing the body", and 2 MB gives 413: accepted, TASK-207); the
       `Content-Disposition` value is at most 1,024 bytes for any stored name, with the extension kept, so
       an over-long name stored earlier still downloads
       (`backend/tests/attachments/test_attachment_upload.py`,
@@ -431,6 +444,12 @@ seen only through the proxy). Recorded in this task:
 - ~~A referrer can still appear in nginx error-log entries on proxy errors outside the activation
   locations.~~ No longer a residual: accepted on 2026-11-07, then removed the same day because SR-043 AC 4
   names Referer values in error logs; `Referrer-Policy: no-referrer` on the activation page closes it.
+- Limit of the Referer closure (QA finding 4, TASK-207): "closes it" is true of conforming browsers only. A
+  token-bearing `Referer`, or a token in the query string of another path, sent by hand to a non-activation
+  location during an upstream failure or a 413 is written to the proxy error log. No MedHub URL or browser flow
+  produces these; QA did not capture a real browser's requests. **Human decision 2026-11-07 (CR-004 D-19):**
+  accepted as a residual against SR-043 AC 4, listed for the release's residual-anomaly evaluation (TASK-201
+  carries the note; SR-043's text is not edited).
 - Names over 255 UTF-8 bytes are refused, including legal Windows and macOS names of more than 85 CJK
   characters.
 
@@ -439,11 +458,11 @@ seen only through the proxy). Recorded in this task:
 - [x] AC-1 to AC-6 met; negative controls recorded; started-stack steps 1 to 5 recorded.
 - [x] Backend suite with coverage ≥ 85 %, `infra/tests`, frontend `src/core/clinical` tests and
       `src/core/nav` tests and typecheck green; `ruff`, `mypy` clean.
-- [x] TS-017 1.2, TS-007 1.6, TS-003 1.4, ADD-012, ADD-017, ADD-026, RISK-005, RISK-007, RISK-009,
+- [x] TS-017 1.2, TS-007 1.6, TS-003 1.5, ADD-012, ADD-017, ADD-026, RISK-005, RISK-007, RISK-009,
       SOUP-014, SOUP-024 `in_review`.
 - [x] On QA approval: this task `approved`; PRB-068, PRB-069 and PRB-070 `resolved` (CR-004 D-8).
 - [x] `traceability-check` shows no error for TASK-206 and the records above.
-- [ ] `graphify update .` run after the code change.
+- [x] `graphify update .` run after the code change.
 
 ## Implementation notes and verification results (Software Developer role, 2026-11-07)
 
@@ -677,3 +696,5 @@ All independently re-run on a fresh scratch project (`qa206`), `infra/.env` neve
 - 1.2 (2026-11-07) — Built by the Software Developer role; records updated; verification results and deviations added. `in_review`.
 - 1.3 (2026-11-07) — CR-004 D-17: PRB-071 (critical) fixed here. AC-5 updated, AC-6 added, `backend/app/main.py` and `test_api_celery_broker.py` added, started stack redone with no broker override. `in_review`.
 - 1.4 (2026-11-07) — QA review: APPROVED, two MEDIUM and five LOW findings carried. `in_review → approved`; AC-1 to AC-6 ticked. TS-003, TS-007, TS-017 approved; PRB-068, PRB-069, PRB-070, PRB-071 `resolved` (CR-004 D-8).
+- 1.5 (2026-11-07) — TASK-207 content corrections to the QA findings 3, 4, 5 and 7 (route template wording, Referer limit and D-19, multipart 400 in AC-2, PRB-071 in header and Objective, `implements` SR-034, SR-024, SR-035, Definition of Done TS-003 1.5). Approval cleared: `approved → in_review`; QA re-approves it with TASK-207.
+- 1.5 (2026-11-08) — QA re-approval with TASK-207: corrections for findings 3, 4, 5 and 7 checked against the code and the started stack; D-19 residual recorded correctly. `in_review → approved` (status only); `graphify update .` item ticked (run in TASK-207).

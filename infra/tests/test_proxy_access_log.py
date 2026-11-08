@@ -64,18 +64,26 @@ class ProxyAccessLog(unittest.TestCase):
     def test_the_map_redacts_the_activation_paths(self):
         m = re.search(r"map\s+\$uri\s+\$medhub_log_path\s*\{(.*?)\}", PROXY, re.S)
         self.assertIsNotNone(m)
-        self.assertRegex(m.group(1), r"~\^/api/v1/activation/\s+/api/v1/activation/\[redacted\]")
-        self.assertRegex(m.group(1), r"~\^/activation/\s+/activation/\[redacted\]")
+        self.assertRegex(m.group(1), r"~\*\^/api/v1/activation/\s+/api/v1/activation/\[redacted\]")
+        self.assertRegex(m.group(1), r"~\*\^/activation/\s+/activation/\[redacted\]")
         self.assertRegex(m.group(1), r"default\s+\$uri")
 
+    def test_activation_matching_ignores_case(self):
+        """TASK-207: React Router matches without case, so /Activation/<token> is a working URL.
+        No activation pattern, in the map or a location, may be case-sensitive."""
+        patterns = re.findall(r"^\s*(~\*?)\s*\^/(?:api/v1/)?activat\S*", PROXY, re.M)
+        patterns += re.findall(r"location\s+(~\*?)\s+\^/(?:api/v1/)?activat", PROXY)
+        self.assertEqual(len(patterns), 4)
+        self.assertEqual(set(patterns), {"~*"})
+
     def test_both_activation_locations_set_the_error_log_to_crit(self):
-        for pattern in (r"location\s+~\s+\^/api/v1/activation/", r"location\s+~\s+\^/activat"):
+        for pattern in (r"location\s+~\*\s+\^/api/v1/activation/", r"location\s+~\*\s+\^/activat"):
             found = blocks(PROXY, pattern)
             self.assertEqual(len(found), 1, pattern)
             self.assertRegex(found[0], r"error_log\s+/var/log/nginx/error\.log\s+crit;")
 
     def test_the_activation_page_sends_no_referer_and_keeps_the_security_headers(self):
-        (page,) = blocks(PROXY, r"location\s+~\s+\^/activat")
+        (page,) = blocks(PROXY, r"location\s+~\*\s+\^/activat")
         self.assertIn('add_header Referrer-Policy "no-referrer" always;', page)
         for header in ("Strict-Transport-Security", "X-Content-Type-Options", "X-Frame-Options"):
             self.assertRegex(page, rf"add_header\s+{header}\s.*always;")

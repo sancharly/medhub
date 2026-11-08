@@ -51,6 +51,9 @@ celery_app.conf.update(
     task_serializer="json",
     result_serializer="json",
     accept_content=["json"],
+    # TASK-207: no code reads a task result; without this, ``.delay()`` retries the result
+    # store (20 x) when Redis is unreachable and blocks the request for about 20 s.
+    task_ignore_result=True,
     # Retry defaults
     task_acks_late=True,
     task_reject_on_worker_lost=True,

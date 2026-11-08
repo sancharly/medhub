@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 import uuid
 from datetime import datetime
 
@@ -15,6 +16,8 @@ from app.db.models.appointment import Appointment, AppointmentState
 from app.db.models.audit import AuditOutcome
 from app.db.repositories.account_repo import AccountRepository
 from app.db.repositories.appointment_repo import AppointmentRepository
+
+logger = logging.getLogger(__name__)
 
 
 class AppointmentService:
@@ -68,7 +71,8 @@ class AppointmentService:
 
             send_appointment_notification.delay(str(appointment.id))
         except Exception:
-            pass
+            # Id only: a broker exception can carry the connection URL, so no exc_info.
+            logger.warning("Failed to enqueue notification for appointment %s", appointment.id)
 
         self._audit_svc.record(
             actor=actor.id,

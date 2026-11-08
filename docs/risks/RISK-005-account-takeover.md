@@ -3,7 +3,7 @@ id: RISK-005
 type: risk
 title: Account takeover leading to disclosure or falsified clinical records
 status: in_review
-version: "1.4"
+version: "1.5"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-11-07"
@@ -74,7 +74,7 @@ occur); the score is severity × P2, the probability that the hazardous situatio
 | Lockout service a required dependency of the login flow; the unused signing-key setting removed (CR-004, PRB-018) | Design | SR-029 AC 1, SR-030; TASK-140 | TS-001 TC-001.7 (planned) |
 | No default or placeholder credential for the database, the mail relay or the keys; start-up refused otherwise (CR-004, PRB-007) | Design | SR-041 AC 2 to AC 4; TASK-197, TASK-203 | TS-015 TC-015.2..4 (planned) |
 | The session token is no longer stored in the audit trail (logout event), and no audit field can hold a secret (CR-004, PRB-005) | Design | SR-023 AC 9; TASK-192 | TS-009 TC-009.12 (planned) |
-| No credential or secret in operational or proxy logs: route templates in the backend error log; allow-listed proxy log format with no request line, query string or header; activation locations' error log at `crit` and `Referrer-Policy: no-referrer`; no access log in the frontend container; task arguments redacted at `--loglevel=debug` (CR-004, PRB-068) | Design | SR-043 AC 4, SR-033; TASK-206 | TS-017 TC-017.4 |
+| No credential or secret in operational or proxy logs: route templates in the backend error log; allow-listed proxy log format with no request line, query string or header; activation locations' error log at `crit` and `Referrer-Policy: no-referrer`; no access log in the frontend container; task arguments redacted at `--loglevel=debug` (CR-004, PRB-068) | Design | SR-043 AC 4, SR-033; TASK-206, TASK-207 (every case variant of the activation paths matched with `~*`; secrets of `infra/.env` added to the started-stack check) | TS-017 TC-017.4 |
 
 ## Residual risk
 
@@ -110,3 +110,4 @@ availability effect by design, with a message naming the setting.
 - 1.2 (2026-10-31) — CR-004 Risk stage, §7.4 change analysis (Software Architect role). Control rows added for the CR-004 controls with their planned verification; expected residual stated in "Residual risk"; "Risks introduced by controls" extended. Scores not changed: they are re-scored from the evidence at verification (TASK-202). Content change, so the approval record is cleared and the record returns to review.
 - 1.3 (2026-11-06) — TASK-205 (CR-004 D-11): new cause (an ended session brought back by a racing refresh, PRB-064), one control row (conditional refresh, expired members pruned from the cap), TC-001.8 and TC-001.9 as verification, contention effect now 503. Scores unchanged. Content change, so the 1.2 approval record is cleared and the record returns to review.
 - 1.4 (2026-11-07) — TASK-206 (CR-004 D-14, D-16): one control row, no credential or secret in operational and proxy logs (SR-043 AC 4, TS-017 TC-017.4). Residual unchanged (3 x 1, acceptable).
+- 1.5 (2026-11-07) — TASK-207 (TASK-206 QA findings 2, 6): the log control row names TASK-207 (case-insensitive activation matching; widened started-stack check). Residual unchanged (3 x 1, acceptable). A hand-crafted Referer or a token in another path's query string that reaches the proxy error log is a residual accepted against SR-043 AC 4 (CR-004 D-19), not a change of the scores.

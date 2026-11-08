@@ -3,7 +3,7 @@ id: "CR-004"
 type: change-request
 title: "Close the open security defects from the 2026-07 review and audit"
 status: open
-version: "1.16"
+version: "1.18"
 author: "Carlos Santiago Liceras"
 created: "2026-10-31"
 updated: "2026-11-07"
@@ -169,6 +169,8 @@ links:
   - target: "TASK-205"
     relation: relates_to
   - target: "TASK-206"
+    relation: relates_to
+  - target: "TASK-207"
     relation: relates_to
   - target: "ADD-005"
     relation: relates_to
@@ -482,6 +484,11 @@ New, for the human (Plan stage):
   attachment name limit is 255 UTF-8 bytes.
 - **D-17 (human decision 2026-11-07):** PRB-071 (the API process cannot enqueue Celery tasks) is `critical` and is fixed in
   TASK-206, not left to a later change request.
+- **D-18 (human decisions 2026-11-07):** TASK-207 takes QA's two MEDIUM fixes and the LOW record fixes from TASK-206;
+  PRB-072, PRB-073 and PRB-074 are recorded as known anomalies outside CR-004, and PRB-013 stays open.
+- **D-19 (human decision 2026-11-07):** a hand-crafted Referer or a token in another path's query string can reach the proxy
+  error log on an upstream failure or 413; accepted as a residual against SR-043 AC 4, listed for the release's
+  residual-anomaly evaluation. SR-043's text is not edited; TASK-201 carries the note.
 
 ## Change analysis (Risk stage, §7.4, 2026-10-31)
 
@@ -535,6 +542,7 @@ The Software Architect role ran this analysis. Scales and matrix: `docs/medtrace
 | Download file names; failed download audited (204, added in 1.8) | SI-API, SI-ATTACH | Removes the 500 for file names outside Latin-1 and the header-injection path; a failed download now leaves FAILURE evidence. New: none (header built in one place, never raises) | RISK-007, RISK-006 (strengthened) | TS-007 TC-007.9, TC-007.10 |
 | Session refresh, expired members, eviction report (205, added in 1.10) | SI-AUTH, SI-API | Removes a race that brings back an ended session (logout, eviction, password-change kill); the cap counts live sessions only; the eviction notice is shown. New: a refresh that loses the race answers 401 (the safe direction); cap contention answers 503 with `Retry-After` | RISK-005 (strengthened) | TS-001 TC-001.8..10 |
 | Token-free logs, activation link, bounded names, worker log level (206, added in 1.13; activation link and SR-043 1.1 AC 4 in 1.14; API task dispatch, PRB-071, in 1.16) | SI-API, SI-ATTACH, SI-WORKER, SI-DEPLOY, SI-FE-CORE | Removes a stored credential from the backend, proxy and frontend-container logs (SR-043 1.1 AC 4: no request line, query string or header in any proxy log format, no Referer from the activation page); the e-mailed activation link reaches the activation page (PRB-070); the API process dispatches tasks to the configured broker, so activation, erasure-code and appointment e-mails are sent and the deactivation task reaches the worker (PRB-071; `app/main.py` lifespan sets the configured Celery app as the process default); a long name can no longer make a download fail at the proxy; `--loglevel` works again. New: names over 255 UTF-8 bytes are refused at upload (400, shown to the user); long stored names download under a shortened name; nginx error-log entries for activation paths only at `crit` | RISK-005, RISK-007, RISK-006, RISK-009 (strengthened) | TS-017 TC-017.4, .5; TS-007 TC-007.11; TS-003 TC-003.3 |
+| TASK-206 QA follow-ups (207, added in 1.18) | SI-WORKER, SI-DEPLOY, SI-IDENTITY, SI-APPT | Dispatch no longer waits on a result store (`task_ignore_result`: the 20 s block inside a request's transaction when Redis is unreachable is gone); the activation redaction and locations match without case (`~*`), so the case variants of the activation URL are redacted and send `Referrer-Policy: no-referrer`; a failed enqueue at the session-kill and appointment sites writes a WARNING with the id (PRB-013 call sites; PRB-013 stays open); `log-secrets-check.sh` covers the activation `POST`, an erasure and a retrieval, and the secrets of `infra/.env`. New: `/API/V1/ACTIVATION/x` now reaches the backend (404) instead of the SPA; a hand-crafted Referer or a query string on another path can still reach the proxy error log (D-19, accepted residual) | RISK-005, RISK-007 (strengthened); residuals unchanged | TS-017 TC-017.4, .6; TS-003 TC-003.7 |
 
 **Residual scores per record.** Not changed now: the scores depend on the fixes landing.
 TASK-202 re-scores them from the evidence. Each record (`in_review`) states its expected residual:
@@ -604,6 +612,7 @@ the human approves the plan, ADR-0017..0019 and the RISK records' control plans.
 | P6 | [TASK-204](../design-outputs/tasks/TASK-204-safe-download-file-names-and-failed-download-audit.md) Any file name downloads (RFC 6266); failed download audited | 063 | SR-013 AC 3; SR-023 AC 2 | 007, 006 | M | — (parallel; commit after TASK-196) | new |
 | P7 | [TASK-205](../design-outputs/tasks/TASK-205-session-refresh-dead-members-and-eviction-notice.md) Session refresh race, expired cap members, eviction report | 064, 065, 066 | SR-030 AC 1–3, 5, 7 | 005 | M | 199 (committed); parallel | new |
 | P8 | [TASK-206](../design-outputs/tasks/TASK-206-token-free-logs-bounded-file-names-celery-loglevel.md) Token-free logs, activation link, bounded attachment names, Celery `--loglevel`, API task dispatch | 068, 069, 070, 071 | SR-043 AC 4, AC 2; SR-033; SR-013 AC 1, 3; SR-023 AC 2, 6 | 005, 007, 006, 009 | L | 138, 204 (committed); parallel | new |
+| P9 | [TASK-207](../design-outputs/tasks/TASK-207-task-206-qa-follow-ups.md) TASK-206 QA follow-ups: fast enqueue, case-insensitive redaction, enqueue warnings | — (013 stays open) | SR-043 AC 1, 4; SR-023 | 005, 007 | S | 206 (committed) | new |
 | 18 | [TASK-201](../design-outputs/tasks/TASK-201-arc42-and-design-records-for-cr-004.md) arc42, ADD and ADR index | — | SR-022, 023, 041, 042, 043 | — | M (docs) | all above | new |
 | 19 | [TASK-202](../design-outputs/tasks/TASK-202-verify-cr-004-end-to-end.md) Verify end to end; re-score risks (**Checkpoint F**) | all | all in scope | (relates_to all) | S | all above | new |
 
@@ -659,6 +668,7 @@ the human approves the plan, ADR-0017..0019 and the RISK records' control plans.
 | SR-013 AC 3; SR-023 AC 2 (failed download audited) | 204 |
 | SR-030 AC 1–3, AC 5 (ended session stays ended), AC 7 (oldest active; notification) | 205 |
 | SR-043 1.1 AC 4 (new, approved 2026-11-07) and AC 2, SR-033 (no credential or secret in logs); SR-033 AC 1, AC 3, AC 7 (activation link); SR-013 AC 1, AC 3 and SR-023 AC 2, AC 6 (bounded names; FAILURE-row address); SR-033 AC 1, AC 3, AC 7 and SR-034 AC 2 (tasks dispatched from the API, PRB-071) | 206 |
+| SR-043 AC 1, AC 4 (case-insensitive activation paths; enqueue-failure warning; widened started-stack check); SR-023 (a failed session-kill enqueue leaves a warning, the only signal that no `SESSION_KILL_PROPAGATED` row follows); SR-033 AC 7 and SR-034 AC 2 (dispatch does not wait on a result store) | 207 |
 
 **ADD coverage** (class B, every SR in scope): SR-005 (ADD-007, 018, 020), SR-009 (ADD-007, 018),
 SR-016 (ADD-014), SR-022 (ADD-016, 025, 026), SR-023 (ADD-013, 007, 016, 005, 026), SR-024
@@ -683,6 +693,9 @@ SR-016 (ADD-014), SR-022 (ADD-016, 025, 026), SR-023 (ADD-013, 007, 016, 005, 02
 | TS-007 | 1.5 → 1.6 | TC-007.11 name bounded at upload, header bounded for any name; TC-007.6 asserts the client address; TC-007.9 bidi case | 206 |
 | TS-017 | 1.1 → 1.2 | TC-017.4 SR-043 AC 4 pass criterion (no credential or secret in any log); TC-017.5 `--loglevel` honoured and redacted (adds `verifies` SR-033) | 206 |
 | TS-003 | 1.3 → 1.4 | TC-003.3 activation link built in the app route's form (link-route tests) | 206 |
+| TS-003 | 1.5 → 1.6 | TC-003.7 dispatch does not wait on a result store; failed session-kill enqueue logged | 207 |
+| TS-007 | 1.6 → 1.7 | TC-007.11 records the multipart parser's plain 400 at about 8 KB and over | 207 |
+| TS-017 | 1.2 → 1.3 | TC-017.4 case variants, widened script, real form of the 500 record; TC-017.6 enqueue failure logged (adds `verifies` SR-023) | 207 |
 | TS-016 | new | TC-016.1..3 address rule; TC-016.4..5 rate limit (`verifies` SR-042) | 185, 186 |
 | TS-017 | new | TC-017.1..3 log exclusion (`verifies` SR-043) | 138 |
 
@@ -767,3 +780,7 @@ per volume, re-key by copy, 196).
 - 1.16 (2026-11-07) — D-17 (human decision 2026-11-07): PRB-071 is `critical` and fixed in TASK-206. `resolves` PRB-071, Scope
   row PRB-071, Plan P8 and the TASK-206 change-analysis and coverage rows updated. PRB-071 stays `open` until QA approves
   TASK-206 (D-8). No other change.
+- 1.17 (2026-11-07) — D-18 (human decisions 2026-11-07): TASK-207 takes QA's two MEDIUM fixes and the LOW record fixes
+  from TASK-206; PRB-072, PRB-073 and PRB-074 are known anomalies outside CR-004 (no `resolves` link); PRB-013 stays open.
+  `relates_to` TASK-207 and Plan row P9. No other change.
+- 1.18 (2026-11-07) — D-19 (human decision 2026-11-07): the Referer and query-string case that can reach the proxy error log is an accepted residual against SR-043 AC 4. TASK-207 built: change-analysis, SR AC coverage and TS rows (TS-003 1.5 → 1.6, TS-007 1.6 → 1.7, TS-017 1.2 → 1.3). No other change.

@@ -3,7 +3,7 @@ id: SOUP-014
 type: soup
 title: Celery
 status: in_review
-version: "1.4"
+version: "1.5"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
 updated: "2026-11-07"
@@ -43,6 +43,7 @@ logs):
   tokens, retrieval codes and recipient addresses are task arguments, so MedHub's redaction filter
   replaces `args`/`kwargs` fields and email-shaped values (also in `exc` and `traceback`) before a record
   is emitted.
+- `task_ignore_result=True` (TASK-207): with it Celery neither writes a per-task result nor subscribes to the result store at call time. Without it `RedisBackend.on_task_call` retries the result store 20 times at 1 s when Redis is unreachable and `.delay()` blocks the request for about 20 s (19.88 s measured, 0.93 s with the setting); `retry=False` does not help. MedHub relies on it, and on no code reading a task result (`backend/tests/workers/test_celery_results.py`).
 
 ## Required hardware and software environment
 
@@ -94,3 +95,4 @@ accountable. Hazard-relevant anomalies go to `risk-management`; defects affectin
 - 2026-11-06 — 5.6.3 (unchanged). Version 1.2 text corrected after QA (TASK-138 round 1): retry records carry no task arguments (the failure and "task received" records do), and the worker's `--loglevel` is ignored. Still `in_review`.
 - 2026-11-07 — Version 1.3 (TASK-206): relied-on behavior corrected: `--loglevel` is passed by the `setup_logging` signal and applied by MedHub (it was documented as ignored); debug task-header records redacted. No version change of Celery. Approval record cleared; `in_review`.
 - 2026-11-07 — Version 1.4 (TASK-206, PRB-071): relied-on behavior added (`set_default()` is process-global, the current app is thread-local). No version change of Celery. `in_review`.
+- 2026-11-07 — Version 1.5 (TASK-207): relied-on behavior added (`task_ignore_result`, dispatch does not wait on the result store). No version change of Celery. `in_review`.

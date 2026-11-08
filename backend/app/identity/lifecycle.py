@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 import uuid
 
 from app.api.errors import AuthorizationError
@@ -12,6 +13,8 @@ from app.authz.service import AuthorizationService, Resource
 from app.db.models.account import Account, AccountStatus
 from app.db.models.audit import AuditOutcome
 from app.db.repositories.account_repo import AccountRepository
+
+logger = logging.getLogger(__name__)
 
 
 def _target(account_id: uuid.UUID) -> Resource:
@@ -68,7 +71,9 @@ class LifecycleService:
 
             propagate_session_kill.delay(str(account_id))
         except Exception:
-            pass  # Best-effort; sync invalidation already done
+            # Best-effort; sync invalidation already done. Id only: a broker exception can carry
+            # the connection URL, so no exc_info.
+            logger.warning("Failed to enqueue session-kill propagation for account %s", account_id)
 
         self._audit_svc.record(
             actor=actor.id,
