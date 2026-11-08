@@ -44,6 +44,20 @@ class TrustedProxyWiring(unittest.TestCase):
         self.assertTrue(ip_range.subnet_of(ipaddress.ip_network(configs[0]["subnet"])))
         self.assertNotIn(proxy, ip_range)
 
+    def test_medhub_subnet_is_outside_dockers_default_address_pools(self):
+        """PRB-076: Docker gives the other networks (the project's `object-store`, other projects')
+        subnets from 172.16.0.0/12 and 192.168.0.0/16, in order. A fixed subnet inside either can
+        overlap one and then `up` fails with "networks have overlapping IPv4"."""
+        subnet = ipaddress.ip_network(
+            self.config["networks"]["medhub"]["ipam"]["config"][0]["subnet"]
+        )
+        for pool in ("172.16.0.0/12", "192.168.0.0/16"):
+            self.assertFalse(subnet.overlaps(ipaddress.ip_network(pool)), pool)
+
+    def test_object_store_network_takes_its_subnet_from_the_default_pool(self):
+        """The reverse of the above: nothing pins `object-store`, so it cannot collide with a pinned one."""
+        self.assertFalse(self.config["networks"]["object-store"].get("ipam", {}).get("config"))
+
     def test_backend_trusts_exactly_the_reverse_proxy_address(self):
         env = self.config["services"]["backend"]["environment"]
         self.assertEqual(env["TRUSTED_PROXIES"], self.proxy_address())

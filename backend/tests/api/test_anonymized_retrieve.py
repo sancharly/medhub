@@ -167,10 +167,10 @@ class TestRetrievalRateLimitPerAddress:
     def test_missing_peer_is_refused_without_a_shared_bucket(self, rate_env):  # SR-042 AC 4
         from app.api.routers.anonymized_data import _check_rate_limit
 
-        _, retrieve = rate_env
+        redis = fakeredis.FakeRedis()
         with pytest.raises(RateLimitedError):
-            _check_rate_limit(None, fakeredis.FakeRedis())
-        assert retrieve.call_count == 0
+            _check_rate_limit(None, redis)
+        assert redis.keys("rate:*") == []  # refused before any bucket is touched
 
     def test_concurrent_attempts_from_one_address_evaluate_exactly_five(self, rate_env):
         # SR-042 AC 4: the count is atomic, so 10 simultaneous attempts evaluate exactly 5

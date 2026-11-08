@@ -3,10 +3,10 @@ id: TS-007
 type: test-specification
 title: Clinical entries and attachment verification
 status: approved
-version: "1.7"
+version: "1.8"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-11-07"
+updated: "2026-11-08"
 links:
   - target: SR-012
     relation: verifies
@@ -82,3 +82,6 @@ Streaming upload and download (TASK-135) is open; TC-007.2 verifies the limit, n
 - 1.6 (2026-11-07) — QA review of TASK-206: `approved` (status only; content unchanged).
 - 1.7 (2026-11-07) — TASK-207 (TASK-206 QA finding 5): TC-007.11 records the multipart parser's plain 400 at about 8 KB and over (and 413 at 2 MB). Approval cleared, `in_review`.
 - 1.7 (2026-11-08) — QA review of TASK-207 and TASK-206 re-approval: `approved` (status only; content unchanged).
+- 1.2 (not issued) — the version history has no 1.2: 1.1 is followed by 1.3 (the reason was not recorded at the time). Noted by TASK-202; no test case is known to be missing.
+- 1.8 (2026-11-08) — TASK-202: the missing 1.2 is recorded above. No test case changed; `in_review` because the record changed.
+- 1.8 (2026-11-08) — QA review of TASK-202 (round 2): `approved` (status only; content unchanged).

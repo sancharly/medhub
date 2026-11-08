@@ -3,10 +3,10 @@ id: RISK-005
 type: risk
 title: Account takeover leading to disclosure or falsified clinical records
 status: in_review
-version: "1.5"
+version: "1.6"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-11-07"
+updated: "2026-11-08"
 hazard: "An attacker acting as a legitimate user: reading PHI, or writing clinical entries as a clinician."
 cause: Credential stuffing, brute force, a stolen session token (including one brought back after logout, eviction or a password change by a racing session refresh, PRB-064), or a CSRF-able mutating endpoint → the attacker authenticates or rides an authenticated session → they read or write clinical data under someone else's identity.
 harm: Wrong clinical decisions from falsified data, plus privacy harm. Recoverable if detected via the audit trail.
@@ -71,9 +71,9 @@ occur); the score is severity × P2, the probability that the hazardous situatio
 | Audit trail of security-relevant events for detection | Protective | SR-023 | TS-009 |
 | Concurrency cap enforced atomically: cap check, eviction and insertion in one Redis transaction, tested with concurrent logins against a real Redis (CR-004, PRB-023) | Design | SR-030 AC 7; TASK-199 | TS-001 TC-001.6 |
 | Session refresh is a conditional write (`SET … EX … XX`), so logout, eviction and the password-change session kill cannot be undone by a concurrent request; expired sessions are pruned from the cap and not counted (CR-004, PRB-064, PRB-065) | Design | SR-030 AC 5, AC 7; TASK-205 | TS-001 TC-001.8, TC-001.9 |
-| Lockout service a required dependency of the login flow; the unused signing-key setting removed (CR-004, PRB-018) | Design | SR-029 AC 1, SR-030; TASK-140 | TS-001 TC-001.7 (planned) |
-| No default or placeholder credential for the database, the mail relay or the keys; start-up refused otherwise (CR-004, PRB-007) | Design | SR-041 AC 2 to AC 4; TASK-197, TASK-203 | TS-015 TC-015.2..4 (planned) |
-| The session token is no longer stored in the audit trail (logout event), and no audit field can hold a secret (CR-004, PRB-005) | Design | SR-023 AC 9; TASK-192 | TS-009 TC-009.12 (planned) |
+| Lockout service a required dependency of the login flow; the unused signing-key setting removed (CR-004, PRB-018) | Design | SR-029 AC 1, SR-030; TASK-140 | TS-001 TC-001.7 |
+| No default or placeholder credential for the database, the mail relay or the keys; start-up refused otherwise (CR-004, PRB-007) | Design | SR-041 AC 2 to AC 4; TASK-197, TASK-203 | TS-015 TC-015.2..4; started stack: the stack was generated from the empty template and started only with generated secrets |
+| The session token is no longer stored in the audit trail (logout event), and no audit field can hold a secret (CR-004, PRB-005) | Design | SR-023 AC 9; TASK-192 | TS-009 TC-009.12 |
 | No credential or secret in operational or proxy logs: route templates in the backend error log; allow-listed proxy log format with no request line, query string or header; activation locations' error log at `crit` and `Referrer-Policy: no-referrer`; no access log in the frontend container; task arguments redacted at `--loglevel=debug` (CR-004, PRB-068) | Design | SR-043 AC 4, SR-033; TASK-206, TASK-207 (every case variant of the activation paths matched with `~*`; secrets of `infra/.env` added to the started-stack check) | TS-017 TC-017.4 |
 
 ## Residual risk
@@ -94,6 +94,8 @@ ended session) was a cause the residual estimate did not cover: the estimate ass
 eviction and the password-change kill revoke a session. The conditional refresh makes that
 assumption true. **Residual unchanged: 3 × 1 → acceptable.**
 
+**Verification and proposed residual (CR-004 Checkpoint F, TASK-202, 2026-11-08).** Checkpoint F evidence (TASK-202, 2026-11-08, HEAD 579aaaa plus TASK-202's small edits): backend 1547 passed, 6 skipped, coverage 94.51% (floor 85%); DICOM module 25 passed; frontend 315 passed; infra 110 passed; started stack (project `task202`, empty template, generated secrets): `infra/smoke-test.sh` 78 passed, 0 failed; `infra/log-secrets-check.sh` 38 passed, 0 failed. The session controls ran against a real Redis (TC-001.6, TC-001.8..10), the lockout wiring and the audit scrub are tested (TC-001.7, TC-009.12), and no known value appeared in any of six service logs on the started stack (activation token, session token, CSRF token, passwords, retrieval code and the `infra/.env` secrets, 0 matches each). The real activation e-mail flow worked end to end (the worker sent one message; the link opened the activation, the account signed in, a second use of the token answered 401). **Proposed residual: severity 3 × probability 1 → acceptable** (derived from `risk_matrix`; unchanged). **For the human:** PRB-074 (activation tokens, retrieval codes and an erased user's e-mail in plaintext as Celery task arguments in Redis, `major`, accepted as a known anomaly outside CR-004 by D-18) is a cause of this hazard that needs access to the internal network, the host or a volume copy. This proposal keeps 3 × 1 because that access is required; if you read it as a probability 2, the record is 3 × 2 → alarp and needs an ALARP justification. PRB-013 (enqueue failures swallowed) is covered for the paths CR-004 touched by TC-017.6 and TC-003.7.
+
 **Decided by:** pending — the owner's acceptance is the approval of this record.
 
 ## Risks introduced by controls
@@ -111,3 +113,4 @@ availability effect by design, with a message naming the setting.
 - 1.3 (2026-11-06) — TASK-205 (CR-004 D-11): new cause (an ended session brought back by a racing refresh, PRB-064), one control row (conditional refresh, expired members pruned from the cap), TC-001.8 and TC-001.9 as verification, contention effect now 503. Scores unchanged. Content change, so the 1.2 approval record is cleared and the record returns to review.
 - 1.4 (2026-11-07) — TASK-206 (CR-004 D-14, D-16): one control row, no credential or secret in operational and proxy logs (SR-043 AC 4, TS-017 TC-017.4). Residual unchanged (3 x 1, acceptable).
 - 1.5 (2026-11-07) — TASK-207 (TASK-206 QA findings 2, 6): the log control row names TASK-207 (case-insensitive activation matching; widened started-stack check). Residual unchanged (3 x 1, acceptable). A hand-crafted Referer or a token in another path's query string that reaches the proxy error log is a residual accepted against SR-043 AC 4 (CR-004 D-19), not a change of the scores.
+- 1.6 (2026-11-08) — CR-004 Checkpoint F (TASK-202): planned verification replaced by the tests that ran; residual proposed from the evidence, 3 × 1 → acceptable, unchanged; PRB-074 raised to the human as the one open cause. Content change, so `in_review` and the approval record (none) stays cleared.

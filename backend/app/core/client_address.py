@@ -3,8 +3,8 @@
 One rule, applied once per request: the address is the TCP peer, unless the peer is a trusted
 proxy; then it is the right-most ``X-Forwarded-For`` entry that is not itself a trusted proxy.
 An empty ``TRUSTED_PROXIES`` setting trusts nothing. The server's own forwarded-header handling
-is off (``--forwarded-allow-ips=`` in ``entrypoint.sh``), so the peer in the scope is always the
-TCP peer.
+is off (``--forwarded-allow-ips=`` in the ``CMD`` of ``backend/Dockerfile``), so the peer in the
+scope is always the TCP peer.
 """
 
 from __future__ import annotations

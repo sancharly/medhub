@@ -199,6 +199,38 @@ class TestCsrfExemptPaths:
         # 401/422 from auth logic is fine; 403 would mean CSRF blocked a public path
         assert resp.status_code != 403
 
+    @pytest.mark.parametrize(
+        ("content_type", "body"),
+        [
+            ("application/x-www-form-urlencoded", "email=a%40b.com&password=wrong"),
+            ("text/plain", '{"email": "a@b.com", "password": "wrong"}'),
+            ("multipart/form-data; boundary=x", "--x--"),
+        ],
+    )
+    def test_login_refuses_a_non_json_post_without_calling_the_service(
+        self, client, content_type, body
+    ):
+        """Login CSRF defence (SR-031): a cross-site <form> can only send these three
+        content types, and the login route accepts JSON only, so the service is never reached."""
+        with patch("app.auth.login.LoginService.login") as login:
+            resp = client.post(
+                "/api/v1/auth/login", content=body, headers={"Content-Type": content_type}
+            )
+        assert resp.status_code == 400
+        login.assert_not_called()
+
+    def test_login_has_no_cors_so_a_cross_origin_json_post_cannot_pass_a_preflight(self, client):
+        resp = client.options(
+            "/api/v1/auth/login",
+            headers={
+                "Origin": "https://evil.example",
+                "Access-Control-Request-Method": "POST",
+                "Access-Control-Request-Headers": "content-type",
+            },
+        )
+        assert resp.status_code == 405
+        assert "access-control-allow-origin" not in resp.headers
+
     def test_activation_post_exempt_from_csrf(self, client):
         resp = client.post(
             "/api/v1/activation/invalid-token",
@@ -366,6 +398,7 @@ class TestCsrfExemptionIsExact:
             "/api/v1/healthz-x",
             "/healthz/deep",
             "/api/v1/accounts/x/resend-activation",
+            "/api/v1/modules/x/y",  # module routers are enforced (TASK-139)
         ]
         assert all(is_csrf_exempt(p) for p in exempt)
         assert not any(is_csrf_exempt(p) for p in enforced)

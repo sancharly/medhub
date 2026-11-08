@@ -3,10 +3,10 @@ id: "CR-004"
 type: change-request
 title: "Close the open security defects from the 2026-07 review and audit"
 status: open
-version: "1.18"
+version: "1.20"
 author: "Carlos Santiago Liceras"
 created: "2026-10-31"
-updated: "2026-11-07"
+updated: "2026-11-08"
 branch: fix/review-2026-07-security
 risk_impact: affects_controls
 links:
@@ -59,6 +59,8 @@ links:
   - target: "PRB-070"
     relation: resolves
   - target: "PRB-071"
+    relation: resolves
+  - target: "PRB-076"
     relation: resolves
   - target: "SR-005"
     relation: relates_to
@@ -265,6 +267,7 @@ order and dependencies in "Plan").
 | PRB-069 Attachment file names have no length limit, so a long name makes the proxy answer 502 (found in the TASK-204 review; added in 1.13) | minor | SR-013 AC 1, AC 3; SR-023 AC 2; RISK-007, RISK-006 | TASK-206 |
 | PRB-070 The e-mailed activation link does not match the app's activation route (found while planning TASK-206; added in 1.14) | major | SR-033 AC 1, AC 3, AC 7; RISK-009 | TASK-206 |
 | PRB-071 The API process cannot enqueue Celery tasks, so no e-mail is sent and no session kill is propagated by the worker (found on the TASK-206 started stack; added in 1.16) | critical | SR-033 AC 1, AC 3, AC 7 (activation e-mail), SR-034 AC 2 (session-kill propagation), SR-024 (erasure code e-mail), SR-035 (appointment notification); RISK-009, RISK-005 | TASK-206 |
+| PRB-076 The stack can fail to start because the fixed `medhub` subnet overlaps a network Docker picks for another Compose network (found in the TASK-202 QA review; added in 1.20) | major | SR-042 AC 3 (the fixed proxy address); RISK-007 | TASK-202 (round 2) |
 
 Existing TASKs whose links will need updating at the Plan stage: TASK-137 (add `implements`
 SR-042), TASK-138 (add `implements` SR-043).
@@ -489,6 +492,7 @@ New, for the human (Plan stage):
 - **D-19 (human decision 2026-11-07):** a hand-crafted Referer or a token in another path's query string can reach the proxy
   error log on an upstream failure or 413; accepted as a residual against SR-043 AC 4, listed for the release's
   residual-anomaly evaluation. SR-043's text is not edited; TASK-201 carries the note.
+- **D-20 (orchestrator):** PRB-076, a start-up failure introduced by TASK-185's fixed subnet, is fixed in TASK-202 round 2. `medhub` moves out of Docker's default address pools (`10.77.77.0/24`); the proxy address, `ip_range` and `TRUSTED_PROXIES` follow.
 
 ## Change analysis (Risk stage, §7.4, 2026-10-31)
 
@@ -784,3 +788,5 @@ per volume, re-key by copy, 196).
   from TASK-206; PRB-072, PRB-073 and PRB-074 are known anomalies outside CR-004 (no `resolves` link); PRB-013 stays open.
   `relates_to` TASK-207 and Plan row P9. No other change.
 - 1.18 (2026-11-07) — D-19 (human decision 2026-11-07): the Referer and query-string case that can reach the proxy error log is an accepted residual against SR-043 AC 4. TASK-207 built: change-analysis, SR AC coverage and TS rows (TS-003 1.5 → 1.6, TS-007 1.6 → 1.7, TS-017 1.2 → 1.3). No other change.
+- 1.19 (2026-11-08) — Checkpoint F (TASK-202): the whole-CR verification is recorded in TASK-202's hand-off (backend 1547 passed, 6 skipped, coverage 94.51%; DICOM 25; frontend 315; infra 110; started stack smoke 78 and log check 38, 0 failed; activation e-mail flow and field-key rotation with attachments on a started stack). Residuals proposed for RISK-001, 004, 005, 006, 007, 008, 009, 011, all unchanged, in `in_review` for the human. The CR stays `open` for the human's close-out decision.
+- 1.20 (2026-11-08) — D-20 (orchestrator): PRB-076 (start-up failure from TASK-185's fixed subnet, found in the TASK-202 QA review) fixed in TASK-202 round 2: `resolves` PRB-076, Scope row, `medhub` subnet moved to `10.77.77.0/24` outside Docker's default pools. No other change.

@@ -47,9 +47,9 @@ async def get_session(
     """Extract and validate the session cookie.
 
     Raises UnauthenticatedError (401) if the session is absent or expired.
-    CSRF is enforced inside require_csrf for state-changing methods — that
-    dependency is wired at router level, not here, so it can be overridden
-    in tests without duplicating the session lookup.
+    CSRF is not checked here. ``CsrfEnforcementMiddleware`` enforces it for every
+    state-changing request outside the reviewed exempt paths (SR-031); ``require_csrf``
+    on the routes is a second check of the same token, not the control.
     """
     session_id = request.cookies.get(_SESSION_COOKIE)
     if not session_id:

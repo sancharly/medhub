@@ -3,7 +3,7 @@ id: "PRB-075"
 type: problem-report
 title: "The backend does not start when a module with group enablement rows is uninstalled or its manifest is rejected"
 status: open
-version: "1.0"
+version: "1.2"
 author: "Carlos Santiago Liceras"
 created: "2026-11-08"
 updated: "2026-11-08"
@@ -30,12 +30,16 @@ the code below. It was not reproduced on a started stack.
 ## Impact
 
 Availability. One module's state takes down the whole API, so every user loses access to every function,
-clinical records included (RISK-007), until an operator acts. Two ordinary operations reach it:
+clinical records included (RISK-007), until an operator acts. Two operations reach it, both only while
+at least one other module is still discovered, because with none the lifespan skips the sync. `dicom-viewer`
+is the only module today, so **neither path is reachable in the current configuration**; the problem
+becomes real with a second module installed:
 
-- uninstalling a module that any group has ever had enabled;
+- uninstalling a module that any group has ever had enabled, while at least one other module is still
+  discovered (with none, the sync is skipped);
 - an upgrade whose manifest fails discovery. Discovery rejects a malformed `module_key` (check added by
   TASK-192, `backend/app/modules/discovery.py:37-38`) or version (TASK-200, `discovery.py:43-47`), and a
-  rejected module counts as absent.
+  rejected module counts as absent; the other module must still be discovered for the sync to run.
 
 Disabling the module for every group first does not help, because disabling keeps the row.
 
@@ -66,8 +70,10 @@ expected behaviour has not been decided: mark the module absent and keep its row
 skip the row with a warning. That decision belongs to the CR that takes this PRB. It also touches what
 `docs/design/11-risks-and-technical-debt.md` lists as an open decision (TASK-201 QA finding 1).
 
-Related observation, not verified: `module_key.notin_([])` with no module discovered at all would match every
-row. With enablement rows that fails the same way; without them it empties the registry.
+Related observation, tightened by TASK-202: `module_key.notin_([])` with no module discovered would match every
+row, but the lifespan skips the sync when no manifest is discovered (`if manifests:` in `main.py`), so it does not
+apply at start-up. It matters only if something else calls the sync with an empty list. "Uninstalling" reaches the
+failure only when at least one other module is still discovered, because that is the only case in which the sync runs.
 
 ## Safety evaluation
 

@@ -122,14 +122,14 @@ def test_consent_grant_event(service, audit_repo_mock):
     actor = uuid.uuid4()
     service.record(
         actor=actor,
-        action=AuditAction.CONSENT_GRANT,
+        action=AuditAction.CONSENT_GRANTED,
         target_type="account",
         target_id=str(uuid.uuid4()),
         outcome=AuditOutcome.SUCCESS,
         ip=None,
     )
     log: AuditLog = audit_repo_mock._added[0]
-    assert log.action == AuditAction.CONSENT_GRANT
+    assert log.action == AuditAction.CONSENT_GRANTED
     assert log.timestamp is not None
 
 

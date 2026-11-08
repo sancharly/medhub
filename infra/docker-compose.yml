@@ -7,15 +7,17 @@ version: "3.9"
 networks:
   # Fixed subnet so the reverse proxy has a fixed address, which the backend trusts as the only
   # proxy (SR-042 AC 3, ADR-0019). Containers without a fixed address are given one from
-  # ip_range only, so none of them can take the proxy's address first. To change the network,
-  # edit subnet and ip_range here, the proxy's ipv4_address and the backend's TRUSTED_PROXIES
-  # below (see DEPLOY.md).
+  # ip_range only, so none of them can take the proxy's address first. The subnet lies OUTSIDE
+  # Docker's default address pools (172.16.0.0/12 and 192.168.0.0/16): the other networks, this
+  # project's `object-store` among them, take their subnets from those pools and so can never
+  # overlap this one (PRB-076). To change the network, edit subnet and ip_range here, the proxy's
+  # ipv4_address and the backend's TRUSTED_PROXIES below (see DEPLOY.md).
   medhub:
     driver: bridge
     ipam:
       config:
-        - subnet: 172.28.77.0/24
-          ip_range: 172.28.77.128/25
+        - subnet: 10.77.77.0/24
+          ip_range: 10.77.77.128/25
   # Object store network (SR-040 AC 3, ADR-0015 D4): joined only by object-store, object-store-init
   # and backend. internal: no egress and no published port. The store's unauthenticated internal
   # ports are therefore unreachable from the proxy, frontend, postgres, redis and celery-worker.
@@ -50,7 +52,7 @@ services:
       - frontend
     networks:
       medhub:
-        ipv4_address: 172.28.77.2
+        ipv4_address: 10.77.77.2
     restart: unless-stopped
 
   # ── Backend (FastAPI via Gunicorn + Uvicorn workers) ──────────────────────
@@ -86,7 +88,7 @@ services:
       SESSION_MAX_CONCURRENT: ${SESSION_MAX_CONCURRENT:-3}
       SESSION_COOKIE_SECURE: ${SESSION_COOKIE_SECURE:-true}
       CORS_ORIGINS: "${CORS_ORIGINS:-}"
-      TRUSTED_PROXIES: 172.28.77.2
+      TRUSTED_PROXIES: 10.77.77.2
     expose:
       - "8000"
     depends_on:

@@ -58,7 +58,7 @@ Complete list and generation commands: `infra/DEPLOY.md`, "Secret settings", and
 |---------|--------|------|
 | `DATABASE_OWNER_URL` | new | Owner connection, `db-migrate` only; required; its user and password must differ from `DATABASE_URL`'s |
 | `DATABASE_URL` | changed | Now names the unprivileged runtime role (`medhub_app`), not the owner |
-| `TRUSTED_PROXIES` | new | Comma-separated addresses or CIDR blocks; empty trusts nothing; set to `172.28.77.2` in Compose |
+| `TRUSTED_PROXIES` | new | Comma-separated addresses or CIDR blocks; empty trusts nothing; set to `10.77.77.2` in Compose |
 | `AT_REST_ENCRYPTION_KEY_ID` | new | Required, not secret; 1 to 32 characters of `a-z`, `0-9`, `-` |
 | `AT_REST_ENCRYPTION_RETIRED_KEYS` | new | Optional `id:key,id:key`, decryption only |
 | `OBJECT_STORE_SSE_KEY` | new | Required by the object store and preflight; base64 of 32 bytes; must differ from the field keys |

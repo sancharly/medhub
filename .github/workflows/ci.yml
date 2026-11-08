@@ -109,6 +109,11 @@ jobs:
         working-directory: backend
         run: uv run pytest --cov=app --cov-report=term-missing --cov-fail-under=85
 
+      # The DICOM viewer module's tests live outside testpaths and need their own import root.
+      - name: Run DICOM viewer module tests
+        working-directory: backend
+        run: uv run pytest modules/dicom_viewer/tests
+
   # ── Frontend: linting and type-checking ────────────────────────────────────
   frontend-quality:
     name: Frontend Quality

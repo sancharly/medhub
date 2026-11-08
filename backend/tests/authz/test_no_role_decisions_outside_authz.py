@@ -17,6 +17,11 @@ different expression, so it fails too) and fails on a listed exception that no l
 Reading ``.user_type`` to build a descriptor, a payload or a response is not a use and needs no
 entry. Names are tracked within one function; a role passed through another function's return
 value is not followed.
+
+Stated limits (TASK-202, TASK-189 review): a role stored on ``self.<attr>`` and compared in another
+method is not followed, a ``getattr`` whose attribute name is not a string literal is not
+recognised, and a role reached through ``getattr(x, "user_type")`` bound to an attribute rather than
+a local name is not an alias. Code review and PRB-027 cover those forms.
 """
 
 from __future__ import annotations

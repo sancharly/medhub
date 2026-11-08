@@ -164,10 +164,28 @@ failed dependency); PostgreSQL, Redis and the frontend still start. Read the fai
 
 The backend takes the caller's address from `X-Forwarded-For` only when the request comes from
 the reverse proxy (SR-042, ADR-0019). Compose therefore gives the `medhub` network a fixed
-subnet (`172.28.77.0/24`, dynamic addresses from `172.28.77.128/25`), the `reverse-proxy` the
-fixed address `172.28.77.2`, and sets the backend's `TRUSTED_PROXIES` to that one address in
+subnet (`10.77.77.0/24`, dynamic addresses from `10.77.77.128/25`), the `reverse-proxy` the
+fixed address `10.77.77.2`, and sets the backend's `TRUSTED_PROXIES` to that one address in
 `environment:` (a value in `infra/.env` does not override it). Gunicorn is started with an empty
 `--forwarded-allow-ips=`, so the server never rewrites the peer.
+
+The subnet is outside Docker's default address pools (`172.16.0.0/12` and `192.168.0.0/16`),
+on purpose: the `object-store` network and the networks of other Compose projects take their
+subnets from those pools, so none of them can overlap it (PRB-076). An earlier revision of this change (never released) used
+`172.28.77.0/24`, inside the pool. Docker could give the project's `object-store` network
+`172.28.0.0/16` first, and `up` then failed with `failed to create network <project>_medhub: Error
+response from daemon: cannot create network … conflicts with network …: networks have overlapping IPv4`
+(the other containers did not start).
+
+**Upgrading a stack that ran that revision, or any release before the fixed subnet.** Run `docker compose -f infra/docker-compose.yml down` (no `-v`)
+before the first `up` of this release, so Compose creates the `medhub` network again with the new
+subnet. Volumes are kept.
+
+**If `up` fails with an overlapping-network message.** Something on the host or another project
+already uses `10.77.77.0/24` (a VPN or a custom `default-address-pools` in the Docker daemon
+configuration are the usual cause; `docker network ls -q | xargs docker network inspect --format
+'{{.Name}} {{range .IPAM.Config}}{{.Subnet}} {{end}}'` lists the subnets in use). Pick a free
+range and change the lines below. Then run `down` and `up -d` again; nothing is lost.
 
 If the subnet collides with a host network, change these lines in `infra/docker-compose.yml`
 together, keeping the proxy address inside `subnet` and outside `ip_range`:
@@ -487,7 +505,7 @@ database role that `db-migrate` creates. So the sections run in this order, in o
 1. Take the `pg_dump` first (it needs a running `postgres`), then stop the stack once, with
    `docker compose down` from the old release's directory and files (step 1; no `-v`), and take the other backups of the other upgrade sections (the `postgres_data` copy and the `pg_dump`)
    together with steps 1 and 2 of this section. `down` is needed, not only `stop`: a release before the
-   fixed subnet (`172.28.77.0/24`, see "Trusted proxy and the Compose subnet") leaves a `medhub` network
+   fixed subnet (`10.77.77.0/24`; see "Trusted proxy and the Compose subnet") leaves a `medhub` network
    that this release cannot attach the reverse proxy's fixed address to, and `up` then fails with `user
    specified IP address is supported only when connecting to networks with user configured subnets`.
 2. Edit `infra/.env` as in step 3 of this section **first**: `OBJECT_STORE_SSE_KEY` (new),
