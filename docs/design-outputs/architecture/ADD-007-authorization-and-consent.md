@@ -2,14 +2,11 @@
 id: ADD-007
 type: architecture-doc
 title: Authorization & Consent (SI-AUTHZ)
-status: approved
-version: "1.1"
+status: in_review
+version: "1.2"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-10-31"
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-10-31"
-approval_note: self-approved at the ship-feature plan gate (sancharly/medhub#27, CR-004)
+updated: "2026-11-08"
 links:
   - target: SR-004
     relation: implements
@@ -55,23 +52,32 @@ Deny-by-default decisions; per-source consent grants; module access guard
 
 ## Software units (IEC 62304 §5.4.1)
 
-- `U-AUTHZ-Policy` — deny-by-default decision engine (user type + relationship + consent + module) (SR-005).
+- `U-AUTHZ-Policy` — deny-by-default decision engine (user type + relationship + consent +
+  module) (SR-005), and **the only place an access decision is taken**
+  ([ADR-0006](../../design/adr/0006-authz-consent-model.md)). `decide()` returns a `Decision`
+  (allow plus a basis) and audits it with actor, action, target, outcome and source address
+  (SR-023 AC 7). It decides:
+  - appointment list scope and single-appointment visibility (`appointment_scope`,
+    `_eval_appointment_read`; formerly `AppointmentService` and `U-AUTHZ-ApptVisibility`, PRB-026);
+  - module access, with `U-AUTHZ-ModuleGuard`'s result as an input (`module:access`);
+  - account actions `account:create`, `account:deactivate`, `account:reactivate`,
+    `account:delete` and `activation:resend` (SR-032 AC 1, AC 4, AC 5; SR-034 AC 1). `account:create`
+    is denied unless the requested user type is stated; a denial's basis says why (`ROLE`,
+    `TARGET`, `TARGET_UNSET`, `SELF`);
+  - the role-only router actions `account:unlock` (SYSADMIN), `module:list` (SYSADMIN),
+    `consent:grant`/`consent:revoke`/`consent:list` (PATIENT) and `patient_roster:list` (DOCTOR)
+    that routers compared themselves (PRB-027).
+  A refusal that the contract answers with 404 (SR-011 AC 4) is still audited as `AUTHZ_DENIED`.
 - `U-AUTHZ-Consent` — `ConsentGrant` create/revoke, per-source union evaluation (SR-008, SR-036).
-- `U-AUTHZ-AdminProjection` — non-clinical field projection for admin personnel (SR-009).
-- `U-AUTHZ-ModuleGuard` — module-enabled-for-group check (SR-015).
-- `U-AUTHZ-ApptVisibility` — appointment visibility scoping (SR-011).
-- `U-AUTHZ-Policy` (CR-004 change) — **the only place an access decision is taken**
-  ([ADR-0006](../../design/adr/0006-authz-consent-model.md)). It now also decides, and audits with
-  actor, action, target, outcome and source address (SR-023 AC 7): appointment list scope and
-  single-appointment visibility (formerly in `AppointmentService` and `U-AUTHZ-ApptVisibility`,
-  PRB-026), module access (with `U-AUTHZ-ModuleGuard`'s result as an input), and the account
-  lifecycle, activation, unlock, consent and roster rules that identity services and routers
-  compared themselves (PRB-027; SR-032 AC 1, AC 4, AC 5; SR-034 AC 1). A refusal that the
-  contract answers with 404 (SR-011 AC 4) is still audited as `AUTHZ_DENIED`.
-- `U-AUTHZ-ApptVisibility` and `U-AUTHZ-ModuleGuard` (CR-004 change) — inputs to
-  `U-AUTHZ-Policy`, no longer called by services or dependencies to decide on their own.
+- `U-AUTHZ-AdminProjection` — non-clinical field projection for admin personnel (SR-009);
+  `requires_admin_projection(actor)` is what the account routers ask.
+- `U-AUTHZ-ModuleGuard` — module-enabled-for-group check (SR-015); an input to
+  `U-AUTHZ-Policy`, not called by services or dependencies to decide on its own.
+- `U-AUTHZ-ApptVisibility` no longer exists: its module was deleted (TASK-187) and the rule is
+  `AuthorizationService._eval_appointment_read`.
 - A static test fails when a `user_type` comparison that decides access appears outside
-  `backend/app/authz/` (allow-list of the non-decision comparisons in PRB-027's Investigation).
+  `backend/app/authz/` (allow-list of the non-decision comparisons in PRB-027's Investigation). It
+  does not see `getattr` dispatch on a role or `self.<attr>` aliases (stated limit, PRB-027).
 
 Class B requires decomposition down to software units, not per-unit detailed design
 (§5.4.2–5.4.4 are class C). Each unit above is independently unit-testable and is the granularity
@@ -104,3 +110,4 @@ Participates in RISK-001, RISK-004 (see `docs/risks/`); the control measures are
 ## Version history
 
 - 1.1 (2026-10-31) — CR-004 Plan stage (Software Architect role): unit changes for the planned design added (marked "CR-004"), links added. Content change, so the approval record is cleared and the record returns to review. The implementing tasks confirm the unit text when they land.
+- 1.2 (2026-11-08) — TASK-201 (CR-004): unit text replaced with the unit as built. `U-AUTHZ-ApptVisibility` removed; the new actions (account create/deactivate/reactivate/delete, activation resend, unlock, module list, consent grant/revoke/list, patient roster list) and the decision basis listed; the static test's limits stated. Arc42 sections 05 and 08 updated. Content change, so the 1.1 approval record is cleared and the record returns to review.

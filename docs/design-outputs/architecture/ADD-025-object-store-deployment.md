@@ -2,14 +2,11 @@
 id: ADD-025
 type: architecture-doc
 title: Object store deployment (SI-OBJSTORE)
-status: approved
-version: "1.3"
+status: in_review
+version: "1.4"
 author: Carlos Santiago Liceras
 created: "2026-10-30"
-updated: "2026-10-31"
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-10-31"
-approval_note: self-approved at the ship-feature plan gate (sancharly/medhub#27, CR-004)
+updated: "2026-11-08"
 safety_class: B
 links:
   - target: SR-040
@@ -57,26 +54,30 @@ records.
 - `U-OBJ-Preflight`: the Compose service `object-store-preflight`. It runs the credential rule
   (CR-002 Q-2) from the backend image with `network_mode: none` and exits non-zero, naming the
   rejected setting, when a key is unset, empty, a known default, or a secret key shorter than 16
-  characters. `object-store` and `object-store-init` depend on its successful completion
-  (SR-040 AC 2). Implemented by TASK-174.
+  characters. It also refuses an `OBJECT_STORE_SSE_KEY` that is unset, empty, a placeholder, not
+  base64 of exactly 32 bytes, or the same key (compared as decoded bytes) as
+  `AT_REST_ENCRYPTION_KEY` or an entry of `AT_REST_ENCRYPTION_RETIRED_KEYS`; it is the only Python
+  service that receives the SSE key. `object-store` and `object-store-init` depend on its
+  successful completion (SR-040 AC 2, SR-041 AC 5). Implemented by TASK-174 and TASK-196.
 - `U-OBJ-Server`: the Compose service `object-store`. It is the S3-compatible server pinned by
-  tag and index digest. It has no console or admin UI, keeps its data on one named volume, derives
-  its SSE-S3 key from `AT_REST_ENCRYPTION_KEY`, and has a healthcheck. It joins only the
-  `object-store` network and publishes no host port (SR-040 AC 1 and AC 3, SR-022, SR-028 AC-5 and
-  AC-7). Implemented by TASK-176 and TASK-177.
+  tag and index digest. It has no console or admin UI, keeps its data on one named volume
+  (`object_store_data`; `OBJECT_STORE_VOLUME` names another volume, set only by the SSE-key copy
+  procedure), takes its SSE-S3 key from its own secret setting `OBJECT_STORE_SSE_KEY` as
+  `WEED_S3_SSE_KEY` (never `AT_REST_ENCRYPTION_KEY`, SR-041 AC 5), and has a healthcheck. The key
+  belongs to the volume: the store cannot tell which key an object was written under. It joins only
+  the `object-store` network and publishes no host port (SR-040 AC 1 and AC 3, SR-022, SR-028 AC-5
+  and AC-7). Implemented by TASK-176, TASK-177 and TASK-196.
 - `U-OBJ-Init`: the Compose service `object-store-init`, which runs a Python module in the
   backend image with boto3 (SOUP-019). It starts once `object-store` is `service_healthy`. It
   creates the bucket if missing, sets SSE-S3 default encryption (`PutBucketEncryption`, `AES256`),
   reads it back, checks that the bucket has no policy, and exits non-zero on any failure. The
   backend starts only after it has completed successfully (SR-040 AC 4, SR-022 AC 4).
   Implemented by TASK-175.
-- `U-OBJ-Server` (CR-004 change) — the SSE-S3 key comes from its own secret setting,
-  `OBJECT_STORE_SSE_KEY`, no longer from `AT_REST_ENCRYPTION_KEY` (SR-041 AC 5).
-- `U-OBJ-Preflight` (CR-004 change) — also refuses an SSE key that is unset, a placeholder,
-  not 32 bytes after base64 decoding, or equal to `AT_REST_ENCRYPTION_KEY`.
 - Existing objects are moved to a volume under the new key with `backend/scripts/migrate_object_store.py`,
   checksums compared, source read only, rehearsed on a backup copy
   ([ADR-0018](../../design/adr/0018-field-encryption-key-identifier-and-key-separation.md)).
+  `U-OBJ-Init` also reads the first byte of the first object, so a store started with a key other
+  than the one its volume was written with stops the stack before the backend starts.
 
 Class B requires decomposition down to software units only.
 
@@ -95,7 +96,8 @@ Non-functional requirements constraining this item: NFR-007.
 - Provides: the S3 API on `object-store:8333` over the `object-store` network, consumed by
   `ObjectStorageClient` (`backend/app/core/object_storage.py`) through `OBJECT_STORE_ENDPOINT`.
 - Consumes: `OBJECT_STORE_ACCESS_KEY`, `OBJECT_STORE_SECRET_KEY`, `OBJECT_STORE_BUCKET` and
-  `AT_REST_ENCRYPTION_KEY` from `infra/.env`, which is never committed.
+  `OBJECT_STORE_SSE_KEY` from `infra/.env`, which is never committed. `AT_REST_ENCRYPTION_KEY` is
+  read by the preflight only to compare it with the SSE key.
 
 ## Verification
 
@@ -132,3 +134,4 @@ RISK-007 (reliable initialisation) and RISK-011 (SSE key material and its migrat
   checked: SOUP-019 and SOUP-036 only, none to SOUP-022 or SOUP-023. Interface names port 8333;
   verification names TC-008.6 and TC-008.8. Approval not yet given.
 - 1.3 (2026-10-31) — CR-004 Plan stage (Software Architect role): unit changes for the planned design added (marked "CR-004"), links added. Content change, so the approval record is cleared and the record returns to review. The implementing tasks confirm the unit text when they land.
+- 1.4 (2026-11-08) — TASK-201 (CR-004): `U-OBJ-Server` and `U-OBJ-Preflight` text replaced with the units as built (own SSE key, volume setting, equality refusal); the copy procedure and the volume key check noted; the interface names `OBJECT_STORE_SSE_KEY`. Content change, so the 1.3 approval record is cleared and the record returns to review.

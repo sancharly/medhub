@@ -2,14 +2,11 @@
 id: ADD-016
 type: architecture-doc
 title: Persistence (SI-PERSIST)
-status: approved
-version: "1.1"
+status: in_review
+version: "1.2"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-10-31"
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-10-31"
-approval_note: self-approved at the ship-feature plan gate (sancharly/medhub#27, CR-004)
+updated: "2026-11-08"
 links:
   - target: SR-003
     relation: implements
@@ -59,19 +56,23 @@ SQLAlchemy models, repositories, Alembic migrations, encryption-at-rest config
 
 - `U-PER-Models` — SQLAlchemy ORM models (FHIR-aligned, SR-021).
 - `U-PER-Repos` — repositories with parameterized queries (SR-031.1).
-- `U-PER-Migrations` — Alembic migrations (NFR-006).
-- `U-PER-Crypto` — at-rest encryption config / pgcrypto where needed (SR-022).
-- `U-PER-Crypto` (CR-004 change) — AES-256-GCM field envelope
-  `mh1:<key-id>:<base64url(nonce || ciphertext)>` with the prefix as associated data; current key
-  plus optional retired keys from settings; unknown key or missing prefix refused; re-encryption
-  command `app.db.reencrypt` (`--check`, `--apply`) for rotation (SR-022 AC 6 to AC 8,
+- `U-PER-Crypto` — field encryption (`EncryptedString`): AES-256-GCM envelope
+  `mh1:<key-id>:<base64url(nonce || ciphertext)>` with the prefix as associated data. A keyring
+  holds the current key (`AT_REST_ENCRYPTION_KEY`, id `AT_REST_ENCRYPTION_KEY_ID`) and optional
+  retired keys (`AT_REST_ENCRYPTION_RETIRED_KEYS`, decryption only). `decrypt` uses the key named
+  in the prefix only; no prefix, an unknown id or a failed tag raises, with no fallback.
+  `decrypt_legacy` reads the pre-0010 unprefixed format with a given key and exists for
+  migration 0010. The re-encryption command `app.db.reencrypt` (`--check`, `--apply`,
+  `--verify-key-ids`) covers every `EncryptedString` column and runs as the owner from the
+  `db-migrate` image (SR-022 AC 6 to AC 8,
   [ADR-0018](../../design/adr/0018-field-encryption-key-identifier-and-key-separation.md)).
-- `U-PER-Migrations` (CR-004 change) — migration 0009 drops the `audit_log` rules of 0006;
-  migration 0010 converts existing encrypted values to the identified envelope in one
+- `U-PER-Migrations` — Alembic migrations (NFR-006). Migration 0009 drops the `audit_log` rules of
+  0006; migration 0010 converts existing encrypted values to the identified envelope in one
   transaction (SR-022 AC 7). Migrations run only in the `db-migrate` service, as the owner role.
-- `U-PER-Roles` (new, CR-004) — `app.db.roles`: creates the runtime role and applies its grants
-  after every migration run, revoking `UPDATE`, `DELETE`, `TRUNCATE` on `audit_log` (SR-023 AC 8,
-  [ADR-0017](../../design/adr/0017-database-roles-and-append-only-audit-log.md)).
+- `U-PER-Roles` — `app.db.roles`: creates the runtime role and applies its grants after every
+  migration run, revoking `UPDATE`, `DELETE`, `TRUNCATE` on `audit_log` (SR-023 AC 8,
+  [ADR-0017](../../design/adr/0017-database-roles-and-append-only-audit-log.md)); refuses an
+  existing runtime role that is a superuser, a member of another role or an owner of objects.
 
 Class B requires decomposition down to software units, not per-unit detailed design
 (§5.4.2–5.4.4 are class C). Each unit above is independently unit-testable and is the granularity
@@ -104,3 +105,4 @@ Participates in RISK-002, RISK-007, RISK-011 (see `docs/risks/`); the control me
 ## Version history
 
 - 1.1 (2026-10-31) — CR-004 Plan stage (Software Architect role): unit changes for the planned design added (marked "CR-004"), links added. Content change, so the approval record is cleared and the record returns to review. The implementing tasks confirm the unit text when they land.
+- 1.2 (2026-11-08) — TASK-201 (CR-004): unit text replaced with the unit as built; `U-PER-Crypto` names the keyring, `decrypt_legacy` and `app.db.reencrypt`; `U-PER-Roles` notes the unsafe-role refusal. Arc42 sections 05, 06 and 08 hold the narrative. Content change, so the 1.1 approval record is cleared and the record returns to review.

@@ -77,3 +77,7 @@ the header trusted from any peer that can reach the backend, contrary to AC 2.
 - Risks: RISK-006, RISK-007
 - SOUP: SOUP-004 (Uvicorn), SOUP-005 (Gunicorn), SOUP-024 (nginx)
 - Related: ADR-0010, ADR-0013 (retrieval rate limit values unchanged, CR-004 A-4); ADD-005, ADD-026
+
+## Notes
+
+- **2026-11-08 (TASK-201, CR-004), no change to the decision:** the Negative consequence "DEPLOY.md says which two lines to change" is three lines in `infra/docker-compose.yml`, and the first is two settings of one block: the `medhub` network's `subnet` **and `ip_range`**, the proxy's `ipv4_address`, and the backend's `TRUSTED_PROXIES`. The `ip_range` was found on the started stack (TASK-185): without it Docker gave the proxy's fixed address to another container. Dynamic addresses come from `ip_range`, which excludes the proxy's address. `infra/DEPLOY.md`, "Trusted proxy and the Compose subnet", lists the three, and `infra/tests/test_compose_trusted_proxy.py` checks that they agree. [07 deployment view](../07-deployment-view.md) holds the narrative.

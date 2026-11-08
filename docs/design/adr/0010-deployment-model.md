@@ -48,3 +48,8 @@ Package every component as a **Docker container** and orchestrate the MVP with *
 
 - Requirements: SR-001, SR-022, SR-026, SR-031; NFR-004, NFR-006, NFR-007, NFR-008
 - Related: ADR-0001, ADR-0002, ADR-0009, ADR-0011
+
+## Notes
+
+- **2026-11-08 (TASK-201, CR-004), no change to the decision:** the list of injected secrets above no longer includes a *session signing key*. Sessions are opaque random tokens held in Redis, so the setting was dead and was removed (PRB-018); a leftover `SESSION_SIGNING_KEY` in an existing `.env` is ignored. The secrets are now the owner and runtime database credentials, the object-store access, secret and SSE keys, the field-encryption key with its retired keys, and the SMTP password; none has a default. The Compose topology also gained the one-shot `db-migrate` service ([ADR-0017](0017-database-roles-and-append-only-audit-log.md)), a separate `celery-beat` service, a fixed `medhub` subnet with the proxy at a fixed address ([ADR-0019](0019-originating-client-address-trusted-proxy-rule.md)) and the frontend on port 8080 as an unprivileged user. Narrative: [07 deployment view](../07-deployment-view.md).
+- **2026-11-08 (TASK-201):** the statement elsewhere in the design that backups are documented was untrue and is recorded as [PRB-057](../../problem-reports/PRB-057-no-backup-and-restore-procedure.md) (open); [07 deployment view](../07-deployment-view.md) and [11 risks](../11-risks-and-technical-debt.md) say so.

@@ -3,10 +3,10 @@ id: "ADD-026"
 type: architecture-doc
 title: "Deployment configuration, secrets and runtime users (SI-DEPLOY)"
 status: in_review
-version: "1.2"
+version: "1.4"
 author: "Carlos Santiago Liceras"
 created: "2026-10-31"
-updated: "2026-11-07"
+updated: "2026-11-08"
 safety_class: B
 links:
   - target: "SR-041"
@@ -50,25 +50,41 @@ concerns were spread over ADR-0010 and the deployment guide with no design recor
 
 ## Software units (IEC 62304 §5.4.1)
 
-- `U-DEP-Compose` — `infra/docker-compose.yml`: every secret setting passed with a `:?` guard
-  and no default (SR-041 AC 2); the `medhub` network with a fixed subnet (dynamic addresses from an `ip_range` that excludes the proxy's address, so no other
-  container can take it first) and the reverse proxy at
-  a fixed address, `TRUSTED_PROXIES` set to that address (SR-042 AC 3,
-  [ADR-0019](../../design/adr/0019-originating-client-address-trusted-proxy-rule.md)); a one-shot
-  `db-migrate` service that `backend` and `celery-worker` wait for
-  ([ADR-0017](../../design/adr/0017-database-roles-and-append-only-audit-log.md)).
+- `U-DEP-Compose` — `infra/docker-compose.yml`:
+  - every secret setting passed with a `:?` guard and no default (SR-041 AC 2); no `env_file`:
+    each service lists exactly the settings it reads, so the owner credential reaches `postgres`
+    and `db-migrate` only and the API gets no SMTP credential;
+  - the `medhub` network with a fixed subnet and an `ip_range` that excludes the proxy's address
+    (so no other container can take it first), the reverse proxy at a fixed address, and
+    `TRUSTED_PROXIES` set to that address in the Compose file (SR-042 AC 3,
+    [ADR-0019](../../design/adr/0019-originating-client-address-trusted-proxy-rule.md));
+  - a one-shot `db-migrate` service, the only holder of `DATABASE_OWNER_URL`: in one run it checks
+    the secret settings, runs `alembic upgrade head`, `python -m app.db.roles` and
+    `python -m app.db.reencrypt --verify-key-ids`; `backend`, `celery-worker` and `celery-beat`
+    wait for it to complete ([ADR-0017](../../design/adr/0017-database-roles-and-append-only-audit-log.md));
+  - `celery-worker` and `celery-beat` as separate services of the backend image, each with its own
+    `command:` run by the image entrypoint, which ends in `exec "$@"` (gunicorn is the image
+    default); beat writes its schedule file to `/tmp` and exactly one instance must run (PRB-061);
+  - `OBJECT_STORE_SSE_KEY` given to `object-store` (as `WEED_S3_SSE_KEY`) and to
+    `object-store-preflight` only, and `OBJECT_STORE_VOLUME` as the optional volume name for the
+    SSE-key copy procedure (ADD-025);
+  - ports: only the reverse proxy publishes ports (80, 443); the frontend listens on 8080 and the
+    backend on 8000.
 - `U-DEP-SecretRule` — `backend/app/core/secret_settings.py`: one rule for every secret setting
   (unset, empty, a known placeholder in any case, `change-me-to-…`, any value the template ever
   shipped; `AT_REST_ENCRYPTION_KEY` and `OBJECT_STORE_SSE_KEY` must decode to 32 bytes and differ;
-  `SMTP_PASSWORD` required only when `SMTP_USER` is set, CR-004 Q-5). Called by the backend at
-  start-up, by the worker on `worker_init`, and by the preflight. Messages name the setting,
-  never the value (SR-041 AC 3, AC 5). It generalises the object-store rule of `U-OBJ-Preflight`.
+  retired field keys and the key identifier are checked; `SMTP_PASSWORD` required only when
+  `SMTP_USER` is set). Called by the backend at start-up, by the worker and beat on `worker_init`
+  and `beat_init`, by `db-migrate` and by the preflight. Messages name the setting, never the
+  value (SR-041 AC 3, AC 5). It generalises the object-store rule of `U-OBJ-Preflight`. Settings
+  are read through `Settings`; the SSE key is checked only where it is present, which is the
+  preflight.
 - `U-DEP-EnvTemplate` — `infra/.env.example` with no value for any secret setting, and
   `infra/DEPLOY.md` stating how to generate each one (SR-041 AC 4).
 - `U-DEP-DbRoles` — the owner role used only by `db-migrate` (`DATABASE_OWNER_URL`) and the
   runtime role used by `backend` and `celery-worker` (`DATABASE_URL`); the grants themselves are
   `U-PER-Roles` (ADD-016) (SR-023 AC 8, ADR-0017).
-- `U-DEP-RuntimeUsers` — `backend/Dockerfile` (`USER medhub`, already in place) and
+- `U-DEP-RuntimeUsers` — `backend/Dockerfile` (`USER medhub`) and
   `frontend/Dockerfile` (nginx master and workers as the image's unprivileged `nginx` user,
   listening on 8080, pid and temp paths under a writable directory; the reverse proxy targets
   `frontend:8080`). The pulled images (reverse proxy, PostgreSQL, Redis, SeaweedFS) are not built
@@ -90,9 +106,9 @@ and SR-041 AC 5 (key settings).
 ## Interfaces
 
 Settings consumed by the backend, the worker and the preflights: see `infra/DEPLOY.md` and
-[12-interfaces.md](../../design/12-interfaces.md). New settings in CR-004: `DATABASE_OWNER_URL`,
+[12-interfaces.md](../../design/12-interfaces.md). Settings added by CR-004: `DATABASE_OWNER_URL`,
 `TRUSTED_PROXIES`, `AT_REST_ENCRYPTION_KEY_ID`, `AT_REST_ENCRYPTION_RETIRED_KEYS`,
-`OBJECT_STORE_SSE_KEY`. Removed: `SESSION_SIGNING_KEY` (PRB-018).
+`OBJECT_STORE_SSE_KEY`, `OBJECT_STORE_VOLUME`. Removed: `SESSION_SIGNING_KEY` (PRB-018).
 
 ## Architecture narrative
 
@@ -100,7 +116,9 @@ This record is a summary and traceability anchor. The narrative is
 [07 deployment view](../../design/07-deployment-view.md) (topology, start-up order) and
 [08 cross-cutting concepts](../../design/08-cross-cutting-concepts.md) §8.3 and §8.11
 (configuration and secrets); the item belongs in the table of
-[05 building blocks](../../design/05-building-blocks.md). TASK-201 brings those sections in line.
+[05 building blocks](../../design/05-building-blocks.md) (item SI-DEPLOY). Open decisions are in
+[11 risks](../../design/11-risks-and-technical-debt.md): `celery-beat` holds object-store and field-key
+settings it does not use, `db-migrate` holds object-store settings it does not use, and the official reverse-proxy image runs its master as UID 0.
 Governing decisions: [ADR-0010](../../design/adr/0010-deployment-model.md),
 [ADR-0011](../../design/adr/0011-security-compliance-approach.md),
 [ADR-0017](../../design/adr/0017-database-roles-and-append-only-audit-log.md),
@@ -125,3 +143,5 @@ names the setting; a missing grant makes a statement fail until the next `db-mig
 - 1.0 (2026-10-31) — Created at the CR-004 Plan stage (Software Architect role), `in_review`.
 - 1.1 (2026-10-31) — TASK-185: unit text confirmed against the implementation; `ip_range` added to `U-DEP-Compose` (found on the started stack: without it Docker gave the proxy's fixed address to another container). Content change, so the approval record is cleared and the record returns to review.
 - 1.2 (2026-11-07): TASK-206 (PRB-068). New unit `U-DEP-ProxyLogging`. `in_review`.
+- 1.3 (2026-11-08) — TASK-201 (CR-004): `U-DEP-Compose` text replaced with the unit as built (`db-migrate` steps, `celery-worker` and `celery-beat`, entrypoint, SSE key and volume, ports); `U-DEP-SecretRule` checks listed; narrative pointer and open decisions updated. `in_review`.
+- 1.4 (2026-11-08) — TASK-201 round 2: the unused-settings note corrected (`db-migrate` uses the field keyring; only `celery-beat` holds unused field keys). `in_review`.

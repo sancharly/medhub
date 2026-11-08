@@ -24,6 +24,8 @@ This folder records the significant architecture decisions for MedHub. One decis
 | [ADR-0018](0018-field-encryption-key-identifier-and-key-separation.md) | Field-encryption envelope with a key identifier, rehearsed rotation, separate object-store SSE key (refines ADR-0011, ADR-0015 D2) | Accepted |
 | [ADR-0019](0019-originating-client-address-trusted-proxy-rule.md) | Originating client address from one trusted-proxy rule in the application | Accepted |
 
+ADR-0010 and ADR-0019 carry dated notes (2026-11-08, TASK-201) recording what CR-004 changed in the text they describe; their decisions are unchanged.
+
 ## Trade-off summary
 
 The dominant forces are: regulatory rigor (IEC 62304 / MDR / FDA / GDPR), a small prototype-stage team, a central plugin mechanism, and safety-critical DICOM rendering. These bias the architecture toward **simplicity, auditability, and strong access control over horizontal scalability**. A modular monolith (ADR-0001) is chosen over microservices precisely because it keeps the regulated surface small and the audit trail coherent, while still delivering the extensibility the product needs through an in-process module mechanism (ADR-0005).

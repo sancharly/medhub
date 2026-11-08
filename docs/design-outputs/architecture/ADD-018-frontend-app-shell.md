@@ -2,14 +2,11 @@
 id: ADD-018
 type: architecture-doc
 title: Frontend App Shell (SI-FE-SHELL)
-status: approved
-version: "1.1"
+status: in_review
+version: "1.2"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-10-31"
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-10-31"
-approval_note: self-approved at the ship-feature plan gate (sancharly/medhub#27, CR-004)
+updated: "2026-11-08"
 links:
   - target: SR-001
     relation: implements
@@ -65,11 +62,11 @@ Layout, routing, responsive frame, navigation, module mounting, error/confirmati
 - `U-FE-Nav` — consistent navigation/terminology (SR-027.1).
 - `U-FE-Confirm` — confirmation dialogs for destructive actions (SR-027.2).
 - `U-FE-Error` — clear, actionable error surfaces (SR-027.3).
-- `U-FE-RouteGuard` (new, CR-004) — `RequireRole` route wrapper: a route whose role list
-  does not contain the signed-in user's role is not mounted and redirects to `/profile`. The role
-  lists come from the same table as the navigation (`navConfig.ts`), so the two cannot diverge.
-  Defence in depth only: the server stays the control (SR-005, SR-009, SR-031 AC 5; CR-004 Q-4;
-  PRB-014).
+- `U-FE-RouteGuard` — `RequireRole` route wrapper: a route whose role list does not contain the
+  signed-in user's role is not mounted and redirects to `/profile`. The role table is
+  `frontend/src/core/nav/routeRoles.ts`; `navConfig.ts` derives its role lists from it, so the two
+  cannot diverge. Every `<Route>` in `App.tsx` has an entry. Defence in depth only: the server stays the control
+  (SR-005, SR-009, SR-031 AC 5; PRB-014).
 
 Class B requires decomposition down to software units, not per-unit detailed design
 (§5.4.2–5.4.4 are class C). Each unit above is independently unit-testable and is the granularity
@@ -102,3 +99,4 @@ Participates in RISK-002 (see `docs/risks/`); the control measures are carried b
 ## Version history
 
 - 1.1 (2026-10-31) — CR-004 Plan stage (Software Architect role): unit changes for the planned design added (marked "CR-004"), links added. Content change, so the approval record is cleared and the record returns to review. The implementing tasks confirm the unit text when they land.
+- 1.2 (2026-11-08) — TASK-201 (CR-004), from the TASK-142 QA review: `U-FE-RouteGuard` names `routeRoles.ts` as the role table and `navConfig.ts` as its consumer (it named `navConfig.ts` as the table). Content change, so the 1.1 approval record is cleared and the record returns to review.

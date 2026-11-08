@@ -3,10 +3,10 @@ id: ADD-012
 type: architecture-doc
 title: Attachment Service (SI-ATTACH)
 status: in_review
-version: "1.5"
+version: "1.6"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-11-07"
+updated: "2026-11-08"
 links:
   - target: SR-013
     relation: implements
@@ -42,7 +42,7 @@ Upload/fetch attachment binaries via object storage, authorized
 
 - `U-ATT-Upload` — validate, store object (SSE), bind to entry/patient transactionally (SR-013). It refuses a
   file name longer than 255 UTF-8 bytes with a 400 problem (`filename_max_bytes`) before anything is written;
-  the name is never truncated, as it is part of the clinical record (TASK-206, PRB-069).
+  the name is never truncated, as it is part of the clinical record (TASK-206, PRB-069). The display name and the storage key are one value, so a name with dot segments reaches the object store, which refuses it, and the upload answers 500 (PRB-073, open).
 - `U-ATT-Fetch` — authorized stream / scoped pre-signed URL (SR-005, SR-013.3). Before any byte is
   served it compares the SHA-256 of the content read from the store with the stored checksum
   (constant-time). On a mismatch it serves nothing, records an `ATTACHMENT_ACCESS` audit event with
@@ -88,3 +88,4 @@ Participates in RISK-002, RISK-007, RISK-011 (see `docs/risks/`); the control me
 - 1.4 (2026-11-06): TASK-204 (PRB-063). `U-ATT-Fetch` records an `ATTACHMENT_ACCESS` FAILURE on every server-side
   failure after authorization, not only a checksum mismatch. Approval record cleared; `in_review`.
 - 1.5 (2026-11-07): TASK-206 (PRB-069). `U-ATT-Upload` validates the name length (255 UTF-8 bytes, 400); `U-ATT-Fetch` bounds the header. Approval record cleared; `in_review`.
+- 1.6 (2026-11-08) — TASK-201: `U-ATT-Upload` notes the open dot-segment defect (PRB-073). No other change.

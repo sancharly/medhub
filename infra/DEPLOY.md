@@ -32,12 +32,12 @@ be a different value), and never copy a value from this document or from a ticke
 | `POSTGRES_PASSWORD` | `postgres` (initialises the database owner user `medhub`) | `openssl rand -hex 24` | The image applies it only when the data volume is first created. To change it later run `ALTER USER medhub PASSWORD '…'` in the running database, then change this value and the password in `DATABASE_OWNER_URL` together |
 | `DATABASE_OWNER_URL` | `db-migrate` only; no other service receives it | `postgresql://medhub:<POSTGRES_PASSWORD>@postgres:5432/medhub`; the password is `POSTGRES_PASSWORD` (percent-encode it if it is not hex) | With `POSTGRES_PASSWORD`; run `db-migrate` again |
 | `DATABASE_URL` | `backend`, `celery-worker`, `celery-beat`, and `db-migrate` (which creates the role from it) | `postgresql://medhub_app:<password>@postgres:5432/medhub`; generate the password with a command of its own (`openssl rand -hex 24`): it must differ from `POSTGRES_PASSWORD`, and the user must be a different one from the owner's | Change the password here and run `db-migrate` (it applies the new password to the role), then recreate `backend`, `celery-worker` and `celery-beat` |
-| `OBJECT_STORE_ACCESS_KEY` | `object-store`, `object-store-preflight`, `object-store-init`, `backend`, `celery-worker` | `openssl rand -hex 12` | Change the value and recreate the stack (rules in "Generate the object-store keys") |
+| `OBJECT_STORE_ACCESS_KEY` | `object-store`, `object-store-preflight`, `object-store-init`, `backend`, `celery-worker`, `celery-beat`, `db-migrate` (the last two do not use it; the start-up rule requires it) | `openssl rand -hex 12` | Change the value and recreate the stack (rules in "Generate the object-store keys") |
 | `OBJECT_STORE_SECRET_KEY` | same as the access key | `openssl rand -base64 32` | As the access key |
 | `AT_REST_ENCRYPTION_KEY` | `backend`, `celery-worker`, `celery-beat`, `db-migrate` (field encryption); `object-store-preflight` (compared with the SSE key, nothing else) | `openssl rand -base64 32` (base64 of exactly 32 bytes) | Not by editing the value (pair it with `AT_REST_ENCRYPTION_KEY_ID`): follow "Field-encryption key rotation" ([ADR-0018](../docs/design/adr/0018-field-encryption-key-identifier-and-key-separation.md)) |
 | `OBJECT_STORE_SSE_KEY` | `object-store` (as `WEED_S3_SSE_KEY`) and `object-store-preflight`; no other service | `openssl rand -base64 32` (base64 of exactly 32 bytes), a command of its own: never `AT_REST_ENCRYPTION_KEY` or a retired field key | Not by editing the value: the key belongs to the volume that holds the attachments. Follow "Separating the object-store SSE key" (a copy to a new volume under the new key) |
 | `AT_REST_ENCRYPTION_RETIRED_KEYS` | `backend`, `celery-worker`, `celery-beat`, `db-migrate` (optional; decryption only) | Earlier keys as comma-separated `id:key` entries, each key `openssl rand -base64 32` output; empty unless a rotation is under way. Ids differ from `AT_REST_ENCRYPTION_KEY_ID` and from each other; a key must not equal the current key | Remove an entry only as the last step of "Field-encryption key rotation", once `--check` shows no value under its id |
-| `SMTP_PASSWORD` | `backend`, `celery-worker` | Issued by your mail relay. Required only when `SMTP_USER` is set; leave `SMTP_USER` and `SMTP_PASSWORD` empty for a relay without authentication | Issue a new one at the relay, change the value, recreate `backend` and `celery-worker` |
+| `SMTP_PASSWORD` | `celery-worker` only | Issued by your mail relay. Required only when `SMTP_USER` is set; leave `SMTP_USER` and `SMTP_PASSWORD` empty for a relay without authentication | Issue a new one at the relay, change the value, recreate `celery-worker` |
 
 `AT_REST_ENCRYPTION_KEY_ID` is **not a secret** but is required, with no default: the identifier of
 the current field-encryption key (1 to 32 characters of `a-z`, `0-9`, `-`; for example `k1`). Every
@@ -186,6 +186,23 @@ bash infra/smoke-test.sh
 ```
 
 Expected output: all checks PASS.
+
+**Module manifests.** At start-up the backend discovers installed modules (entry-point group
+`medhub.modules`). A module whose manifest is invalid (a `module_key` not matching
+`^[a-z][a-z0-9_-]{0,63}$`, an empty name, a version that is not a complete semantic version, or
+`required_permissions` that is not a list) is skipped, and the only trace is a WARNING in the
+`backend` log (`Manifest rejected: ...`, showing at most 80 characters of the offending value). Read
+the log after installing or upgrading a module:
+`docker compose -f infra/docker-compose.yml logs backend | grep "Manifest rejected"`.
+
+**The backend can then fail to start.** When at least one module is valid, the registry sync deletes
+the registry row of every module that is no longer discovered: one whose manifest is now rejected, and
+one that was uninstalled. That delete fails with a foreign-key error
+(`fk_group_module_enablement_module_id`, no `ON DELETE`) whenever any group has an enablement row for
+the module, enabled or not. Disabling the module for the groups does not help: it only sets
+`enabled=false` and keeps the row. The lifespan then logs `Module registry sync failed at startup` and
+re-raises, so the backend does not start. Remedy: fix the manifest, or reinstall the previous version
+of the module, then restart the backend. This is a known defect (PRB-075).
 
 ### 5. Check the object store
 
@@ -404,7 +421,11 @@ SR-024 AC 4), a delete is not audited, and it fails for an entry that has attach
      database, copy that one value into the live row (`UPDATE clinical_entry SET description = '<value>'
      WHERE id = '<id>'`), note it in the PRB, and run `db-migrate` again. The value may be in either
      format (the migration converts the earlier one; a value in `mh1:` form must name a configured key),
-     and it must decrypt with the key of step 2.
+     and it must decrypt with the key of step 2. **A value in `mh1:` form is skipped by migration 0010,
+     so `db-migrate` exiting 0 does not prove that it decrypts.** Once the stack is up, open that
+     clinical entry through the API (as a doctor with consent for the patient) and confirm the text is
+     readable; if it is not, the value is still damaged, or names a key that is not configured (the
+     key-id check of `db-migrate` catches the second case, not the first). Note the result in the PRB.
    - **(b) No good copy exists: stay on, or roll back to, the previous release** (restore the step-1
      volume copy if the new release has already changed data) until the responsible person decides what
      to do. Do not continue the upgrade meanwhile.
@@ -413,7 +434,11 @@ SR-024 AC 4), a delete is not audited, and it fails for an entry that has attach
      1. Keep the damaged stored value outside the application schema. For example, write it to a file in
         the backup set: `docker compose -f infra/docker-compose.yml exec -T postgres sh -c 'psql -U
         "$POSTGRES_USER" -d "$POSTGRES_DB" -Atc "SELECT id, description FROM clinical_entry"' | grep
-        '^<id>|' > damaged-<id>.txt`. Do **not** create a table for it in `public`: the next
+        '^<id>|' > damaged-<id>.txt`. **Treat that file as PHI**: it is ciphertext, but it can be read if
+        the right key is found, and it is the only copy of the original value. Create it with `umask 077`
+        in force (`(umask 077; docker compose ... > damaged-<id>.txt)`), write it into the backup location
+        (the same access control as the backup set), never into the repository or a ticket, and record its
+        SHA-256 (`shasum -a 256 damaged-<id>.txt`) in the PRB, not its content. Do **not** create a table for it in `public`: the next
         `db-migrate` grants the runtime role access to every table there, and erasure (SR-024) does not
         know the table.
      2. Produce a placeholder encrypted under the current key (it prints one `mh1:<id>:...` line):
@@ -767,7 +792,10 @@ image of the previous release (PRB-062); `run` returns the command's exit code, 
 right after it. Each batch commits on its own: if the command is interrupted (a crash, a lost
 connection, `Ctrl-C`) every row is readable under the current or a retired key; run it again and
 it continues, and a run with nothing left to convert writes nothing. If it cannot get the table lock
-within 10 seconds (a long write transaction) it stops, unchanged; run it again.
+within 10 seconds (a long write transaction) it stops. For the first batch that leaves the database
+unchanged; after it, the batches already done stay committed and every row is readable under the
+current or a retired key. The instruction is the same either way: run it again (see "If `--check` or
+`--apply` exits 1").
 
 **The application does not need to be stopped.** The lock is held for one batch at a time and a
 write that arrives meanwhile waits for it. After step 4 the backend and worker write under the new
