@@ -3,17 +3,16 @@ id: SOUP-004
 type: soup
 title: Uvicorn
 status: approved
-version: "1.1"
+version: "1.2"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
-updated: "2026-10-23"
+updated: "2026-11-10"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-11-10"
+approval_note: approved by the human in chat at the close of CR-004
 manufacturer: Encode
 soup_version: 0.49.0
 anomaly_review: "2026-10-22"
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-10-23"
-approved_digest: 386ed17d5fb46fad6d0967464fd9d352f51f23c87788531e9472e386b8348902
-approval_note: self-approved
 links: []
 tags:
   - soup
@@ -60,6 +59,16 @@ The backend runs `gunicorn -k uvicorn.workers.UvicornWorker` (`backend/entrypoin
 `httptools` protocol parses every request behind nginx. MedHub serves no WebSockets. Not
 hazard-relevant; no RISK or PRB.
 
+## Forwarded-header handling (CR-004, TASK-185)
+
+MedHub relies on Uvicorn's forwarded-header handling (`ProxyHeadersMiddleware`, which rewrites
+`request.client` from `X-Forwarded-For`) being **off in effect**: the worker takes its trusted hosts
+from Gunicorn's `forwarded_allow_ips`, which `backend/entrypoint.sh` sets empty (see SOUP-005), so
+the middleware trusts no peer and `request.client` stays the TCP peer. The application then applies
+the one trusted-proxy rule of SR-042 itself (`backend/app/core/client_address.py`, ADR-0019).
+Verified for 0.49.0 on the started stack (TS-016 TC-016.3). A version that changes this default,
+or that stops passing `forwarded_allow_ips` from Gunicorn, needs the check repeated.
+
 ## Monitoring
 
 Per [PLAN-002](../plans/PLAN-002-maintenance-plan.md): reviewed at every dependency change, before
@@ -71,3 +80,4 @@ accountable. Hazard-relevant anomalies go to `risk-management`; defects affectin
 - 2026-10-21 — Record created at the locked/declared version when the SOUP list moved from
   ADD-004 to one `soup` record per component (medical-records 0.3.2).
 - 2026-10-22 — 0.49.0 (unchanged). First anomaly-list review (TASK-154, CR-001 AC-11/AC-12): none found for 0.49.0 or its `standard` extras; nothing hazard-relevant. Record 1.0 → 1.1; approval record removed for re-review.
+- 2026-10-31 — 0.49.0 (unchanged). TASK-185 (CR-004): records the reliance on forwarded-header handling being off in effect (SR-042, ADR-0019). Record 1.1 → 1.2; approval record removed for re-review.

@@ -40,6 +40,9 @@
               }
             }
           },
+          "503": {
+            "description": "Session cap contention; retry after 1 second."
+          },
           "422": {
             "description": "Validation Error",
             "content": {

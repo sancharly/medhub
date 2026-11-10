@@ -3,14 +3,13 @@ id: ADD-008
 type: architecture-doc
 title: Identity & Account Lifecycle (SI-IDENTITY)
 status: approved
-version: "1.0"
+version: "1.1"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-10-21"
+updated: "2026-11-10"
 approved_by: Carlos Santiago Liceras
-approved_on: "2026-10-21"
-approved_digest: 308b20cc1e02026ef1966aefd5a03d706768854ba2f07a0d1986227fec5683a6
-approval_note: self-approved
+approved_on: "2026-11-10"
+approval_note: approved by the human in chat at the close of CR-004
 links:
   - target: SR-003
     relation: implements
@@ -44,9 +43,9 @@ Account CRUD, role-constrained creation, activation, deactivate/reactivate/delet
 
 ## Software units (IEC 62304 §5.4.1)
 
-- `U-ID-AccountCrud` — create (role-constrained, min fields, unique email), read (SR-003, SR-004, SR-032).
-- `U-ID-Activation` — single-use 72h token, password-set, activate, resend (SR-033).
-- `U-ID-Lifecycle` — deactivate/reactivate (session kill ≤30s), delete+confirm, email release (SR-034).
+- `U-ID-AccountCrud` — create (role-constrained, min fields, unique email), read (SR-003, SR-004, SR-032). Whether the actor may create the requested type is a decision of `U-AUTHZ-Policy` (`account:create`, ADD-007); the service holds no role comparison.
+- `U-ID-Activation` — single-use 72h token, password-set, activate, resend (SR-033). The e-mailed link is `/activation/<token>`, the SPA route; resend is a decision of `U-AUTHZ-Policy` (`activation:resend`). The token is hashed at rest and never logged (SR-043 AC 4).
+- `U-ID-Lifecycle` — deactivate/reactivate (session kill ≤30s), delete+confirm, email release (SR-034). Each action is a decision of `U-AUTHZ-Policy` (`account:deactivate`, `account:reactivate`, `account:delete`). A failed enqueue of the session-kill task logs a WARNING with the account id (PRB-013 stays open).
 - `U-ID-Erasure` — deletion as anonymization into a retained anonymized dataset; generates the user-held anonymization code, stores only its salted KDF hash, sets the 5-year retention deadline, and authorizes code-based retrieval (SR-024, ADR-0013).
 
 Class B requires decomposition down to software units, not per-unit detailed design
@@ -76,3 +75,4 @@ arc42 sections — [05 building blocks](../../design/05-building-blocks.md) for 
 ## Risk relevance
 
 Participates in RISK-002, RISK-008 (see `docs/risks/`); the control measures are carried by the SRs and TASKs listed there.
+- 1.1 (2026-11-08) — TASK-201 (CR-004): the lifecycle, activation and creation decisions now point to `U-AUTHZ-Policy` (ADD-007); activation link route and enqueue-failure note added. Content change, so the 1.0 approval record is cleared and the record returns to review.

@@ -3,17 +3,16 @@ id: SOUP-020
 type: soup
 title: PostgreSQL server
 status: approved
-version: "1.2"
+version: "1.3"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
-updated: "2026-10-23"
+updated: "2026-11-10"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-11-10"
+approval_note: approved by the human in chat at the close of CR-004
 manufacturer: PostgreSQL Global Development Group
 soup_version: "16.15"
 anomaly_review: "2026-10-22"
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-10-23"
-approved_digest: b9da0d3e421ab766099f0407896076e2e644b59b49ab0563fef841fd0ec98053
-approval_note: self-approved
 links: []
 tags:
   - soup
@@ -26,6 +25,8 @@ tags:
 ## Functional and performance requirements
 
 Relational storage of all PHI and records, constraints, and transactional integrity.
+
+MedHub relies on table privileges being enforced for a role that is neither a superuser nor the table owner: the runtime role has no `UPDATE`, `DELETE` or `TRUNCATE` on `audit_log`, and PostgreSQL refuses such a statement with SQLSTATE 42501 (SR-023 AC 8, ADR-0017, TASK-190; verified by TS-009 TC-009.11). It also relies on a non-owner role being unable to alter or drop the table, its rules or its triggers.
 
 ## Required hardware and software environment
 
@@ -93,3 +94,4 @@ accountable. Hazard-relevant anomalies go to `risk-management`; defects affectin
 - 2026-10-22 — Version 1.2: first anomaly-list review at 16.15 (TASK-154, CR-001 AC-11): none
   found for PostgreSQL. Base-OS entries have no Debian 13 fix and are not hazard-relevant.
   `anomaly_review` set. No version change. Approval record cleared for re-approval.
+- 2026-11-01 — Version 1.3: functional requirement added: MedHub relies on table privileges being enforced for a non-superuser, non-owner role (TASK-190, SR-023 AC 8, ADR-0017). No version change. Approval record cleared for re-approval.

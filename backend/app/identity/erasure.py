@@ -21,7 +21,8 @@ from app.audit.actions import AuditAction
 from app.audit.service import AuditService
 from app.auth.password import PasswordService
 from app.auth.session import SessionService
-from app.db.models.account import Account, AccountStatus, UserType
+from app.authz.service import AuthorizationService, Resource
+from app.db.models.account import Account, AccountStatus
 from app.db.models.anonymized_dataset import AnonymizedDataset
 from app.db.models.audit import AuditOutcome
 from app.db.repositories.account_repo import AccountRepository
@@ -47,19 +48,31 @@ class ErasureService:
         session_svc: SessionService,
         password_svc: PasswordService,
         audit_svc: AuditService,
+        authz_svc: AuthorizationService,
     ) -> None:
         self._account_repo = account_repo
         self._dataset_repo = dataset_repo
         self._session_svc = session_svc
         self._password_svc = password_svc
         self._audit_svc = audit_svc
+        self._authz_svc = authz_svc
 
     def delete(self, actor: Account, account_id: uuid.UUID) -> ErasureResult:
         """Erase an account. Caller confirms intent at API layer.
 
         SYSADMIN only (or the account owner for self-deletion via API confirmation flow).
         """
-        if actor.user_type not in (UserType.SYSADMIN,) and actor.id != account_id:
+        decision = self._authz_svc.decide(
+            actor,
+            "account:delete",
+            Resource(
+                resource_type="account",
+                owner_id=account_id,
+                patient_id=None,
+                resource_id=str(account_id),
+            ),
+        )
+        if not decision.allow:
             raise AuthorizationError("Only SYSADMIN or the account owner can request erasure.")
 
         return self._erase(account_id, requested_by=actor.id)

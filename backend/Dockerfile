@@ -19,3 +19,6 @@ RUN groupadd -r medhub && useradd -r -g medhub medhub
 USER medhub
 ENV PATH="/app/.venv/bin:$PATH"
 ENTRYPOINT ["./entrypoint.sh"]
+# --forwarded-allow-ips= (empty): the server never rewrites the TCP peer; the application applies
+# the trusted-proxy rule once (SR-042, ADR-0019). A Compose `command:` replaces this CMD.
+CMD ["gunicorn", "-k", "uvicorn.workers.UvicornWorker", "-b", "0.0.0.0:8000", "--forwarded-allow-ips=", "app.main:app"]

@@ -3,17 +3,16 @@ id: SOUP-011
 type: soup
 title: cryptography
 status: approved
-version: "1.2"
+version: "1.3"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
-updated: "2026-10-30"
+updated: "2026-11-10"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-11-10"
+approval_note: approved by the human in chat at the close of CR-004
 manufacturer: Python Cryptographic Authority (PyCA)
 soup_version: 50.0.2
 anomaly_review: "2026-10-29"
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-10-30"
-approved_digest: b1afde58fee868644468031179301b127b3d5d2f01c764bb275f8ea1134faca5
-approval_note: self-approved
 links: []
 tags:
   - soup
@@ -80,7 +79,9 @@ CMS or ASN.1 API).
 ### MedHub use and judgement
 
 MedHub uses only `cryptography.hazmat.primitives.ciphers.aead.AESGCM`, for AES-256-GCM field
-encryption at rest (`app/db/crypto.py`, SR-022, the RISK-011 design control). The only import of
+encryption at rest (`app/db/crypto.py`, SR-022, the RISK-011 design control). Since TASK-193 it
+passes associated data `mh1:<kid>`; the relied-on behaviour is that `decrypt` raises `InvalidTag`
+when the associated data, key, nonce or ciphertext differ. The only import of
 `cryptography` in `backend/app` and `backend/scripts` is that one (checked 2026-10-29). It uses
 no PKCS#7 or S/MIME, no RSA and no X.509 API. TLS is terminated by nginx (SOUP-024), and
 Python's `ssl` module uses the base image's OpenSSL (SOUP-001), not this one.
@@ -105,3 +106,4 @@ accountable. Hazard-relevant anomalies go to `risk-management`; defects affectin
   ADD-004 to one `soup` record per component (medical-records 0.3.2).
 - 2026-10-22 — 49.0.0 (unchanged). First anomaly-list review (TASK-154, CR-001 AC-11/AC-12): CVE-2026-69247 (PKCS#7 decryption oracle, fixed in 50.0.0) applies to the version but not to MedHub's AES-GCM use; bundled-OpenSSL advisories reviewed; nothing hazard-relevant; recorded for upgrade in PRB-047 (minor). Record 1.0 → 1.1; approval record removed for re-review.
 - 2026-10-29 — 49.0.0 → 50.0.2; PRB-047, CR-003 (D-3), TASK-163. Second anomaly-list review, at the new version: no anomaly applies, and GHSA-g6cj-pr64-35w5 is fixed at 50.0.0. The lock moved only `cryptography` (cffi 2.0.0 and pycparser 3.0 unchanged); bundled OpenSSL moves to 4.0.3. Change analysis: the AES-GCM envelope is MedHub's own format over a fixed standard, and the known-answer test (TS-008 TC-008.5, ciphertext produced under 49.0.0) shows that data at rest still decrypts. Record 1.1 → 1.2; approval record removed for re-review.
+- 2026-11-01 — 50.0.2 (unchanged). TASK-193 (CR-004): `AESGCM` is now called with associated data (`mh1:<kid>`) and with several keys; the anomaly review is unchanged (no entry concerns AES-GCM or `AESGCM`). Relied-on behaviour added to "MedHub use". Record 1.2 → 1.3; approval record removed for re-review.

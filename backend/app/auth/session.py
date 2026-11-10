@@ -3,7 +3,8 @@
 Token: secrets.token_urlsafe(32) — no user data embedded.
 Redis keys:
   session:{session_id}              → JSON; TTL = inactivity timeout
-  account_sessions:{account_id}     → sorted set; score = created_at timestamp
+  account_sessions:{account_id}     → sorted set; score = commit order (never below the
+                                      newest existing score)
 """
 
 from __future__ import annotations
@@ -31,6 +32,11 @@ _SETTINGS_DEFAULTS = {
 }
 
 
+# Optimistic-transaction attempts for the cap. Each failed attempt means another login for the
+# same account committed, so 20 covers a burst of 10 simultaneous logins with margin.
+_MAX_CAP_ATTEMPTS = 20
+
+
 def _session_key(session_id: str) -> str:
     return f"session:{session_id}"
 
@@ -48,6 +54,10 @@ class Session:
     last_seen_at: datetime
     ip: str | None
     absolute_expires_at: datetime
+
+
+class SessionCapContentionError(RuntimeError):
+    """The concurrent-session cap could not be applied: the account's sessions kept changing."""
 
 
 @dataclass
@@ -92,26 +102,67 @@ class SessionService:
         payload = _session_to_dict(session)
         account_key = _account_sessions_key(str(account.id))
 
-        # Evict oldest session if at cap
-        evicted_session_id: str | None = None
-        existing: list[bytes | str] = self._redis.zrange(account_key, 0, -1)  # type: ignore[assignment]
-        if len(existing) >= self._max_concurrent:
-            raw_oldest = existing[0]
-            oldest_id: str = (
-                raw_oldest.decode() if isinstance(raw_oldest, bytes) else str(raw_oldest)
-            )
-            self._redis.delete(_session_key(oldest_id))
-            self._redis.zrem(account_key, oldest_id)
-            evicted_session_id = oldest_id
-
-        # Store session
-        self._redis.setex(_session_key(session_id), ttl, json.dumps(payload))
-        # Add to account's sorted set (score = created_at timestamp)
-        self._redis.zadd(account_key, {session_id: now.timestamp()})
-        # TTL the sorted set to absolute lifetime to prevent orphans
-        self._redis.expire(account_key, self._absolute_lifetime)
+        evicted_session_id = self._store_with_cap(account_key, session_id, now, ttl, payload)
 
         return CreateSessionResult(session=session, evicted_session_id=evicted_session_id)
+
+    def _store_with_cap(
+        self,
+        account_key: str,
+        session_id: str,
+        now: datetime,
+        ttl: int,
+        payload: dict[str, object],
+    ) -> str | None:
+        """Store the session and evict the oldest above the cap as one optimistic transaction.
+
+        WATCH the account's sorted set, read it and which of its members still have a key, then
+        queue the pruning, the eviction and the insertion in MULTI/EXEC. Members whose key has
+        expired are dead: they are neither counted nor evicted, and are removed from the set
+        (PRB-065). The reads happen in immediate mode, before MULTI.
+        If another login changed the set meanwhile, EXEC fails (WatchError) and the whole step is
+        retried, at most ``_MAX_CAP_ATTEMPTS`` times (SR-030 AC 7, PRB-023).
+        Returns the id of the oldest evicted session, if any.
+        """
+        for _ in range(_MAX_CAP_ATTEMPTS):
+            with self._redis.pipeline() as pipe:
+                try:
+                    pipe.watch(account_key)  # type: ignore[no-untyped-call]
+                    existing: list[tuple[bytes | str, float]] = pipe.zrange(  # type: ignore[assignment]
+                        account_key, 0, -1, withscores=True
+                    )
+                    ids = [m.decode() if isinstance(m, bytes) else str(m) for m, _ in existing]
+                    # A deleted session key is never written again (resolve() refreshes with
+                    # SET ... XX), so an id found dead stays dead until EXEC.
+                    alive = [bool(pipe.exists(_session_key(sid))) for sid in ids]
+                    live_ids = [sid for sid, ok in zip(ids, alive, strict=True) if ok]
+                    dead_ids = [sid for sid, ok in zip(ids, alive, strict=True) if not ok]
+                    # Score = commit order: never below the newest existing score, so a login
+                    # that read its clock before a rival committed is still ranked newest.
+                    score = (
+                        max(now.timestamp(), existing[-1][1] + 1e-6)
+                        if existing
+                        else now.timestamp()
+                    )
+                    # Live sessions are ordered oldest first; the new one always stays.
+                    evicted = live_ids[: max(0, len(live_ids) + 1 - self._max_concurrent)]
+                    pipe.multi()
+                    if dead_ids:
+                        pipe.zrem(account_key, *dead_ids)
+                    if evicted:
+                        pipe.delete(*(_session_key(sid) for sid in evicted))
+                        pipe.zrem(account_key, *evicted)
+                    pipe.set(_session_key(session_id), json.dumps(payload), ex=ttl)
+                    pipe.zadd(account_key, {session_id: score})
+                    # TTL the sorted set to absolute lifetime to prevent orphans
+                    pipe.expire(account_key, self._absolute_lifetime)
+                    pipe.execute()
+                except redis.WatchError:
+                    continue
+                return evicted[0] if evicted else None
+        raise SessionCapContentionError(
+            f"session cap not applied after {_MAX_CAP_ATTEMPTS} attempts: {account_key}"
+        )
 
     def resolve(self, session_id: str) -> Session | None:
         """Look up a session by ID, refresh its sliding TTL, return None if expired/missing."""
@@ -143,9 +194,16 @@ class SessionService:
             ip=session.ip,
             absolute_expires_at=session.absolute_expires_at,
         )
-        self._redis.setex(
-            _session_key(session_id), effective_ttl, json.dumps(_session_to_dict(session))
+        # XX: write only if the key still exists. A logout, eviction or password-change kill
+        # that deleted it after the GET above must not be undone by this refresh (PRB-064).
+        refreshed = self._redis.set(
+            _session_key(session_id),
+            json.dumps(_session_to_dict(session)),
+            ex=effective_ttl,
+            xx=True,
         )
+        if not refreshed:
+            return None
         return session
 
     def invalidate(self, session_id: str) -> None:

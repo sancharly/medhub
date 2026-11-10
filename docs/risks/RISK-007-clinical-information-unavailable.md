@@ -3,10 +3,13 @@ id: RISK-007
 type: risk
 title: Clinical information unavailable when needed
 status: approved
-version: "1.4"
+version: "1.10"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-10-31"
+updated: "2026-11-10"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-11-10"
+approval_note: approved by the human in chat at the close of CR-004
 hazard: The application, its database, its object storage or its workers unavailable, or attachments unreadable.
 cause: Single-host outage, database or object-store failure, exhausted connection pool from a session leak, a missing storage SDK (PRB-002), or an encryption key rotation that makes old rows unreadable → the clinician cannot open the record → they proceed without it or wait.
 harm: Delayed care; decisions made without available history. No direct physical harm from the software itself.
@@ -15,10 +18,6 @@ probability_initial: 2
 severity_residual: 3
 probability_residual: 2
 acceptability: alarp
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-10-31"
-approved_digest: e31d60789fdf91a2e5f540a25427dba6115626f2b29c0bc46d1a0b7bdd22dd10
-approval_note: self-approved
 links:
   - target: SOUP-020
     relation: relates_to
@@ -44,6 +43,8 @@ The application, its database, its object storage or its workers unavailable, or
 ## Sequence of events
 
 Single-host outage, database or object-store failure, exhausted connection pool from a session leak, a missing storage SDK (PRB-002), or an encryption key rotation that makes old rows unreadable → the clinician cannot open the record → they proceed without it or wait.
+
+A stored file name that cannot be represented in an HTTP header makes the attachment undownloadable (PRB-063): the download answered 500 for any character outside Latin-1.
 
 Since CR-002 the object store is SeaweedFS ([SOUP-036](../soup/SOUP-036-seaweedfs.md)), replacing
 MinIO. Two object-store causes are explicit: an attachment whose stored bytes fail the checksum
@@ -75,17 +76,35 @@ occur); the score is severity × P2, the probability that the hazardous situatio
 | Measure | Type | Implemented by | Verified by |
 |---|---|---|---|
 | Documented backup, monitoring and deployment procedure | Protective | SR-028, TASK-115 | TR-001, TS-013. **Backup part not met:** no backup and restore procedure exists for `postgres_data` or `object_store_data` with its key ([PRB-057](../problem-reports/PRB-057-no-backup-and-restore-procedure.md), major, open, found 2026-10-30 by CR-002 TASK-180) |
-| Performance budgets so routine operations stay usable | Design | SR-026 | none yet |
+| Performance budgets so routine operations stay usable | Design | SR-026 | none yet: SR-026 has no performance test (AC 4); suite timings before and after CR-004 recorded in RISK-006 (no slowdown seen) |
 | Worker retries with backoff and no silent enqueue failures | Protective | TASK-141 | none yet |
 | Object storage SDK declared as a required runtime dependency and verified in CI | Design | TASK-157 (CR-001, resolves PRB-002) | TS-007 TC-007.5, TS-013 TC-013.8 |
 | Key identifier in the ciphertext envelope so rotation cannot orphan rows | Design | SR-022, PRB-004 resolution | TR-001, TS-008 |
 | Bucket initialisation ordered after the store is healthy and fail-fast: the backend does not start on a missing or misconfigured bucket (CR-002, PRB-039) | Protective | SR-040 AC 4; TASK-175 (re-run on SeaweedFS by TASK-176) | TS-014 TC-014.4: initialiser starts only after `object-store` is healthy (`docker events` order); an unreachable store gives exit 1 and `backend` stays `Created`; idempotent re-run (TASK-175 and TASK-176 QA reruns) |
 | Checksum refusal fails with a clear error, never with partial or wrong content (CR-002) | Protective | SR-013 AC 5; TASK-173 | TS-007 TC-007.6, TC-007.8: 502 `application/problem+json` naming only the attachment id, no object bytes, committed FAILURE audit row; TC-007.7: an unmodified object is served (TASK-173 QA rerun) |
+| Field values converted to the identified envelope in one transaction that rolls back if any value does not decrypt; tested against a database populated in the old format; an unknown key id is refused, never decrypted with another key (CR-004, ADR-0018) | Protective | SR-022 AC 6, AC 7; TASK-193, TASK-194 | TS-008 TC-008.9, TC-008.10 (real database populated in the old format) |
+| Rotation by a re-encryption command with a `--check` mode, rehearsed on a backup copy before use (CR-004) | Protective | SR-022 AC 8; TASK-195 | TS-008 TC-008.11; rehearsal records in TASK-195; TASK-202 repeated it on a started stack with attachments (5 values converted from `k1` to `k2`, `--check` exit 0, 5 of 5 entries and 10 of 10 attachments readable and matching after each step) |
+| Attachments moved to the separate SSE key by a copy with checksum comparison, source read only, rehearsed on a backup copy (CR-004) | Protective | SR-041 AC 5; TASK-196 | TS-014 TC-014.7; rehearsal record in TASK-196; TASK-202: the bucket held 10 objects for 10 attachments before the rotation, after it and after the retired key was removed |
+| File names encoded per RFC 6266/5987 with an ASCII fallback; the header is built in one place | Design | SR-013 AC 3; TASK-204 | TS-007 TC-007.9 |
+| A file name is refused above 255 UTF-8 bytes at upload, and the `Content-Disposition` value is bounded (about 1 KB) for any stored name, so a long name cannot make the download fail at the proxy (CR-004, PRB-069) | Design | SR-013 AC 1, AC 3; TASK-206 | TS-007 TC-007.11 |
+| Dispatch does not wait on a result store (`task_ignore_result`): a Celery `.delay()` with Redis unreachable ends within 5 s instead of about 20 s inside the request's open transaction (CR-004, TASK-206 QA finding 1) | Design | TASK-207 | TS-003 TC-003.7 |
+| Retrieval rate limit per originating client address, so one caller cannot block retrieval for all (CR-004, PRB-029) | Design | SR-042 AC 4, AC 5; TASK-186 (keys on the originating address that TASK-185 provides; without it every caller would share the proxy's bucket) | TS-016 TC-016.4, TC-016.5; a missing peer is refused without touching any `rate:*` key |
 
 ## Residual risk
 
 Severity 3 (unchanged — controls reduce probability, not severity) × probability 2
 (Remote) → **alarp**, derived from `risk_matrix`. Single-host Compose with no high availability is a deliberate MVP decision (arc42 §11, ADR-0010); the residual therefore stays ALARP and needs an explicit human acceptance for each release, with the argument that MedHub is not the only route to the information.
+
+**Change analysis (CR-004, Risk stage, 2026-10-31).** CR-004 both strengthens and threatens
+this record. Strengthened: the "key rotation makes old rows unreadable" cause gets its design
+control (the row above that names PRB-004 is realised by TASK-193..195), and the shared
+rate-limit bucket goes (PRB-029). Threatened, by the change itself: the field migration, the
+rotation and the SSE key separation can each make clinical values or attachments unreadable, and
+the runtime-role grants can make a statement fail. Each has a fail-safe control above and is an
+"ask first" step of CR-004. **Expected residual: 3 × 2 → alarp, unchanged**, set by the
+single-host decision (ADR-0010) and PRB-057 as before. Confirmed at verification (TASK-202).
+
+**Verification and proposed residual (CR-004 Checkpoint F, TASK-202, 2026-11-08).** Checkpoint F evidence (TASK-202, 2026-11-08, HEAD 579aaaa plus TASK-202's small edits): backend 1547 passed, 6 skipped, coverage 94.51% (floor 85%); DICOM module 25 passed; frontend 315 passed; infra 110 passed; started stack (project `task202`, empty template, generated secrets): `infra/smoke-test.sh` 78 passed, 0 failed; `infra/log-secrets-check.sh` 38 passed, 0 failed. The migration, the rotation and the SSE-key copy each have a test that ran and a started-stack repetition (rotation with attachments, bucket object count unchanged). The celery worker and beat run (smoke test, PRB-061 resolved), and the retention sweep is in the beat schedule. Right after `docker compose up -d --build` replaced the backend, one sign-in got 502 and the same request succeeded seconds later: the stack was not ready yet, which DEPLOY.md should say (a note for the human, not a defect measured). **Proposed residual: severity 3 × probability 2 → alarp** (derived from `risk_matrix`; unchanged). Not lowered: PRB-057 (no backup and restore, `major`, open) is untouched by CR-004. PRB-072 (twenty parallel writes answer 502 and kill the single API worker, `major`, open) and PRB-075 (the backend does not start when a module with group enablement rows is uninstalled or its manifest is rejected, `major`, open) are two further availability causes found during CR-004; both are known anomalies outside it. They are consistent with 3 × 2 but argue against lowering it, and PRB-072 must be re-evaluated at the first release.
 
 **Decided by:** pending — the owner's acceptance is the approval of this record.
 
@@ -118,6 +137,18 @@ The CR-002 controls of RISK-012 add availability effects to this record, by desi
   attachments unreadable (SOUP-036 F-4). Key handling is RISK-011's; the missing backup and restore
   procedure for the volume and its key is PRB-057.
 
+CR-004 (2026-10-31), availability effects introduced by its controls:
+
+- Start-up refused on a missing, placeholder or invalid secret, on identical field and SSE keys,
+  or on an invalid `TRUSTED_PROXIES` entry (deployment time, message names the setting).
+- `db-migrate` must complete before the backend and worker start; a failed migration keeps them
+  down (fail closed, like the bucket initialiser).
+- A table without grants makes the runtime role's statement fail until the next `db-migrate`
+  run; `app.db.roles` re-applies grants after every migration (ADR-0017).
+- The fixed `medhub` subnet (TASK-185) could overlap a network Docker allocated for `object-store` and stop the start (PRB-076, resolved in TASK-202 round 2: the subnet is now `10.77.77.0/24`, outside Docker's default pools).
+- The frontend now listens on 8080; a proxy still pointing at 80 serves nothing. The smoke test
+  checks the page through the proxy.
+
 ## Version history
 
 - 1.2 (2026-10-21) — Approved (self-approved, 2026-10-21).
@@ -142,3 +173,9 @@ The CR-002 controls of RISK-012 add availability effects to this record, by desi
   - Risks introduced by controls: the CR-002 availability effects listed.
   - Not re-scored: severity 3 × probability 2 → `alarp`, set by the single-host decision
     (ADR-0010). Acceptance is the human's, through approval of this version.
+- 1.5 (2026-10-31) — CR-004 Risk stage, §7.4 change analysis (Software Architect role). Control rows added for the CR-004 controls with their planned verification; expected residual stated in "Residual risk"; "Risks introduced by controls" extended. Scores not changed: they are re-scored from the evidence at verification (TASK-202). Content change, so the approval record is cleared and the record returns to review.
+- 1.6 (2026-11-06) — CR-004 TASK-204 (PRB-063), §7.4 change analysis: cause "a stored file name that cannot be represented in an HTTP header makes the attachment undownloadable" added to the sequence of events, and one control row (RFC 6266/5987 file names, one header builder; TS-007 TC-007.9). Residual unchanged (3 × 2, `alarp`); this cause was never part of the scored estimate. Content change, so the approval record is cleared and the record returns to review.
+- 1.7 (2026-11-07) — TASK-206 (PRB-069): one control row, bounded attachment names and header (TS-007 TC-007.11). Residual unchanged.
+- 1.8 (2026-11-07) — TASK-207 (TASK-206 QA finding 1): one control row, dispatch does not wait on a result store (TS-003 TC-003.7). Residual unchanged.
+- 1.9 (2026-11-08) — CR-004 Checkpoint F (TASK-202): planned verification replaced by the tests that ran and the started-stack repetition; the retrieval-limit row names TASK-185; PRB-072 and PRB-075 recorded; residual proposed from the evidence, 3 × 2 → alarp, unchanged. Content change; `in_review`.
+- 1.10 (2026-11-08) — TASK-202 round 2: PRB-076 (the fixed `medhub` subnet could overlap the `object-store` network and stop the start) found in QA and fixed by moving the subnet outside Docker's default pools; recorded in the CR-004 availability effects below. Scores unchanged. `in_review`.

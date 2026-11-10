@@ -3,10 +3,10 @@ id: "SR-034"
 type: software-requirement
 title: "Account deactivation and deletion by system administrator"
 status: approved
-version: "1.1"
+version: "1.2"
 author: "Carlos Santiago Liceras"
 created: "2026-07-07"
-updated: "2026-09-17"
+updated: "2026-10-31"
 links:
   - target: "RR-002"
     relation: satisfies
@@ -16,6 +16,10 @@ links:
     relation: derives_from
   - target: "NFR-007"
     relation: derives_from
+  - target: "RISK-001"
+    relation: mitigates
+  - target: "RISK-005"
+    relation: mitigates
 tags: []
 ---
 
@@ -68,3 +72,5 @@ Failure to revoke access promptly when a user leaves is a leading cause of unaut
 - 1.1 (2026-09-17) — Added `satisfies` link to RR-002 (regulatory requirements
   extracted from the NFRs with clause citations). Traceability only: the requirement content is
   unchanged, so the existing approval stands.
+- 1.2 (2026-10-31) — Added `mitigates` links to RISK-001 and RISK-005. Traceability only: the requirement content is unchanged, so the
+  existing approval stands (CR-004 Q-7, approved by the human at the plan gate).

@@ -121,6 +121,25 @@ describe("LoginPage", () => {
     });
   });
 
+  it("tells the user sign-in is busy on a 503, not that the credentials are wrong", async () => {
+    server.use(
+      http.post(`${BASE}/auth/login`, () =>
+        HttpResponse.json(
+          { type: "/errors/session-cap-contention", title: "Service Unavailable", status: 503 },
+          { status: 503, headers: { "Content-Type": "application/problem+json", "Retry-After": "1" } }
+        )
+      )
+    );
+
+    renderLogin();
+    await userEvent.type(screen.getByLabelText(/email/i), "p@test.com");
+    await userEvent.type(screen.getByLabelText(/password/i), "pass");
+    await userEvent.click(screen.getByRole("button", { name: /sign in/i }));
+
+    expect(await screen.findByText("Sign-in is busy. Please try again.")).toBeInTheDocument();
+    expect(screen.queryByText(/invalid email or password/i)).not.toBeInTheDocument();
+  });
+
   it("shows eviction notice and navigates to app on Continue (SR-030.7)", async () => {
     server.use(
       http.post(`${BASE}/auth/login`, () =>
@@ -138,7 +157,11 @@ describe("LoginPage", () => {
     await userEvent.click(screen.getByRole("button", { name: /sign in/i }));
 
     await waitFor(() =>
-      expect(screen.getByText(/previous session was ended/i)).toBeInTheDocument()
+      expect(
+        screen.getByText(
+          "Your oldest active session was signed out because the limit of concurrent sessions was reached."
+        )
+      ).toBeInTheDocument()
     );
     expect(screen.queryByText("Appointments")).not.toBeInTheDocument();
 

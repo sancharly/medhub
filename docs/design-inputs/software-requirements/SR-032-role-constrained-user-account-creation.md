@@ -3,15 +3,17 @@ id: "SR-032"
 type: software-requirement
 title: "Role-constrained user account creation"
 status: approved
-version: "1.0"
+version: "1.1"
 author: "Carlos Santiago Liceras"
 created: "2026-07-07"
-updated: "2026-07-07"
+updated: "2026-10-31"
 links:
   - target: "UN-012"
     relation: derives_from
   - target: "UN-003"
     relation: derives_from
+  - target: "RISK-001"
+    relation: mitigates
 tags: []
 ---
 
@@ -54,3 +56,8 @@ Controlled account creation is the first gate in preventing unauthorized access 
 - The account creation endpoint enforces the creator's role server-side; the permitted account types are not solely controlled by the client UI.
 - Uniqueness of email (criterion 3) is enforced at the database level with a unique constraint in addition to application-layer validation.
 - Audit logging (criterion 7) provides a traceable record of every account creation event for security review and compliance.
+
+## Version history
+
+- 1.1 (2026-10-31) — Added `mitigates` link to RISK-001. Traceability only: the requirement content is unchanged, so the
+  existing approval stands (CR-004 Q-7, approved by the human at the plan gate).

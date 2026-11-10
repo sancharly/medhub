@@ -2,14 +2,16 @@
 
 from __future__ import annotations
 
+import logging
 import uuid
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 import fakeredis
 import pytest
 
 from app.api.errors import AuthorizationError
 from app.auth.session import SessionService
+from app.authz.service import AuthorizationService
 from app.db.models.account import Account, AccountStatus, UserType
 from app.identity.lifecycle import LifecycleService
 
@@ -29,7 +31,9 @@ def _build_svc(target: Account | None) -> tuple[LifecycleService, MagicMock]:
     r = fakeredis.FakeRedis()
     session_svc = SessionService(r)
     mock_audit = MagicMock()
-    svc = LifecycleService(mock_repo, session_svc, mock_audit)
+    svc = LifecycleService(
+        mock_repo, session_svc, mock_audit, AuthorizationService(MagicMock(), MagicMock())
+    )
     return svc, mock_audit
 
 
@@ -105,9 +109,36 @@ def test_deactivate_flush_called_before_invalidate_all() -> None:
 
     mock_audit = MagicMock()
 
-    svc = LifecycleService(mock_repo, mock_session_svc, mock_audit)
+    svc = LifecycleService(
+        mock_repo, mock_session_svc, mock_audit, AuthorizationService(MagicMock(), MagicMock())
+    )
     svc.deactivate(actor, target.id)
 
     assert "flush" in call_order
     assert "invalidate_all" in call_order
     assert call_order.index("flush") < call_order.index("invalidate_all")
+
+
+def test_deactivate_logs_a_warning_when_enqueue_fails(
+    caplog: pytest.LogCaptureFixture, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """TASK-207 (PRB-013 call site): a failed enqueue is logged with the id only and the
+    deactivation still succeeds."""
+    # An Alembic ``fileConfig`` in another test can leave existing loggers disabled.
+    monkeypatch.setattr(logging.getLogger("app.identity.lifecycle"), "disabled", False)
+    actor = _make_account(UserType.SYSADMIN)
+    target = _make_account(UserType.PATIENT)
+    svc, _ = _build_svc(target)
+    with (
+        patch("app.workers.session_tasks.propagate_session_kill") as task,
+        caplog.at_level(logging.WARNING, logger="app.identity.lifecycle"),
+    ):
+        task.delay.side_effect = RuntimeError("redis://:hunter2@broker:6379/0 unreachable")
+        svc.deactivate(actor, target.id)
+    assert target.status == AccountStatus.DEACTIVATED
+    records = [r for r in caplog.records if r.name == "app.identity.lifecycle"]
+    assert len(records) == 1
+    assert records[0].levelno == logging.WARNING
+    assert str(target.id) in records[0].getMessage()
+    assert records[0].exc_info is None
+    assert "hunter2" not in caplog.text

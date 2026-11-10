@@ -76,11 +76,11 @@ jobs:
       OBJECT_STORE_ACCESS_KEY: test-access-key
       OBJECT_STORE_SECRET_KEY: test-secret-key-24-chars-xx
       OBJECT_STORE_BUCKET: medhub-test
-      SESSION_SIGNING_KEY: test-session-signing-key-32-bytes!
       SMTP_HOST: localhost
       SMTP_USER: test@example.com
       SMTP_PASSWORD: testpassword
-      AT_REST_ENCRYPTION_KEY: test-at-rest-key-32-bytes-long!!!
+      AT_REST_ENCRYPTION_KEY: Y2ktYXQtcmVzdC1rZXktMzItYnl0ZXMtbG9uZyEhISE=
+      AT_REST_ENCRYPTION_KEY_ID: ci
     steps:
       - uses: actions/checkout@v4
 
@@ -96,13 +96,23 @@ jobs:
         working-directory: backend
         run: uv sync --frozen
 
+      # Migrations run as the owner (DATABASE_OWNER_URL), as the db-migrate service does; the
+      # runtime URL must name another user and password (TASK-191, ADR-0017).
       - name: Run database migrations
         working-directory: backend
+        env:
+          DATABASE_OWNER_URL: postgresql://medhub:testpassword@localhost:5432/medhub_test
+          DATABASE_URL: postgresql://medhub_app:ci-runtime-password-1@localhost:5432/medhub_test
         run: PYTHONPATH=. uv run alembic upgrade head
 
       - name: Run tests with coverage
         working-directory: backend
         run: uv run pytest --cov=app --cov-report=term-missing --cov-fail-under=85
+
+      # The DICOM viewer module's tests live outside testpaths and need their own import root.
+      - name: Run DICOM viewer module tests
+        working-directory: backend
+        run: uv run pytest modules/dicom_viewer/tests
 
   # ── Frontend: linting and type-checking ────────────────────────────────────
   frontend-quality:
@@ -164,11 +174,11 @@ jobs:
       OBJECT_STORE_ACCESS_KEY: test-access-key
       OBJECT_STORE_SECRET_KEY: test-secret-key-24-chars-xx
       OBJECT_STORE_BUCKET: medhub-test
-      SESSION_SIGNING_KEY: test-session-signing-key-32-bytes!
       SMTP_HOST: localhost
       SMTP_USER: test@example.com
       SMTP_PASSWORD: testpassword
-      AT_REST_ENCRYPTION_KEY: test-at-rest-key-32-bytes-long!!!
+      AT_REST_ENCRYPTION_KEY: Y2ktYXQtcmVzdC1rZXktMzItYnl0ZXMtbG9uZyEhISE=
+      AT_REST_ENCRYPTION_KEY_ID: ci
     steps:
       - uses: actions/checkout@v4
 
@@ -235,21 +245,34 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Compose interpolates the whole file, so every secret it guards with `:?` must be here even
+      # though only the object-store services start (infra/tests/test_ci_compose_env.py checks it).
       # CI ONLY: this step overwrites infra/.env, and the last step runs `down -v`. To reproduce
       # by hand, back up infra/.env first; the project name `medhub-ci` keeps the dev volumes safe.
       - name: Generate throwaway credentials
         run: |
           access_key=$(openssl rand -hex 12)
           secret_key=$(openssl rand -base64 32)
-          sse_key=$(openssl rand -hex 32)
+          field_key=$(openssl rand -base64 32)
+          sse_key=$(openssl rand -base64 32)
+          pg=$(openssl rand -hex 24)
+          app_pw=$(openssl rand -hex 24)
+          echo "::add-mask::$pg"
+          echo "::add-mask::$app_pw"
           echo "::add-mask::$access_key"
           echo "::add-mask::$secret_key"
+          echo "::add-mask::$field_key"
           echo "::add-mask::$sse_key"
           {
             echo "OBJECT_STORE_ACCESS_KEY=$access_key"
             echo "OBJECT_STORE_SECRET_KEY=$secret_key"
             echo "OBJECT_STORE_BUCKET=medhub-ci"
-            echo "AT_REST_ENCRYPTION_KEY=$sse_key"
+            echo "AT_REST_ENCRYPTION_KEY=$field_key"
+            echo "OBJECT_STORE_SSE_KEY=$sse_key"
+            echo "AT_REST_ENCRYPTION_KEY_ID=ci"
+            echo "POSTGRES_PASSWORD=$pg"
+            echo "DATABASE_OWNER_URL=postgresql://medhub:$pg@postgres:5432/medhub"
+            echo "DATABASE_URL=postgresql://medhub_app:$app_pw@postgres:5432/medhub"
           } > infra/.env
 
       - name: Start the object store

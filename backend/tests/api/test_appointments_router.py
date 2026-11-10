@@ -102,6 +102,47 @@ class TestListAppointments:
         assert isinstance(resp.json(), list)
 
 
+class TestGetAppointment:
+    def test_not_visible_appointment_is_404(self, client):
+        """SR-011 AC 4: an appointment the actor may not see is answered 404, not 403."""
+        actor = _make_account(UserType.PATIENT)
+        appt = _make_appointment()
+        _auth_as(client, actor)
+
+        with (
+            patch(
+                "app.db.repositories.appointment_repo.AppointmentRepository.get", return_value=appt
+            ),
+            patch("app.audit.service.AuditService.record") as record,
+        ):
+            resp = client.get(f"/api/v1/appointments/{appt.id}")
+
+        client.app.dependency_overrides = {}
+        assert resp.status_code == 404
+        assert record.call_args.kwargs["action"] == "AUTHZ_DENIED"
+
+    def test_missing_and_not_visible_appointment_give_the_same_404_body(self, client):
+        """SR-011 AC 4: the client cannot tell a missing appointment from one it may not see."""
+        actor = _make_account(UserType.PATIENT)
+        appt = _make_appointment()
+        _auth_as(client, actor)
+        url = f"/api/v1/appointments/{appt.id}"
+
+        with (
+            patch(
+                "app.db.repositories.appointment_repo.AppointmentRepository.get",
+                side_effect=[None, appt],
+            ),
+            patch("app.audit.service.AuditService.record"),
+        ):
+            missing = client.get(url)
+            not_visible = client.get(url)
+
+        client.app.dependency_overrides = {}
+        assert missing.status_code == not_visible.status_code == 404
+        assert missing.json() == not_visible.json()
+
+
 class TestConfirmAppointment:
     def test_confirm_appointment_returns_200(self, client):
         actor = _make_account(UserType.PATIENT)

@@ -21,3 +21,11 @@ export const queryClient = new QueryClient({
     },
   },
 });
+
+// PRB-067: an errored `["me"]` query must not be refetched by every observer
+// that mounts. With no data, a refetch resets it to `pending`, `RequireAuth`
+// unmounts the tree, and the remount refetches again (tight request loop).
+queryClient.setQueryDefaults(["me"], { retryOnMount: false });
+// `setQueryDefaults` matches by key prefix; the consent list shares the prefix
+// but must keep retrying on mount.
+queryClient.setQueryDefaults(["me", "consents"], { retryOnMount: true });

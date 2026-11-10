@@ -18,7 +18,8 @@ from app.api.errors import AuthorizationError, NotFoundError, UnauthenticatedErr
 from app.audit.actions import AuditAction
 from app.audit.service import AuditService
 from app.auth.password import PasswordService
-from app.db.models.account import Account, AccountStatus, UserType
+from app.authz.service import AuthorizationService, Resource
+from app.db.models.account import Account, AccountStatus
 from app.db.models.audit import AuditOutcome
 from app.db.repositories.account_repo import AccountRepository
 
@@ -48,11 +49,13 @@ class ActivationService:
         account_repo: AccountRepository,
         password_svc: PasswordService,
         audit_svc: AuditService,
+        authz_svc: AuthorizationService,
         group_repo: object = None,
     ) -> None:
         self._repo = account_repo
         self._password_svc = password_svc
         self._audit_svc = audit_svc
+        self._authz_svc = authz_svc
         self._group_repo = group_repo
 
     def activate(self, account_id: uuid.UUID, token: str, password: str) -> Account:
@@ -115,7 +118,17 @@ class ActivationService:
 
         Returns the raw token (caller must email it — never expose via API response).
         """
-        if actor.user_type not in (UserType.ADMIN, UserType.SYSADMIN):
+        decision = self._authz_svc.decide(
+            actor,
+            "activation:resend",
+            Resource(
+                resource_type="account",
+                owner_id=account_id,
+                patient_id=None,
+                resource_id=str(account_id),
+            ),
+        )
+        if not decision.allow:
             raise AuthorizationError("Only ADMIN or SYSADMIN can resend activation emails.")
 
         account = self._repo.get_by_id(account_id)

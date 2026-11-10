@@ -52,6 +52,14 @@ def _make_session(account: Account) -> UserSession:
     )
 
 
+@pytest.fixture(autouse=True)
+def _stub_audit_record():
+    """Authorization decisions are audited (SR-023 AC 7); a denial opens its own DB session, so
+    these router tests stub the writer. The real writer is exercised in tests/audit."""
+    with patch("app.audit.service.AuditService.record"):
+        yield
+
+
 @pytest.fixture()
 def app():
     return create_app()

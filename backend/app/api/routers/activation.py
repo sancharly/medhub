@@ -12,8 +12,11 @@ from app.api.errors import ValidationProblem
 from app.api.schemas.account import ActivationRequest, ActivationTokenStatus
 from app.audit.service import AuditService
 from app.auth.password import PasswordService
+from app.authz.consent import ConsentService
+from app.authz.service import AuthorizationService
 from app.db.repositories.account_repo import AccountRepository
 from app.db.repositories.audit_repo import AuditRepository
+from app.db.repositories.consent_repo import ConsentRepository
 from app.db.repositories.group_repo import GroupRepository
 from app.db.repositories.session import get_db
 from app.identity.activation import ActivationService
@@ -25,7 +28,8 @@ def _get_activation_service(db: Session = Depends(get_db)) -> ActivationService:
     audit_svc = AuditService(AuditRepository(db))
     password_svc = PasswordService()
     group_repo = GroupRepository(db)
-    return ActivationService(AccountRepository(db), password_svc, audit_svc, group_repo)
+    authz_svc = AuthorizationService(ConsentService(ConsentRepository(db), audit_svc), audit_svc)
+    return ActivationService(AccountRepository(db), password_svc, audit_svc, authz_svc, group_repo)
 
 
 @router.get("/{token}", response_model=ActivationTokenStatus)

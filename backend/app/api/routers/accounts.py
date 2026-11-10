@@ -20,10 +20,11 @@ from app.api.schemas.account import (
 from app.audit.service import AuditService
 from app.auth.lockout import LockoutService
 from app.auth.password import PasswordService  # noqa: F401 (used in resend_activation)
-from app.authz.admin_projection import project_for_admin
+from app.authz.admin_projection import project_for_admin, requires_admin_projection
 from app.authz.consent import ConsentService
 from app.authz.service import AuthorizationService, Resource
-from app.db.models.account import Account, UserType
+from app.core.client_address import client_address
+from app.db.models.account import Account
 from app.db.repositories.account_repo import AccountRepository
 from app.db.repositories.audit_repo import AuditRepository
 from app.db.repositories.consent_repo import ConsentRepository
@@ -80,7 +81,7 @@ def list_accounts(
     start = (page - 1) * page_size
     items = all_accounts[start : start + page_size]
 
-    if actor.user_type == UserType.ADMIN:
+    if requires_admin_projection(actor):
         projected = [project_for_admin(a) for a in items]
         return AdminAccountListResponse(
             items=[AdminAccountResponse.model_validate(p) for p in projected],
@@ -104,7 +105,7 @@ def get_account(
     svc: AccountService = Depends(_get_account_service),
 ) -> AccountResponse | AdminAccountResponse:
     account = svc.get_profile(actor, account_id)
-    if actor.user_type == UserType.ADMIN:
+    if requires_admin_projection(actor):
         return AdminAccountResponse.model_validate(project_for_admin(account))
     return AccountResponse.model_validate(account)
 
@@ -117,7 +118,9 @@ def resend_activation(
 ) -> dict[str, str]:
     audit_svc = AuditService(AuditRepository(db))
     password_svc = PasswordService()
-    svc = ActivationService(AccountRepository(db), password_svc, audit_svc)
+    consent_svc = ConsentService(ConsentRepository(db), audit_svc)
+    authz_svc = AuthorizationService(consent_svc, audit_svc)
+    svc = ActivationService(AccountRepository(db), password_svc, audit_svc, authz_svc)
     svc.resend_activation(actor, account_id)
     return {"detail": "Activation email queued."}
 
@@ -131,7 +134,19 @@ def unlock_account(
     r: redis_lib.Redis = Depends(get_redis),
 ) -> None:
     """SYSADMIN-only: clear lockout counters for an account."""
-    if actor.user_type != UserType.SYSADMIN:
+    audit_svc = AuditService(AuditRepository(db))
+    authz_svc = AuthorizationService(ConsentService(ConsentRepository(db), audit_svc), audit_svc)
+    decision = authz_svc.decide(
+        actor,
+        "account:unlock",
+        Resource(
+            resource_type="account",
+            owner_id=account_id,
+            patient_id=None,
+            resource_id=str(account_id),
+        ),
+    )
+    if not decision.allow:
         raise AuthorizationError("Only SYSADMIN can unlock accounts.")
 
     repo = AccountRepository(db)
@@ -141,7 +156,6 @@ def unlock_account(
     if account is None:
         raise NotFoundError(f"Account {account_id} not found.")
 
-    audit_svc = AuditService(AuditRepository(db))
     lockout_svc = LockoutService(r, audit_svc)
-    ip = request.client.host if request.client else None
-    lockout_svc.admin_unlock(account_id, actor.user_type.value, email=account.email, ip=ip)
+    ip = client_address(request)
+    lockout_svc.admin_unlock(account_id, email=account.email, ip=ip)

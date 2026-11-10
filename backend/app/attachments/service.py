@@ -6,7 +6,12 @@ import hashlib
 import hmac
 import uuid
 
-from app.api.errors import AttachmentIntegrityError, NotFoundError, ValidationProblem
+from app.api.errors import (
+    AttachmentIntegrityError,
+    NotFoundError,
+    ProblemDetail,
+    ValidationProblem,
+)
 from app.audit.actions import AuditAction
 from app.audit.service import AuditService
 from app.authz.service import AuthorizationService, Resource
@@ -15,6 +20,8 @@ from app.db.models.attachment import Attachment
 from app.db.models.audit import AuditOutcome
 from app.db.repositories.attachment_repo import AttachmentRepository
 from app.db.repositories.clinical_repo import ClinicalRepository
+
+MAX_FILENAME_BYTES = 255
 
 
 class AttachmentService:
@@ -65,6 +72,20 @@ class AttachmentService:
         if len(data) > max_bytes:
             raise ValidationProblem(
                 f"Attachment size {len(data)} exceeds maximum {max_bytes} bytes."
+            )
+
+        # File name bound (SR-013 AC 1, PRB-069): refused, never truncated, as the stored name is
+        # part of the clinical record (SR-013 AC 2). 255 bytes is NAME_MAX and bounds the header.
+        if len(filename.encode("utf-8", "surrogatepass")) > MAX_FILENAME_BYTES:
+            raise ValidationProblem(
+                "The file name is longer than 255 bytes.",
+                errors=[
+                    ProblemDetail(
+                        field="file",
+                        rule="filename_max_bytes",
+                        message="The file name is longer than 255 bytes.",
+                    )
+                ],
             )
 
         # DICOM validation
@@ -133,21 +154,19 @@ class AttachmentService:
             ),
         )
 
-        data = self._storage.get_object(attachment.storage_key)  # type: ignore[attr-defined]
+        try:
+            data = self._storage.get_object(attachment.storage_key)  # type: ignore[attr-defined]
+        except Exception:
+            self.record_access_failure(actor_acct, attachment.id)
+            raise
         if data is None:
+            self.record_access_failure(actor_acct, attachment.id)
             raise NotFoundError("Attachment file not found in storage.")
 
         # SR-013 AC 5: never serve bytes that differ from what was uploaded (RISK-012).
         actual = hashlib.sha256(data).hexdigest()
         if not hmac.compare_digest(actual, attachment.checksum):
-            self._audit_svc.record(
-                actor=actor_acct.id,
-                action=AuditAction.ATTACHMENT_ACCESS,
-                target_type="attachment",
-                target_id=str(attachment.id),
-                outcome=AuditOutcome.FAILURE,
-                ip=None,
-            )
+            self.record_access_failure(actor_acct, attachment.id)
             raise AttachmentIntegrityError(
                 f"Attachment {attachment_id} failed its integrity check and was not served."
             )
@@ -161,6 +180,21 @@ class AttachmentService:
             ip=None,
         )
         return data, attachment.content_type, attachment.filename
+
+    def record_access_failure(self, actor: object, attachment_id: uuid.UUID) -> None:
+        """Record that an authorized download of an existing attachment did not complete.
+
+        SR-023 AC 2 / ADR-0016: a FAILURE row is independent, so it survives the request's
+        rollback. ``ip=None`` uses the request's client address (SR-023 AC 6).
+        """
+        self._audit_svc.record(
+            actor=actor.id,  # type: ignore[attr-defined]
+            action=AuditAction.ATTACHMENT_ACCESS,
+            target_type="attachment",
+            target_id=str(attachment_id),
+            outcome=AuditOutcome.FAILURE,
+            ip=None,
+        )
 
     def list_attachments(self, actor: object, entry_id: uuid.UUID) -> list[Attachment]:
         """List attachments for a clinical entry."""

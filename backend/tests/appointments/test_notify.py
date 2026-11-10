@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+import logging
 import uuid
 from datetime import UTC, datetime
 from unittest.mock import MagicMock, patch
+
+import pytest
 
 from app.appointments.service import AppointmentService
 from app.authz.service import AuthorizationService
@@ -99,3 +102,37 @@ def test_notification_task_email_failure_still_records_in_app() -> None:
     mock_db.rollback.assert_not_called()
     # in_app notification should have been added to DB
     mock_db.add.assert_called()
+
+
+def test_create_logs_a_warning_when_enqueue_fails(
+    caplog: pytest.LogCaptureFixture, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """TASK-207 (PRB-013 call site): a failed enqueue is logged with the appointment id only
+    (no e-mail address, no name) and the appointment is still created."""
+    # An Alembic ``fileConfig`` in another test can leave existing loggers disabled.
+    monkeypatch.setattr(logging.getLogger("app.appointments.service"), "disabled", False)
+    actor = _make_account(UserType.ADMIN)
+    doctor = _make_account(UserType.DOCTOR)
+    patient = _make_account(UserType.PATIENT)
+    mock_account_repo = MagicMock()
+    mock_account_repo.get_by_id.side_effect = lambda id: doctor if id == doctor.id else patient
+    mock_consent = MagicMock()
+    authz_svc = AuthorizationService(mock_consent, MagicMock())
+    svc = AppointmentService(MagicMock(), mock_account_repo, MagicMock(), authz_svc, mock_consent)
+
+    with (
+        patch("app.workers.email_tasks.send_appointment_notification") as mock_task,
+        caplog.at_level(logging.WARNING, logger="app.appointments.service"),
+    ):
+        mock_task.delay.side_effect = RuntimeError("redis://:hunter2@broker:6379/0 unreachable")
+        appointment = svc.create(actor, doctor.id, patient.id, datetime.now(UTC))
+
+    assert appointment.state == AppointmentState.PENDING
+    records = [r for r in caplog.records if r.name == "app.appointments.service"]
+    assert len(records) == 1
+    assert records[0].levelno == logging.WARNING
+    assert str(appointment.id) in records[0].getMessage()
+    assert records[0].exc_info is None
+    for text in (caplog.text, doctor.email, patient.email):
+        assert "hunter2" not in text
+    assert doctor.email not in caplog.text and patient.email not in caplog.text

@@ -1,11 +1,13 @@
-"""TASK-051: Appointment visibility tests."""
+"""TASK-051 / TASK-187: appointment:read decisions in AuthorizationService (SR-011 AC 4)."""
 
 from __future__ import annotations
 
 import uuid
 from datetime import UTC, datetime
+from unittest.mock import MagicMock
 
-from app.authz.appointment_visibility import can_view_appointment
+from app.api.errors import AuthorizationError
+from app.authz.service import AuthorizationService, Resource
 from app.db.models.account import Account, AccountStatus, UserType
 from app.db.models.appointment import Appointment, AppointmentState
 
@@ -27,6 +29,21 @@ def _make_appointment(doctor_id: uuid.UUID, patient_id: uuid.UUID) -> Appointmen
         scheduled_at=datetime.now(UTC),
         state=AppointmentState.PENDING,
     )
+
+
+def can_view_appointment(actor: Account, appointment: Appointment) -> bool:
+    svc = AuthorizationService(MagicMock(), MagicMock())
+    resource = Resource(
+        resource_type="appointment",
+        owner_id=appointment.patient_id,
+        patient_id=appointment.patient_id,
+        doctor_id=appointment.doctor_id,
+        resource_id=str(appointment.id),
+    )
+    try:
+        return svc.authorize(actor, "appointment:read", resource).allow
+    except AuthorizationError:
+        return False
 
 
 def test_doctor_can_view_own_appointment() -> None:

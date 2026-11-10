@@ -16,17 +16,17 @@ for _p in [str(_backend), str(_dicom_pkg)]:
         sys.path.insert(0, _p)
 
 _BASELINE_ENV = {
-    "DATABASE_URL": "postgresql://user:pass@localhost:5432/medhub",
+    "DATABASE_URL": "postgresql://user:db-pw-8f3k2xq7@localhost:5432/medhub",
     "REDIS_URL": "redis://localhost:6379/0",
     "OBJECT_STORE_ENDPOINT": "http://localhost:9000",
     "OBJECT_STORE_ACCESS_KEY": "test-access-key",
     "OBJECT_STORE_SECRET_KEY": "test-secret-key-24-chars-xx",
     "OBJECT_STORE_BUCKET": "medhub",
-    "SESSION_SIGNING_KEY": "test-signing-key-at-least-32-bytes-long!",
     "SMTP_HOST": "localhost",
     "SMTP_USER": "test@example.com",
     "SMTP_PASSWORD": "testpassword",
-    "AT_REST_ENCRYPTION_KEY": "dGVzdGtleXRlc3RrZXl0ZXN0a2V5dGVzdGs=",
+    "AT_REST_ENCRYPTION_KEY": "dGVzdGtleXRlc3RrZXl0ZXN0a2V5dGVzdGtleTEyMzQ=",
+    "AT_REST_ENCRYPTION_KEY_ID": "test",
 }
 
 

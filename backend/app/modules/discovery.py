@@ -6,11 +6,22 @@ import importlib.metadata
 import logging
 import re
 
+from app.core.module_key import is_valid_module_key
 from app.modules.contract import ModuleManifest
 
 logger = logging.getLogger(__name__)
 
-_SEMVER_RE = re.compile(r"^\d+\.\d+\.\d+")
+# The module contract's version rule (SR-016 AC 1): the semver.org expression, ASCII only.
+# Always use ``fullmatch``.
+_NUMERIC = r"(?:0|[1-9][0-9]*)"
+_PRE_ID = rf"(?:{_NUMERIC}|[0-9]*[a-zA-Z-][0-9a-zA-Z-]*)"
+_BUILD_ID = r"[0-9a-zA-Z-]+"
+_SEMVER_RE = re.compile(
+    rf"{_NUMERIC}\.{_NUMERIC}\.{_NUMERIC}"
+    rf"(?:-{_PRE_ID}(?:\.{_PRE_ID})*)?"
+    rf"(?:\+{_BUILD_ID}(?:\.{_BUILD_ID})*)?",
+    re.ASCII,
+)
 
 
 def _is_valid_manifest(manifest: object) -> bool:
@@ -21,13 +32,20 @@ def _is_valid_manifest(manifest: object) -> bool:
     required_permissions = getattr(manifest, "required_permissions", None)
 
     if not module_key or not isinstance(module_key, str):
-        logger.warning("Manifest rejected: module_key missing or empty (%r)", module_key)
+        logger.warning("Manifest rejected: module_key missing or empty (%.80r)", module_key)
+        return False
+    if not is_valid_module_key(module_key):
+        logger.warning("Manifest rejected: module_key not a valid key (%.80r)", module_key)
         return False
     if not name or not isinstance(name, str):
-        logger.warning("Manifest rejected: name missing or empty (%r)", name)
+        logger.warning("Manifest rejected: name missing or empty (%.80r)", name)
         return False
-    if not version or not isinstance(version, str) or not _SEMVER_RE.match(version):
-        logger.warning("Manifest rejected: version not semver-like (%r)", version)
+    if not version or not isinstance(version, str) or not _SEMVER_RE.fullmatch(version):
+        logger.warning(
+            "Manifest rejected: version not valid (%.80r, length %d)",
+            version,
+            len(version) if isinstance(version, str) else 0,
+        )
         return False
     if not isinstance(required_permissions, list):
         logger.warning(

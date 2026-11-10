@@ -8,7 +8,12 @@ from unittest.mock import MagicMock
 import pytest
 
 from app.api.errors import AuthorizationError
-from app.authz.service import AuthorizationService, Resource
+from app.authz.service import (
+    AppointmentScope,
+    AppointmentScopeKind,
+    AuthorizationService,
+    Resource,
+)
 from app.db.models.account import Account, AccountStatus, UserType
 
 
@@ -128,6 +133,7 @@ def test_sysadmin_can_create_account() -> None:
     actor = _make_account(UserType.SYSADMIN)
     svc = _svc()
     r = _resource("account")
+    r.target_user_type = UserType.DOCTOR
     decision = svc.authorize(actor, "account:create", r)
     assert decision.allow is True
 
@@ -176,3 +182,55 @@ def test_authz_denied_error_does_not_leak_role_or_action() -> None:
     detail = exc_info.value.detail
     assert "PATIENT" not in detail
     assert "account:read" not in detail
+
+
+# --- TASK-187: appointment scope and module access are decided here (SR-005 AC 1, AC 3) ---
+
+
+@pytest.mark.parametrize(
+    ("role", "kind", "has_id"),
+    [
+        (UserType.ADMIN, AppointmentScopeKind.ALL, False),
+        (UserType.SYSADMIN, AppointmentScopeKind.ALL, False),
+        (UserType.DOCTOR, AppointmentScopeKind.AS_DOCTOR, True),
+        (UserType.PATIENT, AppointmentScopeKind.AS_PATIENT, True),
+    ],
+)
+def test_appointment_scope_by_role_is_audited(
+    role: UserType, kind: AppointmentScopeKind, has_id: bool
+) -> None:
+    actor = _make_account(role)
+    audit = MagicMock()
+    svc = AuthorizationService(MagicMock(), audit)
+
+    scope = svc.appointment_scope(actor)
+
+    assert scope == AppointmentScope(kind, actor.id if has_id else None)
+    assert audit.record.call_args.kwargs["action"] == "AUTHZ_ALLOWED"
+    assert audit.record.call_args.kwargs["target_type"] == "appointment"
+
+
+def test_appointment_scope_denied_for_unknown_role_is_audited() -> None:
+    actor = _make_account(UserType.PATIENT)
+    actor.user_type = "GUEST"  # type: ignore[assignment]
+    audit = MagicMock()
+    with pytest.raises(AuthorizationError):
+        AuthorizationService(MagicMock(), audit).appointment_scope(actor)
+    assert audit.record.call_args.kwargs["action"] == "AUTHZ_DENIED"
+
+
+@pytest.mark.parametrize("enabled", [True, False, None])
+def test_module_access_follows_guard_result_and_is_audited(enabled: bool | None) -> None:
+    actor = _make_account(UserType.SYSADMIN)
+    audit = MagicMock()
+    svc = AuthorizationService(MagicMock(), audit)
+    r = Resource("module", None, None, resource_id="viewer", module_enabled=enabled)
+
+    if enabled is True:
+        assert svc.authorize(actor, "module:access", r).allow is True
+        assert audit.record.call_args.kwargs["action"] == "AUTHZ_ALLOWED"
+    else:
+        with pytest.raises(AuthorizationError):
+            svc.authorize(actor, "module:access", r)
+        assert audit.record.call_args.kwargs["action"] == "AUTHZ_DENIED"
+    assert audit.record.call_args.kwargs["target_id"] == "viewer"

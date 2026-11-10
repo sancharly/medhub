@@ -11,6 +11,7 @@ from fastapi.testclient import TestClient
 
 from app.api.deps import get_current_user, get_redis, get_session, get_session_service
 from app.api.routers.auth import _get_login_service
+from app.audit.actions import AuditAction
 from app.auth.login import LoginFailure, LoginService, LoginSuccess
 from app.auth.session import Session as UserSession
 from app.auth.session import SessionService
@@ -138,6 +139,77 @@ class TestLoginEndpoint:
         resp = client.post("/api/v1/auth/login", json={"email": "test@example.com"})
         assert resp.status_code in (400, 422)
 
+    def test_fourth_login_reports_evicted_session(self, client):
+        # SR-030 AC 7 (PRB-066): real LoginService and SessionService over fakeredis
+        import fakeredis
+
+        from app.auth.password import PasswordService
+
+        account = _make_account()
+        account.password_hash = PasswordService().hash("Password123!")
+        repo = MagicMock()
+        repo.get_by_email.return_value = account
+        r = fakeredis.FakeRedis()
+        login_svc = LoginService(repo, PasswordService(), SessionService(r), MagicMock())
+
+        flags = []
+        with patch(
+            "app.db.repositories.account_repo.AccountRepository.get_by_id",
+            return_value=account,
+        ):
+            client.app.dependency_overrides[_get_login_service] = lambda: login_svc
+            client.app.dependency_overrides[get_redis] = lambda: r
+
+            def override_db():
+                yield MagicMock()
+
+            client.app.dependency_overrides[get_db] = override_db
+            for _ in range(4):
+                resp = client.post(
+                    "/api/v1/auth/login",
+                    json={"email": "test@example.com", "password": "Password123!"},
+                )
+                assert resp.status_code == 200
+                flags.append(resp.json()["evictedSession"])
+
+        client.app.dependency_overrides = {}
+        assert flags == [False, False, False, True]
+
+    def test_session_cap_contention_returns_503_with_retry_after(self, client):
+        # SR-030 AC 7 (TASK-199 QA finding 2): no session, no LOGIN_SUCCESS row
+        from app.auth.password import PasswordService
+        from app.auth.session import SessionCapContentionError
+
+        account = _make_account()
+        account.password_hash = PasswordService().hash("Password123!")
+        repo = MagicMock()
+        repo.get_by_email.return_value = account
+        audit = MagicMock()
+        session_svc = MagicMock(spec=SessionService)
+        session_svc.create_session.side_effect = SessionCapContentionError("contended")
+        login_svc = LoginService(repo, PasswordService(), session_svc, audit)
+
+        client.app.dependency_overrides[_get_login_service] = lambda: login_svc
+        client.app.dependency_overrides[get_redis] = lambda: MagicMock(get=lambda *_: None)
+
+        def override_db():
+            yield MagicMock()
+
+        client.app.dependency_overrides[get_db] = override_db
+        resp = client.post(
+            "/api/v1/auth/login",
+            json={"email": "test@example.com", "password": "Password123!"},
+        )
+        client.app.dependency_overrides = {}
+
+        assert resp.status_code == 503
+        assert resp.headers["content-type"].startswith("application/problem+json")
+        assert resp.json()["type"].endswith("/session-cap-contention")
+        assert resp.headers["retry-after"] == "1"
+        assert "medhub_session" not in resp.cookies
+        assert "set-cookie" not in resp.headers
+        audit.record.assert_not_called()
+
 
 class TestLogoutEndpoint:
     def test_logout_invalidates_session(self, client):
@@ -154,6 +226,29 @@ class TestLogoutEndpoint:
         client.app.dependency_overrides = {}
         assert resp.status_code == 204
         mock_svc.invalidate.assert_called_once_with("test-session-id")
+
+    def test_logout_audits_the_account_not_the_session_token(self, client):
+        # SR-023 AC 5: the LOGOUT row names the account and carries no session token
+        account = _make_account()
+        _auth_as(client, account)
+        db = MagicMock()
+        client.app.dependency_overrides[get_db] = lambda: db
+
+        resp = client.post(
+            "/api/v1/auth/logout",
+            cookies={"medhub_session": "test-session-id", "medhub_csrf": "token123"},
+            headers={"X-CSRF-Token": "token123"},
+        )
+
+        client.app.dependency_overrides = {}
+        assert resp.status_code == 204
+        (row,) = [c.args[0] for c in db.add.call_args_list]
+        assert row.action == AuditAction.LOGOUT
+        assert row.target_type == "account"
+        assert row.target_id == str(account.id)
+        assert "test-session-id" not in " ".join(
+            str(v) for v in (row.action, row.target_type, row.target_id, row.ip)
+        )
 
     def test_logout_requires_auth(self, client):
         resp = client.post("/api/v1/auth/logout")

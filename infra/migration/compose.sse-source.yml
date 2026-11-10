@@ -1,0 +1,87 @@
+# Source store for the one-off separation of the object-store SSE key (TASK-196, SR-041 AC 5,
+# ADR-0018). Not part of the normal stack: use it only as described in infra/DEPLOY.md,
+# "Separating the object-store SSE key". Run it under its own project name
+# (docker compose -p <name>), never as the stack's project.
+#
+# SeaweedFS has one SSE key per volume and no in-place re-key (SOUP-036 F-4), so attachments are
+# moved by copy: this file starts a second store, the same pinned image as the stack, on a COPY of
+# the old volume with the OLD key (SOURCE_SSE_KEY, the AT_REST_ENCRYPTION_KEY the data was written
+# under), and the `migrate` container reads every attachment from it, checks its SHA-256 against
+# attachment.checksum, writes it to the stack's store (which runs on a new volume under
+# OBJECT_STORE_SSE_KEY), reads it back and checks again (backend/scripts/migrate_object_store.py).
+# Nothing is deleted anywhere.
+#
+# SOURCE_STORE_VOLUME must be a COPY of the old volume (restored from the backup), never the
+# original: a SeaweedFS that runs on a data directory writes to it. The volume is external: this
+# file never creates or removes it, and `down` without `-v` leaves it alone. The source store
+# joins one internal network (no egress, no published port) with the migration container only.
+
+networks:
+  rekey:
+    driver: bridge
+    internal: true
+  # Where the target store and the database are. Named by the caller; both exist already.
+  object-store:
+    external: true
+    name: ${OBJECT_STORE_NETWORK:?OBJECT_STORE_NETWORK must name the stack's object-store network}
+  database:
+    external: true
+    name: ${DATABASE_NETWORK:?DATABASE_NETWORK must name the network of the database}
+
+volumes:
+  source_data:
+    external: true
+    name: ${SOURCE_STORE_VOLUME:?SOURCE_STORE_VOLUME must name a restored copy of the old object-store volume}
+
+services:
+  object-store-source:
+    image: chrislusf/seaweedfs:4.51@sha256:f7a49e3f3972ebed5be2ed4befa4a0c68eb7bdddba6e692d42729ceb545134b8
+    command: >
+      server -dir=/data -ip=127.0.0.1 -ip.bind=127.0.0.1 -filer -s3 -s3.ip.bind=0.0.0.0
+      -s3.port.iceberg=0 -s3.port.lance=0 -master.volumeSizeLimitMB=1024 -master.telemetry=false
+    environment:
+      AWS_ACCESS_KEY_ID: ${OBJECT_STORE_ACCESS_KEY:?OBJECT_STORE_ACCESS_KEY must be set}
+      AWS_SECRET_ACCESS_KEY: ${OBJECT_STORE_SECRET_KEY:?OBJECT_STORE_SECRET_KEY must be set}
+      # The key the existing attachments were written under: the old AT_REST_ENCRYPTION_KEY.
+      WEED_S3_SSE_KEY: ${SOURCE_SSE_KEY:?SOURCE_SSE_KEY must be the key the old volume was written with}
+    volumes:
+      - source_data:/data
+    expose:
+      - "8333"
+    networks:
+      - rekey
+    restart: "no"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:8333/status"]
+      interval: 5s
+      timeout: 5s
+      retries: 24
+      start_period: 5s
+
+  # One-shot: copies every attachment object to the stack's store and verifies it (exit 1 on any
+  # missing, mismatched or unreadable object). Run with: run --rm migrate.
+  migrate:
+    build:
+      context: ../../backend
+      dockerfile: Dockerfile
+    profiles: ["migrate"]
+    entrypoint: ["python", "scripts/migrate_object_store.py"]
+    environment:
+      # Read-only use: the runtime role may SELECT from attachment.
+      DATABASE_URL: ${DATABASE_URL:?DATABASE_URL must be set}
+      SOURCE_ENDPOINT: http://object-store-source:8333
+      SOURCE_ACCESS_KEY: ${OBJECT_STORE_ACCESS_KEY:?OBJECT_STORE_ACCESS_KEY must be set}
+      SOURCE_SECRET_KEY: ${OBJECT_STORE_SECRET_KEY:?OBJECT_STORE_SECRET_KEY must be set}
+      SOURCE_BUCKET: ${OBJECT_STORE_BUCKET:-medhub}
+      OBJECT_STORE_ENDPOINT: ${OBJECT_STORE_ENDPOINT:-http://object-store:8333}
+      OBJECT_STORE_ACCESS_KEY: ${OBJECT_STORE_ACCESS_KEY:?OBJECT_STORE_ACCESS_KEY must be set}
+      OBJECT_STORE_SECRET_KEY: ${OBJECT_STORE_SECRET_KEY:?OBJECT_STORE_SECRET_KEY must be set}
+      OBJECT_STORE_BUCKET: ${OBJECT_STORE_BUCKET:-medhub}
+    depends_on:
+      object-store-source:
+        condition: service_healthy
+    networks:
+      - rekey
+      - object-store
+      - database
+    restart: "no"

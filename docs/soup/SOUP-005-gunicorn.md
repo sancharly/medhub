@@ -3,17 +3,16 @@ id: SOUP-005
 type: soup
 title: Gunicorn
 status: approved
-version: "1.1"
+version: "1.2"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
-updated: "2026-10-23"
+updated: "2026-11-10"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-11-10"
+approval_note: approved by the human in chat at the close of CR-004
 manufacturer: Benoit Chesneau
 soup_version: 26.0.0
 anomaly_review: "2026-10-22"
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-10-23"
-approved_digest: 0411a31a8788f868a98b6d41c5c2e53fed8bdbcedc06d05ceae280004e65f53e
-approval_note: self-approved
 links: []
 tags:
   - soup
@@ -71,6 +70,17 @@ it no trigger. Nothing here is hazard-relevant and no MedHub behaviour beyond PR
 no new RISK or PRB. When PRB-041 is fixed, its CR can also consider `init: true` for the backend
 service. Moving to 26.1.0 or later is a separate CR (CR-001 A-4).
 
+## Forwarded-header handling (CR-004, TASK-185)
+
+MedHub relies on Gunicorn's `forwarded_allow_ips` being **empty**. The default is `127.0.0.1,::1`
+(or `$FORWARDED_ALLOW_IPS`), and `UvicornWorker` passes it to Uvicorn's proxy-headers handling, which
+would rewrite `request.client` for those peers. `backend/entrypoint.sh` starts Gunicorn with
+`--forwarded-allow-ips=` (empty): the setting parses to an empty list, so no peer is trusted and
+`request.client` is always the TCP peer. The application applies the one trusted-proxy rule of
+SR-042 itself (`backend/app/core/client_address.py`, ADR-0019). Verified for 26.0.0 on the started
+stack (TS-016 TC-016.3: `request.client.host` is the proxy's address while the originating address
+is the caller's). A version that changes how an empty value is parsed needs the check repeated.
+
 ## Monitoring
 
 Per [PLAN-002](../plans/PLAN-002-maintenance-plan.md): reviewed at every dependency change, before
@@ -82,3 +92,4 @@ accountable. Hazard-relevant anomalies go to `risk-management`; defects affectin
 - 2026-10-21 — Record created at the locked/declared version when the SOUP list moved from
   ADD-004 to one `soup` record per component (medical-records 0.3.2).
 - 2026-10-22 — 26.0.0 (unchanged). First anomaly-list review (TASK-154, CR-001 AC-11/AC-12): no advisory for 26.0.0; control socket on by default and failing in MedHub's image (PRB-041, already open); later-fixed process-manager and parser bugs judged; nothing hazard-relevant. Record 1.0 → 1.1; approval record removed for re-review.
+- 2026-10-31 — 26.0.0 (unchanged). TASK-185 (CR-004): records the reliance on `forwarded_allow_ips` being empty (SR-042, ADR-0019). Record 1.1 → 1.2; approval record removed for re-review.

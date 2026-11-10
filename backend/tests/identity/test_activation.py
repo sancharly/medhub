@@ -10,6 +10,7 @@ import pytest
 
 from app.api.errors import AuthorizationError, UnauthenticatedError
 from app.auth.password import PasswordService
+from app.authz.service import AuthorizationService
 from app.db.models.account import Account, AccountStatus, UserType
 from app.identity.activation import ActivationService, issue_activation_token
 
@@ -29,7 +30,9 @@ def _build_svc(account: Account | None) -> ActivationService:
     mock_repo.get_by_id.return_value = account
     pw_svc = PasswordService()
     mock_audit = MagicMock()
-    return ActivationService(mock_repo, pw_svc, mock_audit)
+    return ActivationService(
+        mock_repo, pw_svc, mock_audit, AuthorizationService(MagicMock(), MagicMock())
+    )
 
 
 VALID_PW = "Str0ng!Pass#99"
@@ -106,7 +109,9 @@ def test_activate_audits_event() -> None:
     mock_repo = MagicMock()
     mock_repo.get_by_id.return_value = acct
     mock_audit = MagicMock()
-    svc = ActivationService(mock_repo, PasswordService(), mock_audit)
+    svc = ActivationService(
+        mock_repo, PasswordService(), mock_audit, AuthorizationService(MagicMock(), MagicMock())
+    )
 
     svc.activate(acct.id, raw, VALID_PW)
     mock_audit.record.assert_called_once()
@@ -120,7 +125,9 @@ def test_activate_wrong_token_audits_failure() -> None:
     mock_repo = MagicMock()
     mock_repo.get_by_id.return_value = acct
     mock_audit = MagicMock()
-    svc = ActivationService(mock_repo, PasswordService(), mock_audit)
+    svc = ActivationService(
+        mock_repo, PasswordService(), mock_audit, AuthorizationService(MagicMock(), MagicMock())
+    )
 
     with pytest.raises(UnauthenticatedError):
         svc.activate(acct.id, "wrong-token", VALID_PW)
@@ -140,7 +147,9 @@ def test_activate_expired_token_audits_failure() -> None:
     mock_repo = MagicMock()
     mock_repo.get_by_id.return_value = acct
     mock_audit = MagicMock()
-    svc = ActivationService(mock_repo, PasswordService(), mock_audit)
+    svc = ActivationService(
+        mock_repo, PasswordService(), mock_audit, AuthorizationService(MagicMock(), MagicMock())
+    )
 
     with pytest.raises(UnauthenticatedError):
         svc.activate(acct.id, raw, VALID_PW)

@@ -31,6 +31,7 @@ class ProblemError(Exception):
     status: int = 500
     title: str = "Internal Server Error"
     type_slug: str = "internal-error"
+    headers: dict[str, str] | None = None  # extra response headers, e.g. Retry-After
 
     def __init__(
         self,
@@ -128,11 +129,26 @@ class AttachmentIntegrityError(ProblemError):
         super().__init__(detail)
 
 
-def _problem_response(problem: dict[str, Any], status: int) -> JSONResponse:
+class SessionCapContentionProblem(ProblemError):
+    """The concurrent-session cap could not be applied; the client may retry at once."""
+
+    status = 503
+    title = "Service Unavailable"
+    type_slug = "session-cap-contention"
+    headers = {"Retry-After": "1"}
+
+    def __init__(self, detail: str = "Sign-in is busy. Please try again.") -> None:
+        super().__init__(detail)
+
+
+def _problem_response(
+    problem: dict[str, Any], status: int, headers: dict[str, str] | None = None
+) -> JSONResponse:
     return JSONResponse(
         content=problem,
         status_code=status,
         media_type="application/problem+json",
+        headers=headers,
     )
 
 
@@ -141,7 +157,7 @@ def register_error_handlers(app: FastAPI) -> None:
 
     @app.exception_handler(ProblemError)
     async def problem_error_handler(request: Request, exc: ProblemError) -> JSONResponse:
-        return _problem_response(exc.to_dict(request), exc.status)
+        return _problem_response(exc.to_dict(request), exc.status, exc.headers)
 
     @app.exception_handler(RequestValidationError)
     async def validation_error_handler(
@@ -170,7 +186,11 @@ def register_error_handlers(app: FastAPI) -> None:
 
     @app.exception_handler(Exception)
     async def generic_error_handler(request: Request, exc: Exception) -> JSONResponse:
-        logger.exception("Unhandled exception for %s %s", request.method, request.url.path)
+        # SR-043 AC 4: log the matched route's template, never the raw path (it can carry a
+        # credential such as an activation token).
+        route = request.scope.get("route")
+        path = getattr(route, "path", None) or "<unmatched>"
+        logger.exception("Unhandled exception for %s %s", request.method, path)
         problem = {
             "type": f"{_BASE_URI}internal-error",
             "title": "Internal Server Error",

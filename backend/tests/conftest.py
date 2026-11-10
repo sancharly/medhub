@@ -12,17 +12,17 @@ Two responsibilities:
 import pytest
 
 _BASELINE_ENV = {
-    "DATABASE_URL": "postgresql://user:pass@localhost:5432/medhub",
+    "DATABASE_URL": "postgresql://user:db-pw-8f3k2xq7@localhost:5432/medhub",
     "REDIS_URL": "redis://localhost:6379/0",
     "OBJECT_STORE_ENDPOINT": "http://localhost:9000",
     "OBJECT_STORE_ACCESS_KEY": "test-access-key",
     "OBJECT_STORE_SECRET_KEY": "test-secret-key-24-chars-xx",
     "OBJECT_STORE_BUCKET": "medhub",
-    "SESSION_SIGNING_KEY": "test-signing-key-at-least-32-bytes-long!",
     "SMTP_HOST": "localhost",
     "SMTP_USER": "test@example.com",
     "SMTP_PASSWORD": "testpassword",
     "AT_REST_ENCRYPTION_KEY": "dGVzdGtleXRlc3RrZXl0ZXN0a2V5dGVzdGtleTEyMzQ=",
+    "AT_REST_ENCRYPTION_KEY_ID": "test",
 }
 
 
@@ -42,3 +42,15 @@ def _test_settings_env(monkeypatch: pytest.MonkeyPatch) -> None:
     get_settings.cache_clear()
     yield
     get_settings.cache_clear()
+
+
+@pytest.fixture(autouse=True)
+def _restore_default_celery_app():
+    """The API lifespan makes the configured Celery app the process default (PRB-071). A test that
+    runs the lifespan must not leave it as the default for later tests, which would then dispatch
+    ``.delay()`` calls to a broker that is not there."""
+    from celery import _state
+
+    saved = _state.default_app
+    yield
+    _state.default_app = saved

@@ -5,8 +5,19 @@ version: "3.9"
 # communicate on the internal 'medhub' network.
 
 networks:
+  # Fixed subnet so the reverse proxy has a fixed address, which the backend trusts as the only
+  # proxy (SR-042 AC 3, ADR-0019). Containers without a fixed address are given one from
+  # ip_range only, so none of them can take the proxy's address first. The subnet lies OUTSIDE
+  # Docker's default address pools (172.16.0.0/12 and 192.168.0.0/16): the other networks, this
+  # project's `object-store` among them, take their subnets from those pools and so can never
+  # overlap this one (PRB-076). To change the network, edit subnet and ip_range here, the proxy's
+  # ipv4_address and the backend's TRUSTED_PROXIES below (see DEPLOY.md).
   medhub:
     driver: bridge
+    ipam:
+      config:
+        - subnet: 10.77.77.0/24
+          ip_range: 10.77.77.128/25
   # Object store network (SR-040 AC 3, ADR-0015 D4): joined only by object-store, object-store-init
   # and backend. internal: no egress and no published port. The store's unauthenticated internal
   # ports are therefore unreachable from the proxy, frontend, postgres, redis and celery-worker.
@@ -19,7 +30,12 @@ networks:
 volumes:
   postgres_data:
   redis_data:
+  # The object store's data. The name is the project's default unless OBJECT_STORE_VOLUME names
+  # another volume; only the SSE-key procedure in DEPLOY.md sets it, to switch to the volume the
+  # attachments were copied to under the new key (TASK-196). An empty value keeps the default,
+  # spelled out because current Compose rejects an empty `name:` (PRB-077).
   object_store_data:
+    name: ${OBJECT_STORE_VOLUME:-${COMPOSE_PROJECT_NAME}_object_store_data}
 
 services:
   # ── Reverse Proxy (nginx) ─────────────────────────────────────────────────
@@ -36,7 +52,8 @@ services:
       - backend
       - frontend
     networks:
-      - medhub
+      medhub:
+        ipv4_address: 10.77.77.2
     restart: unless-stopped
 
   # ── Backend (FastAPI via Gunicorn + Uvicorn workers) ──────────────────────
@@ -44,19 +61,40 @@ services:
     build:
       context: ../backend
       dockerfile: Dockerfile
-    env_file: .env
-    # Same expressions as the initialiser and the store: a shell variable cannot point the
-    # backend and the initialiser at different buckets or endpoints (environment: wins over env_file).
+    # No env_file (TASK-191 round 2): infra/.env also holds the owner credentials (POSTGRES_PASSWORD,
+    # DATABASE_OWNER_URL), and env_file would hand them to every service. Each service lists
+    # exactly the settings it reads; Compose fills them from infra/.env or the shell by
+    # interpolation. Same expressions as the initialiser and the store, so a shell variable cannot
+    # point the backend and the initialiser at different buckets or endpoints.
+    # Every secret setting has a `:?` guard and no default (SR-041 AC 2): Compose stops, naming the
+    # setting, when it is unset or empty. SMTP is not used by the API (only the worker sends mail),
+    # so the backend gets SMTP_HOST, which Settings requires, and no SMTP credential.
     environment:
+      DATABASE_URL: ${DATABASE_URL:?DATABASE_URL must be set}
+      AT_REST_ENCRYPTION_KEY: ${AT_REST_ENCRYPTION_KEY:?AT_REST_ENCRYPTION_KEY must be set}
+      # Names the current key in every new field ciphertext (SR-022 AC 6, ADR-0018). Required, not secret.
+      AT_REST_ENCRYPTION_KEY_ID: ${AT_REST_ENCRYPTION_KEY_ID:?AT_REST_ENCRYPTION_KEY_ID must be set}
+      # Optional "id:key,id:key" earlier keys, decryption only. No default, no guard (like SMTP_PASSWORD).
+      AT_REST_ENCRYPTION_RETIRED_KEYS: ${AT_REST_ENCRYPTION_RETIRED_KEYS}
+      ENVIRONMENT: ${ENVIRONMENT:-local}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      SMTP_HOST: ${SMTP_HOST:-smtp.example.com}
       OBJECT_STORE_ENDPOINT: ${OBJECT_STORE_ENDPOINT:-http://object-store:8333}
       OBJECT_STORE_ACCESS_KEY: ${OBJECT_STORE_ACCESS_KEY:?OBJECT_STORE_ACCESS_KEY must be set}
       OBJECT_STORE_SECRET_KEY: ${OBJECT_STORE_SECRET_KEY:?OBJECT_STORE_SECRET_KEY must be set}
       OBJECT_STORE_BUCKET: ${OBJECT_STORE_BUCKET:-medhub}
+      SESSION_INACTIVITY_CLINICAL_SECONDS: ${SESSION_INACTIVITY_CLINICAL_SECONDS:-900}
+      SESSION_INACTIVITY_ADMIN_SECONDS: ${SESSION_INACTIVITY_ADMIN_SECONDS:-1800}
+      SESSION_ABSOLUTE_LIFETIME_SECONDS: ${SESSION_ABSOLUTE_LIFETIME_SECONDS:-28800}
+      SESSION_MAX_CONCURRENT: ${SESSION_MAX_CONCURRENT:-3}
+      SESSION_COOKIE_SECURE: ${SESSION_COOKIE_SECURE:-true}
+      CORS_ORIGINS: "${CORS_ORIGINS:-}"
+      TRUSTED_PROXIES: 10.77.77.2
     expose:
       - "8000"
     depends_on:
-      postgres:
-        condition: service_started
+      db-migrate:
+        condition: service_completed_successfully
       redis:
         condition: service_started
       object-store-init:
@@ -72,13 +110,13 @@ services:
       retries: 3
       start_period: 15s
 
-  # ── Frontend (nginx static) ───────────────────────────────────────────────
+  # ── Frontend (nginx static, non-root user, port 8080: SR-041 AC 1) ────────
   frontend:
     build:
       context: ../frontend
       dockerfile: Dockerfile
     expose:
-      - "80"
+      - "8080"
     networks:
       - medhub
     restart: unless-stopped
@@ -89,7 +127,7 @@ services:
     environment:
       POSTGRES_DB: medhub
       POSTGRES_USER: medhub
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     expose:
@@ -97,6 +135,58 @@ services:
     networks:
       - medhub
     restart: unless-stopped
+    # db-migrate starts only once the server accepts connections.
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U medhub -d medhub"]
+      interval: 5s
+      timeout: 5s
+      retries: 24
+      start_period: 5s
+
+  # ── Database migrations and roles (one-shot, owner credential) ────────────
+  # The only process that migrates and the only service that receives DATABASE_OWNER_URL
+  # (SR-023 AC 8, SR-041 AC 2, ADR-0017). In one run, as the owner: check the secret settings,
+  # `alembic upgrade head`, then `python -m app.db.roles` (creates the runtime role named in
+  # DATABASE_URL and grants it, withholding UPDATE/DELETE/TRUNCATE on audit_log). A table added by
+  # a migration is granted by that same run. backend, celery-worker and celery-beat start only
+  # after it exits 0. The runtime settings below are the ones the secret rule checks. The last
+  # step (`app.db.reencrypt --verify-key-ids`) refuses, changing nothing, when a stored field value
+  # names a key id that is neither the current key nor a retired one, so a retired key cannot be
+  # removed while values still need it (SR-022 AC 8, TASK-195). The same module rotates the keys.
+  db-migrate:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    entrypoint:
+      - sh
+      - -c
+      - >
+        python -c "from app.core.secret_settings import enforce; enforce()"
+        && alembic upgrade head
+        && python -m app.db.roles
+        && python -m app.db.reencrypt --verify-key-ids
+    environment:
+      PYTHONPATH: /app
+      DATABASE_OWNER_URL: ${DATABASE_OWNER_URL:?DATABASE_OWNER_URL must be set}
+      DATABASE_URL: ${DATABASE_URL:?DATABASE_URL must be set}
+      AT_REST_ENCRYPTION_KEY: ${AT_REST_ENCRYPTION_KEY:?AT_REST_ENCRYPTION_KEY must be set}
+      # Names the current key in every new field ciphertext (SR-022 AC 6, ADR-0018). Required, not secret.
+      AT_REST_ENCRYPTION_KEY_ID: ${AT_REST_ENCRYPTION_KEY_ID:?AT_REST_ENCRYPTION_KEY_ID must be set}
+      # Optional "id:key,id:key" earlier keys, decryption only. No default, no guard (like SMTP_PASSWORD).
+      AT_REST_ENCRYPTION_RETIRED_KEYS: ${AT_REST_ENCRYPTION_RETIRED_KEYS}
+      ENVIRONMENT: ${ENVIRONMENT:-local}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      SMTP_HOST: ${SMTP_HOST:-smtp.example.com}
+      OBJECT_STORE_ENDPOINT: ${OBJECT_STORE_ENDPOINT:-http://object-store:8333}
+      OBJECT_STORE_ACCESS_KEY: ${OBJECT_STORE_ACCESS_KEY:?OBJECT_STORE_ACCESS_KEY must be set}
+      OBJECT_STORE_SECRET_KEY: ${OBJECT_STORE_SECRET_KEY:?OBJECT_STORE_SECRET_KEY must be set}
+      OBJECT_STORE_BUCKET: ${OBJECT_STORE_BUCKET:-medhub}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - medhub
+    restart: "no"
 
   # ── Redis 7 (sessions + Celery broker) ────────────────────────────────────
   redis:
@@ -111,8 +201,11 @@ services:
     restart: unless-stopped
 
   # ── Object-store credential preflight (one-shot, no network) ──────────────
-  # Refuses weak or default object-store keys before the store starts (SR-040 AC 2).
-  # The entrypoint is overridden so the backend's migration entrypoint does not run.
+  # Refuses weak or default object-store keys before the store starts (SR-040 AC 2), and an SSE key
+  # that is unset, a placeholder, not 32 bytes or equal to the field key or a retired field key
+  # (SR-041 AC 5). It is the only Python service that receives OBJECT_STORE_SSE_KEY, and it
+  # receives the field keys only to compare them with it.
+  # The entrypoint is overridden so the backend's entrypoint does not run.
   object-store-preflight:
     build:
       context: ../backend
@@ -123,6 +216,10 @@ services:
     environment:
       OBJECT_STORE_ACCESS_KEY: ${OBJECT_STORE_ACCESS_KEY:?OBJECT_STORE_ACCESS_KEY must be set}
       OBJECT_STORE_SECRET_KEY: ${OBJECT_STORE_SECRET_KEY:?OBJECT_STORE_SECRET_KEY must be set}
+      OBJECT_STORE_SSE_KEY: ${OBJECT_STORE_SSE_KEY:?OBJECT_STORE_SSE_KEY must be set}
+      AT_REST_ENCRYPTION_KEY: ${AT_REST_ENCRYPTION_KEY:?AT_REST_ENCRYPTION_KEY must be set}
+      # Optional earlier field keys, compared with the SSE key only. No default, no guard.
+      AT_REST_ENCRYPTION_RETIRED_KEYS: ${AT_REST_ENCRYPTION_RETIRED_KEYS}
     network_mode: none
     restart: "no"
 
@@ -143,8 +240,9 @@ services:
       # Admin identity (the only S3 identity)
       AWS_ACCESS_KEY_ID: ${OBJECT_STORE_ACCESS_KEY:?OBJECT_STORE_ACCESS_KEY must be set}
       AWS_SECRET_ACCESS_KEY: ${OBJECT_STORE_SECRET_KEY:?OBJECT_STORE_SECRET_KEY must be set}
-      # SSE-S3 key at rest (SR-016, SR-022); shared with field encryption (CR-002 Q-7)
-      WEED_S3_SSE_KEY: ${AT_REST_ENCRYPTION_KEY:?AT_REST_ENCRYPTION_KEY must be set}
+      # SSE-S3 key at rest (SR-016, SR-022). Its own setting, never the field key (SR-041 AC 5,
+      # ADR-0018): the preflight refuses the stack when they match. The key belongs to the volume.
+      WEED_S3_SSE_KEY: ${OBJECT_STORE_SSE_KEY:?OBJECT_STORE_SSE_KEY must be set}
     volumes:
       - object_store_data:/data
     expose:
@@ -164,7 +262,7 @@ services:
   # Creates the bucket, sets AES256 default encryption and checks it stays private
   # (SR-040 AC 4, SR-022 AC 4). Starts only once the store is healthy; exits non-zero on any
   # failure, which keeps the backend down. The entrypoint is overridden so the backend's
-  # migration entrypoint does not run.
+  # entrypoint does not run.
   object-store-init:
     build:
       context: ../backend
@@ -186,6 +284,8 @@ services:
     restart: "no"
 
   # ── Celery Worker ─────────────────────────────────────────────────────────
+  # The image entrypoint runs this `command:` (PRB-061): the container is a Celery worker, not
+  # gunicorn. Connects as the runtime role; has no owner credential.
   celery-worker:
     build:
       context: ../backend
@@ -194,10 +294,69 @@ services:
       celery -A app.workers.celery_app worker
       --loglevel=info
       --concurrency=4
-    env_file: .env
+    # Same guards as the backend (SR-041 AC 2). Sends the mail, so it alone gets the SMTP settings.
+    environment:
+      DATABASE_URL: ${DATABASE_URL:?DATABASE_URL must be set}
+      AT_REST_ENCRYPTION_KEY: ${AT_REST_ENCRYPTION_KEY:?AT_REST_ENCRYPTION_KEY must be set}
+      # Names the current key in every new field ciphertext (SR-022 AC 6, ADR-0018). Required, not secret.
+      AT_REST_ENCRYPTION_KEY_ID: ${AT_REST_ENCRYPTION_KEY_ID:?AT_REST_ENCRYPTION_KEY_ID must be set}
+      # Optional "id:key,id:key" earlier keys, decryption only. No default, no guard (like SMTP_PASSWORD).
+      AT_REST_ENCRYPTION_RETIRED_KEYS: ${AT_REST_ENCRYPTION_RETIRED_KEYS}
+      ENVIRONMENT: ${ENVIRONMENT:-local}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      SMTP_HOST: ${SMTP_HOST:-smtp.example.com}
+      OBJECT_STORE_ENDPOINT: ${OBJECT_STORE_ENDPOINT:-http://object-store:8333}
+      OBJECT_STORE_ACCESS_KEY: ${OBJECT_STORE_ACCESS_KEY:?OBJECT_STORE_ACCESS_KEY must be set}
+      OBJECT_STORE_SECRET_KEY: ${OBJECT_STORE_SECRET_KEY:?OBJECT_STORE_SECRET_KEY must be set}
+      OBJECT_STORE_BUCKET: ${OBJECT_STORE_BUCKET:-medhub}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
+      SMTP_USE_TLS: ${SMTP_USE_TLS:-true}
+      SMTP_USE_SSL: ${SMTP_USE_SSL:-false}
+      MAIL_FROM: ${MAIL_FROM:-noreply@example.com}
+      PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-https://medhub.example}
     depends_on:
-      - redis
-      - postgres
+      redis:
+        condition: service_started
+      db-migrate:
+        condition: service_completed_successfully
+    networks:
+      - medhub
+    restart: unless-stopped
+
+  # ── Celery Beat (scheduler) ───────────────────────────────────────────────
+  # Runs the beat_schedule (the anonymized-dataset retention sweep, backend/app/workers/
+  # celery_app.py); nothing ran it before (PRB-061). The schedule file goes to /tmp: the image's
+  # non-root user cannot write to /app. Exactly one beat must run, so do not scale this service.
+  celery-beat:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    command: >
+      celery -A app.workers.celery_app beat
+      --loglevel=info
+      --schedule=/tmp/celerybeat-schedule
+    environment:
+      DATABASE_URL: ${DATABASE_URL:?DATABASE_URL must be set}
+      AT_REST_ENCRYPTION_KEY: ${AT_REST_ENCRYPTION_KEY:?AT_REST_ENCRYPTION_KEY must be set}
+      # Names the current key in every new field ciphertext (SR-022 AC 6, ADR-0018). Required, not secret.
+      AT_REST_ENCRYPTION_KEY_ID: ${AT_REST_ENCRYPTION_KEY_ID:?AT_REST_ENCRYPTION_KEY_ID must be set}
+      # Optional "id:key,id:key" earlier keys, decryption only. No default, no guard (like SMTP_PASSWORD).
+      AT_REST_ENCRYPTION_RETIRED_KEYS: ${AT_REST_ENCRYPTION_RETIRED_KEYS}
+      ENVIRONMENT: ${ENVIRONMENT:-local}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      SMTP_HOST: ${SMTP_HOST:-smtp.example.com}
+      OBJECT_STORE_ENDPOINT: ${OBJECT_STORE_ENDPOINT:-http://object-store:8333}
+      OBJECT_STORE_ACCESS_KEY: ${OBJECT_STORE_ACCESS_KEY:?OBJECT_STORE_ACCESS_KEY must be set}
+      OBJECT_STORE_SECRET_KEY: ${OBJECT_STORE_SECRET_KEY:?OBJECT_STORE_SECRET_KEY must be set}
+      OBJECT_STORE_BUCKET: ${OBJECT_STORE_BUCKET:-medhub}
+      RETENTION_SWEEP_CRON: "${RETENTION_SWEEP_CRON:-0 2 * * *}"
+    depends_on:
+      redis:
+        condition: service_started
+      db-migrate:
+        condition: service_completed_successfully
     networks:
       - medhub
     restart: unless-stopped

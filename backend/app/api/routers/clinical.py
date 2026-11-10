@@ -15,9 +15,10 @@ from app.api.schemas.clinical import (
     PatientSummaryResponse,
 )
 from app.audit.service import AuditService
-from app.authz.service import AuthorizationService
+from app.authz.consent import ConsentService
+from app.authz.service import AuthorizationService, Resource
 from app.clinical.service import ClinicalDataService
-from app.db.models.account import Account, UserType
+from app.db.models.account import Account
 from app.db.repositories.account_repo import AccountRepository
 from app.db.repositories.audit_repo import AuditRepository
 from app.db.repositories.clinical_repo import ClinicalRepository
@@ -33,8 +34,6 @@ def _get_account_repo(db: Session = Depends(get_db)) -> AccountRepository:
 
 
 def _get_clinical_service(db: Session = Depends(get_db)) -> ClinicalDataService:
-    from app.authz.consent import ConsentService  # noqa: PLC0415
-
     audit_svc = AuditService(AuditRepository(db))
     consent_repo = ConsentRepository(db)
     consent_svc = ConsentService(consent_repo, audit_svc)
@@ -46,6 +45,11 @@ def _get_clinical_service(db: Session = Depends(get_db)) -> ClinicalDataService:
         authz_svc,
         consent_repo,
     )
+
+
+def _get_authz_service(db: Session = Depends(get_db)) -> AuthorizationService:
+    audit_svc = AuditService(AuditRepository(db))
+    return AuthorizationService(ConsentService(ConsentRepository(db), audit_svc), audit_svc)
 
 
 def _author_name(account: Account | None) -> str:
@@ -109,9 +113,15 @@ def list_clinical_entries(
 def list_accessible_patients(
     actor: Account = Depends(get_current_user),
     svc: ClinicalDataService = Depends(_get_clinical_service),
+    authz: AuthorizationService = Depends(_get_authz_service),
 ) -> list[PatientSummaryResponse]:
     """List patients the authenticated doctor has active consent for (TASK-044a)."""
-    if actor.user_type != UserType.DOCTOR:
+    decision = authz.decide(
+        actor,
+        "patient_roster:list",
+        Resource(resource_type="patient_roster", owner_id=None, patient_id=None),
+    )
+    if not decision.allow:
         raise AuthorizationError("Only doctors can access the patient roster.")
     patients = svc.list_accessible_patients(actor.id)
     return [

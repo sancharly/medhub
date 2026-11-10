@@ -18,6 +18,7 @@ from app.audit.actions import AuditAction
 from app.audit.service import AuditService
 from app.auth.cookies import set_session_cookie
 from app.auth.csrf import issue_csrf_token
+from app.auth.lockout import LockoutService
 from app.auth.password import PasswordService, get_dummy_hash
 from app.auth.session import Session, SessionService
 from app.db.models.account import Account, AccountStatus
@@ -32,6 +33,7 @@ class LoginSuccess:
     kind: Literal["success"] = "success"
     session: Session | None = None
     csrf_token: str | None = None
+    evicted_session: bool = False  # the login ended the oldest session at the cap (SR-030 AC 7)
 
 
 @dataclass
@@ -63,7 +65,7 @@ class LoginService:
         password: str,
         ip: str | None,
         response: Response,
-        lockout_svc: object | None = None,
+        lockout_svc: LockoutService,
     ) -> LoginResult:
         """Authenticate a user and return a session on success.
 
@@ -77,6 +79,9 @@ class LoginService:
         # Always verify to keep timing consistent (anti-enumeration)
         if account is None:
             self._password_svc.verify(get_dummy_hash(), password)  # result discarded
+            # Count the failure first: a refused audit write must not skip the counter.
+            if not lockout_svc.is_email_locked(normalised_email):
+                lockout_svc.record_failure(None, normalised_email, ip)
             self._audit_svc.record(
                 actor=None,
                 action=AuditAction.LOGIN_FAILURE,
@@ -85,16 +90,13 @@ class LoginService:
                 outcome=AuditOutcome.FAILURE,
                 ip=ip,
             )
-            if lockout_svc is not None:
-                if not lockout_svc.is_email_locked(normalised_email):  # type: ignore[attr-defined]
-                    lockout_svc.record_failure(None, normalised_email, ip)  # type: ignore[attr-defined]
             return LoginFailure()
 
         pw_hash = account.password_hash or get_dummy_hash()
         password_ok = self._password_svc.verify(pw_hash, password)
 
         # Check lockout (after verify to preserve timing)
-        if lockout_svc is not None and lockout_svc.is_locked(account.id):  # type: ignore[attr-defined]
+        if lockout_svc.is_locked(account.id):
             self._audit_svc.record(
                 actor=account.id,
                 action=AuditAction.LOGIN_FAILURE,
@@ -107,6 +109,8 @@ class LoginService:
 
         # Generic failure for any non-ACTIVE state or wrong password
         if not password_ok or account.status != AccountStatus.ACTIVE:
+            # Count the failure first: a refused audit write must not skip the counter.
+            lockout_svc.record_failure(account.id, normalised_email, ip)
             self._audit_svc.record(
                 actor=account.id,
                 action=AuditAction.LOGIN_FAILURE,
@@ -115,13 +119,10 @@ class LoginService:
                 outcome=AuditOutcome.FAILURE,
                 ip=ip,
             )
-            if lockout_svc is not None:
-                lockout_svc.record_failure(account.id, normalised_email, ip)  # type: ignore[attr-defined]
             return LoginFailure()
 
         # Success path
-        if lockout_svc is not None:
-            lockout_svc.reset(account.id)  # type: ignore[attr-defined]
+        lockout_svc.reset(account.id)
 
         result = self._session_svc.create_session(account, ip=ip)
         set_session_cookie(response, result.session.session_id)
@@ -136,4 +137,8 @@ class LoginService:
             ip=ip,
         )
 
-        return LoginSuccess(session=result.session, csrf_token=csrf_token)
+        return LoginSuccess(
+            session=result.session,
+            csrf_token=csrf_token,
+            evicted_session=result.evicted_session_id is not None,
+        )

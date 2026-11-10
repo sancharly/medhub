@@ -216,3 +216,63 @@ def test_list_attachments_emits_audit() -> None:
     svc.list_attachments(doctor, uuid.uuid4())
     mock_audit.record.assert_called()
     assert "ATTACHMENT_ACCESS" in str(mock_audit.record.call_args)
+
+
+def _failure_calls(mock_audit: MagicMock) -> list:
+    return [
+        c for c in mock_audit.record.call_args_list if c.kwargs["outcome"] == AuditOutcome.FAILURE
+    ]
+
+
+def test_storage_error_records_one_failure_and_propagates() -> None:
+    """AC-3 (TC-007.10): storage raises -> FAILURE ATTACHMENT_ACCESS, no SUCCESS."""
+    patient = _make_account(UserType.PATIENT)
+    doctor = _make_account(UserType.DOCTOR)
+    attachment = _make_attachment(patient.id)
+    svc, mock_audit = _build_svc(attachment=attachment)
+    svc._storage.get_object.side_effect = RuntimeError("store down")  # type: ignore[attr-defined]
+
+    with pytest.raises(RuntimeError, match="store down"):
+        svc.open(doctor, attachment.id)
+
+    assert mock_audit.record.call_count == 1
+    kwargs = _failure_calls(mock_audit)[0].kwargs
+    assert kwargs["action"] == "ATTACHMENT_ACCESS"
+    assert kwargs["actor"] == doctor.id
+    assert kwargs["target_type"] == "attachment"
+    assert kwargs["target_id"] == str(attachment.id)
+
+
+def test_missing_object_records_one_failure_and_raises_not_found() -> None:
+    """AC-3 (TC-007.10): row without object -> NotFoundError and a FAILURE row."""
+    patient = _make_account(UserType.PATIENT)
+    doctor = _make_account(UserType.DOCTOR)
+    attachment = _make_attachment(patient.id)
+    svc, mock_audit = _build_svc(attachment=attachment)
+    svc._storage.get_object.return_value = None  # type: ignore[attr-defined]
+
+    with pytest.raises(NotFoundError):
+        svc.open(doctor, attachment.id)
+
+    assert mock_audit.record.call_count == 1
+    kwargs = _failure_calls(mock_audit)[0].kwargs
+    assert kwargs["actor"] == doctor.id
+    assert kwargs["target_id"] == str(attachment.id)
+
+
+def test_record_access_failure_writes_attachment_failure_row() -> None:
+    """AC-3: the public method writes the ADR-0016 FAILURE event with the request's address."""
+    doctor = _make_account(UserType.DOCTOR)
+    svc, mock_audit = _build_svc()
+    att_id = uuid.uuid4()
+
+    svc.record_access_failure(doctor, att_id)
+
+    mock_audit.record.assert_called_once_with(
+        actor=doctor.id,
+        action="ATTACHMENT_ACCESS",
+        target_type="attachment",
+        target_id=str(att_id),
+        outcome=AuditOutcome.FAILURE,
+        ip=None,
+    )
