@@ -1,200 +1,200 @@
 ---
-id: "CR-004"
+id: CR-004
 type: change-request
-title: "Close the open security defects from the 2026-07 review and audit"
-status: open
+title: Close the open security defects from the 2026-07 review and audit
+status: closed
 version: "1.22"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-10-31"
 updated: "2026-11-10"
 branch: fix/review-2026-07-security
 risk_impact: affects_controls
 links:
-  - target: "PRB-003"
+  - target: PRB-003
     relation: resolves
-  - target: "PRB-004"
+  - target: PRB-004
     relation: resolves
-  - target: "PRB-005"
+  - target: PRB-005
     relation: resolves
-  - target: "PRB-007"
+  - target: PRB-007
     relation: resolves
-  - target: "PRB-010"
+  - target: PRB-010
     relation: resolves
-  - target: "PRB-011"
+  - target: PRB-011
     relation: resolves
-  - target: "PRB-014"
+  - target: PRB-014
     relation: resolves
-  - target: "PRB-018"
+  - target: PRB-018
     relation: resolves
-  - target: "PRB-023"
+  - target: PRB-023
     relation: resolves
-  - target: "PRB-026"
+  - target: PRB-026
     relation: resolves
-  - target: "PRB-027"
+  - target: PRB-027
     relation: resolves
-  - target: "PRB-028"
+  - target: PRB-028
     relation: resolves
-  - target: "PRB-029"
+  - target: PRB-029
     relation: resolves
-  - target: "PRB-061"
+  - target: PRB-061
     relation: resolves
-  - target: "PRB-063"
+  - target: PRB-063
     relation: resolves
-  - target: "PRB-056"
+  - target: PRB-056
     relation: resolves
-  - target: "PRB-062"
+  - target: PRB-062
     relation: resolves
-  - target: "PRB-064"
+  - target: PRB-064
     relation: resolves
-  - target: "PRB-065"
+  - target: PRB-065
     relation: resolves
-  - target: "PRB-066"
+  - target: PRB-066
     relation: resolves
-  - target: "PRB-067"
+  - target: PRB-067
     relation: resolves
-  - target: "PRB-068"
+  - target: PRB-068
     relation: resolves
-  - target: "PRB-069"
+  - target: PRB-069
     relation: resolves
-  - target: "PRB-070"
+  - target: PRB-070
     relation: resolves
-  - target: "PRB-071"
+  - target: PRB-071
     relation: resolves
-  - target: "PRB-076"
+  - target: PRB-076
     relation: resolves
-  - target: "PRB-077"
+  - target: PRB-077
     relation: resolves
-  - target: "SR-005"
+  - target: SR-005
     relation: relates_to
-  - target: "SR-009"
+  - target: SR-009
     relation: relates_to
-  - target: "SR-016"
+  - target: SR-016
     relation: relates_to
-  - target: "SR-022"
+  - target: SR-022
     relation: relates_to
-  - target: "SR-023"
+  - target: SR-023
     relation: relates_to
-  - target: "SR-024"
+  - target: SR-024
     relation: relates_to
-  - target: "SR-029"
+  - target: SR-029
     relation: relates_to
-  - target: "SR-030"
+  - target: SR-030
     relation: relates_to
-  - target: "SR-031"
+  - target: SR-031
     relation: relates_to
-  - target: "SR-032"
+  - target: SR-032
     relation: relates_to
-  - target: "SR-034"
+  - target: SR-034
     relation: relates_to
-  - target: "SR-041"
+  - target: SR-041
     relation: relates_to
-  - target: "SR-042"
+  - target: SR-042
     relation: relates_to
-  - target: "SR-043"
+  - target: SR-043
     relation: relates_to
-  - target: "RR-001"
+  - target: RR-001
     relation: relates_to
-  - target: "RR-002"
+  - target: RR-002
     relation: relates_to
-  - target: "RR-003"
+  - target: RR-003
     relation: relates_to
-  - target: "RR-004"
+  - target: RR-004
     relation: relates_to
-  - target: "NFR-004"
+  - target: NFR-004
     relation: relates_to
-  - target: "NFR-007"
+  - target: NFR-007
     relation: relates_to
-  - target: "RISK-001"
+  - target: RISK-001
     relation: relates_to
-  - target: "RISK-005"
+  - target: RISK-005
     relation: relates_to
-  - target: "RISK-006"
+  - target: RISK-006
     relation: relates_to
-  - target: "RISK-007"
+  - target: RISK-007
     relation: relates_to
-  - target: "RISK-008"
+  - target: RISK-008
     relation: relates_to
-  - target: "RISK-011"
+  - target: RISK-011
     relation: relates_to
-  - target: "TASK-137"
+  - target: TASK-137
     relation: relates_to
-  - target: "TASK-138"
+  - target: TASK-138
     relation: relates_to
-  - target: "TASK-139"
+  - target: TASK-139
     relation: relates_to
-  - target: "TASK-140"
+  - target: TASK-140
     relation: relates_to
-  - target: "TASK-142"
+  - target: TASK-142
     relation: relates_to
-  - target: "CR-002"
+  - target: CR-002
     relation: relates_to
-  - target: "RISK-004"
+  - target: RISK-004
     relation: relates_to
-  - target: "TASK-185"
+  - target: TASK-185
     relation: relates_to
-  - target: "TASK-186"
+  - target: TASK-186
     relation: relates_to
-  - target: "TASK-187"
+  - target: TASK-187
     relation: relates_to
-  - target: "TASK-188"
+  - target: TASK-188
     relation: relates_to
-  - target: "TASK-189"
+  - target: TASK-189
     relation: relates_to
-  - target: "TASK-190"
+  - target: TASK-190
     relation: relates_to
-  - target: "TASK-191"
+  - target: TASK-191
     relation: relates_to
-  - target: "TASK-192"
+  - target: TASK-192
     relation: relates_to
-  - target: "TASK-193"
+  - target: TASK-193
     relation: relates_to
-  - target: "TASK-194"
+  - target: TASK-194
     relation: relates_to
-  - target: "TASK-195"
+  - target: TASK-195
     relation: relates_to
-  - target: "TASK-196"
+  - target: TASK-196
     relation: relates_to
-  - target: "TASK-197"
+  - target: TASK-197
     relation: relates_to
-  - target: "TASK-198"
+  - target: TASK-198
     relation: relates_to
-  - target: "TASK-199"
+  - target: TASK-199
     relation: relates_to
-  - target: "TASK-200"
+  - target: TASK-200
     relation: relates_to
-  - target: "TASK-201"
+  - target: TASK-201
     relation: relates_to
-  - target: "TASK-202"
+  - target: TASK-202
     relation: relates_to
-  - target: "TASK-203"
+  - target: TASK-203
     relation: relates_to
-  - target: "TASK-204"
+  - target: TASK-204
     relation: relates_to
-  - target: "TASK-205"
+  - target: TASK-205
     relation: relates_to
-  - target: "TASK-206"
+  - target: TASK-206
     relation: relates_to
-  - target: "TASK-207"
+  - target: TASK-207
     relation: relates_to
-  - target: "TASK-208"
+  - target: TASK-208
     relation: relates_to
-  - target: "ADD-005"
+  - target: ADD-005
     relation: relates_to
-  - target: "ADD-006"
+  - target: ADD-006
     relation: relates_to
-  - target: "ADD-007"
+  - target: ADD-007
     relation: relates_to
-  - target: "ADD-013"
+  - target: ADD-013
     relation: relates_to
-  - target: "ADD-016"
+  - target: ADD-016
     relation: relates_to
-  - target: "ADD-017"
+  - target: ADD-017
     relation: relates_to
-  - target: "ADD-018"
+  - target: ADD-018
     relation: relates_to
-  - target: "ADD-025"
+  - target: ADD-025
     relation: relates_to
-  - target: "ADD-026"
+  - target: ADD-026
     relation: relates_to
 tags:
   - security
