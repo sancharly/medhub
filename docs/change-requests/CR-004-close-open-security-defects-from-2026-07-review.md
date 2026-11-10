@@ -3,7 +3,7 @@ id: "CR-004"
 type: change-request
 title: "Close the open security defects from the 2026-07 review and audit"
 status: open
-version: "1.21"
+version: "1.22"
 author: "Carlos Santiago Liceras"
 created: "2026-10-31"
 updated: "2026-11-10"
@@ -61,6 +61,8 @@ links:
   - target: "PRB-071"
     relation: resolves
   - target: "PRB-076"
+    relation: resolves
+  - target: "PRB-077"
     relation: resolves
   - target: "SR-005"
     relation: relates_to
@@ -174,6 +176,8 @@ links:
     relation: relates_to
   - target: "TASK-207"
     relation: relates_to
+  - target: "TASK-208"
+    relation: relates_to
   - target: "ADD-005"
     relation: relates_to
   - target: "ADD-006"
@@ -268,6 +272,7 @@ order and dependencies in "Plan").
 | PRB-070 The e-mailed activation link does not match the app's activation route (found while planning TASK-206; added in 1.14) | major | SR-033 AC 1, AC 3, AC 7; RISK-009 | TASK-206 |
 | PRB-071 The API process cannot enqueue Celery tasks, so no e-mail is sent and no session kill is propagated by the worker (found on the TASK-206 started stack; added in 1.16) | critical | SR-033 AC 1, AC 3, AC 7 (activation e-mail), SR-034 AC 2 (session-kill propagation), SR-024 (erasure code e-mail), SR-035 (appointment notification); RISK-009, RISK-005 | TASK-206 |
 | PRB-076 The stack can fail to start because the fixed `medhub` subnet overlaps a network Docker picks for another Compose network (found in the TASK-202 QA review; added in 1.20) | major | SR-042 AC 3 (the fixed proxy address); RISK-007 | TASK-202 (round 2) |
+| PRB-077 The object store cannot start on current Docker Compose because its volume name renders empty (found by the first hosted CI run; added in 1.22) | major | SR-041; RISK-007 | TASK-208 |
 
 Existing TASKs whose links will need updating at the Plan stage: TASK-137 (add `implements`
 SR-042), TASK-138 (add `implements` SR-043).
@@ -498,6 +503,7 @@ New, for the human (Plan stage):
   known anomaly while only development data exists and is re-evaluated before the first release. Accepted as documented residuals: the reverse-proxy master
   runs as UID 0; `celery-beat` and `db-migrate` hold settings they do not use; a rejected module manifest only logs a warning (see PRB-075). The human
   approved the RISK, ADD and SOUP records left in review by CR-004.
+- **D-22 (human decision 2026-11-10):** PRB-077, found by the first hosted CI run on PR #38, is fixed in TASK-208: the volume's default name is written out in the Compose file. TASK-202 returns to `draft` until a hosted run is green.
 
 ## Change analysis (Risk stage, §7.4, 2026-10-31)
 
@@ -622,6 +628,7 @@ the human approves the plan, ADR-0017..0019 and the RISK records' control plans.
 | P7 | [TASK-205](../design-outputs/tasks/TASK-205-session-refresh-dead-members-and-eviction-notice.md) Session refresh race, expired cap members, eviction report | 064, 065, 066 | SR-030 AC 1–3, 5, 7 | 005 | M | 199 (committed); parallel | new |
 | P8 | [TASK-206](../design-outputs/tasks/TASK-206-token-free-logs-bounded-file-names-celery-loglevel.md) Token-free logs, activation link, bounded attachment names, Celery `--loglevel`, API task dispatch | 068, 069, 070, 071 | SR-043 AC 4, AC 2; SR-033; SR-013 AC 1, 3; SR-023 AC 2, 6 | 005, 007, 006, 009 | L | 138, 204 (committed); parallel | new |
 | P9 | [TASK-207](../design-outputs/tasks/TASK-207-task-206-qa-follow-ups.md) TASK-206 QA follow-ups: fast enqueue, case-insensitive redaction, enqueue warnings | — (013 stays open) | SR-043 AC 1, 4; SR-023 | 005, 007 | S | 206 (committed) | new |
+| P10 | [TASK-208](../design-outputs/tasks/TASK-208-object-store-volume-name-on-current-compose.md) Non-empty default name for the object store volume | 077 | SR-041 | 007 | S | 196 (committed) | new |
 | 18 | [TASK-201](../design-outputs/tasks/TASK-201-arc42-and-design-records-for-cr-004.md) arc42, ADD and ADR index | — | SR-022, 023, 041, 042, 043 | — | M (docs) | all above | new |
 | 19 | [TASK-202](../design-outputs/tasks/TASK-202-verify-cr-004-end-to-end.md) Verify end to end; re-score risks (**Checkpoint F**) | all | all in scope | (relates_to all) | S | all above | new |
 
@@ -796,3 +803,4 @@ per volume, re-key by copy, 196).
 - 1.19 (2026-11-08) — Checkpoint F (TASK-202): the whole-CR verification is recorded in TASK-202's hand-off (backend 1547 passed, 6 skipped, coverage 94.51%; DICOM 25; frontend 315; infra 110; started stack smoke 78 and log check 38, 0 failed; activation e-mail flow and field-key rotation with attachments on a started stack). Residuals proposed for RISK-001, 004, 005, 006, 007, 008, 009, 011, all unchanged, in `in_review` for the human. The CR stays `open` for the human's close-out decision.
 - 1.20 (2026-11-08) — D-20 (orchestrator): PRB-076 (start-up failure from TASK-185's fixed subnet, found in the TASK-202 QA review) fixed in TASK-202 round 2: `resolves` PRB-076, Scope row, `medhub` subnet moved to `10.77.77.0/24` outside Docker's default pools. No other change.
 - 1.21 (2026-11-10) — D-21: residuals, PRB-074 and three design residuals accepted by the human; RISK, ADD and SOUP records approved. No other change.
+- 1.22 (2026-11-10) — D-22: PRB-077 (empty object store volume name, found by the first hosted CI run) fixed in TASK-208: `resolves` PRB-077, `relates_to` TASK-208, Scope row and Plan row P10. No other change.

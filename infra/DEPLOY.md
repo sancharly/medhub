@@ -58,6 +58,8 @@ value on a volume that holds attachments makes them unreadable, so the stack che
 the only way to move to another key is the copy in "Separating the object-store SSE key".
 
 `OBJECT_STORE_VOLUME` is optional and empty by default (the volume is then `<project>_object_store_data`).
+Never set `COMPOSE_PROJECT_NAME` empty or to a value other than the `-p` name: older Compose (2.20) builds the default
+volume name from that variable, so the store would fail to start or use another project's volume.
 Only "Separating the object-store SSE key" sets it, to switch the store to the volume that holds the
 attachments under the new key.
 

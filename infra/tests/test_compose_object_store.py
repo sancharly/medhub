@@ -28,13 +28,14 @@ GOOD = {
 DEFAULT_STRINGS = ("minioadmin", "changeme")
 
 
-def compose_config(env: dict, shell: dict | None = None):
+def compose_config(env: dict, shell: dict | None = None, project: str | None = None):
     """Run `docker compose config`; return (CompletedProcess, parsed JSON or None)."""
+    project_args = ["-p", project] if project else []
     with tempfile.TemporaryDirectory() as tmp:
         env_file = Path(tmp) / ".env"
         env_file.write_text("".join(f"{k}={v}\n" for k, v in env.items()))
         result = subprocess.run(
-            ["docker", "compose", "-f", str(COMPOSE), "--env-file", str(env_file),
+            ["docker", "compose", *project_args, "-f", str(COMPOSE), "--env-file", str(env_file),
              "config", "--format", "json"],
             capture_output=True, text=True, cwd=tmp,
             # The caller's own secrets must not leak in: a shell variable beats --env-file.
@@ -296,7 +297,7 @@ class ComposeWiring(unittest.TestCase):
     def test_the_object_store_volume_defaults_and_can_be_named(self):
         """TASK-196: the SSE-key procedure switches the store to another volume by name."""
         _, default = compose_config(GOOD)
-        self.assertRegex(default["volumes"]["object_store_data"]["name"], r"_object_store_data$")
+        self.assertRegex(default["volumes"]["object_store_data"]["name"], r"^[a-z0-9].*_object_store_data$")
         result, named = compose_config({**GOOD, "OBJECT_STORE_VOLUME": "scratch_volume"})
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(named["volumes"]["object_store_data"]["name"], "scratch_volume")
@@ -306,6 +307,18 @@ class ComposeWiring(unittest.TestCase):
         _, empty = compose_config({**GOOD, "OBJECT_STORE_VOLUME": ""})
         self.assertEqual(empty["volumes"]["object_store_data"]["name"],
                          default["volumes"]["object_store_data"]["name"])
+
+    def test_the_default_volume_name_is_the_project_default(self):
+        """PRB-077: an existing store keeps its volume under `-p`, with the variable unset or empty."""
+        for env in (GOOD, {**GOOD, "OBJECT_STORE_VOLUME": ""}):
+            result, config = compose_config(env, project="prb077")
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(config["volumes"]["object_store_data"]["name"], "prb077_object_store_data")
+
+    def test_no_volume_name_can_render_empty(self):
+        """PRB-077: current Compose rejects an empty name; Compose 2.20 accepts it, so check the source."""
+        empty_name = r"(?m)^\s*name:\s*(\"\"|''|\$\{[A-Z_]+(:?-)?\})?\s*$"
+        self.assertNotRegex(COMPOSE.read_text(), empty_name)
 
 
 class NoDefaultStrings(unittest.TestCase):

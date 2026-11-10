@@ -32,9 +32,10 @@ volumes:
   redis_data:
   # The object store's data. The name is the project's default unless OBJECT_STORE_VOLUME names
   # another volume; only the SSE-key procedure in DEPLOY.md sets it, to switch to the volume the
-  # attachments were copied to under the new key (TASK-196). An empty value keeps the default.
+  # attachments were copied to under the new key (TASK-196). An empty value keeps the default,
+  # spelled out because current Compose rejects an empty `name:` (PRB-077).
   object_store_data:
-    name: ${OBJECT_STORE_VOLUME:-}
+    name: ${OBJECT_STORE_VOLUME:-${COMPOSE_PROJECT_NAME}_object_store_data}
 
 services:
   # ── Reverse Proxy (nginx) ─────────────────────────────────────────────────

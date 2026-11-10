@@ -2,11 +2,11 @@
 id: "TASK-202"
 type: task
 title: "Verify CR-004 end to end and re-score the risks from the evidence"
-status: approved
-version: "1.5"
+status: draft
+version: "1.6"
 author: "Carlos Santiago Liceras"
 created: "2026-10-31"
-updated: "2026-11-08"
+updated: "2026-11-10"
 links:
   - target: "SR-022"
     relation: implements
@@ -323,3 +323,4 @@ All seven review-1 findings are closed, and no new finding blocks. AC-1 stays un
 - 1.3 (2026-11-08) — QA review 1: CHANGES REQUESTED (1 HIGH, 2 MEDIUM, 4 LOW). `in_review → draft`.
 - 1.4 (2026-11-08) — Round 2: QA review 1 findings 1 to 7 addressed; PRB-076 raised and resolved (D-20). `draft → in_review`.
 - 1.5 (2026-11-08) — QA review 2: APPROVED. `in_review → approved`; AC-2, AC-3 and the DoD ticked; AC-1 waits for the hosted CI run. TS-007, TS-011, TS-015 approved; PRB-076 `resolved` confirmed; RISK records stay `in_review` for the human.
+- 1.6 (2026-11-10) — The first hosted CI run (PR #38, head 366cba9) failed `Image Pin Check` and `Object Store Integration` (PRB-077). `approved → draft`, as the QA review 2 condition states. AC-1 stays unticked until a hosted run is green.
