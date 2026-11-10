@@ -3,10 +3,10 @@ id: "TASK-196"
 type: task
 title: "Separate the object-store SSE key from the field key and migrate stored attachments"
 status: approved
-version: "1.7"
+version: "1.8"
 author: "Carlos Santiago Liceras"
 created: "2026-10-31"
-updated: "2026-11-02"
+updated: "2026-11-10"
 links:
   - target: "SR-041"
     relation: implements
@@ -116,9 +116,9 @@ are equal; attachments stored before the separation stay readable after it.
 
 ## Acceptance criteria
 
-- [ ] SR-041 AC 5: separate settings; equal keys refused (`backend/tests/core/test_object_store_credentials.py`,
+- [x] SR-041 AC 5: separate settings; equal keys refused (`backend/tests/core/test_object_store_credentials.py`,
       `infra/tests/test_compose_object_store.py`).
-- [ ] SR-041 AC 5, AC 6: attachments stored before the separation are readable after it, on a
+- [x] SR-041 AC 5, AC 6: attachments stored before the separation are readable after it, on a
       started stack (rehearsal record).
 
 ## Verification
@@ -140,9 +140,9 @@ docker compose -f infra/docker-compose.yml up -d && infra/smoke-test.sh
 
 ## Definition of Done
 
-- [ ] Tests and smoke pass; rehearsal recorded and presented to the human.
-- [ ] TS-014, TS-015, SOUP-036 `in_review`; PRB-007 `resolved`.
-- [ ] `traceability-check` shows no error for TASK-196, TS-014, TS-015, SR-041, PRB-007.
+- [x] Tests and smoke pass; rehearsal recorded and presented to the human.
+- [x] TS-014, TS-015, SOUP-036 `in_review`; PRB-007 `resolved`.
+- [x] `traceability-check` shows no error for TASK-196, TS-014, TS-015, SR-041, PRB-007.
 
 ## Implementation notes (2026-11-01, software developer)
 
@@ -694,3 +694,7 @@ committed. Only `infra/DEPLOY.md` changed, in "Separating the object-store SSE k
 ## Approval (2026-11-02)
 
 Status set to `approved` by the orchestrator: approved by the human's decision of 2026-11-02 (CR-004 D-10: TASK-196 accepted with the QA round-2 text fix, no QA re-review).
+
+## Version history
+
+- 1.8 (2026-11-10) — Two acceptance criteria and three Definition of Done boxes ticked after checking the evidence: 56 tests in `test_object_store_credentials.py` pass on 2026-11-10; the rehearsal from the release before CR-004 is recorded here and was presented to the human in chat on 2026-11-02; TS-014, TS-015 and SOUP-036 are now `approved` and PRB-007 `resolved`; traceability has 0 errors. Status unchanged.

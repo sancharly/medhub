@@ -3,10 +3,10 @@ id: "TASK-204"
 type: task
 title: "Serve any attachment file name on download and audit a failed download"
 status: approved
-version: "1.2"
+version: "1.3"
 author: "Carlos Santiago Liceras"
 created: "2026-11-02"
-updated: "2026-11-06"
+updated: "2026-11-10"
 links:
   - target: "SR-013"
     relation: implements
@@ -273,7 +273,7 @@ uvicorn and the nginx proxy in the path). Recorded in this task:
       step at release.
 - [x] `traceability-check` shows no error for TASK-204, TS-007, SR-013, SR-023, ADD-012, RISK-007,
       PRB-063.
-- [ ] `graphify update .` run after the code change.
+- [x] `graphify update .` run after the code change.
 
 ## Implementation notes (Software Developer, 2026-11-06)
 
@@ -386,3 +386,4 @@ Carried to TASK-202:
 - 1.0 (2026-11-02) — Created by the Software Architect role for PRB-063 (CR-004 D-9). `draft`.
 - 1.1 (2026-11-06) — Implemented by the Software Developer role; `in_review`. Notes and negative-control results added.
 - 1.2 (2026-11-06) — QA review: APPROVED (1 MEDIUM, 2 LOW, not blocking; C-1 and C-2 carried to TASK-202). `approved`.
+- 1.3 (2026-11-10) — `graphify update .` box ticked: the graph was brought up to date on 2026-11-10; no run was recorded at the time. The started-stack box stays unticked: step 4 and C-2, the name Chrome saves through "Download" including a name with U+202E, were carried to TASK-202 and not done. Status unchanged.

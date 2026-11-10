@@ -3,10 +3,10 @@ id: "TASK-191"
 type: task
 title: "Run migrations as the owner in a one-shot service and connect the application with the runtime role"
 status: approved
-version: "1.3"
+version: "1.4"
 author: "Carlos Santiago Liceras"
 created: "2026-10-31"
-updated: "2026-11-01"
+updated: "2026-11-10"
 links:
   - target: "SR-023"
     relation: implements
@@ -123,7 +123,7 @@ cd backend && uv run pytest --cov=app --cov-fail-under=85
 ## Definition of Done
 
 - [x] Infra tests and smoke test pass; backend suite passes.
-- [ ] Rehearsal recorded and presented to the human before any other database is converted.
+- [x] Rehearsal recorded and presented to the human before any other database is converted.
 - [x] `traceability-check` shows no error for TASK-191, TS-009, TS-015, SR-023, SR-041, PRB-005.
 
 ## Carried from the TASK-190 QA review (2026-11-01)
@@ -652,3 +652,7 @@ Checked across TASK-140, 197, 203, 198, 190 and 191 on stack `qa191` (round 2).
 | Every built image and running process non-root | Met for MedHub-built images: backend, worker and beat run as `medhub`, UID 999; frontend as 101 (smoke section 11). Pulled reverse-proxy master is UID 0, outside SR-041 AC 1, for the human to accept at release (PRB-007) |
 | Runtime role cannot update `audit_log` | Met. UPDATE, DELETE and TRUNCATE each return 42501, `SET ROLE` is refused and there are no memberships. No application container holds the owner credential (by value), so the role is the only database identity the application has |
 | TASK-191 rehearsal recorded | Met. It is recorded (rounds 1 and 2) and QA reproduced it in both rounds, including the round-1 rollback |
+
+## Version history
+
+- 1.4 (2026-11-10) — Definition of Done box ticked after checking the evidence: the rehearsal is recorded here and was presented to the human in chat on 2026-11-01. Status unchanged.

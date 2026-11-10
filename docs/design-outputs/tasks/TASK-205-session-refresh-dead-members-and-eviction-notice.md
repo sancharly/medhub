@@ -3,10 +3,10 @@ id: "TASK-205"
 type: task
 title: "Close the session refresh race, prune expired members from the cap, report evictions"
 status: approved
-version: "1.2"
+version: "1.3"
 author: "Carlos Santiago Liceras"
 created: "2026-11-06"
-updated: "2026-11-07"
+updated: "2026-11-10"
 links:
   - target: "SR-030"
     relation: implements
@@ -241,14 +241,14 @@ tests exercise with the pinned production image; the HTTP path is covered by the
 
 ## Definition of Done
 
-- [ ] AC-1 to AC-4 met; the negative controls recorded; real-Redis pass counts recorded.
-- [ ] Backend suite passes with coverage ≥ 85 %; frontend `src/auth` tests and typecheck green; `ruff`,
+- [x] AC-1 to AC-4 met; the negative controls recorded; real-Redis pass counts recorded.
+- [x] Backend suite passes with coverage ≥ 85 %; frontend `src/auth` tests and typecheck green; `ruff`,
       `mypy` clean; generated contract files regenerated, not hand-edited.
-- [ ] TS-001 1.4, ADD-006 1.2, RISK-005 1.3, SOUP-013, SOUP-021 `in_review`.
-- [ ] On QA approval: this task `approved`; PRB-064, PRB-065, PRB-066 `resolved` (CR-004 D-8).
-- [ ] `traceability-check` shows no error for TASK-205, TS-001, SR-030, ADD-006, RISK-005, SOUP-013,
+- [x] TS-001 1.4, ADD-006 1.2, RISK-005 1.3, SOUP-013, SOUP-021 `in_review`.
+- [x] On QA approval: this task `approved`; PRB-064, PRB-065, PRB-066 `resolved` (CR-004 D-8).
+- [x] `traceability-check` shows no error for TASK-205, TS-001, SR-030, ADD-006, RISK-005, SOUP-013,
       SOUP-021, PRB-064, PRB-065, PRB-066.
-- [ ] `graphify update .` run after the code change.
+- [x] `graphify update .` run after the code change.
 
 ## Version history
 
@@ -258,6 +258,7 @@ tests exercise with the pinned production image; the HTTP path is covered by the
 - 1.1 (2026-11-06) — QA review round 1: CHANGES REQUESTED (finding 1 blocking; 2 and 3 LOW). `in_review → draft`.
 - 1.2 (2026-11-07) — Round 2: QA findings 1 to 3 addressed (see "Implementation notes — round 2"); `draft → in_review`.
 - 1.2 (2026-11-07) — QA review round 2: APPROVED. `in_review → approved`; AC-1 to AC-4 ticked, AC-2/AC-3 test references aligned with round 2. TS-001 approved; PRB-064, PRB-065, PRB-066 `resolved` (CR-004 D-8).
+- 1.3 (2026-11-10) — Six Definition of Done boxes ticked after checking the evidence: QA review 2 (real-Redis file 111/111 three times, 0 traceability errors); developer full suite 1467 passed, coverage 94.41 %; hosted CI green on d53eb7f; TS-001, ADD-006, RISK-005, SOUP-013 and SOUP-021 are now `approved` and PRB-064 to PRB-066 `resolved`; `graphify update .` was run on 2026-11-10, with no run recorded at the time. Status unchanged.
 
 ## Implementation notes (Software Developer, 2026-11-06)
 
