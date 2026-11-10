@@ -2,8 +2,8 @@
 id: "TASK-202"
 type: task
 title: "Verify CR-004 end to end and re-score the risks from the evidence"
-status: draft
-version: "1.6"
+status: approved
+version: "1.7"
 author: "Carlos Santiago Liceras"
 created: "2026-10-31"
 updated: "2026-11-10"
@@ -99,7 +99,7 @@ deferred to the evidence.
 
 ## Acceptance criteria
 
-- [ ] All suites, CI and the started-stack smoke pass (results recorded with counts). (QA 2026-11-08: the suites and the started-stack smoke pass, rerun by QA; the CI part waits for the first hosted run after the push. Tick this when every job is green.)
+- [x] All suites, CI and the started-stack smoke pass (results recorded with counts). (QA 2026-11-08: the suites and the started-stack smoke pass, rerun by QA. CI: the first hosted run failed on PRB-077; after TASK-208, runs 42779806388 (push) and 42779810219 (pull_request), head d53eb7f: all 8 jobs green.)
 - [x] `traceability-check`: 0 errors.
 - [x] RISK records re-scored from evidence and presented to the human for acceptance.
 
@@ -324,3 +324,4 @@ All seven review-1 findings are closed, and no new finding blocks. AC-1 stays un
 - 1.4 (2026-11-08) — Round 2: QA review 1 findings 1 to 7 addressed; PRB-076 raised and resolved (D-20). `draft → in_review`.
 - 1.5 (2026-11-08) — QA review 2: APPROVED. `in_review → approved`; AC-2, AC-3 and the DoD ticked; AC-1 waits for the hosted CI run. TS-007, TS-011, TS-015 approved; PRB-076 `resolved` confirmed; RISK records stay `in_review` for the human.
 - 1.6 (2026-11-10) — The first hosted CI run (PR #38, head 366cba9) failed `Image Pin Check` and `Object Store Integration` (PRB-077). `approved → draft`, as the QA review 2 condition states. AC-1 stays unticked until a hosted run is green.
+- 1.7 (2026-11-10) — AC-1 ticked: runs 42779806388 (push) and 42779810219 (pull_request), head d53eb7f, all 8 jobs green, reported by the human and confirmed on GitHub. `draft → approved`, the condition set by QA review 2.

@@ -3,7 +3,7 @@ id: "TASK-208"
 type: task
 title: "Give the object store volume a non-empty default name"
 status: approved
-version: "1.1"
+version: "1.2"
 author: "Carlos Santiago Liceras"
 created: "2026-11-10"
 updated: "2026-11-10"
@@ -57,7 +57,7 @@ In `infra/tests/test_compose_object_store.py`:
 - [x] AC-2: with `OBJECT_STORE_VOLUME` set, the volume has that name.
 - [x] AC-3: no volume name in the Compose file can render empty.
 - [x] AC-4: the object store starts on a scratch stack, on the default-named volume.
-- [ ] AC-5: `Image Pin Check` and `Object Store Integration` are green on the hosted run of the fix.
+- [x] AC-5: `Image Pin Check` and `Object Store Integration` are green on the hosted run of the fix. (runs 42779806388 (push) and 42779810219 (pull_request), head d53eb7f: all 8 jobs green.)
 
 ## Verification
 
@@ -100,3 +100,4 @@ No CRITICAL or HIGH finding. AC-5 is left unticked: it needs the hosted run, whi
 
 - 1.0 (2026-11-10) — Created and built; `in_review`.
 - 1.1 (2026-11-10) — QA review: APPROVED (3 LOW). `in_review → approved`; AC-1 to AC-4 ticked; AC-5 waits for the hosted run. PRB-077 `resolved` (D-8).
+- 1.2 (2026-11-10) — AC-5 ticked: runs 42779806388 (push) and 42779810219 (pull_request), head d53eb7f, all 8 jobs green. Status stays `approved`.
