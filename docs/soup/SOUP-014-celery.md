@@ -2,11 +2,14 @@
 id: SOUP-014
 type: soup
 title: Celery
-status: in_review
+status: approved
 version: "1.5"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
-updated: "2026-11-07"
+updated: "2026-11-10"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-11-10"
+approval_note: approved by the human in chat at the close of CR-004
 manufacturer: Celery project
 soup_version: 5.6.3
 anomaly_review: "2026-10-22"

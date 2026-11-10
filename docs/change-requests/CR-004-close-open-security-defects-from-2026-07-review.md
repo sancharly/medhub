@@ -3,10 +3,10 @@ id: "CR-004"
 type: change-request
 title: "Close the open security defects from the 2026-07 review and audit"
 status: open
-version: "1.20"
+version: "1.21"
 author: "Carlos Santiago Liceras"
 created: "2026-10-31"
-updated: "2026-11-08"
+updated: "2026-11-10"
 branch: fix/review-2026-07-security
 risk_impact: affects_controls
 links:
@@ -493,6 +493,11 @@ New, for the human (Plan stage):
   error log on an upstream failure or 413; accepted as a residual against SR-043 AC 4, listed for the release's
   residual-anomaly evaluation. SR-043's text is not edited; TASK-201 carries the note.
 - **D-20 (orchestrator):** PRB-076, a start-up failure introduced by TASK-185's fixed subnet, is fixed in TASK-202 round 2. `medhub` moves out of Docker's default address pools (`10.77.77.0/24`); the proxy address, `ip_range` and `TRUSTED_PROXIES` follow.
+- **D-21 (human decisions 2026-11-10, CR-004 close of build):** the residuals proposed by TASK-202 are accepted unchanged: RISK-001 2×2, RISK-004 3×2 ALARP,
+  RISK-005 3×1, RISK-006 2×2, RISK-007 3×2 ALARP, RISK-008 2×2, RISK-009 2×2, RISK-011 3×2 ALARP. PRB-074 (plaintext task arguments in Redis) is accepted as a
+  known anomaly while only development data exists and is re-evaluated before the first release. Accepted as documented residuals: the reverse-proxy master
+  runs as UID 0; `celery-beat` and `db-migrate` hold settings they do not use; a rejected module manifest only logs a warning (see PRB-075). The human
+  approved the RISK, ADD and SOUP records left in review by CR-004.
 
 ## Change analysis (Risk stage, §7.4, 2026-10-31)
 
@@ -790,3 +795,4 @@ per volume, re-key by copy, 196).
 - 1.18 (2026-11-07) — D-19 (human decision 2026-11-07): the Referer and query-string case that can reach the proxy error log is an accepted residual against SR-043 AC 4. TASK-207 built: change-analysis, SR AC coverage and TS rows (TS-003 1.5 → 1.6, TS-007 1.6 → 1.7, TS-017 1.2 → 1.3). No other change.
 - 1.19 (2026-11-08) — Checkpoint F (TASK-202): the whole-CR verification is recorded in TASK-202's hand-off (backend 1547 passed, 6 skipped, coverage 94.51%; DICOM 25; frontend 315; infra 110; started stack smoke 78 and log check 38, 0 failed; activation e-mail flow and field-key rotation with attachments on a started stack). Residuals proposed for RISK-001, 004, 005, 006, 007, 008, 009, 011, all unchanged, in `in_review` for the human. The CR stays `open` for the human's close-out decision.
 - 1.20 (2026-11-08) — D-20 (orchestrator): PRB-076 (start-up failure from TASK-185's fixed subnet, found in the TASK-202 QA review) fixed in TASK-202 round 2: `resolves` PRB-076, Scope row, `medhub` subnet moved to `10.77.77.0/24` outside Docker's default pools. No other change.
+- 1.21 (2026-11-10) — D-21: residuals, PRB-074 and three design residuals accepted by the human; RISK, ADD and SOUP records approved. No other change.

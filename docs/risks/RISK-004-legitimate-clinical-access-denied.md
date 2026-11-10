@@ -2,11 +2,14 @@
 id: RISK-004
 type: risk
 title: Legitimate clinical access wrongly denied or delayed
-status: in_review
+status: approved
 version: "1.3"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-11-08"
+updated: "2026-11-10"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-11-10"
+approval_note: approved by the human in chat at the close of CR-004
 hazard: A clinician with a legitimate care relationship cannot reach the patient's clinical data when needed.
 cause: An over-restrictive or mis-scoped consent evaluation (a declined appointment revoking a grant from another source, a per-source union computed wrongly, a module guard denying an enabled module) → the API denies the request → the clinician proceeds without the available history.
 harm: Care based on incomplete information, or delayed care while access is sorted out; recoverable in most workflows.

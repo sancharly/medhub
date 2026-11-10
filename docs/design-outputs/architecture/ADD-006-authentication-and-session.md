@@ -2,11 +2,14 @@
 id: ADD-006
 type: architecture-doc
 title: Authentication & Session (SI-AUTH)
-status: in_review
+status: approved
 version: "1.3"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-11-08"
+updated: "2026-11-10"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-11-10"
+approval_note: approved by the human in chat at the close of CR-004
 links:
   - target: SR-002
     relation: implements

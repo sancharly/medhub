@@ -2,11 +2,14 @@
 id: RISK-009
 type: risk
 title: Appointment or activation notification not delivered
-status: in_review
+status: approved
 version: "1.4"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-11-08"
+updated: "2026-11-10"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-11-10"
+approval_note: approved by the human in chat at the close of CR-004
 hazard: A patient never learns about an appointment, or cannot activate their account, because a notification was not delivered.
 cause: A dead broker, a swallowed enqueue exception, an email provider rejection, or an expired activation token with no resend → no notification reaches the patient → they miss the appointment or cannot access their data. The e-mailed activation link does not reach the activation page (PRB-070). The API process dispatches tasks to the wrong broker, so no e-mail is sent (PRB-071).
 harm: Missed or delayed care; frustration and extra administrative work. No direct physical harm.

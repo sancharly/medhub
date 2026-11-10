@@ -2,11 +2,14 @@
 id: RISK-005
 type: risk
 title: Account takeover leading to disclosure or falsified clinical records
-status: in_review
+status: approved
 version: "1.6"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-11-08"
+updated: "2026-11-10"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-11-10"
+approval_note: approved by the human in chat at the close of CR-004
 hazard: "An attacker acting as a legitimate user: reading PHI, or writing clinical entries as a clinician."
 cause: Credential stuffing, brute force, a stolen session token (including one brought back after logout, eviction or a password change by a racing session refresh, PRB-064), or a CSRF-able mutating endpoint → the attacker authenticates or rides an authenticated session → they read or write clinical data under someone else's identity.
 harm: Wrong clinical decisions from falsified data, plus privacy harm. Recoverable if detected via the audit trail.
@@ -114,3 +117,4 @@ availability effect by design, with a message naming the setting.
 - 1.4 (2026-11-07) — TASK-206 (CR-004 D-14, D-16): one control row, no credential or secret in operational and proxy logs (SR-043 AC 4, TS-017 TC-017.4). Residual unchanged (3 x 1, acceptable).
 - 1.5 (2026-11-07) — TASK-207 (TASK-206 QA findings 2, 6): the log control row names TASK-207 (case-insensitive activation matching; widened started-stack check). Residual unchanged (3 x 1, acceptable). A hand-crafted Referer or a token in another path's query string that reaches the proxy error log is a residual accepted against SR-043 AC 4 (CR-004 D-19), not a change of the scores.
 - 1.6 (2026-11-08) — CR-004 Checkpoint F (TASK-202): planned verification replaced by the tests that ran; residual proposed from the evidence, 3 × 1 → acceptable, unchanged; PRB-074 raised to the human as the one open cause. Content change, so `in_review` and the approval record (none) stays cleared.
+- (2026-11-10) — Human decision (CR-004 D-21): the residual is accepted unchanged; PRB-074 is accepted as a known anomaly while only development data exists, to be re-evaluated before the first release.
