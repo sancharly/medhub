@@ -20,7 +20,7 @@ jobs:
           python-version: "3.12.15"
 
       - name: Install uv
-        run: pip install uv
+        run: pip install uv==0.13.7
 
       - name: Check the lock file is current
         working-directory: backend
@@ -90,7 +90,7 @@ jobs:
           python-version: "3.12.15"
 
       - name: Install uv
-        run: pip install uv
+        run: pip install uv==0.13.7
 
       - name: Install dependencies
         working-directory: backend
@@ -188,7 +188,7 @@ jobs:
           python-version: "3.12.15"
 
       - name: Install uv
-        run: pip install uv
+        run: pip install uv==0.13.7
 
       - name: Install backend dependencies
         working-directory: backend
@@ -284,7 +284,7 @@ jobs:
           python-version: "3.12.15"
 
       - name: Install uv
-        run: pip install uv
+        run: pip install uv==0.13.7
 
       - name: Install dependencies
         working-directory: backend
