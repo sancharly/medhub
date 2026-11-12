@@ -3,7 +3,7 @@ id: "TASK-216"
 type: task
 title: "Verify CR-005 end to end"
 status: draft
-version: "1.2"
+version: "1.3"
 author: "Carlos Santiago Liceras"
 created: "2026-11-12"
 updated: "2026-11-12"
@@ -111,8 +111,20 @@ Non-blocking findings on `infra/tests/test_backend_gunicorn_command.py`, SOUP-00
       2026-11-13 instead of 2026-11-12.
 - [ ] LOW 3: PRB-041 Investigation (:31-32) names `--no-control-socket` where it first says "the flag".
 
+## Carried from TASK-215 QA (2026-11-13)
+
+Non-blocking findings (details in TASK-215, "QA review (2026-11-13): APPROVED"); resolve before
+CR-005 closes:
+
+- [ ] LOW 1: CR-005 AC-9 (:232) "80 checks at HEAD" corrected to 78 for the stack as shipped (two
+      more per extra running container; TASK-202's 80 included a scratch `smtp-catcher`), with a
+      dated change-log line.
+- [ ] LOW 2: TASK-215 deviation 2 says the smoke copy differs in 10 lines (it is 9) and does not
+      mention the copied untracked `infra/certs/` dev certificate.
+
 ## Version history
 
 - 1.0 (2026-11-12) — Created at the CR-005 Plan stage (Software Architect role); `draft`.
 - 1.1 (2026-11-12) — QA (TASK-213 round 2): one MEDIUM and three LOW findings carried; `draft` unchanged.
 - 1.2 (2026-11-13) — Orchestrator: three LOW findings carried from TASK-214 QA round 2; `draft` unchanged.
+- 1.3 (2026-11-13) — Orchestrator: two LOW findings carried from TASK-215 QA; `draft` unchanged.
