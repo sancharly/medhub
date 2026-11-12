@@ -3,7 +3,7 @@ id: "TASK-216"
 type: task
 title: "Verify CR-005 end to end"
 status: draft
-version: "1.1"
+version: "1.2"
 author: "Carlos Santiago Liceras"
 created: "2026-11-12"
 updated: "2026-11-12"
@@ -100,7 +100,19 @@ reproductions in TASK-213, "QA review round 2"); resolve before CR-005 closes:
 - [ ] LOW 3: ADD-024 and TS-013 "none occurs in the repository" names the `DockerContainer` Redis call
       in `backend/tests/auth/test_session_cap_concurrency.py`.
 
+## Carried from TASK-214 QA (round 2, 2026-11-13)
+
+Non-blocking findings on `infra/tests/test_backend_gunicorn_command.py`, SOUP-005 and PRB-041
+(details in TASK-214, "QA review round 2"); resolve before CR-005 closes:
+
+- [ ] LOW 1: the forwarded-flag test also catches an abbreviated option name (`--forwarded-allow=*`,
+      accepted by Gunicorn's `allow_abbrev=True` parser).
+- [ ] LOW 2: SOUP-005:80 sentence starts in lower case; its change-log line dates QA round 1 as
+      2026-11-13 instead of 2026-11-12.
+- [ ] LOW 3: PRB-041 Investigation (:31-32) names `--no-control-socket` where it first says "the flag".
+
 ## Version history
 
 - 1.0 (2026-11-12) — Created at the CR-005 Plan stage (Software Architect role); `draft`.
 - 1.1 (2026-11-12) — QA (TASK-213 round 2): one MEDIUM and three LOW findings carried; `draft` unchanged.
+- 1.2 (2026-11-13) — Orchestrator: three LOW findings carried from TASK-214 QA round 2; `draft` unchanged.

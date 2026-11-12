@@ -79,7 +79,7 @@ class StaticWiring(unittest.TestCase):
 
     def test_gunicorn_is_the_image_default_command(self):
         text = DOCKERFILE.read_text()
-        self.assertRegex(text, r'(?m)^CMD \["gunicorn", .*"--forwarded-allow-ips=", "app.main:app"\]$')
+        self.assertRegex(text, r'(?m)^CMD \["gunicorn", .*"--forwarded-allow-ips=", .*"app.main:app"\]$')
         self.assertRegex(text, r'(?m)^ENTRYPOINT \["\./entrypoint\.sh"\]$')
 
     def test_env_template_holds_both_urls_empty(self):

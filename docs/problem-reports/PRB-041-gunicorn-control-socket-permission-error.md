@@ -2,11 +2,11 @@
 id: "PRB-041"
 type: problem-report
 title: "Gunicorn control server fails on every start because the service user has no home"
-status: open
-version: "1.1"
+status: resolved
+version: "1.4"
 author: "Carlos Santiago Liceras"
 created: "2026-10-22"
-updated: "2026-11-12"
+updated: "2026-11-13"
 criticality: minor
 links: []
 tags: ["operations", "logging", "soup"]
@@ -28,7 +28,8 @@ and serve normally (login through the proxy returns 401).
   `XDG_RUNTIME_DIR` unset it tries to create `$HOME/.gunicorn/gunicorn.ctl`; the control-server
   thread dies with `Errno 13` (`gunicorn/ctl/server.py:184` in the image).
 - Effect: the `gunicornc` management interface (worker status, graceful reload) is unavailable.
-  Nothing in the repository uses it.
+  Nothing in the repository uses it. Reload (`HUP`) and shutdown (`TERM`) by signal do not depend
+  on it: the flag only skips starting the control server.
 - **Re-checked on 2026-11-12 (CR-005, Specify stage).** The mechanism is unchanged: Gunicorn is
   still 26.0.0 (`backend/uv.lock:706-707`), the user is still created without a home
   (`backend/Dockerfile:18`), and Compose sets neither `init` nor a `command:` for `backend`. The
@@ -61,6 +62,28 @@ Disable the unused control socket by adding `--no-control-socket` to the `gunico
 `backend/entrypoint.sh` (preferred), or create the user's home with `useradd -m`. Record in SOUP-005
 that the control socket is on by default. Needs a task and a CR.
 
+## Resolution
+
+Fixed by CR-005 in TASK-214, which QA approved on 2026-11-13 (round 2). TASK-214 is the next
+commit on branch `bug/build-hygiene`. The PRB is `resolved` and becomes `closed` once a release
+ships the change.
+
+- **Change.** `backend/Dockerfile` `CMD` gains `--no-control-socket` (Gunicorn 26.0.0 setting
+  `control_socket_disable`). The second proposed route (`useradd -m`) was not taken: the user
+  stays without a home. The edit is in the `CMD`, not `entrypoint.sh` (see Investigation).
+  `infra/tests/test_backend_gunicorn_command.py` checks the flag in the final `CMD`, that Compose
+  sets no `command:` for `backend`, and that `--forwarded-allow-ips=` appears exactly once and empty; it fails with the
+  flag removed.
+- **Before (build of `ff366ef`, started stack).** The backend log held
+  `[ERROR] Control server error: [Errno 13] Permission denied: '/home/medhub'` once, right after
+  `Booting worker`; `grep -cE 'Control server error|\[ERROR\]'` = 1.
+- **After (started stack).** The same start-up through a login request answered 401 through the
+  reverse proxy: no `Control server error` and no `[ERROR]` line (count 0). Log excerpts and the exact command form
+  (scratch Compose copy, `--project-directory infra --env-file`, login on port 18443) are in
+  TASK-214.
+- **Records.** SOUP-005 1.3 (control socket disabled by configuration; version unchanged, no new
+  anomaly review) and ADD-026 1.5 (flag named in `U-DEP-RuntimeUsers`).
+
 ## Source
 
 Observed by the software developer during TASK-160 verification and confirmed by QA (2026-10-22).
@@ -69,3 +92,6 @@ Predates CR-001, which did not change the Gunicorn version; outside CR-001's sco
 ## Version history
 
 - 1.1 (2026-11-12) — Investigation re-checked for CR-005 (Specify stage): the mechanism is unchanged; the Gunicorn command now lives in the `backend/Dockerfile` `CMD`, not `entrypoint.sh`; the flag exists in 26.0.0; SOUP-005 already records the default. Criticality unchanged.
+- 1.2 (2026-11-12) — `## Resolution` written for TASK-214 (CR-005). Status stays `open`; QA moves it.
+- 1.3 (2026-11-13) — TASK-214 round 2: signal reload/shutdown unaffected noted; test description updated. Status stays `open`; at `resolved` QA rewords the "stays `open` until QA approves" sentence.
+- 1.4 (2026-11-13) — QA approved TASK-214 (round 2): `open → resolved`; the Resolution's status sentence reworded. CR-005 `resolves` PRB-041.

@@ -21,4 +21,6 @@ ENV PATH="/app/.venv/bin:$PATH"
 ENTRYPOINT ["./entrypoint.sh"]
 # --forwarded-allow-ips= (empty): the server never rewrites the TCP peer; the application applies
 # the trusted-proxy rule once (SR-042, ADR-0019). A Compose `command:` replaces this CMD.
-CMD ["gunicorn", "-k", "uvicorn.workers.UvicornWorker", "-b", "0.0.0.0:8000", "--forwarded-allow-ips=", "app.main:app"]
+# --no-control-socket: nothing uses the `gunicornc` management interface, and the service user has
+# no home to put its socket in, so it logged an ERROR at every start (PRB-041).
+CMD ["gunicorn", "-k", "uvicorn.workers.UvicornWorker", "-b", "0.0.0.0:8000", "--forwarded-allow-ips=", "--no-control-socket", "app.main:app"]

@@ -2,14 +2,11 @@
 id: "ADD-026"
 type: architecture-doc
 title: "Deployment configuration, secrets and runtime users (SI-DEPLOY)"
-status: approved
-version: "1.4"
+status: in_review
+version: "1.5"
 author: "Carlos Santiago Liceras"
 created: "2026-10-31"
-updated: "2026-11-10"
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-11-10"
-approval_note: approved by the human in chat at the close of CR-004
+updated: "2026-11-12"
 safety_class: B
 links:
   - target: "SR-041"
@@ -91,7 +88,11 @@ concerns were spread over ADR-0010 and the deployment guide with no design recor
   `frontend/Dockerfile` (nginx master and workers as the image's unprivileged `nginx` user,
   listening on 8080, pid and temp paths under a writable directory; the reverse proxy targets
   `frontend:8080`). The pulled images (reverse proxy, PostgreSQL, Redis, SeaweedFS) are not built
-  by MedHub and are outside SR-041 AC 1 (SR-041 AC 1).
+  by MedHub and are outside SR-041 AC 1 (SR-041 AC 1). The backend image's `CMD` starts Gunicorn
+  with `--no-control-socket`: nothing uses the `gunicornc` management interface and the service
+  user has no home to put its socket in, so the control server otherwise logged an ERROR at every
+  start (PRB-041, SOUP-005, TASK-214). A Compose `command:` for `backend` would replace the `CMD`
+  and drop the flag; none is set.
 - `U-DEP-ProxyLogging` — `infra/reverse-proxy/nginx.conf` and `frontend/nginx.conf`: the proxy's access log is an
   allow-list JSON format (`medhub_redacted`: time, client address, method, normalised path with the two activation
   routes replaced by `[redacted]`, protocol, status, bytes, time, upstream status; no request line, query string
@@ -148,3 +149,4 @@ names the setting; a missing grant makes a statement fail until the next `db-mig
 - 1.2 (2026-11-07): TASK-206 (PRB-068). New unit `U-DEP-ProxyLogging`. `in_review`.
 - 1.3 (2026-11-08) — TASK-201 (CR-004): `U-DEP-Compose` text replaced with the unit as built (`db-migrate` steps, `celery-worker` and `celery-beat`, entrypoint, SSE key and volume, ports); `U-DEP-SecretRule` checks listed; narrative pointer and open decisions updated. `in_review`.
 - 1.4 (2026-11-08) — TASK-201 round 2: the unused-settings note corrected (`db-migrate` uses the field keyring; only `celery-beat` holds unused field keys). `in_review`.
+- 1.5 (2026-11-12) — TASK-214 (CR-005, PRB-041): `U-DEP-RuntimeUsers` names `--no-control-socket` in the backend `CMD`. Content change, so the approval record is cleared and the record returns to review. `in_review`.
