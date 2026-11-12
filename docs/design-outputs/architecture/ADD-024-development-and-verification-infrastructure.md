@@ -6,7 +6,7 @@ status: in_review
 version: "1.3"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
-updated: "2026-11-12"
+updated: "2026-11-13"
 links:
   - target: SR-028
     relation: implements
@@ -49,15 +49,24 @@ it can reach `main` (SR-028). It is part of the repository and runs on every pul
   `pip install uv` reached through a script file, a `uses:` or `run:` assembled by a YAML anchor or
   template expression, and composite actions under `.github/actions/`; for the test images, a job
   `container:` or `uses: docker://` image (checked by the image rule only: a digest is present, not
-  equality with Compose), a container class other than `PostgresContainer`, and an import of
-  `POSTGRES_IMAGE` from a module other than `backend/postgres_image.py`; none occurs in the
-  repository.
+  equality with Compose), a container class other than `PostgresContainer` (the one that occurs is
+  the `DockerContainer` Redis call in `backend/tests/auth/test_session_cap_concurrency.py`, which
+  reads the Compose image at run time), a `PostgresContainer` reached under another name without
+  `import ... as` (`PC = PostgresContainer`, `getattr`, `import *`), a `POSTGRES_IMAGE` rebound
+  through `setattr(...)`, `sys.modules` or `vars()` in a file other than the definition file (inside it,
+  a `globals()`, `locals()`, `vars()` or `setattr()` call is a finding), and an import of
+  `POSTGRES_IMAGE` from a module other than `backend/postgres_image.py`; none of the others occurs
+  in the repository.
   Four test image rules (SR-028 AC-9, CR-005 AC-6, ADR-0020) run with the tool rules, over the
   tracked files or those under `--root`: (1) `backend/postgres_image.py` holds exactly one
   `POSTGRES_IMAGE` assignment at the start of a line, as `POSTGRES_IMAGE = "<ref>"` or as
   `POSTGRES_IMAGE = (`, one string literal and `)` (concatenation, an f-string, a name, a missing
-  `)`, an annotation or anything else on those lines is a finding; every later assignment, at any
-  indentation and in any form (annotated, augmented, `global`), is a second assignment), and `<ref>` carries a digest and
+  `)`, an annotation or anything else on those lines is a finding; every later binding of the
+  name, read with `ast` (plain, annotated, augmented, tuple unpacking, `:=`, `for`, `with ... as`,
+  `import ... as`, `import POSTGRES_IMAGE` / `from x import POSTGRES_IMAGE`, `global`, `except ... as`, a
+  `def` / `async def` / `class` of that name, a `match` capture, a `;`-joined statement, or a `globals()` /
+  `locals()` / `vars()` / `setattr()` call), is a
+  second assignment, and a definition file that does not parse is a finding), and `<ref>` carries a digest and
   equals the `image:` of the `postgres` service in `infra/docker-compose.yml`; (2) every workflow
   `services.<name>.image` equals the Compose `image:` of the service with the same image
   repository (`postgres`, `redis`), and one with no Compose counterpart is a finding, as is a
@@ -69,7 +78,9 @@ it can reach `main` (SR-028). It is part of the repository and runs on every pul
   false positive that fails closed: rewrite the literal, do not weaken the rule); (4) every
   `PostgresContainer(` call in `backend/**/*.py` passes `POSTGRES_IMAGE` as its first positional
   argument or as `image=POSTGRES_IMAGE` (no argument, a literal or another name is a finding),
-  so a `PostgresContainer` call site cannot bring a floating tag back. `--root ""` exits 2.
+  so a `PostgresContainer` call site cannot bring a floating tag back; a `PostgresContainer` imported
+  under an alias (`import ... as`) and a `POSTGRES_IMAGE` binding in a `backend/**/*.py` file other
+  than the definition (assignment, `import ... as`, attribute store) are findings too. `--root ""` exits 2.
   The pins it enforces are: actions `actions/checkout`, `actions/setup-python` and
   `actions/setup-node` by commit SHA with the release tag in a comment, CI Python 3.12.15 and
   Node.js 24.22.2 (the base-image versions), `uv==0.13.7` in `backend/Dockerfile` and the four CI
@@ -156,3 +167,10 @@ contributor because it is not deployed.
   TC-013.11 and TC-013.12. Status returned to `in_review` and the approval record cleared for
   re-approval by the human. TASK-213 added the test-image rules (and the three fixes to the line
   joining and the `--root` check) to this version, without a version change.
+  TASK-216 (TASK-213 QA round 2, LOW 1-3): rule 1 reads the definition file with `ast`, rule 4 also reports a
+  `PostgresContainer` import under an alias and a `POSTGRES_IMAGE` binding outside the definition, and the
+  "not seen" list names the `DockerContainer` Redis call and the forms still not seen; version unchanged.
+  TASK-216 (QA L-1): rule 1 also reports `def` / `async def` / `class` of the name, `match` captures,
+  `import POSTGRES_IMAGE` and `from x import POSTGRES_IMAGE` without `as`, and a `setattr()` call in the
+  definition file, and a function parameter named `POSTGRES_IMAGE` in a test file; the "not seen" list
+  now says `setattr` is seen inside the definition file only.

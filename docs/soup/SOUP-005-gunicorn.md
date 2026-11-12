@@ -77,7 +77,7 @@ Q-3). Moving to 26.1.0 or later is a separate CR (CR-001 A-4).
 
 MedHub relies on Gunicorn's `forwarded_allow_ips` being **empty**. The default is `127.0.0.1,::1`
 (or `$FORWARDED_ALLOW_IPS`), and `UvicornWorker` passes it to Uvicorn's proxy-headers handling, which
-would rewrite `request.client` for those peers. the backend image `CMD` (`backend/Dockerfile`) starts Gunicorn with
+would rewrite `request.client` for those peers. The backend image `CMD` (`backend/Dockerfile`) starts Gunicorn with
 `--forwarded-allow-ips=` (empty): the setting parses to an empty list, so no peer is trusted and
 `request.client` is always the TCP peer. The application applies the one trusted-proxy rule of
 SR-042 itself (`backend/app/core/client_address.py`, ADR-0019). Verified for 26.0.0 on the started
@@ -96,4 +96,5 @@ accountable. Hazard-relevant anomalies go to `risk-management`; defects affectin
   ADD-004 to one `soup` record per component (medical-records 0.3.2).
 - 2026-10-22 — 26.0.0 (unchanged). First anomaly-list review (TASK-154, CR-001 AC-11/AC-12): no advisory for 26.0.0; control socket on by default and failing in MedHub's image (PRB-041, already open); later-fixed process-manager and parser bugs judged; nothing hazard-relevant. Record 1.0 → 1.1; approval record removed for re-review.
 - 2026-10-31 — 26.0.0 (unchanged). TASK-185 (CR-004): records the reliance on `forwarded_allow_ips` being empty (SR-042, ADR-0019). Record 1.1 → 1.2; approval record removed for re-review.
-- 2026-11-12 — 26.0.0 (unchanged). TASK-214 (CR-005, PRB-041): control socket disabled by configuration (`--no-control-socket` in the backend image `CMD`); relied-on configuration and Findings rows updated; also corrected the stale references: the Gunicorn command is the image `CMD` (not `backend/entrypoint.sh`, since TASK-191), PRB-041 is no longer open, `init: true` was not adopted (CR-005 Q-3); and stated that reload/shutdown by signal are unaffected (QA round 1, 2026-11-13). The version and the published information are unchanged, so no new anomaly review (`anomaly_review` stays 2026-10-22). Record 1.2 → 1.3; approval record removed for re-review.
+- 2026-11-12 — 26.0.0 (unchanged). TASK-214 (CR-005, PRB-041): control socket disabled by configuration (`--no-control-socket` in the backend image `CMD`); relied-on configuration and Findings rows updated; also corrected the stale references: the Gunicorn command is the image `CMD` (not `backend/entrypoint.sh`, since TASK-191), PRB-041 is no longer open, `init: true` was not adopted (CR-005 Q-3); and stated that reload/shutdown by signal are unaffected (QA round 1, 2026-11-12). The version and the published information are unchanged, so no new anomaly review (`anomaly_review` stays 2026-10-22). Record 1.2 → 1.3; approval record removed for re-review.
+- 2026-11-13 — Wording corrected under TASK-216 (TASK-214 QA round 2, LOW 2): a sentence capitalised and the QA round 1 date fixed in the 2026-11-12 line above. No change of content; record stays 1.3, `in_review`.

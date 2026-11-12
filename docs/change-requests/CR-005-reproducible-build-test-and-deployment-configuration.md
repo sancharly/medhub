@@ -3,10 +3,10 @@ id: CR-005
 type: change-request
 title: Make the build, test and deployment configuration reproducible
 status: open
-version: "1.3"
+version: "1.4"
 author: Carlos Santiago Liceras
 created: "2026-11-12"
-updated: "2026-11-12"
+updated: "2026-11-13"
 branch: bug/build-hygiene
 risk_impact: affects_controls
 links:
@@ -229,7 +229,8 @@ risk-control measures after a change). Every criterion is checked on the branch 
   an `infra/.env` built from `infra/.env.example` with only the required secret values filled
   (generated). `docker compose up -d --build --wait` succeeds, PostgreSQL initialises with
   `POSTGRES_PASSWORD`, `db-migrate` completes, and `infra/smoke-test.sh` reports every check
-  passed and 0 failed. At HEAD that is 80 checks. The issue's "17/17" dates from CR-001. The same
+  passed and 0 failed. At HEAD that is 78 checks for the stack as shipped (two more per extra
+  running container). The issue's "17/17" dates from CR-001. The same
   `.env` with `POSTGRES_PASSWORD` empty stops Compose with `POSTGRES_PASSWORD must be set`. The
   run is torn down with `down -v`, and the developer's own volumes are untouched.
 - **AC-10 (PRB-034, §7.4).** For the same `backend/uv.lock`, the backend image built after the
@@ -511,3 +512,7 @@ arc42 change is planned; TASK-216 confirms.
     RISK-011 and SOUP-021.
 - 1.3 (2026-11-12) — Plan gate passed: the human accepted the change analysis and RISK-010 1.6,
   answered Q-5 to Q-7 as recommended and approved the plan; ADR-0020 Accepted.
+- 1.4 (2026-11-13) — Wording correction, not a scope change (TASK-215 QA LOW 1, carried to TASK-216):
+  AC-9 said "80 checks at HEAD"; the smoke test reports 78 for the stack as shipped, and two more for
+  each extra running container (TASK-202's 80 included a scratch `smtp-catcher`). No criterion
+  changes.

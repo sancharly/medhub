@@ -483,6 +483,127 @@ class TestImagesMatchDeployment(unittest.TestCase):
                 code, findings, _ = run_images(text)
                 self.assertEqual((code, findings), (1, [(DEF, line, "second POSTGRES_IMAGE assignment", ref)]))
 
+    def test_rebinding_forms_that_a_line_pattern_misses_fail(self):
+        """TASK-213 QA LOW 1: the definition file is read with ``ast``."""
+        first = f'POSTGRES_IMAGE = "{PG}"\n'
+        message = "second POSTGRES_IMAGE assignment"
+        cases = {
+            "tuple unpacking, target first": ('POSTGRES_IMAGE, _X = "postgres", 0', "POSTGRES_IMAGE, _X"),
+            "tuple unpacking, target second": ('_X, POSTGRES_IMAGE = 0, "postgres"', "_X, POSTGRES_IMAGE"),
+            "walrus": ('(POSTGRES_IMAGE := "postgres")', "(POSTGRES_IMAGE :="),
+            "for target": ('for POSTGRES_IMAGE in ["postgres"]:\n    pass', "for POSTGRES_IMAGE"),
+            "import as": ("from os import sep as POSTGRES_IMAGE", "from os import sep as POSTGRES_IMAGE"),
+            "semicolon": ('x = 1; POSTGRES_IMAGE = "postgres"', "x = 1; POSTGRES_IMAGE"),
+            "with as": ('with open("f") as POSTGRES_IMAGE:\n    pass', "with open"),
+        }
+        for name, (code_text, start) in cases.items():
+            with self.subTest(name):
+                code, findings, _ = run_images(first + code_text + "\n")
+                self.assertEqual(code, 1)
+                self.assertEqual([(p, n, m) for p, n, m, _ in findings], [(DEF, 2, message)])
+                self.assertTrue(findings[0][3].startswith(start), findings[0][3])
+
+    def test_binding_forms_of_the_second_amendment_in_the_definition_file_fail(self):
+        """TASK-216 QA L-1: ``def``, ``class``, ``match`` captures and a bare import bind the name."""
+        first = f'POSTGRES_IMAGE = "{PG}"\n'
+        message = "second POSTGRES_IMAGE assignment"
+        cases = {
+            "def": ("def POSTGRES_IMAGE():\n    pass", "def POSTGRES_IMAGE"),
+            "async def": ("async def POSTGRES_IMAGE():\n    pass", "async def POSTGRES_IMAGE"),
+            "class": ("class POSTGRES_IMAGE:\n    pass", "class POSTGRES_IMAGE"),
+            "match as": ("match 1:\n    case 1 as POSTGRES_IMAGE:\n        pass", "case 1 as POSTGRES_IMAGE"),
+            "match capture": ("match 1:\n    case POSTGRES_IMAGE:\n        pass", "case POSTGRES_IMAGE"),
+            "match star": ("match [1]:\n    case [*POSTGRES_IMAGE]:\n        pass", "case [*POSTGRES_IMAGE]"),
+            "match mapping rest": ("match {}:\n    case {**POSTGRES_IMAGE}:\n        pass", "case {**POSTGRES_IMAGE}"),
+            "import": ("import POSTGRES_IMAGE", "import POSTGRES_IMAGE"),
+            "from import": ("from x import POSTGRES_IMAGE", "from x import POSTGRES_IMAGE"),
+        }
+        for name, (code_text, start) in cases.items():
+            with self.subTest(name):
+                code, findings, _ = run_images(first + code_text + "\n")
+                self.assertEqual(code, 1)
+                self.assertEqual([(p, m) for p, _, m, _ in findings], [(DEF, message)])
+                self.assertTrue(findings[0][3].startswith(start), findings[0][3])
+
+    def test_setattr_in_the_definition_file_fails(self):
+        text = f'POSTGRES_IMAGE = "{PG}"\nsetattr(sys.modules[__name__], "POSTGRES_IMAGE", "postgres")\n'
+        code, findings, _ = run_images(text)
+        self.assertEqual(code, 1)
+        self.assertEqual(
+            [(p, n, m) for p, n, m, _ in findings], [(DEF, 2, "namespace access in the test image definition")]
+        )
+
+    def test_function_parameter_named_postgres_image_outside_the_definition_fails(self):
+        message = "POSTGRES_IMAGE bound outside backend/postgres_image.py"
+        for name, text in {
+            "def": "def f(POSTGRES_IMAGE):\n    return POSTGRES_IMAGE\n",
+            "keyword only": "def f(*, POSTGRES_IMAGE=None):\n    pass\n",
+            "lambda": "g = lambda POSTGRES_IMAGE: POSTGRES_IMAGE\n",
+        }.items():
+            with self.subTest(name):
+                code, findings, _ = run_images(files={"backend/tests/x.py": text})
+                self.assertEqual(code, 1)
+                self.assertEqual([(p, m) for p, _, m, _ in findings], [("backend/tests/x.py", message)])
+
+    def test_match_capture_outside_the_definition_fails(self):
+        text = "match 1:\n    case POSTGRES_IMAGE:\n        pass\n"
+        code, findings, _ = run_images(files={"backend/tests/x.py": text})
+        self.assertEqual(code, 1)
+        self.assertEqual([m for _, _, m, _ in findings], ["POSTGRES_IMAGE bound outside backend/postgres_image.py"])
+
+    def test_namespace_access_in_the_definition_file_fails(self):
+        for call in ("globals()", "vars()", "locals()"):
+            with self.subTest(call):
+                text = f'POSTGRES_IMAGE = "{PG}"\n{call}["POSTGRES_IMAGE"] = "postgres"\n'
+                code, findings, _ = run_images(text)
+                self.assertEqual(
+                    (code, findings),
+                    (1, [(DEF, 2, "namespace access in the test image definition", f'{call}["POSTGRES_IMAGE"] = "postgres"')]),
+                )
+
+    def test_definition_file_that_does_not_parse_fails(self):
+        code, findings, _ = run_images(f'POSTGRES_IMAGE = "{PG}"\ndef (:\n')
+        self.assertEqual(code, 1)
+        self.assertEqual([(p, n, m) for p, n, m, _ in findings], [(DEF, 2, "test image definition file does not parse")])
+
+    def test_postgres_container_imported_under_an_alias_fails(self):
+        message = "PostgresContainer imported under an alias"
+        for text in (
+            "from testcontainers.postgres import PostgresContainer as PC\nPC()\n",
+            "import testcontainers.postgres.PostgresContainer as PC\n",
+        ):
+            with self.subTest(text):
+                code, findings, _ = run_images(files={"backend/tests/x.py": text})
+                self.assertEqual(code, 1)
+                self.assertEqual([(p, n, m) for p, n, m, _ in findings], [("backend/tests/x.py", 1, message)])
+
+    def test_postgres_image_bound_outside_the_definition_fails(self):
+        message = "POSTGRES_IMAGE bound outside backend/postgres_image.py"
+        cases = {
+            "assignment": 'POSTGRES_IMAGE = "postgres"',
+            "annotated": 'POSTGRES_IMAGE: str = "postgres"',
+            "indented": 'if True:\n    POSTGRES_IMAGE = "postgres"',
+            "tuple unpacking": 'POSTGRES_IMAGE, _X = "postgres", 0',
+            "import as": "from os import sep as POSTGRES_IMAGE",
+            "attribute store": 'postgres_image.POSTGRES_IMAGE = "postgres"',
+        }
+        for name, binding in cases.items():
+            with self.subTest(name):
+                text = "from postgres_image import POSTGRES_IMAGE\n" + binding + "\nPostgresContainer(POSTGRES_IMAGE)\n"
+                code, findings, _ = run_images(files={"backend/tests/x.py": text})
+                self.assertEqual(code, 1)
+                self.assertEqual([(p, m) for p, _, m, _ in findings], [("backend/tests/x.py", message)])
+
+    def test_importing_and_reading_postgres_image_passes(self):
+        text = (
+            "from postgres_image import POSTGRES_IMAGE\n"
+            "import postgres_image\n"
+            "x = postgres_image.POSTGRES_IMAGE\n"
+            "if POSTGRES_IMAGE == 'y':\n    pass\n"
+            "PostgresContainer(POSTGRES_IMAGE)\n"
+        )
+        self.assertEqual(run_images(files={"backend/tests/x.py": text}), (0, [], ""))
+
     def test_comparison_is_not_an_assignment(self):
         text = f'POSTGRES_IMAGE = "{PG}"\nOK = POSTGRES_IMAGE == "x"\nif POSTGRES_IMAGE == "y":\n    pass\n'
         self.assertEqual(run_images(text), (0, [], ""))

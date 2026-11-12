@@ -27,7 +27,7 @@ This folder records the significant architecture decisions for MedHub. One decis
 
 ADR-0010 and ADR-0019 carry dated notes (2026-11-08, TASK-201) recording what CR-004 changed in the text they describe; their decisions are unchanged.
 
-ADR-0020 carries dated amendment notes (2026-11-12, TASK-212 QA): the test definition is `backend/postgres_image.py`, and the pin check reads its one-line or parenthesised assignment. The human acknowledged the amendment on 2026-11-12.
+ADR-0020 carries dated amendment notes (2026-11-12, TASK-212 QA): the test definition is `backend/postgres_image.py`, and the pin check reads its one-line or parenthesised assignment. The human acknowledged the amendment on 2026-11-12. A further dated note (2026-11-12, TASK-213 QA round 2) adds the `PostgresContainer` call rule and limits the guarantee to `PostgresContainer` call sites (the `DockerContainer` Redis call is not checked); it is pending the human's acknowledgement.
 
 ## Trade-off summary
 

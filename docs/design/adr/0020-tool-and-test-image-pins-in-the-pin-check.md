@@ -10,6 +10,9 @@ of the test definition and the form the script reads. **The human (Carlos Santia
 acknowledged the amendment on 2026-11-12.** The decision (option 1, sources of truth, rule families) is unchanged; see the
 dated notes in the Decision.
 
+Amended 2026-11-12 (TASK-213 QA round 2): the test-container rule (rule 4) and the limit of its
+guarantee. **Amendment pending the human's acknowledgement.**
+
 ## Context
 
 SR-028 1.7 adds AC-8 (every tool that builds the images or runs CI has an exact version: actions by
@@ -62,6 +65,18 @@ Option 1.
   - A string literal naming the image repository of a Compose service (`"postgres:…"`) in
     `backend/**/*.py` outside the test definition is a finding, so a new call site cannot bring a
     floating tag back (the way PRB-040 grew from two call sites to eleven).
+    > Amended 2026-11-12 (TASK-213 QA round 2; Software Developer role, TASK-216, 2026-11-13): the
+    > literal rule alone does not stop a call with no literal (`PostgresContainer()` defaults to
+    > `postgres:latest`). A fourth rule makes every `PostgresContainer(` call in `backend/**/*.py` take
+    > `POSTGRES_IMAGE` as its image; the guarantee covers `PostgresContainer` call sites. Other
+    > container classes (`DockerContainer`, used for Redis in
+    > `tests/auth/test_session_cap_concurrency.py`) are not checked. TASK-216 adds that a
+    > `PostgresContainer` imported under an alias, and a `POSTGRES_IMAGE` binding outside the
+    > definition file, are findings, and that the files are read with `ast`: in the definition file the
+    > binding forms listed in ADD-024 (assignment forms, `import`, `def`, `class`, `match` captures,
+    > `global`, and `globals()` / `locals()` / `vars()` / `setattr()` calls) are a second assignment; in
+    > another `backend/**/*.py` file the same bindings, a function parameter and an attribute store are
+    > findings. Forms the script does not see are listed under "not seen" in ADD-024. **Amendment pending the human's acknowledgement.**
 - **Sources of truth** are the shipped references, never a second list: the CI Python version is
   the tag version of `FROM python:X.Y.Z-…` in `backend/Dockerfile` (equal to SOUP-001
   `soup_version`); the CI Node.js version is the tag version of `FROM node:X.Y.Z-…` in

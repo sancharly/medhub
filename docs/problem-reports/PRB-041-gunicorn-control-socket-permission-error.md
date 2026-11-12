@@ -3,7 +3,7 @@ id: "PRB-041"
 type: problem-report
 title: "Gunicorn control server fails on every start because the service user has no home"
 status: resolved
-version: "1.4"
+version: "1.5"
 author: "Carlos Santiago Liceras"
 created: "2026-10-22"
 updated: "2026-11-13"
@@ -29,7 +29,7 @@ and serve normally (login through the proxy returns 401).
   thread dies with `Errno 13` (`gunicorn/ctl/server.py:184` in the image).
 - Effect: the `gunicornc` management interface (worker status, graceful reload) is unavailable.
   Nothing in the repository uses it. Reload (`HUP`) and shutdown (`TERM`) by signal do not depend
-  on it: the flag only skips starting the control server.
+  on it: `--no-control-socket` only skips starting the control server.
 - **Re-checked on 2026-11-12 (CR-005, Specify stage).** The mechanism is unchanged: Gunicorn is
   still 26.0.0 (`backend/uv.lock:706-707`), the user is still created without a home
   (`backend/Dockerfile:18`), and Compose sets neither `init` nor a `command:` for `backend`. The
@@ -95,3 +95,4 @@ Predates CR-001, which did not change the Gunicorn version; outside CR-001's sco
 - 1.2 (2026-11-12) — `## Resolution` written for TASK-214 (CR-005). Status stays `open`; QA moves it.
 - 1.3 (2026-11-13) — TASK-214 round 2: signal reload/shutdown unaffected noted; test description updated. Status stays `open`; at `resolved` QA rewords the "stays `open` until QA approves" sentence.
 - 1.4 (2026-11-13) — QA approved TASK-214 (round 2): `open → resolved`; the Resolution's status sentence reworded. CR-005 `resolves` PRB-041.
+- 1.5 (2026-11-13) — TASK-216 (TASK-214 QA round 2, LOW 3): the Investigation names `--no-control-socket` where it first said "the flag". Status unchanged.

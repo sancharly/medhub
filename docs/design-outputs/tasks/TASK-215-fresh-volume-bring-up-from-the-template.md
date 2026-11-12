@@ -3,7 +3,7 @@ id: "TASK-215"
 type: task
 title: "Record a fresh-volume bring-up from the environment template"
 status: approved
-version: "1.2"
+version: "1.3"
 author: "Carlos Santiago Liceras"
 created: "2026-11-12"
 updated: "2026-11-13"
@@ -90,7 +90,8 @@ password differs from `POSTGRES_PASSWORD`). Deviations:
 2. `infra/smoke-test.sh` cannot be pointed at another project without editing it: it resolves
    `COMPOSE_FILE` and `.env` from its own directory and posts to the fixed `https://localhost/`
    (the developer's stack). It was **not edited**; the scratch copy `<s>/infra/smoke-test.sh` differs
-   only in `https://localhost/` to `https://localhost:18443/` (10 lines). Run from `<s>/infra`, it
+   only in `https://localhost/` to `https://localhost:18443/` (9 lines). The scratch tree also carries a copy of the
+   developer's untracked `infra/certs/` (the dev certificate the proxy mounts). Run from `<s>/infra`, it
    therefore reads the scratch Compose file and `.env`.
 3. The scratch directory has no `.env` of the developer's; the `.env` is the generated one above, in
    `<s>/infra`, so no `--env-file`/`--project-directory` was needed.
@@ -237,3 +238,4 @@ HEAD. The run can be reproduced from the command forms here. Its status sentence
 - 1.0 (2026-11-12) — Created at the CR-005 Plan stage (Software Architect role); `draft`.
 - 1.1 (2026-11-13) — Verification run recorded (78 passed, 0 failed; empty password stops Compose); `draft → in_review` (Software Developer role).
 - 1.2 (2026-11-13) — QA review: APPROVED (2 LOW, non-blocking, above); 78-vs-80 explained; Checkpoint B passed. `in_review → approved`; boxes ticked; PRB-038 `open → resolved`.
+- 1.3 (2026-11-13) — TASK-216 (QA LOW 2): deviation 2 reads 9 lines, and names the copied untracked `infra/certs/` dev certificate. Wording only; status unchanged.

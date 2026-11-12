@@ -23,9 +23,14 @@ Test image rules (SR-028 AC-9 / CR-005 AC-6, ADR-0020), over the repository root
   - backend/postgres_image.py must hold exactly one ``POSTGRES_IMAGE`` assignment at the start of a
     line, as ``POSTGRES_IMAGE = "<ref>"`` or as ``POSTGRES_IMAGE = (`` / one string literal / ``)``
     (any other form, such as concatenation, an f-string or a name, is a finding); every later
-    assignment is a second assignment, whatever its indentation or form (annotated, augmented,
-    ``global POSTGRES_IMAGE``); ``<ref>`` must carry a digest and equal the ``image:`` of the
-    ``postgres`` service in infra/docker-compose.yml;
+    binding of the name, read from the parsed file (``ast``), is a second assignment: plain,
+    annotated, augmented, tuple unpacking, ``:=``, ``for``, ``with ... as``, ``import ... as``,
+    ``import POSTGRES_IMAGE`` / ``from x import POSTGRES_IMAGE``, ``global``, ``except ... as``, a
+    ``def`` / ``async def`` / ``class`` of that name, a ``match`` capture (``case POSTGRES_IMAGE``,
+    ``*POSTGRES_IMAGE``, ``**POSTGRES_IMAGE``), a ``;``-joined statement; so is a call of
+    ``globals()``, ``locals()``, ``vars()`` or ``setattr()``;
+    ``<ref>`` must carry a digest and equal the ``image:`` of the ``postgres`` service in
+    infra/docker-compose.yml; a file of the definition that does not parse is a finding;
   - every workflow ``services.<name>.image`` must equal the Compose ``image:`` of the service with
     the same image repository (``postgres``, ``redis``); a service written as an inline mapping
     (``postgres: {image: ...}``) is a finding, not skipped;
@@ -36,15 +41,24 @@ Test image rules (SR-028 AC-9 / CR-005 AC-6, ADR-0020), over the repository root
     closed;
   - every ``PostgresContainer(`` call in backend/**/*.py must pass ``POSTGRES_IMAGE`` as its first
     positional argument or as ``image=POSTGRES_IMAGE``; no argument, a literal or another name is
-    a finding (a line already reported for an image literal is not reported twice).
+    a finding (a line already reported for an image literal is not reported twice); so is a
+    ``PostgresContainer`` imported under an alias (``import ... as``), and so is any binding of
+    ``POSTGRES_IMAGE`` (assignment, ``import ... as``, an attribute store such as
+    ``postgres_image.POSTGRES_IMAGE = ...``) in a backend/**/*.py file other than the definition.
 Standard library only, no YAML parser: line-based matching is enough for the forms used in this
 repository. A form of the kinds above that the rules cannot parse is a finding. Matching is
 line-based, so these are not seen: an ``npx`` or a ``pip install uv`` reached through a script file,
 a ``uses:`` or ``run:`` assembled by a YAML anchor or template expression, and composite actions
 under .github/actions/; for the test images, a job ``container:`` or ``uses: docker://`` image
 (checked by the image rule only: a digest is present, not equality with Compose), a container class
-other than ``PostgresContainer``, and an import of ``POSTGRES_IMAGE`` from a module other than
-backend/postgres_image.py.
+other than ``PostgresContainer`` (the one that occurs is the ``DockerContainer`` Redis call in
+backend/tests/auth/test_session_cap_concurrency.py, which reads the Compose image at run time), a
+``PostgresContainer`` reached under another name without ``import ... as``
+(``PC = PostgresContainer``, ``getattr``, ``import *``), a ``POSTGRES_IMAGE`` rebound through
+``setattr(...)``, ``sys.modules`` or ``vars()`` in a file other than the definition file (inside it,
+a ``globals()``, ``locals()``, ``vars()`` or ``setattr()`` call is a finding), and an import of
+``POSTGRES_IMAGE`` from a module other than backend/postgres_image.py; none of the others occurs
+in the repository.
 
 Usage: check_image_pins.py [PATH ... | --root DIR]
   No arguments: the image rule on every tracked Compose file, Dockerfile and GitHub workflow,
@@ -58,6 +72,7 @@ Exit: 0 all pinned, 1 at least one finding, 2 usage or read error.
 """
 
 import argparse
+import ast
 import fnmatch
 import re
 import subprocess
@@ -379,6 +394,58 @@ def _definition_findings(root, compose):
     return findings
 
 
+def _rebinding_findings(path, text, known):
+    """Rebindings of ``POSTGRES_IMAGE`` and aliased ``PostgresContainer`` imports, read with ``ast``.
+
+    ``known`` holds the lines that are findings or the recognised definition already. Standard
+    library only: the file is parsed, never imported.
+    """
+    is_definition = path == DEFINITION
+    try:
+        tree = ast.parse(text)
+    except SyntaxError as error:
+        if is_definition:
+            return [(path, error.lineno or 1, "test image definition file does not parse", "<syntax error>")]
+        return []
+    lines = text.splitlines()
+    message = "second POSTGRES_IMAGE assignment" if is_definition else f"POSTGRES_IMAGE bound outside {DEFINITION}"
+    found = {}
+
+    def add(number, text_message):
+        if number not in known and number not in found:
+            found[number] = (path, number, text_message, lines[number - 1].strip())
+
+    for node in ast.walk(tree):
+        number = getattr(node, "lineno", None)
+        if number is None:
+            continue
+        if isinstance(node, ast.Name) and node.id == "POSTGRES_IMAGE" and not isinstance(node.ctx, ast.Load):
+            add(number, message)
+        elif isinstance(node, ast.Attribute) and node.attr == "POSTGRES_IMAGE" and not isinstance(node.ctx, ast.Load):
+            add(number, message)
+        elif isinstance(node, ast.alias):
+            if node.asname == "POSTGRES_IMAGE" or (is_definition and node.asname is None and node.name == "POSTGRES_IMAGE"):
+                add(number, message)
+            elif node.name.split(".")[-1] == "PostgresContainer" and node.asname:
+                add(number, "PostgresContainer imported under an alias")
+        elif isinstance(node, (ast.Global, ast.Nonlocal)) and "POSTGRES_IMAGE" in node.names:
+            add(number, message)
+        elif isinstance(node, (ast.ExceptHandler, ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef, ast.MatchAs, ast.MatchStar)) and node.name == "POSTGRES_IMAGE":
+            add(number, message)
+        elif isinstance(node, ast.MatchMapping) and node.rest == "POSTGRES_IMAGE":
+            add(number, message)
+        elif isinstance(node, ast.arg) and not is_definition and node.arg == "POSTGRES_IMAGE":
+            add(number, message)
+        elif (
+            is_definition
+            and isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Name)
+            and node.func.id in {"globals", "locals", "vars", "setattr"}
+        ):
+            add(number, "namespace access in the test image definition")
+    return list(found.values())
+
+
 def image_findings(root, workflows):
     """Rules 1-4 of the test image rules: definition, CI services, stray image literals, container calls."""
     findings = []
@@ -433,6 +500,17 @@ def image_findings(root, workflows):
                 )
                 findings.append((path, number, message, match["ref"]))
                 reported.add(number)
+        if path == DEFINITION:
+            known = {*skip, *range(starts[0], literal_line + 1), *reported}
+            findings += _rebinding_findings(path, text, known)
+        else:
+            lines = text.splitlines()
+            starts = [n for n, line in enumerate(lines, start=1) if DEFINITION_START.match(line)]
+            starts = [n for n in starts if n not in reported]  # a literal line is reported already
+            findings += [
+                (path, n, f"POSTGRES_IMAGE bound outside {DEFINITION}", lines[n - 1].strip()) for n in starts
+            ]
+            findings += _rebinding_findings(path, text, {*starts, *reported})
         for call in CONTAINER_CALL.finditer(text):
             number = text.count("\n", 0, call.start()) + 1
             argument = text[call.end():]
