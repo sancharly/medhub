@@ -2,15 +2,11 @@
 id: ADD-024
 type: architecture-doc
 title: Development and verification infrastructure (SI-DEVINFRA)
-status: approved
-version: "1.2"
+status: in_review
+version: "1.3"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
-updated: "2026-10-31"
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-10-31"
-approved_digest: 8ccc9fca482b9afe0b9b8f35f0058bd17c5afa97a87cf8a08bed5445d64663dc
-approval_note: self-approved
+updated: "2026-11-12"
 links:
   - target: SR-028
     relation: implements
@@ -38,7 +34,24 @@ it can reach `main` (SR-028). It is part of the repository and runs on every pul
   library only, no dependency install) fails, naming file and line, when a Compose `image:`,
   Dockerfile `FROM` or `.github/workflows/*.yml` `services.*.image`, `container.image` or
   `container: <ref>` reference lacks `@sha256:<64 hex>` (an empty `image:` value also fails); it ignores a `FROM` of an earlier stage and `FROM scratch`
-  (SR-028 AC-5, CR-001 AC-3). The `build` job ("Docker Build") builds the backend image, which
+  (SR-028 AC-5, CR-001 AC-3). The same script, run without arguments, also applies the tool rules
+  of SR-028 AC-8 to the tracked workflows and Dockerfiles (CR-005, ADR-0020) and fails, naming file
+  and line, on: a repository action `uses:` that is not `owner/repo@<40 hex>` followed by a
+  `# v<tag>` comment (`./` is exempt; `docker://` is checked by the image rule, which reports it
+  without `@sha256:<64 hex>`; `astral-sh/setup-uv` is reported); a `python-version` or `node-version` that is
+  not `X.Y.Z` (a `*-version-file` key is reported) or differs from the tag version of `FROM python:` in `backend/Dockerfile` or
+  `FROM node:` in `frontend/Dockerfile` (the shipped references are the source of truth); a `uv`
+  `pip` / `pipx` install that is not `uv==X.Y.Z` (`\`-continued lines and the Dockerfile exec form are read), or whose version
+  differs from the one in `backend/Dockerfile`; and an `npx` package without an exact version. A
+  form of these kinds that it cannot parse is a finding; an `npx` or `pip install uv` reached
+  through a script file and composite actions are not seen (none occurs).
+  The pins it enforces are: actions `actions/checkout`, `actions/setup-python` and
+  `actions/setup-node` by commit SHA with the release tag in a comment, CI Python 3.12.15 and
+  Node.js 24.22.2 (the base-image versions), `uv==0.13.7` in `backend/Dockerfile` and the four CI
+  jobs that install it, and `@redocly/cli@2.77.0`. The hosted runner image (`runs-on: ubuntu-latest`,
+  with its Docker, Compose, system `pip` and `openssl`) is not pinned by any repository reference; it
+  is a documented limit of SR-028 AC-8 (CR-005 Q-6): no released image is built on it and every tool
+  the repository installs on it is pinned. The `build` job ("Docker Build") builds the backend image, which
   installs with `uv sync --frozen --no-dev`, and then runs the step "Check production dependency
   set": `docker run --rm --entrypoint python medhub-backend:ci -c "import importlib.util, sys; import boto3; sys.exit(importlib.util.find_spec('fakeredis') is not None)"`.
   It fails the build when the production dependency set lacks the object-storage SDK or contains
@@ -81,7 +94,7 @@ approvals — are defined by the lifecycle plans ([PLAN-001](../../plans/PLAN-00
 [TS-013](../tests-specifications/TS-013-lifecycle-record-and-traceability.md):
 `backend/tests/test_toolchain.py`, `frontend/tests/toolchain.test.ts` and
 `backend/tests/test_export_openapi.py`, `infra/check_image_pins.py` with
-`infra/tests/test_check_image_pins.py` (TC-013.5, TC-013.6), `uv lock --check` (the `backend-quality`
+`infra/tests/test_check_image_pins.py` (TC-013.5, TC-013.6, TC-013.11; TC-013.12 for the pins in the repository and on hosted CI), `uv lock --check` (the `backend-quality`
 step "Check the lock file is current") and the Docker Build step "Check production dependency set"
 (TC-013.7, TC-013.8), plus the `traceability-check` gap
 reports. [TS-008](../tests-specifications/TS-008-persistence-fhir-aligned-model-and-encryption.md) lists TC-008.8, the
@@ -112,3 +125,8 @@ contributor because it is not deployed.
   and the CI-only override `infra/compose.ci-object-store.yml` (TASK-179); verification lists
   TC-008.8. Status returned to `in_review` and the approval record cleared for re-approval by the
   human.
+- 1.3 (2026-11-12) — CR-005 TASK-211: `U-INF-CIPipeline` describes the tool rules of the pin check
+  (actions by SHA, CI runtimes equal to the base images, one exact `uv`, exact `npx` packages), the
+  pins it enforces and the unpinned hosted runner image as a documented limit; verification lists
+  TC-013.11 and TC-013.12. Status returned to `in_review` and the approval record cleared for
+  re-approval by the human. TASK-213 adds the test-image rules to this version.

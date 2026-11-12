@@ -1,0 +1,7 @@
+jobs:
+  a:
+    steps:
+      - with:
+          python-version: "3.12.15"
+      - with:
+          node-version: 24.22.2  # same as the frontend build image

@@ -1,0 +1,7 @@
+jobs:
+  a:
+    steps:
+      - run: npx --yes @redocly/cli lint openapi.json
+      - run: npx redoc-cli@latest build
+      - run: |
+          cd x && npx -y prettier@3 --check .

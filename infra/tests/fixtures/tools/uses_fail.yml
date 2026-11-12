@@ -1,0 +1,9 @@
+jobs:
+  a:
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup
+        uses: actions/setup-python@a26af69
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+      - uses: actions/cache
+      - uses: ./local-action

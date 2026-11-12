@@ -2,18 +2,14 @@
 id: SOUP-001
 type: soup
 title: Python runtime
-status: approved
-version: "1.2"
+status: in_review
+version: "1.3"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
-updated: "2026-10-23"
+updated: "2026-11-12"
 manufacturer: Python Software Foundation
 soup_version: 3.12.15
 anomaly_review: "2026-10-22"
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-10-23"
-approved_digest: d5d748f4c72a9e4f1548e4270639e5ed42e74a8f737351d6c154e756f174a1aa
-approval_note: self-approved
 links: []
 tags:
   - soup
@@ -64,7 +60,7 @@ Findings:
 | ID | Summary | Fixed in | Applies to 3.12.15 | MedHub affected | Hazard relevance |
 |---|---|---|---|---|---|
 | CVE-2026-12345 (gh-157579) | Race in `tempfile.TemporaryDirectory` cleanup: an attacker who can modify the tree can redirect deletion or permission resets outside it | 3.15/3.14/main backports exist. The `[3.12]` backport (458e7134) was reverted as "prematurely merged" (e1f3590f) before the `v3.12.15` tag. No 3.12 fix as of 2026-10-22 | Yes | No: no backend module uses `tempfile`. Exploitation needs write access to the container filesystem | None |
-| pip 25.0.1: CVE-2025-8869, CVE-2026-1703, CVE-2026-3219, CVE-2026-6357, CVE-2026-8643, CVE-2026-13346 | Path traversal and archive-confusion issues when pip installs packages | pip 25.3–26.2 | Yes (pip is part of the image) | Build time only: `backend/Dockerfile` runs `pip install uv` in the builder stage. The runtime never calls pip. The unpinned `pip install uv` is already PRB-034 (CR-001 D-2) | None at runtime; a build-supply-chain concern under PRB-034 |
+| pip 25.0.1: CVE-2025-8869, CVE-2026-1703, CVE-2026-3219, CVE-2026-6357, CVE-2026-8643, CVE-2026-13346 | Path traversal and archive-confusion issues when pip installs packages | pip 25.3–26.2 | Yes (pip is part of the image) | Build time only: `backend/Dockerfile` runs `pip install uv==0.13.7` in the builder stage (pinned by CR-005). The runtime never calls pip | None at runtime; a build-supply-chain concern (PRB-034, CR-005) |
 
 The other eight PSF CVEs of the period (CVE-2026-19445, CVE-2026-19553, CVE-2026-82049,
 CVE-2026-15310, CVE-2026-19672, CVE-2026-15806, CVE-2026-17084, CVE-2026-87910) are fixed in
@@ -97,3 +93,7 @@ accountable. Hazard-relevant anomalies go to `risk-management`; defects affectin
   unfixed CPython CVE (CVE-2026-12345, `tempfile`) and six pip 25.0.1 advisories apply. None affects
   MedHub's runtime, none is hazard-relevant. `anomaly_review` set. No version change. Approval
   record cleared for re-approval.
+- 2026-11-12 — Version 1.3 (CR-005, TASK-211): the pip row of the anomaly table said the image
+  installs an unpinned `pip install uv` (PRB-034). The image installs `uv==0.13.7` since TASK-210;
+  the row now says so. Text correction only: the Python version, the findings and their evaluation
+  are unchanged, and `anomaly_review` stays 2026-10-22. Approval record cleared for re-approval.

@@ -1,0 +1,15 @@
+jobs:
+  a:
+    steps:
+      - with:
+          python-version: "3.12"
+      - with:
+          python-version: "3.12.16"
+      - with:
+          python-version: ${{ matrix.python }}
+      - with:
+          python-version: ["3.12.15"]
+      - with:
+          node-version: "24"
+      - with:
+          node-version: "24.22.1"

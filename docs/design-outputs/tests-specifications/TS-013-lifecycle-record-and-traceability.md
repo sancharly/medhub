@@ -2,11 +2,11 @@
 id: TS-013
 type: test-specification
 title: Lifecycle record and traceability verification
-status: approved
-version: "1.5"
+status: in_review
+version: "1.6"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-10-30"
+updated: "2026-11-12"
 links:
   - target: SR-028
     relation: verifies
@@ -24,12 +24,13 @@ tags:
 Software requirements covered: SR-028.
 Software items under test: the design record set (review), and SI-DEVINFRA unit
 `U-INF-CIPipeline` (ADD-024), specifically `infra/check_image_pins.py` (unit verification, §5.5).
-Levels: review (TC-013.1 to TC-013.4, TC-013.9), unit (TC-013.5, TC-013.6), integration (TC-013.7,
-TC-013.8: automated CI checks of the dependency set the build resolves).
+Levels: review (TC-013.1 to TC-013.4, TC-013.9), unit (TC-013.5, TC-013.6, TC-013.11), integration
+(TC-013.7, TC-013.8: automated CI checks of the dependency set the build resolves; TC-013.12: the tool
+pins in the repository and on hosted CI, with a review of the SHA-to-tag record).
 
 ## Preconditions and environment
 
-Build: branch `bug/soup-pinning`. TC-013.9 and the CR-001 end-to-end run (TASK-159, 2026-10-22) were
+Build: branch `bug/soup-pinning` (TC-013.11 and TC-013.12: branch `bug/build-hygiene`, CR-005). TC-013.9 and the CR-001 end-to-end run (TASK-159, 2026-10-22) were
 executed on commit `7ef8f93` with the TASK-159 record changes only (no source change). TC-013.9 and the
 CR-003 end-to-end run (TASK-168, 2026-10-30) were executed on branch `bug/soup-upgrades` at commit
 `d57ec72` with the TASK-168 record changes only (no source change). Backend Python 3.12 with the
@@ -37,7 +38,7 @@ dependencies locked in `backend/uv.lock`; frontend Node 24 LTS (build stage node
 Unit and service tests run with no external services (the repository itself). Tests marked *real DB* require a
 PostgreSQL 16 container through testcontainers and therefore a working Docker daemon.
 Exact SOUP versions: the `soup` records in [`../../soup/`](../../soup/); the pinned image
-references (tag and digest) are those recorded in the SOUP records. TC-013.5 and TC-013.6 need only
+references (tag and digest) are those recorded in the SOUP records. TC-013.5, TC-013.6 and TC-013.11 need only
 Python 3 (standard library) and `git`; TC-013.7 needs `uv`; TC-013.8 needs a Docker daemon; TC-013.9 needs read access to
 `backend/uv.lock`, `frontend/package-lock.json`, the Compose file and the Dockerfiles, and
 `docs/medtrace.yml` for `soup_anomaly_max_age_days`.
@@ -56,6 +57,12 @@ Python 3 (standard library) and `git`; TC-013.7 needs `uv`; TC-013.8 needs a Doc
 | TC-013.8 | SR-028 (AC-5) | CI job Docker Build (`.github/workflows/ci.yml`), step "Check production dependency set": `docker run --rm --entrypoint python medhub-backend:ci -c "import importlib.util, sys; import boto3; sys.exit(importlib.util.find_spec('fakeredis') is not None)"` | The production image, built with `uv sync --frozen --no-dev`, contains every runtime SDK the code imports and does not contain `fakeredis`, which only the tests use and which lives in the `dev` dependency group (PRB-033) | Exit 0 in the built backend image: `import boto3` succeeds and `fakeredis` is absent (exit 1 if `fakeredis` is present; a missing `boto3` raises and also fails the step). Locally, `uv sync --frozen --no-dev` into a scratch environment gives the same result |
 | TC-013.9 | SR-028 (AC-6) | Review, before QA approval and at release: for each `soup` record whose status is not `obsolete`, compare `soup_version` with the version the build resolves (`backend/uv.lock` for Python packages, `frontend/package-lock.json` top-level entries for npm packages, the release tag of the pinned image reference in `infra/docker-compose.yml`, `backend/Dockerfile` and `frontend/Dockerfile` for images and the Python runtime); read the record's `anomaly_review` date and its "Anomaly list review" section; then run `medical-records:traceability-check` over `docs/` | Every non-obsolete `soup_version` equals the version the build resolves (one version per item; for images, the identical tag at every reference). Every non-obsolete record has an `anomaly_review` date no older than `soup_anomaly_max_age_days` (`docs/medtrace.yml`, 365) on the day of the check, and its "Anomaly list review" section cites each source reviewed by name and URL for that exact version and does not read "Not yet performed" | No version mismatch; no record without a dated, sourced review; no `soup_anomaly_review_stale` finding for a non-obsolete record in the committed gap report. At release, the age is measured to the release date |
 | TC-013.10 | SR-028 (AC-7) | Manual, steps in TASK-176 Verification: on a Docker daemon with an empty image store (a disposable `docker:dind` pinned by digest, started with no volume of cached images; on an arm64 host the client sets `DOCKER_DEFAULT_PLATFORM=linux/amd64`), from the version-controlled sources of the branch: `docker compose -p <name> build` then `docker compose -p <name> up -d` | Every image is obtained from a public registry by its pinned digest (`chrislusf/seaweedfs:4.51@sha256:f7a49e3f…134b8` included) or built from the repository; no image is taken from a local cache; the stack reaches the state where `object-store` is healthy, `object-store-preflight` and `object-store-init` exited 0 and `backend` is started; the SeaweedFS image runs as `linux amd64` | Build and `up -d` exit 0; container states and `weed version` recorded in the TASK-176 "Verification results". CI evidence for the same on a hosted amd64 runner is TASK-179; the end-to-end run is TASK-182 |
+| TC-013.11 | SR-028 (AC-8) | `infra/tests/test_check_image_pins.py` (`python3 -m unittest discover -s infra/tests -v`): `ToolReferences`, with fixtures under `infra/tests/fixtures/tools/` run through `check_image_pins.py --root` | Each unpinned tool form is reported with file and line: an action `uses:` by tag, by short SHA, by SHA without the `# v<tag>` comment, or with no ref; `python-version` / `node-version` without a patch version, as an expression or a list, or different from `FROM python:` / `FROM node:` of the base image; a `python-version-file` / `node-version-file` key; an `astral-sh/setup-uv` action; a `uv` install (`pip` or `pipx`, workflow or Dockerfile, also `\`-continued over several lines or in the Dockerfile exec form `RUN ["pip", "install", "uv"]`) without `==X.Y.Z`; a `uv==` version that differs from the one in `backend/Dockerfile`; an `npx` package without an exact version (also inside a `run: \|` block, after a quote or after a `VAR=value` prefix). The image rule reports a `uses: docker://<image>` without `@sha256:<64 hex>` (also with a `$`). A `uses: ./local`, a `uses: docker://` with a digest, a pinned action, runtime, `uv==` and `npx pkg@X.Y.Z`, and the package `uvicorn`, pass. The check passes on the repository | One passing and one failing fixture per form; exit 1 with the right path, line, message and reference on each failing fixture, exit 0 on the passing ones and on the repository; `--root` with a PATH exits 2, and `--root` on a missing directory or one without workflows or Dockerfiles exits 2. Negative control (CR-005): reverting in a scratch copy of the repository one action to `@v4`, one `python-version` to `"3.12"`, one `node-version` to `"24"`, one `uses:` to `docker://alpine:3.20`, one `python-version` to `python-version-file`, one uv install continued over two lines or in exec form, `astral-sh/setup-uv`, a quoted `npx`, one uv install to `pip install uv` (workflow and Dockerfile), one uv version to a different `uv==`, and the linter to `@redocly/cli` each makes `python3 infra/check_image_pins.py` exit 1 at that file and line |
+| TC-013.12 | SR-028 (AC-8) | Integration and review: `python3 infra/check_image_pins.py` on the repository (CI job `image-pins`); the SHA-to-tag record of TASK-209 (`git ls-remote --tags` and `gh api repos/actions/<name>/git/ref/tags/<tag>` per action); `cd backend && uvx --from uv==0.13.7 uv lock --check`; the logs of a hosted run of the branch | Exit 0 and no output on the repository. Every `uses:` SHA is the commit of the release tag in its comment. `uv lock --check` passes with the pinned uv. The hosted logs show Python 3.12.15 (the shipped runtime), Node.js 24.22.2 and uv 0.13.7 in every job that installs them | All four hold. The hosted-log part needs a pushed run and is recorded in TASK-216 (Checkpoint C); until then the case is partial |
+
+Coverage of SR-028 AC-5, AC-6 and AC-8: AC-8 (build and CI tools by exact version, enforced by the
+same check) is covered by TC-013.11 (the rules) and TC-013.12 (the repository, the tags and the
+hosted run).
 
 Coverage of SR-028 AC-5 and AC-6: AC-5 (one exact version per component; images by tag and
 digest; CI fails on a reference without a digest) is covered by TC-013.5 and TC-013.6 (digest and
@@ -77,9 +84,26 @@ anomaly review within the age limit) is covered by TC-013.9.
   an `image` key inside a YAML flow mapping (`svc: {image: …}`) or written as a quoted key
   (`"image": …`) is not detected; neither form occurs in the repository.
 
+- `infra/check_image_pins.py` tool rules (class B unit, §5.5.3; SR-028 AC-8, ADR-0020): over the
+  tracked workflows and Dockerfiles (or those under `--root`), exits 1 and prints
+  `<file>:<line>: <message>: <reference>` for a workflow `uses:` of a repository action that is not
+  `owner/repo[/path]@<40 lowercase hex>` followed by a `# v<tag>` comment (`./` is exempt; a
+  `docker://` reference goes to the image rule and is reported there without `@sha256:<64 hex>`),
+  an `astral-sh/setup-uv` action, a `python-version` / `node-version` that is not `X.Y.Z` or
+  differs from the tag version of `FROM python:` in `backend/Dockerfile` / `FROM node:` in
+  `frontend/Dockerfile`, a `python-version-file` / `node-version-file` key, a `uv` `pip` / `pipx`
+  install (`\`-continued lines are joined, the Dockerfile exec form is read) that is not
+  `uv==X.Y.Z` or whose version differs from the one in `backend/Dockerfile`, and an `npx` package
+  that is not `name@X.Y.Z` (also after a quote or a `VAR=value` prefix). A form of these kinds
+  that it cannot parse is a finding (it fails closed), for example a folded `uses: >-` (reported
+  with the reference `>-`). Matching is line-based, so these are not seen: an `npx` or a `pip
+  install uv` reached through a script file, a `uses:` or `run:` assembled by a YAML anchor or
+  template expression, and composite actions under `.github/actions/`; none occurs in the
+  repository.
+
 ## Notes
 
-TC-013.1 to TC-013.4 and TC-013.9 verify the process requirement by review, which IEC 62304 §5.5 accepts as unit verification evidence alongside tests. TC-013.5 and TC-013.6 are automated unit verification of the pin-check script. TC-013.7 and TC-013.8 are automated CI checks of the dependency set (job `backend-quality` and the Docker Build job).
+TC-013.1 to TC-013.4 and TC-013.9 verify the process requirement by review, which IEC 62304 §5.5 accepts as unit verification evidence alongside tests. TC-013.5, TC-013.6 and TC-013.11 are automated unit verification of the pin-check script. TC-013.7 and TC-013.8 are automated CI checks of the dependency set (job `backend-quality` and the Docker Build job).
 
 ## Version history
 
@@ -108,3 +132,9 @@ TC-013.1 to TC-013.4 and TC-013.9 verify the process requirement by review, whic
   clears the approval record. Added TC-013.10 for SR-028 AC-7 (pull and build on a daemon with no
   cached images, amd64). Existing test cases unchanged (TC-013.9 reads the object-store pin from
   SOUP-036 once the record is approved).
+- 1.6 (2026-11-12) — CR-005 (TASK-211). Version 1.5 was approved, so this change bumps the version,
+  sets `in_review` and clears nothing else (the record carried no approval fields). Added TC-013.11
+  (unit: the tool rules of the pin check, with the negative control) and TC-013.12 (integration and
+  review: the tool pins in the repository and on hosted CI) for SR-028 AC-8, the AC-8 coverage note
+  and the tool-rule acceptance criterion; environment names branch `bug/build-hygiene`. Existing test
+  cases unchanged. Later CR-005 tasks (TASK-212, TASK-213) add their cases to this version.

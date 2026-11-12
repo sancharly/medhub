@@ -1,0 +1,7 @@
+jobs:
+  a:
+    steps:
+      - run: pip install uv==0.13.7
+  b:
+    steps:
+      - run: pip install uv==0.13.6

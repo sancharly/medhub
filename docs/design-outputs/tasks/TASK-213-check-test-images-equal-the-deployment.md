@@ -3,7 +3,7 @@ id: "TASK-213"
 type: task
 title: "CI check that test container images equal the deployment's"
 status: draft
-version: "1.0"
+version: "1.1"
 author: "Carlos Santiago Liceras"
 created: "2026-11-12"
 updated: "2026-11-12"
@@ -88,6 +88,18 @@ python3 infra/check_image_pins.py; echo "exit $?"   # 0
 
 TS-013, ADD-024 (version rule in TASK-211). PRB-040 `resolved` only after QA approves (AC-11).
 
+## Carried from TASK-211 QA (round 2, 2026-11-12)
+
+Four LOW findings on the same script, test file and records; fix them here (details and
+reproductions in TASK-211, "QA review round 2"):
+
+- [ ] Workflows: the `\` join in `logical_lines` must not swallow a YAML key or list item line (or a
+      blank line) after a stray trailing `\`; fixture.
+- [ ] Dockerfiles: skip comment lines inside a `\` continuation, as Docker does; fixture.
+- [ ] One "not seen" list in the docstring, ADD-024 and TS-013.
+- [ ] `--root ""` exits 2 (`args.root is not None`); test case.
+
 ## Version history
 
 - 1.0 (2026-11-12) — Created at the CR-005 Plan stage (Software Architect role); `draft`.
+- 1.1 (2026-11-12) — QA (TASK-211 round 2): four carried LOW findings added; `draft` unchanged.
