@@ -43,8 +43,33 @@ it can reach `main` (SR-028). It is part of the repository and runs on every pul
   `FROM node:` in `frontend/Dockerfile` (the shipped references are the source of truth); a `uv`
   `pip` / `pipx` install that is not `uv==X.Y.Z` (`\`-continued lines and the Dockerfile exec form are read), or whose version
   differs from the one in `backend/Dockerfile`; and an `npx` package without an exact version. A
-  form of these kinds that it cannot parse is a finding; an `npx` or `pip install uv` reached
-  through a script file and composite actions are not seen (none occurs).
+  form of these kinds that it cannot parse is a finding. A stray trailing `\` does not join a
+  workflow line into the next YAML key, list item or blank line, and a Dockerfile continuation skips
+  comment lines, as Docker does. Matching is line-based, so these are not seen: an `npx` or a
+  `pip install uv` reached through a script file, a `uses:` or `run:` assembled by a YAML anchor or
+  template expression, and composite actions under `.github/actions/`; for the test images, a job
+  `container:` or `uses: docker://` image (checked by the image rule only: a digest is present, not
+  equality with Compose), a container class other than `PostgresContainer`, and an import of
+  `POSTGRES_IMAGE` from a module other than `backend/postgres_image.py`; none occurs in the
+  repository.
+  Four test image rules (SR-028 AC-9, CR-005 AC-6, ADR-0020) run with the tool rules, over the
+  tracked files or those under `--root`: (1) `backend/postgres_image.py` holds exactly one
+  `POSTGRES_IMAGE` assignment at the start of a line, as `POSTGRES_IMAGE = "<ref>"` or as
+  `POSTGRES_IMAGE = (`, one string literal and `)` (concatenation, an f-string, a name, a missing
+  `)`, an annotation or anything else on those lines is a finding; every later assignment, at any
+  indentation and in any form (annotated, augmented, `global`), is a second assignment), and `<ref>` carries a digest and
+  equals the `image:` of the `postgres` service in `infra/docker-compose.yml`; (2) every workflow
+  `services.<name>.image` equals the Compose `image:` of the service with the same image
+  repository (`postgres`, `redis`), and one with no Compose counterpart is a finding, as is a
+  service written as an inline mapping (`postgres: {image: …}`, not read); (3) a string literal
+  `"[registry/namespace/]<repo>:<tag>"` of a Compose image repository in `backend/**/*.py`
+  (`.venv/` excluded) is a finding, in `backend/postgres_image.py` too apart from the one
+  recognised `POSTGRES_IMAGE` literal; connection URLs such as `redis://localhost:6379/0` do not
+  match, but a `host:port` or log string such as `"postgres:5432"` or `"redis:connected"` does (a
+  false positive that fails closed: rewrite the literal, do not weaken the rule); (4) every
+  `PostgresContainer(` call in `backend/**/*.py` passes `POSTGRES_IMAGE` as its first positional
+  argument or as `image=POSTGRES_IMAGE` (no argument, a literal or another name is a finding),
+  so a `PostgresContainer` call site cannot bring a floating tag back. `--root ""` exits 2.
   The pins it enforces are: actions `actions/checkout`, `actions/setup-python` and
   `actions/setup-node` by commit SHA with the release tag in a comment, CI Python 3.12.15 and
   Node.js 24.22.2 (the base-image versions), `uv==0.13.7` in `backend/Dockerfile` and the four CI
@@ -129,4 +154,5 @@ contributor because it is not deployed.
   (actions by SHA, CI runtimes equal to the base images, one exact `uv`, exact `npx` packages), the
   pins it enforces and the unpinned hosted runner image as a documented limit; verification lists
   TC-013.11 and TC-013.12. Status returned to `in_review` and the approval record cleared for
-  re-approval by the human. TASK-213 adds the test-image rules to this version.
+  re-approval by the human. TASK-213 added the test-image rules (and the three fixes to the line
+  joining and the `--root` check) to this version, without a version change.

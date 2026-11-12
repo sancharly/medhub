@@ -27,6 +27,8 @@ This folder records the significant architecture decisions for MedHub. One decis
 
 ADR-0010 and ADR-0019 carry dated notes (2026-11-08, TASK-201) recording what CR-004 changed in the text they describe; their decisions are unchanged.
 
+ADR-0020 carries dated amendment notes (2026-11-12, TASK-212 QA): the test definition is `backend/postgres_image.py`, and the pin check reads its one-line or parenthesised assignment. The human acknowledged the amendment on 2026-11-12.
+
 ## Trade-off summary
 
 The dominant forces are: regulatory rigor (IEC 62304 / MDR / FDA / GDPR), a small prototype-stage team, a central plugin mechanism, and safety-critical DICOM rendering. These bias the architecture toward **simplicity, auditability, and strong access control over horizontal scalability**. A modular monolith (ADR-0001) is chosen over microservices precisely because it keeps the regulated surface small and the audit trail coherent, while still delivering the extensibility the product needs through an in-process module mechanism (ADR-0005).

@@ -2,8 +2,8 @@
 id: "PRB-040"
 type: problem-report
 title: "Database tests start PostgreSQL from a floating tag, not the shipped version"
-status: open
-version: "1.1"
+status: resolved
+version: "1.3"
 author: "Carlos Santiago Liceras"
 created: "2026-10-22"
 updated: "2026-11-12"
@@ -68,6 +68,36 @@ tied to the SOUP-020 version. Nothing indicates that the result would differ on 
 Use the Compose/CI reference (tag and digest) for `PostgresContainer`, ideally from a single
 constant, and consider extending the pin check to test fixtures. Needs a task and a CR.
 
+## Resolution
+
+Resolved by CR-005 in two tasks (verified in the working tree on branch `bug/build-hygiene`;
+QA approved TASK-212 and, on 2026-11-12 in round 2, TASK-213; the PRB is `resolved` and becomes
+`closed` once a release ships the change).
+
+- **TASK-212 (commit `e984559`).** One definition, `backend/postgres_image.py`
+  (`POSTGRES_IMAGE = (` with the `"postgres:16.15@sha256:9e2cf628…0a97"` literal on line 13 and `)`, equal to `infra/docker-compose.yml:126`
+  and SOUP-020). All eleven `PostgresContainer(...)` call sites (the nine files listed under
+  Investigation, counted per call by TASK-212) import it, so no test names a floating tag. The
+  definition sits beside `conftest.py` rather than in `tests/` because the DICOM suite's own
+  `tests` package shadows `backend/tests`. A started-container test
+  (`backend/tests/db/test_postgres_image.py`) asserts the `pg_container` fixture has the SOUP-020
+  digest.
+- **TASK-213 (the next commit).** `infra/check_image_pins.py` (CI job `image-pins`) enforces it: the
+  definition is read as text and must carry a digest and equal the Compose `postgres` image; every
+  workflow `services.<name>.image` must equal the Compose image of the same repository; a
+  `"<repo>:<tag>"` literal of a Compose image repository in `backend/**/*.py` is a finding (the
+  definition's own literal apart); and every `PostgresContainer(` call must take `POSTGRES_IMAGE`
+  as its image, so a later edit to a `PostgresContainer` call cannot bring the floating tag back
+  (the way this PRB grew from two call sites to eleven). Fixtures: `TestImagesMatchDeployment` in
+  `infra/tests/test_check_image_pins.py` (TS-013 TC-013.13).
+- **Verification.** `python3 -m unittest discover -s infra/tests -v` (all pass);
+  `python3 infra/check_image_pins.py` exits 0 on the repository; on a scratch copy, reverting the
+  definition to `postgres:16`, dropping its digest, changing the CI `postgres` service image, adding
+  `"postgres:16"` to a test file, a `PostgresContainer()` call and putting a file at
+  `backend/tests/postgres_image.py` each exit 1 at that file and line (the scratch files are
+  `git add`ed first, because the default mode reads `git ls-files`). Records: TS-013 1.6 (TC-013.13, TC-013.14 coverage note), ADD-024 1.3,
+  ADR-0020 (amended 2026-11-12).
+
 ## Source
 
 Found by QA while reviewing TASK-155 of CR-001 (2026-10-22); outside that task's scope.
@@ -75,3 +105,5 @@ Found by QA while reviewing TASK-155 of CR-001 (2026-10-22); outside that task's
 ## Version history
 
 - 1.1 (2026-11-12) — `## Investigation` added for CR-005 (Specify stage): nine call sites in nine test files (CR-004 added seven), the mechanism, and the risk-control evidence now affected. Criticality unchanged.
+- 1.2 (2026-11-12) — `## Resolution` written for CR-005 (TASK-212 `e984559`, TASK-213); status `open` until QA approves.
+- 1.3 (2026-11-12) — QA approved TASK-213 (round 2; verification reproduced, see TASK-213 "QA review round 2"); `open → resolved`. Criticality unchanged. Residual: the check covers `PostgresContainer` call sites only (see TASK-213 findings, carried to TASK-216).

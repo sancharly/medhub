@@ -3,7 +3,7 @@ id: "TASK-216"
 type: task
 title: "Verify CR-005 end to end"
 status: draft
-version: "1.0"
+version: "1.1"
 author: "Carlos Santiago Liceras"
 created: "2026-11-12"
 updated: "2026-11-12"
@@ -85,6 +85,22 @@ are complete and traceable, and that the §7.4.3 verification of the affected co
       pinned versions visible in the logs.
 - [ ] CR-005 AC-13: `traceability-check` 0 errors for CR-005's records; negative controls re-run.
 
+## Carried from TASK-213 QA (round 2, 2026-11-12)
+
+Non-blocking findings on `infra/check_image_pins.py`, ADR-0020, ADD-024 and TS-013 (details and
+reproductions in TASK-213, "QA review round 2"); resolve before CR-005 closes:
+
+- [ ] MEDIUM: ADR-0020 dated amendment note under the literal-rule bullet (rule 4, guarantee limited
+      to `PostgresContainer` call sites, `DockerContainer` Redis call not checked), README note line,
+      human acknowledgement recorded.
+- [ ] LOW 1: definition rebinding by tuple unpacking, `:=`, `for`, `import ... as`, `;` or `globals()`
+      is reported (`ast`) or listed under "not seen"; "in any form" wording corrected.
+- [ ] LOW 2: `PostgresContainer` imported under an alias, and a `POSTGRES_IMAGE` rebinding in a test
+      file, are reported or listed under "not seen" (docstring, ADD-024, TS-013).
+- [ ] LOW 3: ADD-024 and TS-013 "none occurs in the repository" names the `DockerContainer` Redis call
+      in `backend/tests/auth/test_session_cap_concurrency.py`.
+
 ## Version history
 
 - 1.0 (2026-11-12) — Created at the CR-005 Plan stage (Software Architect role); `draft`.
+- 1.1 (2026-11-12) — QA (TASK-213 round 2): one MEDIUM and three LOW findings carried; `draft` unchanged.

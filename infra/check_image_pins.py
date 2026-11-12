@@ -19,17 +19,39 @@ Tool rules (SR-028 AC-8 / CR-005 AC-4, ADR-0020), over the tracked workflows and
     the most common version when that Dockerfile installs no uv);
   - a workflow ``npx`` call must name its package with an exact version (``pkg@X.Y.Z``), also after a
     quote or a ``VAR=value`` prefix.
+Test image rules (SR-028 AC-9 / CR-005 AC-6, ADR-0020), over the repository root:
+  - backend/postgres_image.py must hold exactly one ``POSTGRES_IMAGE`` assignment at the start of a
+    line, as ``POSTGRES_IMAGE = "<ref>"`` or as ``POSTGRES_IMAGE = (`` / one string literal / ``)``
+    (any other form, such as concatenation, an f-string or a name, is a finding); every later
+    assignment is a second assignment, whatever its indentation or form (annotated, augmented,
+    ``global POSTGRES_IMAGE``); ``<ref>`` must carry a digest and equal the ``image:`` of the
+    ``postgres`` service in infra/docker-compose.yml;
+  - every workflow ``services.<name>.image`` must equal the Compose ``image:`` of the service with
+    the same image repository (``postgres``, ``redis``); a service written as an inline mapping
+    (``postgres: {image: ...}``) is a finding, not skipped;
+  - no string literal ``"[registry/namespace/]<repo>:<tag>"`` of a Compose image repository may
+    appear in backend/**/*.py (``.venv/`` excluded), including in backend/postgres_image.py apart
+    from the one recognised ``POSTGRES_IMAGE`` literal. The pattern also matches ``"postgres:5432"``
+    or ``"redis:connected"`` (a host:port or a log string): rewrite such a literal, the rule fails
+    closed;
+  - every ``PostgresContainer(`` call in backend/**/*.py must pass ``POSTGRES_IMAGE`` as its first
+    positional argument or as ``image=POSTGRES_IMAGE``; no argument, a literal or another name is
+    a finding (a line already reported for an image literal is not reported twice).
 Standard library only, no YAML parser: line-based matching is enough for the forms used in this
-repository. A form of the kinds above that the rules cannot parse is a finding; forms outside
-them (a multi-line ``run:`` command assembled by a script file, a composite action under
-.github/actions/, an ``npx`` run through a script) are not seen.
+repository. A form of the kinds above that the rules cannot parse is a finding. Matching is
+line-based, so these are not seen: an ``npx`` or a ``pip install uv`` reached through a script file,
+a ``uses:`` or ``run:`` assembled by a YAML anchor or template expression, and composite actions
+under .github/actions/; for the test images, a job ``container:`` or ``uses: docker://`` image
+(checked by the image rule only: a digest is present, not equality with Compose), a container class
+other than ``PostgresContainer``, and an import of ``POSTGRES_IMAGE`` from a module other than
+backend/postgres_image.py.
 
 Usage: check_image_pins.py [PATH ... | --root DIR]
   No arguments: the image rule on every tracked Compose file, Dockerfile and GitHub workflow,
-  then the tool rules on the repository (excluding infra/tests/fixtures/).
+  then the tool and test image rules on the repository (excluding infra/tests/fixtures/).
   PATH ...: the image rule on exactly those files.
-  --root DIR: the tool rules only, on the workflows and Dockerfiles found under DIR (exit 2 when
-    DIR is not a directory or holds none).
+  --root DIR: the tool and test image rules only, on the files found under DIR (exit 2 when DIR is
+    empty, not a directory, or holds no workflow or Dockerfile).
 Output per finding: <path>:<line>: <message>: <reference>
   (image rule message: image reference without @sha256 digest)
 Exit: 0 all pinned, 1 at least one finding, 2 usage or read error.
@@ -163,10 +185,23 @@ def _split_comment(value):
     return value, (parts[1].strip() if len(parts) > 1 else "")
 
 
-def logical_lines(lines):
-    """Yield (first line number, text) with ``\\``-continued lines joined into one."""
+YAML_ITEM = re.compile(r"^\s*(?:-(?:\s|$)|[A-Za-z_][\w.-]*:(?:\s|$))")
+
+
+def logical_lines(lines, yaml=False):
+    """Yield (first line number, text) with ``\\``-continued lines joined into one.
+
+    A stray trailing ``\\`` does not join the next line when that line is blank or starts a YAML
+    key or list item (``yaml=True``, workflows). In a Dockerfile (``yaml=False``) comment lines
+    inside a continuation are dropped, as Docker does.
+    """
     start, parts = None, []
     for number, line in enumerate(lines, start=1):
+        if parts and yaml and (not line.strip() or YAML_ITEM.match(line)):
+            yield start, " ".join(parts)
+            start, parts = None, []
+        elif parts and not yaml and line.lstrip().startswith("#"):
+            continue
         if start is None:
             start = number
         if line.rstrip().endswith("\\") and not line.lstrip().startswith("#"):
@@ -216,7 +251,7 @@ def tool_findings(root):
     for path in workflows + dockerfiles:
         is_workflow = path in workflows
         lines = (root / path).read_text(encoding="utf-8").splitlines()
-        for number, line in logical_lines(lines):
+        for number, line in logical_lines(lines, yaml=is_workflow):
             if line.lstrip().startswith("#"):
                 continue
             if is_workflow:
@@ -230,6 +265,7 @@ def tool_findings(root):
                     uv_versions.append((path, number, exact["version"]))
                 else:
                     findings.append((path, number, "uv install without an exact version", token))
+    findings += image_findings(root, workflows)
     counts = Counter(version for _, _, version in uv_versions)
     if len(counts) > 1:
         # The shipped image is the reference; without a uv install there, the most common version.
@@ -241,6 +277,183 @@ def tool_findings(root):
                     (path, number, f"uv version differs from the others ({expected})", f"uv=={version}")
                 )
     return sorted(findings, key=lambda f: (f[0], f[1]))
+
+
+# --- Test image rules (SR-028 AC-9) -----------------------------------------------------------
+
+COMPOSE = "infra/docker-compose.yml"
+DEFINITION = "backend/postgres_image.py"
+DEFINITION_START = re.compile(
+    r"^\s*(?:POSTGRES_IMAGE\s*(?::[^=]*)?[-+*|]?=(?!=)|global\s+(?:\w+\s*,\s*)*POSTGRES_IMAGE\b)"
+)
+ONE_LINE = re.compile(r"""^POSTGRES_IMAGE = (?P<q>["'])(?P<ref>[^"'\\]*)(?P=q)\s*$""")
+PAREN_OPEN = re.compile(r"^POSTGRES_IMAGE = \(\s*$")
+LITERAL_LINE = re.compile(r"""^\s+(?P<q>["'])(?P<ref>[^"'\\]*)(?P=q)\s*$""")
+SERVICES_KEY = re.compile(r"^(?P<indent>\s*)services:\s*$")
+INLINE_SERVICE = re.compile(r"^\s*(?P<name>[\w.-]+):\s+(?P<rest>[^#\s].*)$")
+INLINE_MESSAGE = "service as an inline mapping, its image is not compared"
+CONTAINER_CALL = re.compile(r"(?<!class )\bPostgresContainer\s*\(")
+CONTAINER_ARGUMENT = re.compile(r"\s*(?:image\s*=\s*)?POSTGRES_IMAGE\s*[,)]")
+SERVICE_KEY = re.compile(r"^(?P<indent>\s*)(?P<name>[\w.-]+):\s*(?:#.*)?$")
+
+
+def image_repository(reference):
+    """The image repository of a reference: everything before the tag or digest."""
+    return re.split(r"[:@]", reference, maxsplit=1)[0]
+
+
+def service_images(lines):
+    """Return ([(service name, line number, reference)], [(name, line number, text)]).
+
+    The first list holds the ``image:`` of the block-style services of the ``services:`` block of a
+    YAML file; the second the services written as an inline mapping (``name: {image: ...}``),
+    whose image is not read.
+    """
+    result, inline = [], []
+    in_services, base, child, service = False, 0, None, None
+    for number, line in enumerate(lines, start=1):
+        if not line.strip() or line.lstrip().startswith("#"):
+            continue
+        indent = len(line) - len(line.lstrip())
+        if in_services and indent <= base:
+            in_services, service = False, None
+        if not in_services:
+            match = SERVICES_KEY.match(line)
+            if match:
+                in_services, base, child = True, indent, None
+            continue
+        if child is None:
+            child = indent
+        if indent == child:
+            match = SERVICE_KEY.match(line)
+            service = match["name"] if match else None
+            flow = INLINE_SERVICE.match(line)
+            if flow:
+                inline.append((flow["name"], number, flow["rest"].strip()))
+        elif service is not None:
+            for _, reference in image_values([line]):
+                result.append((service, number, reference))
+    return result, inline
+
+
+def definition_literal(lines, first):
+    """(reference, line number) of the recognised literal of the assignment at ``first``, or (None, first)."""
+    one_line = ONE_LINE.match(lines[first - 1])
+    if one_line:
+        return one_line["ref"], first
+    if PAREN_OPEN.match(lines[first - 1]):
+        literal = LITERAL_LINE.match(lines[first]) if first < len(lines) else None
+        closed = first + 1 < len(lines) and lines[first + 1].rstrip() == ")"
+        if literal and closed:
+            return literal["ref"], first + 1
+    return None, first
+
+
+def _definition_findings(root, compose):
+    """Rule 1: the test image definition, its form and its value."""
+    path = root / DEFINITION
+    if not path.is_file():
+        return [(DEFINITION, 1, "test image definition missing", "<missing>")]
+    lines = path.read_text(encoding="utf-8").splitlines()
+    starts = [n for n, line in enumerate(lines, start=1) if DEFINITION_START.match(line)]
+    if not starts:
+        return [(DEFINITION, 1, "test image definition missing", "POSTGRES_IMAGE")]
+    findings = [
+        (DEFINITION, n, "second POSTGRES_IMAGE assignment", lines[n - 1].strip()) for n in starts[1:]
+    ]
+    first = starts[0]
+    unrecognised = "test image definition not in a recognised form"
+    reference, literal_line = definition_literal(lines, first)
+    if reference is None:
+        return findings + [(DEFINITION, first, unrecognised, lines[first - 1].strip())]
+    if not PINNED.search(reference):
+        return findings + [(DEFINITION, literal_line, "test image without @sha256 digest", reference or "<empty>")]
+    if compose is None:  # reported once, by image_findings
+        return findings
+    postgres = [(n, ref) for name, n, ref in compose if name == "postgres"]
+    if not postgres:
+        return findings + [(COMPOSE, 1, "no postgres service image to compare the test image with", reference)]
+    if reference not in {ref for _, ref in postgres}:
+        message = f"test image differs from {COMPOSE}:{postgres[0][0]}"
+        findings.append((DEFINITION, literal_line, message, reference))
+    return findings
+
+
+def image_findings(root, workflows):
+    """Rules 1-4 of the test image rules: definition, CI services, stray image literals, container calls."""
+    findings = []
+    compose_path = root / COMPOSE
+    compose = None
+    if compose_path.is_file():
+        images, inline = service_images(compose_path.read_text(encoding="utf-8").splitlines())
+        compose = [(name, n, ref) for name, n, ref in images if "$" not in ref]
+        findings += [(COMPOSE, n, INLINE_MESSAGE, text) for _, n, text in inline]
+    else:
+        findings.append((COMPOSE, 1, "deployment Compose file missing", "<missing>"))
+    findings += _definition_findings(root, compose)
+    by_repository = {}
+    for _, n, ref in compose or []:
+        by_repository.setdefault(image_repository(ref), []).append((n, ref))
+    for path in workflows:
+        lines = (root / path).read_text(encoding="utf-8").splitlines()
+        images, inline = service_images(lines)
+        findings += [(path, n, INLINE_MESSAGE, text) for _, n, text in inline]
+        for _, number, ref in images:
+            deployed = by_repository.get(image_repository(ref))
+            if deployed is None:
+                findings.append((path, number, f"CI service image has no counterpart in {COMPOSE}", ref))
+            elif ref not in {r for _, r in deployed}:
+                message = f"CI service image differs from {COMPOSE}:{deployed[0][0]}"
+                findings.append((path, number, message, ref))
+    literal = None
+    if by_repository:
+        literal = re.compile(
+            r"""(?P<q>["'])(?P<ref>(?:[\w.:-]+/)*(?:%s):[A-Za-z0-9][^"'\s]*)(?P=q)"""
+            % "|".join(re.escape(r) for r in by_repository)
+        )
+    for path in python_sources(root):
+        text = (root / path).read_text(encoding="utf-8")
+        skip = set()
+        if path == DEFINITION:
+            lines = text.splitlines()
+            starts = [n for n, line in enumerate(lines, start=1) if DEFINITION_START.match(line)]
+            reference, literal_line = definition_literal(lines, starts[0]) if starts else (None, 0)
+            if reference is None:  # missing or unrecognised: already a finding
+                continue
+            skip = {literal_line, *starts}  # the later assignment lines are findings already
+        reported = set()
+        for number, line in enumerate(text.splitlines(), start=1):
+            if number in skip or literal is None:
+                continue
+            for match in literal.finditer(line):
+                message = (
+                    f"second image literal in {DEFINITION}"
+                    if path == DEFINITION
+                    else f"image literal outside {DEFINITION}"
+                )
+                findings.append((path, number, message, match["ref"]))
+                reported.add(number)
+        for call in CONTAINER_CALL.finditer(text):
+            number = text.count("\n", 0, call.start()) + 1
+            argument = text[call.end():]
+            if number in reported or CONTAINER_ARGUMENT.match(argument):
+                continue
+            first_argument = re.split(r"[,)]", argument, maxsplit=1)[0].strip() or "<none>"
+            findings.append((path, number, "PostgresContainer without POSTGRES_IMAGE as its image", first_argument))
+    return findings
+
+
+def python_sources(root):
+    """Repository-relative paths of the backend/**/*.py files, ``.venv/`` excluded."""
+    if root == REPO_ROOT:
+        paths = git_paths()
+    else:
+        paths = [p.relative_to(root).as_posix() for p in sorted(root.rglob("*.py"))]
+    return [
+        p
+        for p in paths
+        if p.startswith("backend/") and p.endswith(".py") and ".venv/" not in p and (root / p).is_file()
+    ]
 
 
 def _action_findings(path, number, line):
@@ -314,7 +527,7 @@ def main(argv):
     parser.add_argument("paths", nargs="*", metavar="PATH")
     parser.add_argument("--root", metavar="DIR")
     args = parser.parse_args(argv)
-    if args.root and args.paths:
+    if args.root is not None and args.paths:
         parser.error("PATH and --root cannot be combined")
     found = False
     if args.root is None:
@@ -336,10 +549,10 @@ def main(argv):
             for number, reference in findings:
                 print(f"{display}:{number}: image reference without @sha256 digest: {reference}")
                 found = True
-    if args.root or not args.paths:
+    if args.root is not None or not args.paths:
         root = Path(args.root).resolve() if args.root else REPO_ROOT
-        if args.root:
-            if not root.is_dir():
+        if args.root is not None:
+            if not args.root or not root.is_dir():
                 print(f"error: --root {args.root} is not a directory", file=sys.stderr)
                 return 2
             if not any(root_paths(root)):

@@ -5,6 +5,11 @@
 Accepted (2026-11-12, Carlos Santiago Liceras, CR-005 plan gate). Proposed the same day at the
 CR-005 Plan stage by the Software Architect role.
 
+Amended 2026-11-12 (TASK-212 QA review, findings 1 and 2; Software Architect role): the location
+of the test definition and the form the script reads. **The human (Carlos Santiago Liceras)
+acknowledged the amendment on 2026-11-12.** The decision (option 1, sources of truth, rule families) is unchanged; see the
+dated notes in the Decision.
+
 ## Context
 
 SR-028 1.7 adds AC-8 (every tool that builds the images or runs CI has an exact version: actions by
@@ -49,9 +54,11 @@ Option 1.
     version in the repository must be the same.
   - A workflow `npx` call must name its package with an exact version (`pkg@X.Y.Z`).
   - Every workflow `services.<name>.image` of a SOUP component, and the test definition
-    `POSTGRES_IMAGE` in `backend/tests/postgres_image.py`, must equal, character for character,
+    `POSTGRES_IMAGE` in `backend/postgres_image.py`, must equal, character for character,
     the `image:` of the Compose service that runs the same image repository in
     `infra/docker-compose.yml` (tag and digest).
+    > Amended 2026-11-12 (TASK-212 QA finding 1): the path read `backend/tests/postgres_image.py`.
+    > See "Test definition beside the test roots" below.
   - A string literal naming the image repository of a Compose service (`"postgres:…"`) in
     `backend/**/*.py` outside the test definition is a finding, so a new call site cannot bring a
     floating tag back (the way PRB-040 grew from two call sites to eleven).
@@ -60,15 +67,32 @@ Option 1.
   `soup_version`); the CI Node.js version is the tag version of `FROM node:X.Y.Z-…` in
   `frontend/Dockerfile`; the test PostgreSQL image is the Compose `postgres` image (equal to
   SOUP-020). The `uv` version has no shipped counterpart; the rule is that all occurrences agree.
-- **Reading files.** The script reads the test definition as text (one assignment line), never by
-  importing backend code, so the "Image Pin Check" job keeps needing only Python 3 and `git`.
+- **Reading files.** The script reads the test definition as text, never by importing backend
+  code, so the "Image Pin Check" job keeps needing only Python 3 and `git`. It accepts exactly one
+  assignment to `POSTGRES_IMAGE`, at the start of a line, in one of two forms: one line
+  `POSTGRES_IMAGE = "<ref>"`, or the parenthesised form `black` writes when that line is too long
+  (`POSTGRES_IMAGE = (`, one line holding a single string literal, a line holding `)`). The value is
+  one plain string literal, single or double quoted: no implicit or `+` concatenation, no f-string,
+  prefix or name, nothing else on those lines. Any other form, or a second assignment, is a finding
+  at its line; a finding names the line of the literal.
+  > Amended 2026-11-12 (TASK-212 QA finding 2): this read "(one assignment line)". The one-line form
+  > of the pinned reference is 105 characters and fails `ruff` E501 (limit 100), so `black` and the
+  > source use the parenthesised form. Reading that form was chosen over a one-line assignment with
+  > `# noqa: E501`: the script then accepts the form the formatter produces, needs no lint
+  > suppression, and still reports every form it does not recognise rather than passing it.
 - **Cross-file rules and fixtures.** The cross-file rules run over a repository root: by default
   the git repository (tracked files, fixtures excluded, as today); the unit tests point the script
   at small fixture trees under `infra/tests/fixtures/`. The per-file image mode with explicit paths
   stays as it is.
-- **Test definition in the test tree.** `backend/tests/postgres_image.py` holds the one constant.
-  Both test roots import it (`backend/` is on `sys.path` for `tests/` and for
-  `modules/dicom_viewer/tests/`). It is test code and never ships.
+- **Test definition beside the test roots.** `backend/postgres_image.py` holds the one constant.
+  Both test roots import it as `from postgres_image import POSTGRES_IMAGE` (`backend/` is on
+  `sys.path` for `tests/` and for `modules/dicom_viewer/tests/`). It is test code and never ships:
+  `backend/Dockerfile` copies only named files and directories, and coverage measures `app` only.
+  > Amended 2026-11-12 (TASK-212 QA finding 1): this read "Test definition in the test tree.
+  > `backend/tests/postgres_image.py` holds the one constant." That module cannot be imported from
+  > the DICOM suite: `backend/modules/dicom_viewer/tests/__init__.py` makes `tests` resolve to the
+  > DICOM package, so `from tests.postgres_image import …` fails there with `ModuleNotFoundError`
+  > (shown by QA on a scratch copy).
 
 Option 2 was rejected: two scripts would share the file walk, the output form and the fixtures,
 and a second CI step would duplicate the job. Option 3 was rejected: it adds a tool that must itself

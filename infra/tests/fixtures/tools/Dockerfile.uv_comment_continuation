@@ -1,0 +1,4 @@
+FROM python:3.12.15-slim@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+RUN pip install --no-cache-dir \
+# the build tool
+    uv
