@@ -20,6 +20,7 @@ from sqlalchemy.exc import ProgrammingError
 from testcontainers.postgres import PostgresContainer
 
 from app.db import roles
+from postgres_image import POSTGRES_IMAGE
 
 _DOCKER_SOCKET = os.path.expanduser("~/.docker/run/docker.sock")
 if os.path.exists(_DOCKER_SOCKET) and not os.environ.get("DOCKER_HOST"):
@@ -37,7 +38,7 @@ _INSERT_AUDIT = (
 
 @pytest.fixture(scope="module")
 def owner_engine() -> Iterator[Engine]:
-    with PostgresContainer("postgres:16") as container:
+    with PostgresContainer(POSTGRES_IMAGE) as container:
         url = container.get_connection_url()
         cfg = Config(str(_BACKEND_DIR / "alembic.ini"))
         cfg.set_main_option("script_location", str(_BACKEND_DIR / "app" / "db" / "alembic"))

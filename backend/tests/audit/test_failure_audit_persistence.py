@@ -39,13 +39,14 @@ from app.db.models.group import Group
 from app.db.repositories.audit_repo import AuditRepository
 from app.db.repositories.session import get_db
 from app.main import create_app
+from postgres_image import POSTGRES_IMAGE
 
 _PASSWORD = "Correct-Horse-Battery-9!"
 
 
 @pytest.fixture(scope="module")
 def pg_engine():
-    with PostgresContainer("postgres:16") as container:
+    with PostgresContainer(POSTGRES_IMAGE) as container:
         engine = create_engine(container.get_connection_url())
         Base.metadata.create_all(engine)
         yield engine

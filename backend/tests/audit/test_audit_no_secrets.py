@@ -35,6 +35,7 @@ from app.db.models.base import Base
 from app.db.models.password_history import PasswordHistory
 from app.db.repositories.audit_repo import AuditRepository
 from app.main import create_app
+from postgres_image import POSTGRES_IMAGE
 
 _PASSWORD = "Correct-Horse-Battery-9!"
 _NEW_PASSWORD = "Another-Staple-Horse-77!"
@@ -131,7 +132,7 @@ def test_error_names_the_field_not_the_value(service) -> None:
 
 @pytest.fixture(scope="module")
 def pg_engine():
-    with PostgresContainer("postgres:16") as container:
+    with PostgresContainer(POSTGRES_IMAGE) as container:
         engine = create_engine(container.get_connection_url())
         Base.metadata.create_all(engine)
         yield engine

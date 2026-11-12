@@ -12,6 +12,7 @@ from sqlalchemy import create_engine
 from testcontainers.postgres import PostgresContainer
 
 from app.db.models.base import Base
+from postgres_image import POSTGRES_IMAGE
 
 # Ensure Docker socket is found on macOS
 _DOCKER_SOCKET = os.path.expanduser("~/.docker/run/docker.sock")
@@ -23,7 +24,7 @@ _BACKEND_DIR = Path(__file__).parent.parent.parent
 
 @pytest.fixture(scope="module")
 def migration_container():
-    with PostgresContainer("postgres:16") as container:
+    with PostgresContainer(POSTGRES_IMAGE) as container:
         yield container
 
 
