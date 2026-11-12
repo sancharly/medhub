@@ -23,6 +23,7 @@ This folder records the significant architecture decisions for MedHub. One decis
 | [ADR-0017](0017-database-roles-and-append-only-audit-log.md) | Separate migration and runtime database roles; audit log append-only by privilege (refines ADR-0011, amends ADR-0010) | Accepted |
 | [ADR-0018](0018-field-encryption-key-identifier-and-key-separation.md) | Field-encryption envelope with a key identifier, rehearsed rotation, separate object-store SSE key (refines ADR-0011, ADR-0015 D2) | Accepted |
 | [ADR-0019](0019-originating-client-address-trusted-proxy-rule.md) | Originating client address from one trusted-proxy rule in the application | Accepted |
+| [ADR-0020](0020-tool-and-test-image-pins-in-the-pin-check.md) | Build and CI tool pins and test-container images enforced by the existing pin check, against the shipped references (extends CR-001's check) | Accepted |
 
 ADR-0010 and ADR-0019 carry dated notes (2026-11-08, TASK-201) recording what CR-004 changed in the text they describe; their decisions are unchanged.
 
