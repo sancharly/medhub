@@ -1,20 +1,26 @@
 ---
-id: "SR-030"
+id: SR-030
 type: software-requirement
-title: "Session management"
+title: Session management
 status: approved
-version: "1.3"
-author: "Carlos Santiago Liceras"
+version: "1.4"
+author: Carlos Santiago Liceras
 created: "2026-07-07"
-updated: "2026-10-21"
+updated: "2026-11-13"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-11-13"
+approved_digest: c610d5522706d3b0e78abd85b3b6db5b92ae2072f959869630c7b9cc4e5609cb
+approval_note: self-approved
 links:
-  - target: "RR-003"
+  - target: RR-003
     relation: satisfies
-  - target: "RISK-005"
+  - target: RISK-005
     relation: mitigates
-  - target: "NFR-007"
+  - target: NFR-007
     relation: derives_from
-tags: ["split-from:SR-025", "control:design"]
+tags:
+  - split-from:SR-025
+  - control:design
 ---
 
 ## Summary
@@ -34,6 +40,7 @@ An authenticated but unattended session is an open door to PHI. This requirement
 5. On explicit logout, the server-side session token is immediately invalidated and cannot be reused.
 6. Session tokens are transmitted only over TLS (enforced by SR-022) and stored in cookies with the `Secure`, `HttpOnly`, and `SameSite=Strict` attributes set.
 7. No more than **3 concurrent active sessions** are permitted per user account. Opening a fourth session invalidates the oldest active session and presents a notification to the user.
+8. The client derives its inactivity deadline and the countdown warning of AC 4 from the session expiry reported by the server, not from a value held in the client. A request that finds the session expired or invalid produces one redirect to sign-in and no repeated session-check requests.
 
 ## Origin Requirement
 
@@ -67,3 +74,4 @@ IEC 62443-3-3 SR 1.5 (SL 2) requires the system to lock or terminate sessions af
   unchanged, so the existing approval stands.
 - 1.3 (2026-10-21) — Tagged `control:design` (type of the risk control it implements,
   medical-records 0.3.2). Traceability only: the content is unchanged, so the existing approval stands.
+- 1.4 (2026-11-13) — Content change, so the approval is cleared and the record returns to review (CR-006, GitHub sancharly/medhub#28). Added AC 8 (client deadline from the server-reported expiry; a single redirect on an expired session). Reason: the client seeded a hard-coded 15-minute expiry and re-requested the session from nine places with differing retry settings (PRB-016; RISK-005).

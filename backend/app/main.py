@@ -9,6 +9,7 @@ from fastapi import FastAPI
 from app.api.errors import register_error_handlers
 from app.api.health import router as health_router
 from app.api.router import api_router
+from app.core.body_limit import AttachmentBodyLimitMiddleware
 from app.core.client_address import ClientAddressMiddleware
 from app.core.logging import configure_logging
 from app.core.security_middleware import CsrfEnforcementMiddleware, SecurityHeadersMiddleware
@@ -99,6 +100,9 @@ def create_app() -> FastAPI:
     app.include_router(api_router)
     app.include_router(health_router)
     register_error_handlers(app)
+
+    # Upload body bound (TASK-135): innermost, so its refusal still passes the security middleware
+    app.add_middleware(AttachmentBodyLimitMiddleware)
 
     # Security middleware (TASK-069)
     app.add_middleware(SecurityHeadersMiddleware)

@@ -3,13 +3,14 @@ id: ADD-017
 type: architecture-doc
 title: Async Worker (SI-WORKER)
 status: approved
-version: "1.3"
+version: "1.4"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-11-10"
+updated: "2026-11-13"
 approved_by: Carlos Santiago Liceras
-approved_on: "2026-11-10"
-approval_note: approved by the human in chat at the close of CR-004
+approved_on: "2026-11-13"
+approved_digest: cf948d04f74df9794457d73e2759a94f7156b47558ee7dcad1f2d57105d0b59a
+approval_note: self-approved
 links:
   - target: SR-024
     relation: implements
@@ -48,6 +49,11 @@ Celery tasks: send activation & appointment emails, session-revocation propagati
 - `U-WK-Email` — render & send activation/appointment emails via SMTP (SR-033, SR-035).
 - `U-WK-SessionRevoke` — propagate deactivation session-kill within 30s (SR-034.2).
 - `U-WK-RetentionErase` — scheduled job that permanently erases anonymized datasets past their 5-year retention deadline (SR-024.4, ADR-0013).
+  **CR-006 (planned; TASK-141):** one database session per dataset, always closed; a failure is isolated
+  to its dataset and counted; the deadline is re-checked inside the dataset's session so a retry deletes
+  only expired datasets; after a transient failure the task retries itself (`self.retry`, at most 3,
+  backoff as the e-mail tasks) and then logs the failed count without personal data (SR-024 AC 5,
+  SR-043; RISK-007, RISK-008).
 - Logging — worker and scheduler install the same JSON formatter and the
   shared redaction filter as the API process, through Celery's logging signals, on every handler.
   The filter replaces email-shaped values in the message and in every structured field before a
@@ -60,7 +66,8 @@ Celery tasks: send activation & appointment emails, session-revocation propagati
   `.delay()` retried the result store about twenty times when Redis was unreachable and blocked the
   request for about 20 s inside its transaction; the enqueue now fails in under a second
   (TASK-207). The two call sites that failed silently (session-kill and appointment notification)
-  log a WARNING with identifiers only; PRB-013 stays open.
+  log a WARNING with identifiers only; PRB-013 stays open. **CR-006 (planned, D-5):** those two stay
+  best effort; the erasure-code enqueue fails its request instead (ADD-008, SR-024 AC 6).
 - Binding — the API process sets the configured Celery app as the process default in its lifespan
   (`_bind_celery_app()` in `backend/app/main.py`, after the secret rule; `celery_app.set_default()`
   is process-global, so every thread resolves the Redis broker). Before it, `.delay()` in the API
@@ -106,3 +113,4 @@ Participates in RISK-008, RISK-009 (see `docs/risks/`); the control measures are
 - 1.1 (2026-10-31) — CR-004 Plan stage (Software Architect role): unit changes for the planned design added (marked "CR-004"), links added. Content change, so the approval record is cleared and the record returns to review. The implementing tasks confirm the unit text when they land.
 - 1.2 (2026-11-07): TASK-206. Logging unit: `--loglevel` honoured and debug task headers redacted. Approval record cleared; `in_review`.
 - 1.3 (2026-11-08) — TASK-201 (CR-004): `_bind_celery_app()` (PRB-071), `task_ignore_result` and the logged enqueue failures (TASK-207), the beat service and entrypoint (PRB-061) added; the "CR-004 change" marker removed. `in_review`.
+- 1.4 (2026-11-13) — CR-006 Plan stage (Software Architect role): retention sweep isolation, session release and retries (SR-024 AC 5) and the enqueue policy of D-5 marked "CR-006 (planned)". Content change, so the 1.3 approval record is cleared and the record returns to review.

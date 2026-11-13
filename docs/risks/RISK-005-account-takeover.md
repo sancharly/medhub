@@ -3,13 +3,10 @@ id: RISK-005
 type: risk
 title: Account takeover leading to disclosure or falsified clinical records
 status: approved
-version: "1.6"
+version: "1.8"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-11-10"
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-11-10"
-approval_note: approved by the human in chat at the close of CR-004
+updated: "2026-11-13"
 hazard: "An attacker acting as a legitimate user: reading PHI, or writing clinical entries as a clinician."
 cause: Credential stuffing, brute force, a stolen session token (including one brought back after logout, eviction or a password change by a racing session refresh, PRB-064), or a CSRF-able mutating endpoint → the attacker authenticates or rides an authenticated session → they read or write clinical data under someone else's identity.
 harm: Wrong clinical decisions from falsified data, plus privacy harm. Recoverable if detected via the audit trail.
@@ -18,6 +15,10 @@ probability_initial: 2
 severity_residual: 3
 probability_residual: 1
 acceptability: acceptable
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-11-13"
+approved_digest: 6ac5a37e476898da4bb705a5a6ddff7fc02a3911d79fc8c50541a5f50f748e58
+approval_note: self-approved
 links:
   - target: SOUP-012
     relation: relates_to
@@ -78,6 +79,7 @@ occur); the score is severity × P2, the probability that the hazardous situatio
 | No default or placeholder credential for the database, the mail relay or the keys; start-up refused otherwise (CR-004, PRB-007) | Design | SR-041 AC 2 to AC 4; TASK-197, TASK-203 | TS-015 TC-015.2..4; started stack: the stack was generated from the empty template and started only with generated secrets |
 | The session token is no longer stored in the audit trail (logout event), and no audit field can hold a secret (CR-004, PRB-005) | Design | SR-023 AC 9; TASK-192 | TS-009 TC-009.12 |
 | No credential or secret in operational or proxy logs: route templates in the backend error log; allow-listed proxy log format with no request line, query string or header; activation locations' error log at `crit` and `Referrer-Policy: no-referrer`; no access log in the frontend container; task arguments redacted at `--loglevel=debug` (CR-004, PRB-068) | Design | SR-043 AC 4, SR-033; TASK-206, TASK-207 (every case variant of the activation paths matched with `~*`; secrets of `infra/.env` added to the started-stack check) | TS-017 TC-017.4 |
+| The client's inactivity deadline and countdown follow the session expiry reported by the server (remaining time taken relative to the response, not the client clock); one source for the session query; an expired or invalid session gives one redirect to sign-in; the upload goes through the shared request helper, so a 401 there ends the session like any other request; activity tracking re-arms at most once per second (CR-006, PRB-016, PRB-019, PRB-025). Server enforcement of SR-030 AC 1 to AC 3 is unchanged | Design | SR-030 AC 8, AC 4; SR-026 AC 8; TASK-143, TASK-144, TASK-222 (unit tests: TASK-146) | none yet (planned: Vitest with fake timers, upload 401 branch, unit tests of `SessionActivityProvider` and `api/csrf.ts` for PRB-017, generated-types drift check; TS-001 at system level) |
 
 ## Residual risk
 
@@ -99,6 +101,15 @@ assumption true. **Residual unchanged: 3 × 1 → acceptable.**
 
 **Verification and proposed residual (CR-004 Checkpoint F, TASK-202, 2026-11-08).** Checkpoint F evidence (TASK-202, 2026-11-08, HEAD 579aaaa plus TASK-202's small edits): backend 1547 passed, 6 skipped, coverage 94.51% (floor 85%); DICOM module 25 passed; frontend 315 passed; infra 110 passed; started stack (project `task202`, empty template, generated secrets): `infra/smoke-test.sh` 78 passed, 0 failed; `infra/log-secrets-check.sh` 38 passed, 0 failed. The session controls ran against a real Redis (TC-001.6, TC-001.8..10), the lockout wiring and the audit scrub are tested (TC-001.7, TC-009.12), and no known value appeared in any of six service logs on the started stack (activation token, session token, CSRF token, passwords, retrieval code and the `infra/.env` secrets, 0 matches each). The real activation e-mail flow worked end to end (the worker sent one message; the link opened the activation, the account signed in, a second use of the token answered 401). **Proposed residual: severity 3 × probability 1 → acceptable** (derived from `risk_matrix`; unchanged). **For the human:** PRB-074 (activation tokens, retrieval codes and an erased user's e-mail in plaintext as Celery task arguments in Redis, `major`, accepted as a known anomaly outside CR-004 by D-18) is a cause of this hazard that needs access to the internal network, the host or a volume copy. This proposal keeps 3 × 1 because that access is required; if you read it as a probability 2, the record is 3 × 2 → alarp and needs an ALARP justification. PRB-013 (enqueue failures swallowed) is covered for the paths CR-004 touched by TC-017.6 and TC-003.7.
 
+**Change analysis (CR-006, Risk stage, 2026-11-13).** CR-006 changes only the client side of the
+session controls: the client countdown came from a hard-coded 15 minutes (PRB-016), the upload
+path had no 401 handling (PRB-019) and the idle timer re-armed on every event (PRB-025). A client
+timer that runs late leaves a session open on screen while the server has ended it (the next
+request is refused), or warns a user too late to extend it; the server-side expiry and revocation,
+which the residual rests on, are unchanged. The PRB-009 move of `get_current_user` off the event
+loop must not change the session decision: TS-001 runs unchanged. **Expected residual: 3 × 1 →
+acceptable, unchanged.** Re-scored from the evidence at the CR-006 verification checkpoint.
+
 **Decided by:** pending — the owner's acceptance is the approval of this record.
 
 ## Risks introduced by controls
@@ -110,6 +121,9 @@ retries the login is answered 503 with `Retry-After: 1` rather than exceeding th
 on one login, RISK-007; TASK-205). The start-up refusal of placeholder secrets is a deployment-time
 availability effect by design, with a message naming the setting.
 
+CR-006 (2026-11-13): the debounce lets the client deadline run up to 1 s late (SR-026 AC 8); the
+server enforces the real expiry.
+
 ## Version history
 
 - 1.2 (2026-10-31) — CR-004 Risk stage, §7.4 change analysis (Software Architect role). Control rows added for the CR-004 controls with their planned verification; expected residual stated in "Residual risk"; "Risks introduced by controls" extended. Scores not changed: they are re-scored from the evidence at verification (TASK-202). Content change, so the approval record is cleared and the record returns to review.
@@ -118,3 +132,5 @@ availability effect by design, with a message naming the setting.
 - 1.5 (2026-11-07) — TASK-207 (TASK-206 QA findings 2, 6): the log control row names TASK-207 (case-insensitive activation matching; widened started-stack check). Residual unchanged (3 x 1, acceptable). A hand-crafted Referer or a token in another path's query string that reaches the proxy error log is a residual accepted against SR-043 AC 4 (CR-004 D-19), not a change of the scores.
 - 1.6 (2026-11-08) — CR-004 Checkpoint F (TASK-202): planned verification replaced by the tests that ran; residual proposed from the evidence, 3 × 1 → acceptable, unchanged; PRB-074 raised to the human as the one open cause. Content change, so `in_review` and the approval record (none) stays cleared.
 - (2026-11-10) — Human decision (CR-004 D-21): the residual is accepted unchanged; PRB-074 is accepted as a known anomaly while only development data exists, to be re-evaluated before the first release.
+- 1.7 (2026-11-13) — CR-006 Risk stage, §7.4 change analysis (Software Architect role). One control row added (client session timers from the server's expiry, upload through the request helper, debounced tracking; SR-030 AC 8, SR-026 AC 8), TASKs left to the Plan stage; expected residual stated; "Risks introduced by controls" extended. Scores unchanged (3 × 1 → acceptable). Content change, so the approval record (approved 2026-11-10 in chat) is cleared and the record returns to review.
+- 1.8 (2026-11-13) — CR-006 Plan gate (D-22): the client-session row names TASK-143, TASK-144 and TASK-222, with TASK-146 for its unit tests. Scores unchanged. Content change, so the approval record is cleared and the record returns to review.

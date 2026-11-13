@@ -3,14 +3,17 @@ id: ADD-016
 type: architecture-doc
 title: Persistence (SI-PERSIST)
 status: approved
-version: "1.2"
+version: "1.3"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-11-10"
+updated: "2026-11-13"
 approved_by: Carlos Santiago Liceras
-approved_on: "2026-11-10"
-approval_note: approved by the human in chat at the close of CR-004
+approved_on: "2026-11-13"
+approved_digest: 7f0c9e0ee1f8f722bbbaf1839a8a449b9114a3f4741d7957288a9268dfc6f512
+approval_note: self-approved
 links:
+  - target: SR-026
+    relation: implements
   - target: SR-003
     relation: implements
   - target: SR-004
@@ -76,6 +79,13 @@ SQLAlchemy models, repositories, Alembic migrations, encryption-at-rest config
   migration run, revoking `UPDATE`, `DELETE`, `TRUNCATE` on `audit_log` (SR-023 AC 8,
   [ADR-0017](../../design/adr/0017-database-roles-and-append-only-audit-log.md)); refuses an
   existing runtime role that is a superuser, a member of another role or an owner of objects.
+- **CR-006 (planned).** `U-PER-Migrations` (TASK-219): migration 0011 adds indexes on
+  `appointment.scheduled_at`, `consent_grant.appointment_id`, `clinical_entry.patient_id` and
+  `attachment.patient_id`, so the authorization lookups do not scan (SR-026 AC 6); it locks writes on
+  the four tables while building. `U-PER-Repos` (TASK-220): `groups_for_account` returns a user's
+  groups in one joined query. Engine (TASK-136, ADR-0022): `DB_POOL_SIZE`, `DB_MAX_OVERFLOW`,
+  `DB_POOL_TIMEOUT` settings, sized with the API thread pool (SR-026 AC 5; values approved by the
+  human, D-14).
 
 Class B requires decomposition down to software units, not per-unit detailed design
 (§5.4.2–5.4.4 are class C). Each unit above is independently unit-testable and is the granularity
@@ -83,7 +93,7 @@ at which unit verification records (TS) are written.
 
 ## Requirements implemented
 
-Software requirements: SR-003, SR-004, SR-021, SR-022, SR-031; CR-004 adds SR-023 (AC 8).
+Software requirements: SR-003, SR-004, SR-021, SR-022, SR-031; CR-004 adds SR-023 (AC 8); CR-006 adds SR-026 (AC 5, AC 6).
 Non-functional requirements constraining this item: —.
 
 ## Interfaces
@@ -109,3 +119,4 @@ Participates in RISK-002, RISK-007, RISK-011 (see `docs/risks/`); the control me
 
 - 1.1 (2026-10-31) — CR-004 Plan stage (Software Architect role): unit changes for the planned design added (marked "CR-004"), links added. Content change, so the approval record is cleared and the record returns to review. The implementing tasks confirm the unit text when they land.
 - 1.2 (2026-11-08) — TASK-201 (CR-004): unit text replaced with the unit as built; `U-PER-Crypto` names the keyring, `decrypt_legacy` and `app.db.reencrypt`; `U-PER-Roles` notes the unsafe-role refusal. Arc42 sections 05, 06 and 08 hold the narrative. Content change, so the 1.1 approval record is cleared and the record returns to review.
+- 1.3 (2026-11-13) — CR-006 Plan stage (Software Architect role): migration 0011 indexes, the joined group lookup and the pool settings (ADR-0022) marked "CR-006 (planned)"; `implements` SR-026 added. Content change, so the 1.2 approval record is cleared and the record returns to review.

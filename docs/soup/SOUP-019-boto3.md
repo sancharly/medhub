@@ -3,22 +3,23 @@ id: SOUP-019
 type: soup
 title: boto3
 status: approved
-version: "1.3"
+version: "1.4"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
-updated: "2026-10-30"
+updated: "2026-11-13"
 manufacturer: Amazon Web Services
 soup_version: 1.43.117
 anomaly_review: "2026-10-29"
 approved_by: Carlos Santiago Liceras
-approved_on: "2026-10-30"
-approved_digest: f7836e09b4e9b397e3b178aa12d7bf77cb4ebfd13c367727ecbc7b8a371e4cd4
+approved_on: "2026-11-13"
+approved_digest: db1a0b41f99a90a63f51cfc18ca2394321872c513e3d0d72f0234e805638d19b
 approval_note: self-approved
 links: []
 tags:
   - soup
   - layer:backend
   - class:B
+  - cr:CR-006
 ---
 
 # SOUP-019 — boto3 1.43.117
@@ -26,6 +27,21 @@ tags:
 ## Functional and performance requirements
 
 S3 API client used by `ObjectStorageClient` to store and fetch attachment objects with server-side encryption (SR-013, SR-022).
+
+From CR-006 (ADR-0021; TASK-135, TASK-217) MedHub also relies on, for bounded memory (SR-013 AC 6) and
+the bound two-pass download (SR-013 AC 5, D-10):
+
+- `put_object(Body=<file object>, ContentLength=<n>, ServerSideEncryption="AES256")` sends a
+  seekable file object as one `PutObject` without reading it whole into memory. The managed transfer
+  (`upload_fileobj`, multipart) is **not** used: SOUP-036 relies on single `PutObject` only.
+- `get_object(...)["Body"]` is a `botocore.response.StreamingBody` whose `iter_chunks(chunk_size)`
+  yields the content in chunks of at most `chunk_size` bytes; the response carries `ETag`.
+- `get_object(..., IfMatch=<etag>)` sends `If-Match`; a 412 answer raises
+  `botocore.exceptions.ClientError` with `Error.Code == "PreconditionFailed"` before any body is read.
+
+These are documented parameters of the S3 `GetObject` and `PutObject` operations in botocore's service
+model; they are exercised against the pinned store by TASK-217 step 1 and by the TS-007 cases of
+TASK-135 and TASK-217.
 
 ## Required hardware and software environment
 
@@ -130,3 +146,6 @@ accountable. Hazard-relevant anomalies go to `risk-management`; defects affectin
   is TASK-154.
 - 2026-10-22 — 1.43.117 (unchanged). First anomaly-list review (TASK-154, CR-001 AC-11/AC-12): boto3/botocore/s3transfer/jmespath none found; urllib3 2.7.0 (runtime transitive) has three advisories fixed in 2.8.0, applicable only with a hostile object store or an HTTPS proxy; nothing hazard-relevant, recorded for upgrade in PRB-047 (minor); environment section corrected for urllib3. Record 1.1 → 1.2; approval record removed for re-review.
 - 2026-10-29 — urllib3 2.7.0 → 2.8.0 (transitive); boto3 1.43.117 unchanged; PRB-047, CR-003 (D-3), TASK-164. Second anomaly-list review, at the new version: no anomaly applies, and the three urllib3 advisories are fixed at 2.8.0. The lock moved only urllib3 (and anyio, SOUP-003); botocore, s3transfer, jmespath, python-dateutil and six unchanged. Change analysis: the 2.8.0 HTTPS-proxy behaviour change does not apply (no proxy); the manual attachment round trip on the rebuilt stack confirms the request path. Record 1.2 → 1.3; approval record removed for re-review.
+- 2026-11-13 — 1.43.117 (unchanged). CR-006 Plan stage: relied-on functions extended (streamed
+  `put_object` body, `StreamingBody.iter_chunks`, `get_object` with `IfMatch`). No version change, so no
+  new anomaly-list review. Record 1.3 → 1.4; approval record removed for re-review.

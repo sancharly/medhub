@@ -3,18 +3,20 @@ id: ADD-009
 type: architecture-doc
 title: Groups & Module Enablement (SI-GROUPS)
 status: approved
-version: "1.0"
+version: "1.1"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-10-21"
+updated: "2026-11-13"
 approved_by: Carlos Santiago Liceras
-approved_on: "2026-10-21"
-approved_digest: 7ee140ae3189c94a0bff439293587ead0de43543cab42a32a3cc838294a6122a
+approved_on: "2026-11-13"
+approved_digest: 09cdca88d34bdb6de6f9a45c5e038ba40d85a350925da6a56557f2c2b55a569f
 approval_note: self-approved
 links:
   - target: SR-014
     relation: implements
   - target: SR-015
+    relation: implements
+  - target: SR-026
     relation: implements
   - target: RISK-004
     relation: relates_to
@@ -33,7 +35,10 @@ Group CRUD, auto/manual membership, per-group module enablement
 ## Software units (IEC 62304 §5.4.1)
 
 - `U-GRP-Crud` — group create/list (SR-014).
-- `U-GRP-Membership` — auto-by-type + manual add/remove (SR-014.2/3).
+- `U-GRP-Membership` — auto-by-type + manual add/remove (SR-014.2/3). **CR-006 (planned; TASK-220):**
+  `groups_of` reads a user's groups with one joined query, a constant number of queries for any number
+  of memberships (SR-026 AC 6); its result set is fixed by a characterisation test written before the
+  rewrite (RISK-004).
 - `U-GRP-ModuleEnable` — enable/disable module per group (SR-015).
 
 Class B requires decomposition down to software units, not per-unit detailed design
@@ -42,7 +47,7 @@ at which unit verification records (TS) are written.
 
 ## Requirements implemented
 
-Software requirements: SR-014, SR-015.
+Software requirements: SR-014, SR-015; SR-026 (AC 6, added by CR-006).
 Non-functional requirements constraining this item: —.
 
 ## Interfaces
@@ -63,3 +68,7 @@ arc42 sections — [05 building blocks](../../design/05-building-blocks.md) for 
 ## Risk relevance
 
 Participates in RISK-004 (see `docs/risks/`); the control measures are carried by the SRs and TASKs listed there.
+
+## Version history
+
+- 1.1 (2026-11-13) — CR-006 Plan stage (Software Architect role): constant-query `groups_of` (SR-026 AC 6) marked "CR-006 (planned)"; `implements` SR-026 added. Content change, so the 1.0 approval record is cleared and the record returns to review.

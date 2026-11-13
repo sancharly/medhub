@@ -7,7 +7,7 @@ instantiation time if boto3 is missing, rather than at module import time.
 
 from __future__ import annotations
 
-import io
+from typing import BinaryIO
 
 from app.core.config import get_settings
 
@@ -30,12 +30,17 @@ class ObjectStorageClient:
         )
         self._bucket = settings.object_store_bucket
 
-    def put_object(self, key: str, data: bytes, content_type: str) -> None:
-        """Upload bytes to object storage with SSE-AES256 server-side encryption."""
+    def put_object(self, key: str, fileobj: BinaryIO, size: int, content_type: str) -> None:
+        """Upload ``size`` bytes of ``fileobj`` with SSE-AES256 server-side encryption.
+
+        One ``PutObject`` with the file as body, never ``upload_fileobj`` (SOUP-019, SOUP-036 issue
+        #8908): the object is read from the file, not held in memory (SR-013 AC 6).
+        """
         self._client.put_object(
             Bucket=self._bucket,
             Key=key,
-            Body=io.BytesIO(data),
+            Body=fileobj,
+            ContentLength=size,
             ContentType=content_type,
             ServerSideEncryption="AES256",
         )

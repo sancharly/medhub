@@ -1,15 +1,17 @@
 ---
-id: "PRB-031"
+id: PRB-031
 type: problem-report
-title: "Destructive confirmation dialog focuses Confirm instead of Cancel"
-status: open
+title: Destructive confirmation dialog focuses Confirm instead of Cancel
+status: rejected
 version: "1.0"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-10-21"
+updated: "2026-11-13"
 criticality: minor
 links: []
-tags: ["usability", "hazard:data-integrity"]
+tags:
+  - usability
+  - hazard:data-integrity
 ---
 
 # PRB-031 — Destructive confirmation dialog focuses Confirm instead of Cancel

@@ -1,0 +1,806 @@
+---
+id: CR-006
+type: change-request
+title: Close the open reliability and performance defects from the 2026-07 review and audit
+status: in_progress
+version: "1.5"
+author: Carlos Santiago Liceras
+created: "2026-11-13"
+updated: "2026-11-13"
+branch: fix/review-2026-07-reliability
+risk_impact: affects_controls
+links:
+  - target: PRB-006
+    relation: resolves
+  - target: PRB-008
+    relation: resolves
+  - target: PRB-009
+    relation: resolves
+  - target: PRB-012
+    relation: resolves
+  - target: PRB-013
+    relation: resolves
+  - target: PRB-015
+    relation: resolves
+  - target: PRB-016
+    relation: resolves
+  - target: PRB-017
+    relation: resolves
+  - target: PRB-019
+    relation: resolves
+  - target: PRB-020
+    relation: resolves
+  - target: PRB-021
+    relation: resolves
+  - target: PRB-022
+    relation: resolves
+  - target: PRB-024
+    relation: resolves
+  - target: PRB-025
+    relation: resolves
+  - target: PRB-030
+    relation: resolves
+  - target: PRB-031
+    relation: resolves
+  - target: PRB-032
+    relation: resolves
+  - target: PRB-078
+    relation: resolves
+  - target: PRB-079
+    relation: relates_to
+  - target: PRB-072
+    relation: relates_to
+  - target: SR-013
+    relation: relates_to
+  - target: SR-014
+    relation: relates_to
+  - target: SR-015
+    relation: relates_to
+  - target: SR-016
+    relation: relates_to
+  - target: SR-017
+    relation: relates_to
+  - target: SR-024
+    relation: relates_to
+  - target: SR-026
+    relation: relates_to
+  - target: SR-027
+    relation: relates_to
+  - target: SR-030
+    relation: relates_to
+  - target: SR-031
+    relation: relates_to
+  - target: SR-033
+    relation: relates_to
+  - target: SR-034
+    relation: relates_to
+  - target: SR-035
+    relation: relates_to
+  - target: NFR-006
+    relation: relates_to
+  - target: NFR-008
+    relation: relates_to
+  - target: RISK-003
+    relation: relates_to
+  - target: RISK-004
+    relation: relates_to
+  - target: RISK-005
+    relation: relates_to
+  - target: RISK-006
+    relation: relates_to
+  - target: RISK-007
+    relation: relates_to
+  - target: RISK-008
+    relation: relates_to
+  - target: RISK-009
+    relation: relates_to
+  - target: RISK-012
+    relation: relates_to
+  - target: TASK-135
+    relation: relates_to
+  - target: TASK-136
+    relation: relates_to
+  - target: TASK-141
+    relation: relates_to
+  - target: TASK-143
+    relation: relates_to
+  - target: TASK-144
+    relation: relates_to
+  - target: TASK-145
+    relation: relates_to
+  - target: TASK-146
+    relation: relates_to
+  - target: TASK-207
+    relation: relates_to
+  - target: TASK-217
+    relation: relates_to
+  - target: TASK-218
+    relation: relates_to
+  - target: TASK-219
+    relation: relates_to
+  - target: TASK-220
+    relation: relates_to
+  - target: TASK-221
+    relation: relates_to
+  - target: TASK-222
+    relation: relates_to
+  - target: TASK-223
+    relation: relates_to
+  - target: TASK-224
+    relation: relates_to
+  - target: TASK-225
+    relation: relates_to
+  - target: TASK-226
+    relation: relates_to
+  - target: SOUP-019
+    relation: relates_to
+  - target: SOUP-036
+    relation: relates_to
+  - target: CR-004
+    relation: relates_to
+  - target: CR-005
+    relation: relates_to
+tags:
+  - reliability
+  - performance
+  - issue:sancharly/medhub#28
+---
+
+## Reason
+
+The 2026-07 code review (`docs/reports/CODE-REVIEW-2026-07.md`) and the audit
+(`docs/implementation-plan/AUDIT-FINDINGS.md`) left seventeen reliability, performance and
+test-coverage problem reports open. None is `critical`. Sixteen are defects that make the MVP miss
+the SR-026 performance budgets or weaken a control that RISK-003, RISK-004, RISK-005, RISK-007,
+RISK-008 or RISK-009 relies on; one (PRB-017) is a verification gap against the class B
+unit-verification expectation (IEC 62304 §5.5). Verification on 2026-11-13 found two of them already
+fixed (PRB-022, PRB-031) and two partly fixed (PRB-013, PRB-017), see "Scope":
+
+- **Memory and event loop (RISK-007, RISK-003):** attachment upload and download hold the whole
+  object in memory and enforce the size limit afterwards (PRB-008), the DICOM frame endpoint decodes
+  any object with no size bound (PRB-006), and `async` dependencies perform synchronous IO on the
+  event loop of every authenticated request (PRB-009).
+- **Data-access cost (RISK-007):** four authorization lookups have no index (PRB-021), one path
+  scans a whole table (PRB-022) and group membership issues one query per row (PRB-024).
+- **Workers (RISK-007, RISK-008, RISK-009):** the retention sweep leaks a session per failing
+  dataset and never retries (PRB-012); an enqueue failure was swallowed without a log (PRB-013).
+- **Frontend (RISK-004, RISK-005):** the module list is never invalidated (PRB-015), the `me` query
+  is issued from nine places with a hard-coded session TTL (PRB-016), upload bypasses the shared
+  request helper (PRB-019), the bundle is not split (PRB-020), the idle timer is not debounced
+  (PRB-025); the destructive dialog focus (PRB-031) was fixed meanwhile.
+- **Verification (RISK-006, RISK-005):** security-relevant frontend units have no unit tests
+  (PRB-017), the module boundary test is too narrow (PRB-030) and the JSON logger promises a
+  request id it does not emit (PRB-032).
+
+One CR bundles them because they come from the same review, share the same records (SR-026,
+RISK-007) and one verification run (backend and frontend suites, a started stack and
+`traceability-check`). Several share code: PRB-008 and PRB-009 both touch the attachment router;
+PRB-015, PRB-016 and PRB-017 are in the same frontend session and gating units; PRB-021, PRB-022
+and PRB-024 are one query-cost theme. This CR does not duplicate CR-004 (security, closed) or
+CR-005 (build and deployment, closed).
+
+Source: GitHub issue sancharly/medhub#28.
+
+## Scope
+
+### In scope
+
+Each PRB, its state on the current branch (verified 2026-11-13 against the code), the requirement
+its fix restores and its TASK. "New" marks a requirement criterion drafted in this CR (the SR is
+back in `in_review`, see "Requirements decision"). TASKs marked "new at Plan stage" are created by
+the architect. Line numbers are those found on 2026-11-13.
+
+| PRB | Crit. | State on this branch (evidence) | Requirement restored (AC) | TASK |
+|---|---|---|---|---|
+| PRB-006 DICOM frame endpoint has no size or decode bound | major | Still open: `backend/modules/dicom_viewer/dicom_viewer/dicom.py:27-28` calls `dcmread` and `pixel_array` with no limit | **SR-017 AC 6 (new)**; SR-026 AC 3; RISK-007, RISK-003 | New at Plan stage (or folded into TASK-135, see Q-2) |
+| PRB-008 Attachment upload and download buffer the whole object | major | Still open: `api/routers/attachments.py:62` `await file.read()`; `attachments/service.py:69-74` checks `len(data)` afterwards; `service.py:158` loads the whole object on download | **SR-013 AC 6 (new)**, AC 5 must still hold (Q-6); SR-026 AC 5 (new) | TASK-135 |
+| PRB-009 Async handlers perform sync IO on the event loop | major | Still open: `api/deps.py:43,70,138` and `api/routers/attachments.py:49` are `async def` over sync Redis, SQLAlchemy and boto3 (the PRB's `:126,198` sites no longer exist) | **SR-026 AC 5 (new)**; NFR-008 | TASK-136 |
+| PRB-012 Retention sweep leaks sessions and never retries | major | Still open: `workers/retention_tasks.py:92` reassigns `db = next(get_db())` without closing the previous one; `:22-26` declares `max_retries=3` with no `autoretry_for` and no `self.retry()` | **SR-024 AC 5 (new)**; RISK-007, RISK-008 | TASK-141 |
+| PRB-013 Task enqueue failures are swallowed without a log | major | **Partly fixed** by TASK-207: all three sites now log one WARNING (`identity/lifecycle.py:73-76`, `appointments/service.py:73-75`, and `identity/erasure.py:141-142`, which PRB-013 1.1 still lists as unlogged). Remaining: surfacing beyond a log line, failing the request where the side effect is security-relevant (Q-5) | SR-035 AC 2, AC 3; SR-034 AC 2 (30 s session kill); SR-024 AC 1 (erasure code e-mail); no new AC unless Q-5 decides to fail the request | TASK-141 (narrowed) |
+| PRB-015 Module list query never invalidated | major | Still open: `core/clinical/AttachmentItem.tsx:18-19` reads `["myModules"]`; no other reference to that key exists, so nothing invalidates it | **SR-015 AC 5 (new)**; RISK-004 | TASK-144 |
+| PRB-016 `me` query from nine places; hard-coded session TTL | major | Still open: `auth/SessionActivityProvider.tsx:18-20` seeds `Date.now() + 15 * 60 * 1000`; `["me"]` is read in ten non-test files (`RequireAuth`, `RequireRole`, `ForcedPasswordGate`, `ChangePasswordPage`, `useLogin`, `ProfilePage`, `AccountsPage`, `AppointmentsPage`, `App`, `SessionActivityProvider`). The server already reports `expires_at` (`api/schemas/auth.py:49`) | **SR-030 AC 8 (new)**; SR-030 AC 1, AC 2, AC 4; RISK-005 | TASK-144 |
+| PRB-017 Security-relevant frontend units have no unit tests | major | **Partly fixed**: `core/clinical/AttachmentUpload.test.tsx` now exists (TASK-206). Still without a test file: `SessionActivityProvider`, `AttachmentItem`; `api/csrf.ts` has no dedicated test (`client.test.ts` touches the CSRF cookie only as a fixture) | NFR-006 AC 3, AC 4 and IEC 62304 §5.5 (class B unit verification); SR-030 AC 1 to AC 4, SR-015 AC 3 and AC 4, SR-031 AC 3 | TASK-146 (narrowed to the three remaining units) |
+| PRB-019 Upload bypasses the request helper; `ProblemError` hand-written in a generated file | minor | Still open: `api/client.ts:136-160` own `fetch` with no 401 handling; `api/generated/types.ts:17` exports `ProblemError` | SR-031 (error contract); SR-027 AC 3 (clear failure message); SR-030 (401 ends the session) | TASK-143 |
+| PRB-020 No route-level code splitting | minor | Still open: no `lazy(` or `Suspense` anywhere in `frontend/src` | **SR-026 AC 7 (new)**; SR-020 | TASK-145 |
+| PRB-021 Authorization lookups have no supporting indexes | major | Still open: no index on `appointment.scheduled_at`, `consent_grant.appointment_id`, `clinical_entry.patient_id` or `attachment.patient_id` in the models (`db/models/{appointment,consent,clinical,attachment}.py`) or in migrations 0001 to 0010 | **SR-026 AC 6 (new)**; RISK-007 | New at Plan stage (Alembic migration 0011) |
+| PRB-022 Activation token validation scans the account table | major | **Already fixed**: `identity/activation.py:67` loads one row with `get_by_id(account_id)` and `_validate_token` (`:162-168`) checks only that row; no `list()` scan remains in `app/identity/` for activation (last change 2026-10-31, TASK-188 / PRB-070 route change). See Q-1 | SR-026 AC 6 (new, kept as the regression guard); SR-033 | None: PRB-022 `rejected` (D-1); SR-026 AC 6 gets a regression test |
+| PRB-024 Group membership N+1 query | minor | Still open: `groups/service.py:131-138` `groups_of` calls `self._group_repo.get(m.group_id)` per membership | **SR-026 AC 6 (new)**; SR-014 AC 4 | New at Plan stage |
+| PRB-025 Idle timer resets on every mouse and scroll event | minor | Still open: `auth/useIdleTimer.ts` registers `resetDeadline` directly on each activity event; no debounce or throttle | **SR-026 AC 8 (new)**; SR-030 AC 1 to AC 4 (timings unchanged) | New at Plan stage |
+| PRB-030 Module boundary test denies only two import substrings | minor | Still open: `backend/tests/modules/test_module_boundary.py:9-12` lists `app.db` and `app.core.object_storage` only | SR-016 AC 3 (a module obtains data only through the platform's authorized interfaces) | New at Plan stage |
+| PRB-031 Destructive dialog focuses Confirm instead of Cancel | minor | **Already fixed**: `core/confirm/ConfirmDialog.tsx:46,51` focus Cancel when `destructive`, and `ConfirmDialog.test.tsx:120` asserts it (fixed by the phase-6 audit remediations, commit 24240f8). See Q-1 | **SR-027 AC 5 (new)**; SR-027 AC 2; SR-034 AC 6 | None: PRB-031 to be `rejected` (D-1) |
+| PRB-032 JSON logger drops the request-id field | minor | Still open: `core/logging.py` has no request-id field and no `request_id` exists anywhere in `backend/app` | None exists; see Q-7 (emit it, or drop the promise from the docstring) | New at Plan stage |
+| PRB-078 Reverse proxy rejects uploads larger than 1 MiB (added at the Plan gate, D-18) | major | Open: `infra/reverse-proxy/nginx.conf` sets no `client_max_body_size`, so nginx's 1 MiB default refuses larger bodies before the backend | SR-013 AC 1, AC 6; RISK-007 | TASK-135 |
+
+Existing TASKs whose records will need updating at the Plan stage: TASK-141 (narrow PRB-013 to the
+remaining policy, add the retention requirement SR-024 AC 5), TASK-146 (narrow PRB-017), TASK-136
+(add `implements` SR-026 AC 5 and decide on PRB-072, Q-1), TASK-135 (add `implements` SR-017 if it
+absorbs PRB-006, Q-2), TASK-144 (add `implements` SR-015). All seven are `draft`.
+
+### Requirements decision
+
+Where an existing requirement already states the expected behaviour, the fix restores it and no
+requirement changes: SR-014, SR-016, SR-031, SR-033, SR-034, SR-035, NFR-006 and the existing
+criteria of SR-026 (AC 1 to AC 3), SR-027 (AC 2, AC 3) and SR-030 (AC 1 to AC 4).
+
+Where no requirement stated it, the Product Owner drafted the smallest criterion that makes the
+fix verifiable. Each changed SR is back in `in_review` with its approval cleared, version bumped
+and a version-history line (the human re-approves):
+
+| SR | New version | New criterion | Drives |
+|---|---|---|---|
+| SR-013 | 1.4 | AC 6: bounded memory on upload and download; size limit enforced while reading | PRB-008 |
+| SR-015 | 1.1 | AC 5: enablement changes reach the UI without a reload (60 s proposed) | PRB-015 |
+| SR-017 | 1.4 | AC 6: stored-size and decoded-size bound before decoding; a failed decode never renders | PRB-006 |
+| SR-024 | 1.4 | AC 5: retention sweep isolates failures, releases sessions, retries at most 3 times | PRB-012 |
+| SR-026 | 1.4 | AC 5: no 5xx and budgets hold at 20 concurrent clients; AC 6: data-access cost does not grow with data; AC 7: route-level splitting; AC 8: bounded inactivity tracking | PRB-008, 009, 020, 021, 022, 024, 025 |
+| SR-027 | 1.2 | AC 5: destructive confirmation starts on Cancel | PRB-031 |
+| SR-030 | 1.4 | AC 8: client deadline from the server-reported expiry; one redirect on an expired session | PRB-016 |
+
+No new SR, UN, NFR or RR was needed: every changed SR keeps its existing `satisfies` or
+`derives_from` links. Numeric values written in the criteria (100 MiB, 512 MiB, 20 clients, 60 s,
+1 s) are proposals and are listed in the open questions. No SR was added for PRB-032 (Q-7) or
+PRB-030 (SR-016 AC 3 already covers it).
+
+### Out of scope
+
+- The security defects of the same review (CR-004, closed) and the build and deployment defects
+  (CR-005, closed).
+- PRB-079 (anonymized-data retrieval verifies the code against every dataset), raised at the Plan
+  gate (D-23): a `relates_to` link only; it needs its own CR with a decision on the retrieval-code
+  format.
+- PRB-072 (concurrent writes collapse the API) unless the human adds it (Q-1). It is investigated
+  in TASK-136's area and its hypothesis is a consequence of PRB-009 and the pool sizes.
+- Moving the object store, the DICOM viewer UI and Cornerstone3D integration. PRB-020 only makes
+  the bundle able to absorb them.
+- Changing a PRB to `resolved`, `closed` or `rejected`, or a record to `approved`. Only the human
+  approves; PRB status changes follow verification.
+
+### Boundaries
+
+- **Ask first:** any new runtime dependency (for example a streaming multipart parser); any change
+  to the HTTP contract of upload, download or the DICOM frame endpoint, which needs a regenerated
+  OpenAPI schema and frontend types; a pool-size or timeout change in the deployed configuration;
+  an Alembic migration applied to an existing database (the four indexes).
+- **Never:** put a secret or personal data in a log line added by these fixes; set a record
+  `approved`; edit an `approved` record without bumping its version and clearing its approval;
+  hand-edit a generated file.
+
+### Risk impact (§7.4)
+
+Preliminary classification: **`affects_controls`**, class B unchanged. Each fix restores a
+control that RISK-007 (information unavailable) and RISK-003 (incorrect DICOM rendering) already
+rely on, or removes a defect in a RISK-004, RISK-005, RISK-008 or RISK-009 control. No new hazard
+is expected. Three changes can reach RISK-007 or RISK-003 if they go wrong and need a fail-safe
+at the Risk stage: the size bounds (a legitimate 150 MB study must not be refused, Q-2); streaming
+download versus the checksum rule of SR-013 AC 5 (Q-6); and the sync/async change of
+`get_current_user`, which is on every authenticated request (PRB-009). The Risk stage confirms or
+revises this, and revisits the residual scores of RISK-003, RISK-007, RISK-008 and RISK-009, as the
+issue asks.
+
+## Verification approach
+
+IEC 62304 §8.2.1 (change approval), §8.2.3 (verification of changes) and §5.5 (unit verification,
+class B). Every fix has a regression test written first that fails on the defect.
+
+- **Attachment memory and size (SR-013 AC 6; PRB-008):** an API test that uploads a body larger
+  than the limit and asserts the refusal and that the bytes read stay within limit plus one chunk;
+  a memory-bounded download test of an object larger than the chunk size; the existing checksum
+  tests of SR-013 AC 5 still pass. Recorded in TS-007.
+- **DICOM bound (SR-017 AC 6; PRB-006):** tests with an object over the stored bound, an object
+  whose header declares a decoded size over the bound while the stored bytes are small, and a
+  truncated pixel stream; each returns an RFC 7807 error and no image. A valid reference study
+  still renders. Recorded in TS-010 or a new TS.
+- **Concurrency (SR-026 AC 5; PRB-009, PRB-072 if added):** a load test on a started stack with
+  20 concurrent mixed read and write clients asserting no 5xx and the SR-026 AC 1 and AC 2
+  budgets; a before and after measurement is recorded in the TR. A static test that no dependency
+  or handler declared `async def` calls a blocking client.
+- **Data-access cost (SR-026 AC 6; PRB-021, PRB-022, PRB-024):** a query-count test (constant
+  queries for `groups_of` at 1, 10 and 100 memberships), a test that activation reads one account
+  row, and an `EXPLAIN` check on a seeded database for the four lookups, plus a migration test on
+  an empty and on a populated database (upgrade and downgrade).
+- **Workers (SR-024 AC 5; PRB-012, PRB-013):** unit tests with a failing dataset that assert every
+  opened session is closed and the task retries; log-capture tests of the three enqueue failure
+  paths (already present for two, TASK-207) and the decision of Q-5.
+- **Frontend (SR-015 AC 5, SR-030 AC 8, SR-026 AC 7 and AC 8, SR-027 AC 5; PRB-015, 016, 019, 020,
+  025, 031):** Vitest and Testing Library unit tests per fix (invalidation after a mutation,
+  expiry taken from the server value, a single redirect on a 401, upload through `request()` with
+  its 401 branch, debounce timing with fake timers, cancel focus); a bundle-size assertion in the
+  build; the generated-types drift check for PRB-019; the full frontend suite and type check.
+- **Unit verification (PRB-017):** unit tests for `SessionActivityProvider`, `AttachmentItem` and
+  `api/csrf.ts` with the acceptance criteria written in the TS, and coverage of the three units
+  reported in the TR.
+- **Module boundary (PRB-030):** a test that lists every `app.*` import in the DICOM module and
+  fails on any outside the allow-list, and a negative case with a planted forbidden import.
+- **Logger (PRB-032):** a log-capture test, per Q-7.
+- **Whole change:** backend and frontend suites green, `ruff` and type checks, `openapi-lint` if
+  the schema changes, `traceability-check` with no errors for the records of this CR, and the
+  hosted CI run recorded as in CR-005.
+
+## Assumptions
+
+- A-1. The scope is the seventeen PRBs listed in issue #28. PRB-072 is not in the issue and is
+  treated as out of scope until Q-1 is answered.
+- A-2. Class B is unchanged (`docs/medtrace.yml` and `CLAUDE.md` agree). The defects do not add a
+  hazard; the Risk stage confirms this.
+- A-3. "Normal load" in SR-026 is undefined today. The 20 concurrent clients in AC 5 is the
+  smallest figure that the PRB-072 report shows to fail (8 clients pass, 20 fail); decision D-3
+  fixes it, it is not a measured user count.
+- A-4. The default maximum attachment size is 100 MiB (`attachments/service.py:70`) while the design
+  record puts a typical study at 50 to 150 MB (`docs/design/10-quality-requirements.md:41`).
+  Decision D-2 sets the DICOM stored bound at 150 MiB and raises the attachment maximum to match.
+- A-5. The server-reported `expires_at` (`api/schemas/auth.py:49`) is the source of truth for the
+  client deadline, so PRB-016 needs no API change. To be confirmed at the Plan stage.
+- A-6. PRB-013 has no remaining silent site, so its remaining scope is a policy decision.
+- A-7. The line numbers in the PRB bodies are stale in several places (PRB-009, PRB-013); the
+  evidence above supersedes them.
+
+## Open questions
+
+All nine are resolved by the decision with the same number (Q-n to D-n) in "Decisions". The text
+below is kept as the record of what was asked and of the Product Owner's recommendation.
+
+- **Q-1. Which PRBs are already fixed, and is PRB-072 in scope?** PRB-022 (activation reads one
+  row) and PRB-031 (focus on Cancel, with a test) are fixed on this branch; PRB-013 is partly
+  fixed; PRB-017 is partly fixed. PRB-072 (also referencing TASK-136) is not in issue #28.
+  *Recommendation:* reject PRB-022 and PRB-031 as already fixed, citing the evidence in the table
+  (only the human changes PRB status); narrow PRB-013 and PRB-017; add PRB-072 to this CR as a
+  `resolves` link only if TASK-136's measurement shows it is a consequence of PRB-009, and
+  otherwise leave it for its own CR.
+- **Q-2. What are the DICOM bounds, and does TASK-135 absorb PRB-006?** AC 6 of SR-017 proposes
+  100 MiB stored and 512 MiB decoded. The design record puts studies at 50 to 150 MB and a 512x512
+  slice at about 0.5 MiB, so a decoded bound that large allows about 1,000 slices.
+  *Recommendation:* 150 MiB stored and 1 GiB decoded, a separate attachment-size decision from the
+  100 MiB upload limit (or raise that to 150 MiB), and a new task rather than folding PRB-006 into
+  TASK-135, because TASK-135 is attachment-router work and PRB-006 is in the module.
+- **Q-3. What is "normal load" for SR-026?** AC 5 proposes 20 concurrent clients on one worker.
+  *Recommendation:* accept 20 and state it in NFR-008's next revision; a different figure changes
+  only the load test.
+- **Q-4. How stale may the module gating be?** AC 5 of SR-015 proposes 60 seconds or the next
+  navigation. TASK-144 as drafted only invalidates the module query in the administrator's own
+  browser, which does not reach the affected user. *Recommendation:* accept 60 seconds and use a
+  short stale time plus refetch on focus in the module query.
+- **Q-5. Should an enqueue failure fail the request?** All three sites now log a WARNING and the
+  request succeeds. The retrieval code at `identity/erasure.py:140` has no recovery if the e-mail is
+  lost, and a missed session-kill propagation leaves a session alive (RISK-005).
+  *Recommendation:* keep best effort for the appointment notification (SR-035 AC 3 also shows
+  it in the application) and for the session kill (synchronous invalidation already ran); fail the
+  erasure request with a retryable error when the e-mail cannot be queued; no new SR beyond the
+  existing SR-024 AC 1.
+- **Q-6. How can a streaming download keep the checksum rule of SR-013 AC 5?** The SHA-256 must be
+  verified before the first byte is served, but a true streaming download sends bytes as they are
+  read. *Recommendation:* keep AC 5 as the stronger rule: a first pass hashes the object in chunks
+  without keeping it, a second pass streams it, accepting two object-store reads; the alternative
+  (hash while sending and abort the stream on mismatch) breaks "content is not served" and needs an
+  SR-013 AC 5 change and a RISK-012 review.
+- **Q-7. Emit the request id or drop the promise (PRB-032)?** There is no request-id concept in the
+  backend today. *Recommendation:* drop the promise from the docstring, as it has a weak
+  RISK-006 contribution and needs a new middleware, a context variable and an SR to be verifiable;
+  reopen if incident analysis needs correlation. If the human prefers to emit it, an SR criterion
+  is needed first.
+- **Q-8. What initial bundle budget (SR-026 AC 7)?** The AC states the rule (landing route code
+  only) without a number. *Recommendation:* measure the current bundle first at the Plan stage and
+  set the budget at the current size minus the code that moves to lazy chunks, rounded down.
+- **Q-9. Is PRB-017 verified by unit tests alone?** NFR-006 requires traceability to a system test
+  before release. *Recommendation:* yes for the unit level (class B §5.5); the system-level
+  evidence for SR-030 and SR-015 stays in TS-001 and TS-005.
+
+## Decisions
+
+The human (Carlos Santiago Liceras) answered "Approve as recommended" in chat on 2026-11-13, at the
+Specify gate, to the question whether to approve CR-006 and the seven SR amendments with the
+Product Owner's recommended answers. That reply is recorded here as the decision on the open
+questions (content). It is not the MedTrace approval of the records, which is made by the human in
+MedTrace after this content is final; CR-006 and the seven SRs stay `in_review` until then. The
+decisions were relayed by the coordinating agent; the human's own MedTrace approval confirms them.
+
+- **D-1 (Q-1):** PRB-022 and PRB-031 are rejected as already fixed before CR-006. Evidence:
+  `identity/activation.py:67` and `:162-168` (one-row lookup, no scan); `ConfirmDialog.tsx:46,51`
+  and `ConfirmDialog.test.tsx:120`. Their `resolves` links stay on this CR and their Scope entries
+  are marked rejected. PRB-013 and PRB-017 are narrowed to the remaining gap (their Investigation
+  text is updated) and stay `open`. PRB-072 stays `relates_to`; it joins the scope only if
+  TASK-136's measurement shows it follows from PRB-009.
+- **D-2 (Q-2):** DICOM bounds are 150 MiB stored and 1 GiB decoded (SR-017 AC 6, now 1.5); the
+  attachment upload maximum of SR-013 is raised to 150 MiB to match. PRB-006 gets its own new
+  task and is not absorbed by TASK-135.
+- **D-3 (Q-3):** "normal load" for SR-026 AC 5 is 20 concurrent clients on one API worker.
+- **D-4 (Q-4):** a module enablement change reaches the affected user's UI within 60 seconds or
+  the next navigation, not only in the administrator's browser (SR-015 AC 5). TASK-144 uses a short
+  stale time and refetch on focus.
+- **D-5 (Q-5):** an enqueue failure fails the erasure request only, with a retryable error.
+  Activation and appointment paths stay best effort with the WARNING log. No new SR beyond
+  SR-024 AC 1.
+- **D-6 (Q-6):** two-pass download: verify the checksum in a first chunked pass, then stream.
+  SR-013 AC 5 is unchanged.
+- **D-7 (Q-7):** PRB-032 is resolved by removing the request-id promise from the logger docstring.
+  No SR.
+- **D-8 (Q-8):** the initial bundle budget is measured at the Plan stage and then written into
+  SR-026 AC 7 (a placeholder says so until then).
+- **D-9 (Q-9):** unit tests are sufficient for PRB-017 at the unit level; system-level evidence
+  stays in TS-001 and TS-005.
+
+Risk gate (2026-11-13): asked whether to accept R-1 to R-5 of the change analysis as recommended,
+the human answered "Accept as recommended" in chat (relayed by the coordinating agent). The
+records stay `in_review` until the human's MedTrace approval.
+
+- **D-10 (R-1, human decision 2026-11-13):** the two-pass download binds its second read to the
+  first: a conditional read on the ETag (or version) seen in the hashing pass, refused on change
+  with the SR-013 AC 5 response and a FAILURE audit row, and the streaming pass hashes as it sends
+  and aborts on mismatch. SeaweedFS support for the conditional read is confirmed in SOUP-036 at
+  the Plan stage. If it is not supported, the fallback is an SR-013 AC 5 change and RISK-012 back
+  to 4 × 2 → alarp.
+- **D-11 (R-2, human decision 2026-11-13):** the D-5 behaviour gets its own criterion, SR-024
+  AC 6: an erasure whose retrieval-code e-mail cannot be queued fails with a retryable error and is
+  rolled back as a whole. This revises D-5's "no new SR"; the Product Owner adds the criterion.
+- **D-12 (R-3, human decision 2026-11-13):** the four missing `mitigates` links are added: SR-013,
+  SR-017 and SR-024 → RISK-007, and SR-015 → RISK-004 (Product Owner; the SRs are re-approved).
+- **D-13 (R-4, human decision 2026-11-13):** the human accepts RISK-003, 004, 005, 007, 008, 009
+  and 012 with their expected residuals (RISK-003, 004 and 007 `alarp`); the acceptance is
+  recorded by approving each record in MedTrace.
+- **D-14 (R-5, human decision 2026-11-13):** the thread-pool and connection-pool sizes are
+  proposed at the Plan stage with the load-test evidence, and the human approves them before the
+  deployed configuration changes.
+
+Plan gate (2026-11-13): asked whether to approve the plan and findings P-1 to P-9 as recommended,
+the human answered "Aprobar como se recomienda" (approve as recommended) in chat, relayed by the
+coordinating agent. The records stay `in_review` until the human's MedTrace approval.
+
+- **D-15 (P-1):** the SeaweedFS `If-Match` behaviour is confirmed by a run as TASK-217 step 1, before any
+  CR-006 code; if it fails, the D-10 fallback applies (SR-013 AC 5 change, RISK-012 4 × 2 → alarp).
+- **D-16 (P-2):** SR-026 AC 7 budget: initial JavaScript (entry chunk plus its static imports) at most
+  165 kB gzip. The Product Owner writes it into SR-026 (re-approval).
+- **D-17 (P-3):** pool and thread values come from the TASK-136 load test; the human approves them before
+  `infra/` changes.
+- **D-18 (P-4):** the missing nginx body limit is recorded as PRB-078 (major), resolved by this CR
+  through TASK-135.
+- **D-19 (P-5):** the additive response fields `sessionExpiresInSeconds` (`GET /me`) and `expiresInSeconds`
+  (session extend) are accepted (TASK-144).
+- **D-20 (P-6):** TASK-218 tests the bounds and the error path with the decode stubbed; a real render
+  needs NumPy and stays with PRB-048.
+- **D-21 (P-7):** the additive 503 response on the erasure route is accepted (TASK-141).
+- **D-22 (P-8):** the RISK control rows name their TASKs (RISK-003, 004, 005, 007, 012; RISK-008 and
+  009 already did).
+- **D-23 (P-9):** RISK-007 gets a control row for a failed lazy chunk (TASK-145); RISK-009's row names
+  TS-004 instead of TS-006; the retrieval scan is recorded as PRB-079, out of CR-006 scope.
+
+## Change analysis (Risk stage, §7.4, 2026-11-13)
+
+The Software Architect role ran this analysis. Scales and matrix: `docs/medtrace.yml` (5 × 5
+`risk_matrix`) and PLAN-005. The architecture records touched (ADD) are named at the Plan stage.
+
+- **Records consulted:** RISK-001, 003, 004, 005, 006, 007, 008, 009, 012; SR-013, 015, 017, 024,
+  026, 027, 030 (as approved on 2026-11-13, not edited here), SR-016, 031, 034, 035; the 17 PRBs and
+  PRB-048, 057, 072, 074; SOUP-003, 015, 017, 019, 025, 027, 028, 036; TS-001 to TS-007, TS-010.
+- **Code read:** the evidence cited in "Scope"; also
+  `backend/modules/dicom_viewer/dicom_viewer/dicom.py` (`dcmread` then `pixel_array` on the whole
+  object) and `backend/app/identity/erasure.py:135-142` (the retrieval-code e-mail is enqueued
+  inside the request's transaction, before commit).
+
+**Conclusion.** `risk_impact: affects_controls` is **confirmed**.
+
+- **No new hazard; class B unchanged (§7.4.1).** Every harm a change can reach is already in
+  RISK-001, 003, 004, 005, 007, 008, 009 or 012. The highest severity reached is 4 (RISK-003 and
+  RISK-012: a wrong image or a substituted study), which the class B rationale in
+  `docs/medtrace.yml` already covers; no change adds a path to serious injury, and no change
+  removes a control that a lower class would depend on. The class cannot rise from this change.
+- **RISK-012 and RISK-005 are added to the analysis** (the CR text listed RISK-003 to RISK-009):
+  the two-pass download changes how the checksum control of SR-013 AC 5 is realised (RISK-012),
+  and PRB-016, PRB-019 and PRB-025 change the client side of the session controls (RISK-005).
+- **RISK-003's record was wrong:** its row "Size and decompression limits on the frame endpoint"
+  named SR-031, TASK-135, TS-008 and TS-011, but no bound was ever implemented (PRB-006 is open,
+  `dicom.py` decodes without a limit). The row now names SR-017 AC 6 and planned verification.
+- **New causes introduced by the change itself**, each with a control to plan:
+  1. **Size bounds refuse a legitimate study** (RISK-007, delay; RISK-003 if a partly decoded image
+     were shown): bounds of 150 MiB stored and 1 GiB decoded (D-2) sit above the design record's 50
+     to 150 MB study; the refusal is an RFC 7807 error that names the limit, never a partial image;
+     the header is read before any pixel data (pydicom `stop_before_pixels`, SOUP-015); a 150 MiB
+     reference study is in the test set.
+  2. **Two-pass download serves bytes that were not verified** (RISK-012, SR-013 AC 5): the object
+     can be replaced between the hashing pass and the streaming pass. Control: the second read is
+     bound to the first (a conditional read on the ETag or version seen in pass 1, refused on
+     change with the AC 5 response and FAILURE audit), and the streaming pass hashes as it sends
+     and aborts the connection on mismatch. SeaweedFS support for the conditional read is a
+     relied-on requirement to confirm in SOUP-036 at the Plan stage. The two passes double
+     object-store reads for a 150 MiB study (RISK-007, SR-026 AC 3: measured in the load test).
+     See R-1.
+  3. **Moving `get_current_user` and the attachment dependency off the event loop** (PRB-009) puts
+     every authenticated request on a worker thread. A thread pool larger than the database or
+     Redis pool makes requests queue on the pool and time out, the shape of PRB-072 (RISK-007).
+     Control: thread-pool and connection-pool sizes set together and verified by the SR-026 AC 5
+     load test; a static test that no `async def` dependency or handler calls a blocking client.
+     The authorization and session decision must not change in the move: TS-001 and TS-002 run
+     unchanged (RISK-001, RISK-005). A pool-size change is an "ask first" step (R-5).
+  4. **Index migration 0011 on a populated database** (PRB-021) blocks writes to the four tables
+     while the indexes build (RISK-007, deployment time). Control: "ask first" (Boundaries);
+     migration test on an empty and a populated database, upgrade and downgrade.
+  5. **Rewriting `groups_of`** (PRB-024) can return too few groups (an enabled module denied,
+     RISK-004) or too many (a module shown that is not enabled, RISK-001). Control: a
+     characterisation test of `groups_of` results written before the rewrite and unchanged after
+     it (as CR-004 cause 3); the server-side module guard (SR-015 AC 3) is not touched.
+  6. **Failing the erasure request on an enqueue failure** (D-5). Because the enqueue sits inside
+     the request's transaction, raising there rolls the erasure back: the account and its data
+     stay as they were and the operator retries. That is the safe direction (RISK-008); the
+     control must keep the anonymization and the code e-mail in one outcome, never a committed
+     erasure with a lost code. The converse case (enqueued, then the commit fails) sends a code
+     that matches no dataset: harmless, noted for the Plan stage. See R-2.
+  7. **Retention retries** (SR-024 AC 5): a retried run must be idempotent per dataset and must
+     delete only datasets past their deadline, so a retry cannot erase too much (RISK-008).
+     Control: a test with a dataset that fails once and then succeeds, and a test that a dataset
+     before its deadline survives every retry.
+  8. **Module gating refetch** (SR-015 AC 5): a failed refetch must keep the last known value, not
+     hide an enabled module (RISK-004). The server stays the authority (SR-015 AC 3), so a stale
+     "enabled" shows a link the server refuses (RISK-001 unaffected).
+  9. **Client deadline from the server's expiry** (SR-030 AC 8): a skewed client clock moves the
+     client countdown if the absolute `expires_at` is compared with the client's clock (RISK-005
+     if late). Control: derive the remaining time relative to the response, and the server keeps
+     enforcing idle and absolute expiry (SR-030 AC 1 to AC 3), so the client deadline only drives
+     the warning and the redirect.
+  10. **Debounced activity tracking** (SR-026 AC 8): the client deadline can be up to 1 s late;
+      server enforcement is unchanged (RISK-005 not raised).
+  11. **Lazy routes** (PRB-020, SR-026 AC 7): a chunk that fails to load leaves a route blank
+      (RISK-007, minor). Control: an error boundary with a retry and a clear message (SR-027 AC 3).
+- **PRB-022 and PRB-031 (rejected, D-1): no impact.** The fixes predate CR-006 and keep their
+  tests; SR-026 AC 6 adds an activation regression test. No RISK record is touched for them.
+- **PRB-017, PRB-030, PRB-032: verification and documentation only.** No behaviour changes. The
+  new unit tests and the wider boundary test add evidence to existing controls (RISK-005,
+  RISK-004; RISK-001 through SR-016 AC 3). PRB-032 removes a docstring promise that no RISK-006
+  control relied on. RISK-001 and RISK-006 are not edited.
+- **SOUP: no new item expected.** Streaming uses Starlette's upload file and python-multipart
+  (SOUP-003, SOUP-017) and the boto3 streaming body (SOUP-019); the DICOM header read uses pydicom
+  (SOUP-015); lazy routes use React and React Router (SOUP-025, SOUP-027). A new streaming parser
+  is "ask first" and would need a SOUP record and a RISK-010 review.
+
+| Change (PRB) | Software items | §7.4.1 contribution | §7.4.2 controls affected | §7.4.3 verification (planned; TASKs at Plan stage) |
+|---|---|---|---|---|
+| DICOM stored and decoded bound; a failed decode never renders (PRB-006) | SI-MOD-DICOM-BE, SOUP-015 | Removes an unbounded decode (process memory) and a partial-decode path. New: cause 1 | RISK-007 (new control), RISK-003 (row corrected and re-based on SR-017 AC 6) | TS-010 or a new TS: over the stored bound, over the declared decoded bound with small stored bytes, truncated pixel stream: each RFC 7807 and no image; a 150 MiB reference study renders |
+| Streaming upload and download, limit enforced while reading, two-pass checksum (PRB-008) | SI-API, SI-ATTACH, SOUP-003, 017, 019, 036 | Removes whole-object buffering. New: cause 2 | RISK-007 (new control), RISK-012 (checksum control kept, under condition R-1) | TS-007: over-limit upload refused within limit plus one chunk; memory-bounded download; TC-007.6 to TC-007.8 unchanged; new case: object replaced between the passes gives 502 and a FAILURE audit row |
+| No blocking IO on the event loop (PRB-009; PRB-072 if added, D-1) | SI-API, SI-AUTH, SI-ATTACH | Removes event-loop stalls on every authenticated request. New: cause 3 | RISK-007 (new control); RISK-001, RISK-005 (decision unchanged) | Load test on a started stack, 20 clients, no 5xx, SR-026 AC 1 and AC 2 budgets; static test; TS-001 and TS-002 unchanged |
+| Indexes; `groups_of` N+1; activation regression (PRB-021, PRB-024, PRB-022) | SI-PERSIST, SI-GROUPS, SI-AUTHZ, SI-IDENTITY | Removes cost growth with data. New: causes 4, 5 | RISK-007 (new control), RISK-004, RISK-001 (characterisation) | Query-count test at 1, 10, 100 memberships; one-row activation test; `EXPLAIN` on a seeded database; migration test, populated, up and down; `groups_of` characterisation (TS-005) |
+| Retention sweep isolation, session release, retries (PRB-012) | SI-WORKER, SI-PERSIST | Removes a pool-exhausting session leak (RISK-007) and a silent skip (RISK-008). New: cause 7 | RISK-008, RISK-007 (existing rows realised) | TS-004: failing dataset, every session closed, at most 3 retries, later datasets erased, early datasets kept; failed-count log without personal data (TS-017) |
+| Enqueue-failure policy (PRB-013, D-5) | SI-IDENTITY, SI-APPT, SI-WORKER | An erasure no longer completes with a lost retrieval code. New: cause 6 | RISK-008 (new control); RISK-009 (logging row realised; best effort unchanged); RISK-005 (session kill: synchronous invalidation already ran) | TS-004 new case: broker unreachable gives a retryable error, no dataset, account unchanged; TS-017 TC-017.6 and TS-003 TC-003.7 (existing, TASK-207) |
+| Module gating refresh (PRB-015) | SI-FE-CORE, SI-FE-MODREG | Removes a stale module state in the affected user's UI. New: cause 8 | RISK-004 (new control) | Vitest: refetch on focus and short stale time, failed refetch keeps the last value; TS-005 at system level |
+| Session: server-reported deadline, one `me` source, upload through the request helper, debounced tracking (PRB-016, PRB-019, PRB-025) | SI-FE-AUTH, SI-FE-APICLIENT, SI-FE-SHELL | Client timers follow the server; a 401 during upload ends the session like any request; one redirect, no request loop. New: causes 9, 10 | RISK-005 (new control; server enforcement unchanged), RISK-007 | Vitest with fake timers; upload 401 branch; generated-types drift check; TS-001 |
+| Route-level code splitting (PRB-020) | SI-FE-SHELL | No hazard. New: cause 11 | RISK-007 (minor) | Bundle-size assertion; error-boundary test for a failed chunk |
+| Unit tests, boundary test, logger docstring (PRB-017, PRB-030, PRB-032) | SI-FE-AUTH, SI-FE-CORE, SI-FE-APICLIENT, SI-MODHOST, SI-API | None (verification and documentation) | Evidence for RISK-005, RISK-004, RISK-001; none for RISK-006 | Unit tests with coverage in the TR; boundary test with a planted forbidden import |
+| PRB-022, PRB-031 (rejected, D-1) | none | None (fixed before CR-006) | none | Activation regression test (SR-026 AC 6); `ConfirmDialog.test.tsx:120` kept |
+
+**Residual scores per record.** Not changed now: the scores depend on the fixes landing and are
+re-scored from the evidence at the CR's verification checkpoint. Each record touched (`in_review`)
+states its expected residual:
+
+| RISK | Current (S × P → acceptability) | Expected after CR-006 | Why |
+|---|---|---|---|
+| RISK-003 | 4 × 2 → alarp | 4 × 2 → alarp | The bound realises a control the residual already assumed; the viewer is still not deployed (PRB-048) and its reference-image controls are unverified |
+| RISK-004 | 3 × 2 → alarp | 3 × 2 → alarp | New refresh and characterisation controls hold the probability; ALARP argument unchanged |
+| RISK-005 | 3 × 1 → acceptable | 3 × 1 → acceptable | Server enforcement unchanged; client timers now follow it |
+| RISK-007 | 3 × 2 → alarp | 3 × 2 → alarp | Removes several causes, but the residual is set by the single-host decision (ADR-0010) and PRB-057, both untouched; not 3 × 1 |
+| RISK-008 | 2 × 2 → acceptable | 2 × 2 → acceptable | Retention and erasure-code causes removed; PRB-074 (accepted known anomaly, CR-004 D-18, D-21) and TASK-116 remain |
+| RISK-009 | 2 × 2 → acceptable | 2 × 2 → acceptable | Best effort by design (D-5); the in-app channel keeps it acceptable |
+| RISK-012 | 4 × 1 → acceptable | 4 × 1 → acceptable **only if** the second read is bound to the first (cause 2); otherwise the substitution path re-opens and the record is 4 × 2 → alarp | R-1 |
+
+Acceptability is the `risk_matrix` cell, not a judgement. Accepting a residual is the human's
+decision, through approval of each RISK record.
+
+**Safety-relevant SRs and their RISK coverage.** SR-013 → RISK-002, 003, 012 (`mitigates`), and
+RISK-007's control table relies on AC 5 and AC 6 without a link; SR-015 → no `mitigates` link,
+RISK-004 now relies on AC 5; SR-017 → RISK-003, and RISK-007 relies on AC 6 without a link; SR-024
+→ RISK-008, and RISK-007 relies on AC 5 without a link; SR-026 → RISK-007; SR-030 → RISK-005.
+SR-027 AC 5 (Cancel focus) is a use-error control for destructive actions (RISK-008 erase-too-much,
+RISK-004 revoked access) that is already implemented; no record change. The missing links are
+finding R-3; the D-5 control has no acceptance criterion of its own (R-2).
+
+**Findings for the human (Risk stage):**
+
+- **R-1. Two-pass download and RISK-012.** Recommendation: bind the second read to the first
+  (conditional read on the ETag or version from pass 1) and hash during the second pass as well,
+  aborting on mismatch. With the binding, SR-013 AC 5 holds as written; without it, the bytes
+  served are not the bytes verified, RISK-012 goes back to 4 × 2 → alarp, and SR-013 AC 5 would
+  need a change. SeaweedFS support for the conditional read is confirmed in SOUP-036 at the Plan
+  stage.
+- **R-2. The D-5 control has no SR criterion (§5.2.3).** "An erasure whose retrieval-code e-mail
+  cannot be queued fails with a retryable error and is not committed" is a RISK-008 control, but
+  SR-024 AC 1 does not state it, so the TS has no acceptance criterion to trace it to. D-5 decided
+  "no new SR"; confirm that, or add it as SR-024 AC 6 (an SR change, so a re-approval).
+- **R-3. Missing `mitigates` links on approved SRs:** SR-013 → RISK-007, SR-017 → RISK-007, SR-024
+  → RISK-007, SR-015 → RISK-004. The RISK tables cite these ACs as controls. Adding the links
+  changes the approved records (new digest). Recommendation: add them at the SRs' next revision,
+  or now with re-approval.
+- **R-4. Residual acceptance.** RISK-003, 004, 005, 007, 008, 009 and 012 are back in `in_review`
+  with their expected residuals unchanged; RISK-003, 004 and 007 stay `alarp` and need the
+  human's renewed acceptance.
+- **R-5. Thread-pool and connection-pool sizes** (cause 3) are a deployed-configuration change
+  ("ask first"); the Plan stage proposes the values with the load-test evidence.
+
+## Plan
+
+Plan stage, 2026-11-13, Software Architect role. The plan is the TASK records below (overlay: no
+`docs/plans/<feature>.md`). Nothing is built until the human approves the plan, ADR-0021 and
+ADR-0022, the changed ADD and SOUP records, and the findings P-1 to P-9.
+
+- All tasks on `fix/review-2026-07-reliability`, one commit per QA-approved task with its records.
+- An `approved` TS that several tasks change is bumped, and its approval cleared, once by the first
+  task that changes it; later tasks add to the same version (CR-002 rule): TS-007 (TASK-135), TS-005
+  (TASK-220), TS-004 (TASK-141), TS-011 (TASK-143), TS-001 (TASK-144), TS-012 (TASK-145), TS-010
+  (TASK-223), TS-017 (TASK-141). New: TS-018 "Performance budgets and data-access cost" (`verifies`
+  SR-026; TASK-136 creates it), TS-019 "DICOM image opening and rendering" (`verifies` SR-017;
+  TASK-218). No TS verifies SR-026 or SR-017 today.
+- **"Ask first" steps** (Boundaries): the pool and thread values in the deployed configuration
+  (TASK-136, D-14: proposed with the load-test evidence, approved before `infra/` changes); migration
+  0011 on an existing database (TASK-219); the additive HTTP contract changes of TASK-144 (`GET /me`
+  `sessionExpiresInSeconds`, extend `expiresInSeconds`) and TASK-141 (erasure 503), each with a
+  regenerated OpenAPI document and frontend types. No new runtime dependency is planned (no NumPy,
+  no streaming parser, no load-test package).
+- **First Build-stage steps, before any CR-006 code:** TASK-217 step 1 (SeaweedFS conditional read on
+  the pinned digest; a failure stops the plan for the D-10 fallback) and TASK-136 step 1 (load-test
+  baseline on the plan-time head).
+
+### Plan-stage open items (resolved here)
+
+- **D-10 / R-1, SeaweedFS conditional read: supported in the published 4.51 source; a confirming run is
+  TASK-217 step 1.** At tag `4.51`, `GetObjectHandler` and `HeadObjectHandler`
+  (`weed/s3api/s3api_object_handlers.go`) call `processConditionalHeaders`;
+  `validateConditionalHeadersForReads` (`weed/s3api/s3api_object_handlers_put.go`) checks `If-Match`
+  first against `getObjectETag(entry)` and returns `ErrPreconditionFailed`, mapped to HTTP 412 in
+  `weed/s3api/s3err/s3api_errors.go`. boto3 sends it as `get_object(IfMatch=...)`. Recorded as
+  relied-on behaviour 14 in SOUP-036 1.4 and in SOUP-019 1.4. Not yet run against the pinned image with
+  SSE-S3 on: SOUP-036 lists it as unconfirmed by a run.
+- **D-8, bundle budget: measured, value proposed (P-2).** `npm run build` on the plan-time head (vite
+  5.4.21): one JavaScript chunk, 559.07 kB minified, **172.55 kB gzip**; CSS 7.25 kB (3.36 kB gzip);
+  fonts are separate `woff2` files. Source-map attribution: libraries about 470 kB minified (MUI
+  material 200.6 kB, react-dom 126.9 kB, TanStack query-core 37.5 kB, react-router 36.6 kB, MUI system
+  34.7 kB), route code that can move to lazy chunks about 20 kB minified (admin 8.9, clinical 4.1,
+  appointments 2.9, consent 1.9, password 1.6, patients 0.8). Recommended SR-026 AC 7 value: **initial
+  JavaScript (entry chunk plus its static imports) at most 165 kB gzip**, the current 172.55 kB less the
+  route code (about 6.5 kB gzip), rounded down to 5 kB. TASK-145 checks it at build time and records the
+  after-split size; if the measured entry is above 165 kB because shared MUI components stay in it,
+  TASK-145 reports the measured value instead of loosening the check.
+- **D-14 / R-5, pool sizes:** defaults today are AnyIO 40 threads, SQLAlchemy `QueuePool` 5 + 10 with a
+  30 s `pool_timeout`, redis-py unbounded; 40 threads against 15 connections is the PRB-072 shape.
+  Candidate for the measurement: 40 threads, pool 20 + 20, timeout 10 s, Redis `max_connections` 40,
+  with a start-up check that threads ≤ pool + overflow (ADR-0022). TASK-136 records the before and after
+  load tests and proposes the values; the human approves them before the deployed configuration
+  changes; TASK-226 runs the final measurement with the approved values.
+
+### Tasks
+
+| Order | Task | PRB | SR (AC) | RISK (`mitigates`) | Size | Depends on | Status |
+|---|---|---|---|---|---|---|---|
+| 1 | [TASK-135](../design-outputs/tasks/TASK-135-true-streaming-attachment-upload-and-download.md) Bounded-memory upload, limit enforced while reading, 150 MiB, proxy body limit | 008, 078 | SR-013 AC 6, AC 1; SR-026 AC 5 | 007 | M | — (after TASK-136 step 1 baseline) | updated |
+| 2 | [TASK-217](../design-outputs/tasks/TASK-217-bound-two-pass-attachment-download.md) Bound two-pass download (step 1: SeaweedFS `If-Match` run, first of all) | 008 | SR-013 AC 5, AC 6; SR-026 AC 5 | 012, 007 | M | 135 | new |
+| 3 | [TASK-218](../design-outputs/tasks/TASK-218-dicom-stored-and-decoded-size-bounds.md) DICOM stored and decoded bounds before decode | 006 | SR-017 AC 6; SR-026 AC 3 | 003, 007 | S | 217 | new |
+| — | **Checkpoint A** | | | | | 1–3 | |
+| 4 | [TASK-136](../design-outputs/tasks/TASK-136-align-async-handlers-with-sync-io-stack.md) Blocking IO off the event loop; pool settings; load test before/after; values proposed (**ask first** for deployed values) | 009 (072 relates) | SR-026 AC 5, AC 1, AC 2; NFR-008 | 007 | M | 217 (step 1 first of the CR) | updated |
+| 5 | [TASK-219](../design-outputs/tasks/TASK-219-indexes-for-authorization-lookups-migration-0011.md) Indexes, migration 0011 (**ask first** on existing DBs); activation one-row guard | 021, 022 (regression) | SR-026 AC 6 | 007 | S | — (parallel with 1–4) | new |
+| 6 | [TASK-220](../design-outputs/tasks/TASK-220-constant-query-group-membership-lookup.md) Constant-query `groups_of`, characterisation first | 024 | SR-026 AC 6; SR-014 AC 4 | 004, 007 | S | — (parallel) | new |
+| 7 | [TASK-141](../design-outputs/tasks/TASK-141-worker-reliability-retention-sessions-retries-silent-failures.md) Retention isolation and retries; erasure rolled back on enqueue failure (PRB-013 folded in) | 012, 013 | SR-024 AC 5, AC 6, AC 1; SR-043 | 007, 008, 009 | M | — (parallel) | updated |
+| — | **Checkpoint B** | | | | | 4–7 | |
+| 8 | [TASK-143](../design-outputs/tasks/TASK-143-unify-frontend-api-client-upload-and-problem-types.md) Upload through `request()`; `ProblemError` from the schema | 019 | SR-030 AC 8; SR-031; SR-027 AC 3 | 005 | S | — (parallel; frontend) | updated |
+| 9 | [TASK-144](../design-outputs/tasks/TASK-144-shared-useme-hook-session-ttl-reconciliation-module-cache-invalidation.md) One `me` query; client deadline from the server-reported expiry (additive API field) | 016 | SR-030 AC 8, AC 4 | 005 | M | — (parallel) | updated |
+| 10 | [TASK-221](../design-outputs/tasks/TASK-221-module-gating-refresh-for-every-affected-user.md) Module gating refresh within 60 s for every affected user | 015 | SR-015 AC 5 | 004 | S | 144 | new (split from 144) |
+| 11 | [TASK-222](../design-outputs/tasks/TASK-222-debounced-inactivity-tracking.md) Activity tracking re-arms at most once per second | 025 | SR-026 AC 8; SR-030 AC 1, AC 2 | 005 | XS | 144 | new |
+| 12 | [TASK-145](../design-outputs/tasks/TASK-145-route-based-code-splitting.md) Route-level splitting, chunk-failure boundary, budget check | 020 | SR-026 AC 7; SR-027 AC 3; SR-020 | — (relates RISK-007) | S | 144 | updated |
+| 13 | [TASK-146](../design-outputs/tasks/TASK-146-frontend-unit-test-gaps-session-attachment-csrf.md) Unit tests: session provider, `AttachmentItem`, `csrf.ts` | 017 | NFR-006; SR-030 AC 1–5, 8; SR-015 AC 3–5; SR-031 AC 3 | — (evidence for 005, 004) | S | 143, 144, 221, 222 | updated |
+| — | **Checkpoint C** | | | | | 8–13 | |
+| P1 | [TASK-223](../design-outputs/tasks/TASK-223-module-boundary-test-with-an-allow-list.md) Module boundary allow-list | 030 | SR-016 AC 3 | — (relates RISK-001) | XS | 218 | new |
+| P2 | [TASK-224](../design-outputs/tasks/TASK-224-drop-the-request-id-promise-from-the-logger.md) Logger docstring: no request-id promise | 032 | SR-043 | — (relates RISK-006) | XS | — (parallel) | new |
+| 14 | [TASK-225](../design-outputs/tasks/TASK-225-arc42-and-design-records-for-cr-006.md) arc42 sections, ADR index, DEPLOY.md (Document Writer) | — | SR-013, 017, 026, 030 | — | M (docs) | all above | new |
+| 15 | [TASK-226](../design-outputs/tasks/TASK-226-verify-cr-006-end-to-end.md) Verify end to end: suites, load test with approved pools, records, re-scoring, traceability (**Checkpoint D**) | all | SR-026 AC 1–8; SR-027 AC 5 | 007 (relates all seven) | S | all above | new |
+
+PRB-022 and PRB-031 are `rejected` (D-1) and have no task; PRB-022's regression test is in TASK-219,
+PRB-031's (`ConfirmDialog.test.tsx:120`, SR-027 AC 5) is re-run in TASK-226.
+
+**Parallel work and shared files.** Sequential by shared file: `backend/app/attachments/service.py`
+and `api/routers/attachments.py` (135 → 217 → 136; 218 uses 217's `open(max_bytes=)`);
+`backend/app/core/config.py` (135 → 136); `frontend/src/auth/SessionActivityProvider.tsx` (144 → 222
+→ 146); `frontend/src/app/App.tsx` (144 → 145); `frontend/src/api/queryKeys.ts` (144 → 221);
+`backend/openapi/openapi.json` and `frontend/src/api/generated/openapi.ts` (141 and 144 regenerate;
+the second to commit regenerates last). 219, 220, 141, 224 share no source file with 135–136 or with
+each other; 143 shares none with 144 (`client.ts` only).
+
+**Checkpoints.**
+
+- **A** (after 1–3): backend and DICOM-module suites green; TS-007 and TS-019 cases pass; SOUP-036
+  behaviour 14 confirmed by the run; OpenAPI export unchanged.
+- **B** (after 4–7): backend suite (coverage ≥ 85 %) green; static no-blocking test green; load test
+  on the task head recorded with the proposed pool values (human decision pending or taken); migration
+  0011 up and down on test databases; TS-001 and TS-002 unchanged.
+- **C** (after 8–13): frontend lint, type check, suite with coverage and build plus budget check
+  green; OpenAPI and generated types drift-free; one `me` query; module refresh and session timers
+  verified with fake timers.
+- **D** = TASK-226.
+
+**SR acceptance-criteria coverage** (every AC named in the CR scope):
+
+| SR | AC → task |
+|---|---|
+| SR-013 | AC 1 (uploads > 1 MiB through the proxy) → 135; AC 5 → 217; AC 6 → 135 (upload), 217 (download) |
+| SR-015 | AC 5 → 221; AC 3, AC 4 (unit level) → 146 |
+| SR-017 | AC 6 → 218 |
+| SR-024 | AC 5 → 141; AC 6 → 141; AC 1 to AC 4 (unchanged, regression) → 141 |
+| SR-026 | AC 1, AC 2 → 136, 226; AC 3 → 218, 226; AC 5 → 136, 135, 217, 226; AC 6 → 219, 220; AC 7 → 145; AC 8 → 222 |
+| SR-027 | AC 3 → 143, 145; AC 5 (fixed, PRB-031) → 226 regression |
+| SR-030 | AC 8 → 144, 143; AC 4 → 144; AC 1, AC 2 → 222; AC 1 to AC 5 (unit level) → 146 |
+| SR-014 AC 4 | 220 |
+| SR-016 AC 3 | 223 |
+| SR-031 | 143, 146 |
+| SR-043 | 141 (failed-count log), 224 |
+| NFR-006 AC 3, AC 4; NFR-008 | 146; 136 |
+
+**ADD coverage** (class B; every SR in scope is implemented by at least one ADD; changed ADDs are
+`in_review` with a "CR-006 (planned)" marker, confirmed by the implementing task): SR-013 (ADD-012
+1.7, ADD-026 1.6), SR-015 (ADD-021 1.1; ADD-007, 009, 020 unchanged), SR-017 (ADD-015 1.1), SR-024
+(ADD-008 1.2, ADD-017 1.4), SR-026 (ADD-005 1.3, ADD-009 1.1, ADD-012, ADD-015, ADD-016 1.3, ADD-018
+1.3, ADD-019 1.1, ADD-026), SR-027 (ADD-018), SR-030 (ADD-006 1.4, ADD-019, ADD-023 1.2). Decisions:
+ADR-0021 (bounded attachment IO, bound two-pass download) and ADR-0022 (blocking IO off the event
+loop, matched pools), both "Proposed".
+
+**SOUP** (none added, no version change):
+
+| SOUP | Change |
+|---|---|
+| SOUP-036 SeaweedFS 4.51 | 1.4 `in_review`: relied-on behaviour 14 (conditional `GetObject`), link from ADD-012 |
+| SOUP-019 boto3 1.43.117 | 1.4 `in_review`: streamed `put_object` body, `iter_chunks`, `IfMatch` |
+| SOUP-003 Starlette 1.3.1 (and AnyIO) | relied-on text extended by TASK-135 (spooled `UploadFile`) and TASK-136 (default thread limiter); no version change |
+| SOUP-008 SQLAlchemy 2.0.51, SOUP-013 redis-py 8.0.0 | relied-on text extended by TASK-136 (pool sizing, `max_connections`); no version change |
+| SOUP-015 pydicom 3.0.2 | relied-on text extended by TASK-218 (header-only read on the module path); NumPy still absent (P-6) |
+| SOUP-009 Alembic 1.18.4, SOUP-014 Celery 5.6.3, SOUP-017 python-multipart 0.0.32, SOUP-024 nginx, SOUP-025 React 18.3.1, SOUP-027 React Router 7.18.0, SOUP-028 TanStack Query 5.101.0 | relied on as recorded (migrations, `self.retry`, multipart parsing, `client_max_body_size`, `React.lazy`/`Suspense`, refetch options); no version or record change expected |
+
+**arc42 sections for the Document Writer (TASK-225):** 04, 05, 06, 07, 08, 10, 11, 12, the ADR index
+(`docs/design/adr/README.md`) and `infra/DEPLOY.md`. Not edited at the Plan stage.
+
+**RISK rows to update with the TASK ids (human or Risk-stage edit; the RISK records are not changed
+here):** RISK-003 DICOM-bounds row → TASK-218. RISK-004 module-refresh row: TASK-144 → TASK-221;
+`groups_of` row → TASK-220. RISK-005 client-session row: add TASK-222 (and TASK-146 as verification).
+RISK-007: bounded attachment IO row → TASK-135 and TASK-217; DICOM-bounds row → TASK-218;
+data-access-cost row → TASK-219, TASK-220; the no-blocking-IO and retention rows already name TASK-136
+and TASK-141. RISK-012 two-pass row: TASK-135 → TASK-217. RISK-008 and RISK-009 rows already name
+TASK-141 (RISK-009: the erasure-site log-capture test is in TS-004, not TS-006).
+
+### Findings for the human (Plan stage)
+
+- **P-1. SeaweedFS conditional read (D-10):** supported in the published 4.51 source (412 on an `If-Match`
+  mismatch); not yet run against the pinned digest. TASK-217 step 1 runs it first; a failure is the D-10
+  fallback, your decision.
+- **P-2. SR-026 AC 7 budget (D-8):** measured 172.55 kB gzip (559.07 kB minified), one chunk. Proposed
+  value: initial JavaScript at most **165 kB gzip**. SR-026 is approved: writing the value is an SR change
+  (Product Owner, re-approval).
+- **P-3. Pool sizes (D-14):** candidate 40 threads, DB pool 20 + 20, timeout 10 s, Redis 40; final values
+  proposed by TASK-136 with the before/after load test, for your approval before `infra/` changes.
+- **P-4. Reverse proxy refuses uploads above 1 MiB today:** `infra/reverse-proxy/nginx.conf` has no
+  `client_max_body_size`, so nginx's 1 MiB default answers 413 before the application (SR-013 AC 1 on the
+  deployed stack). Fixed in TASK-135; recommendation: record it as a PRB resolved by this CR.
+- **P-5. A-5 does not hold:** only the extend response carries `expires_at`; `GET /me` and login report no
+  expiry. TASK-144 adds `sessionExpiresInSeconds` to `GET /me` and `expiresInSeconds` to extend (additive
+  contract change, "ask first").
+- **P-6. No NumPy:** the DICOM frame decode (`pixel_array`) cannot succeed in any environment (SOUP-015,
+  PRB-048). TASK-218 implements and tests the bounds and the error path with the decode stubbed; a real
+  150 MiB render needs NumPy (new SOUP, "ask first") and stays with PRB-048.
+- **P-7. Erasure 503 (D-5, D-11):** an additive 503 response on the erasure route (regenerated OpenAPI and
+  types), "ask first".
+- **P-8. RISK rows to update** with the TASK ids: see "RISK rows to update" above.
+- **P-9. Record gaps:** RISK-007 has no control row for cause 11 (failed lazy chunk; control in TASK-145);
+  RISK-009's row names TS-006 for the erasure-site log test, which belongs in TS-004. Also observed, out of
+  scope: `ErasureService.retrieve_anonymized` verifies the code with Argon2 against every dataset
+  (`identity/erasure.py`, "scan all datasets"), so its cost grows with the data; no PRB records it.
+  Recommendation: raise a PRB.
+
+### Plan risks
+
+| Risk | Impact | Mitigation |
+|---|---|---|
+| SeaweedFS `If-Match` does not behave as the source reads on the pinned image with SSE-S3 | RISK-012 back to 4 × 2 → alarp; SR-013 AC 5 change | TASK-217 step 1 first; stop and return to the human (D-10 fallback) |
+| Thread pool larger than the DB pool after PRB-009 (cause 3) | PRB-072 shape: queued requests, 500s | Start-up invariant (ADR-0022); load test before and after; human approves values |
+| Upload guard or `UploadFile` change alters the OpenAPI document | Contract drift, regenerated types | Signature kept; export byte-identical test in TASK-135 and TASK-226 |
+| 20 concurrent 150 MiB uploads fill the API host's temporary directory | Upload failures (RISK-007) | Recorded in ADR-0021; TASK-226 checks free space need in DEPLOY.md via TASK-225 |
+| Two object-store reads per download slow a 150 MiB study | SR-026 AC 3 at risk once the viewer is deployed | Measured in TASK-226; viewer is not deployed (PRB-048) |
+| Initial payload above 165 kB after splitting (shared MUI code) | SR-026 AC 7 value too tight | TASK-145 reports the measured value; human sets the final number |
+| `useMe` replacement misses a call site | Repeated session checks, two sources | Static test in TASK-144; one commit for all sites |
+| Erasure 503 changes the operator flow | A retry is needed when the broker is down | Clear problem text and `Retry-After`; TS-004 case |
+
+## Version history
+
+- 1.0 (2026-11-13) — Created at the Specify stage (GitHub sancharly/medhub#28). `in_review`.
+- 1.1 (2026-11-13) — Decisions D-1 to D-9 recorded from the human's chat reply at the Specify gate; Open questions marked resolved; Scope entries for PRB-022 and PRB-031 marked rejected. Stays `in_review` until the human's MedTrace approval.
+- 1.2 (2026-11-13) — Risk stage (§7.4, Software Architect role): change analysis completed; `affects_controls` confirmed, class B unchanged; eleven causes introduced by the change named with their controls; RISK-003, 004, 005, 007, 008, 009 and 012 updated and back in `in_review`; RISK-012 added to the links; findings R-1 to R-5 for the human.
+- 1.3 (2026-11-13) — Risk gate: the human accepted R-1 to R-5 as recommended, recorded as D-10 to D-14 (conditional second read; SR-024 AC 6; four `mitigates` links; RISK acceptance in MedTrace; pool sizes approved at Plan).
+- 1.4 (2026-11-13) — Plan stage (Software Architect role): "Plan" filled with 17 TASKs (TASK-135, 136, 141, 143–146 updated; TASK-217–226 new), checkpoints, AC, ADD and SOUP coverage and plan risks; Plan-stage open items D-8 (bundle measured, 165 kB gzip proposed), D-10 (SeaweedFS `If-Match` in the 4.51 source, run pending in TASK-217) and D-14 (candidate pool values, measured in TASK-136) recorded; ADR-0021 and ADR-0022 proposed; ADD-005, 006, 008, 009, 012, 015, 016, 017, 018, 019, 021, 023, 026 and SOUP-019, SOUP-036 back to `in_review`; links to the new TASKs and the two SOUP records added.
+- 1.5 (2026-11-13) — Plan gate: the human approved the plan and P-1 to P-9 as recommended, recorded as D-15 to D-23. PRB-078 (proxy body limit) created and added to the scope with a `resolves` link (TASK-135); PRB-079 (retrieval scan) created, `relates_to` only, out of scope. RISK-003, 004, 005, 007, 009 and 012 updated with the TASK ids (D-22, D-23) and back in `in_review`. Stays `in_progress`.

@@ -77,6 +77,10 @@ class Settings(BaseSettings):
     # Retention sweep cron
     retention_sweep_cron: str = "0 2 * * *"  # daily at 02:00
 
+    # Largest attachment accepted, in bytes: 150 MiB (SR-013 AC 6, SR-017 AC 6, CR-006 D-2). The
+    # reverse proxy's client_max_body_size (infra/reverse-proxy/nginx.conf) must stay above it.
+    attachment_max_bytes: int = 157286400
+
     # CORS
     # An empty value is [], a JSON list or a comma-separated list is accepted (PRB-056, D-6).
     cors_origins: Annotated[list[str], NoDecode] = []

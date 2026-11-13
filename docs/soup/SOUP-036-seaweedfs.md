@@ -3,24 +3,28 @@ id: SOUP-036
 type: soup
 title: SeaweedFS object store
 status: approved
-version: "1.3"
+version: "1.4"
 author: Carlos Santiago Liceras
 created: "2026-10-30"
-updated: "2026-11-10"
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-11-10"
-approval_note: approved by the human in chat at the close of CR-004
+updated: "2026-11-13"
 manufacturer: SeaweedFS project (Chris Lu)
 soup_version: "4.51"
 anomaly_review: "2026-10-30"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-11-13"
+approved_digest: 3333b2830faedc7a7eee5c8f1394acfa6478e33405d0a3a9eaa01c2a9b86ae71
+approval_note: self-approved
 links:
   - target: ADD-025
+    relation: relates_to
+  - target: ADD-012
     relation: relates_to
 tags:
   - soup
   - layer:infrastructure
   - class:B
   - cr:CR-002
+  - cr:CR-006
 ---
 
 # SOUP-036 — SeaweedFS object store 4.51
@@ -77,6 +81,24 @@ TASK-172, "Evidence".
     back one stored object at start-up (`object-store-init`). Checked on 2026-11-01 with the pinned image:
     two stores of this release, one per key, a copy of 15 objects from 0 bytes to 48 MiB, every object
     byte-identical on the target, a wrong-key source read answers `InternalError` for all 15.
+14. **Conditional read on the ETag** (relied on from CR-006, D-10, ADR-0021; to be exercised
+    by TASK-217 step 1). A `GetObject` that carries `If-Match: <ETag>` (boto3
+    `get_object(..., IfMatch=etag)`) is served only while the object's current ETag equals the
+    one given; otherwise the store answers HTTP 412 `PreconditionFailed` and sends no content
+    (boto3 raises `ClientError` with code `PreconditionFailed`). `GetObject` and `HeadObject`
+    return the object's `ETag`. **Evidence at the Plan stage (2026-11-13), published source only:**
+    at tag `4.51`, `weed/s3api/s3api_object_handlers.go` `GetObjectHandler` and
+    `HeadObjectHandler` call `processConditionalHeaders` before serving;
+    `weed/s3api/s3api_object_handlers_put.go` `checkConditionalHeadersForReads` →
+    `validateConditionalHeadersForReads` evaluates `If-Match` first (RFC 7232 §6 order) and,
+    when `s3a.getObjectETag(entry)` does not match, returns `s3err.ErrPreconditionFailed`, which
+    `weed/s3api/s3err/s3api_errors.go` maps to `http.StatusPreconditionFailed` (412). A missing
+    object with `If-Match` answers `NoSuchKey`. **Not yet confirmed by a run** against the pinned
+    digest (with SSE-S3 on, which is MedHub's configuration): that run is the first step of
+    TASK-217, recorded here before the download code relies on it. If the run fails, the D-10
+    fallback applies (SR-013 AC 5 change, RISK-012 back to 4 × 2 → alarp). The streaming pass
+    also hashes the bytes it sends and aborts on a mismatch, so a change between the server's
+    precondition check and its read is still never served as verified content.
 10. A plaintext marker written in an object is not found in the data directory.
 11. Single node, one named volume, one process (master, volume, filer and S3), S3 on port 8333.
 12. The start-up check is `wget -q --spider http://127.0.0.1:8333/status` (see TASK-172). A cold
@@ -240,3 +262,8 @@ a tool check.
   copy, a wrong key detected by a read-back; zero-byte objects fail a full read too); finding F-4
   handled. `soup_version`, digest and anomaly review unchanged. Version 1.2 was approved, so the
   approval record is cleared and the record returns to `in_review`.
+- 2026-11-13 — Version 1.4: CR-006 Plan stage (D-10, R-1). Relied-on behaviour 14 added (conditional
+  `GetObject` on `If-Match`, 412 on change), from the published 4.51 source; the confirming run on the
+  pinned digest is TASK-217 step 1. Used by ADD-012 (attachment download) in addition to ADD-025.
+  `soup_version`, digest and anomaly review unchanged. Version 1.3 was approved, so the approval
+  record is cleared and the record returns to `in_review`.

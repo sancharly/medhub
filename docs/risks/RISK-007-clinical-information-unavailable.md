@@ -3,13 +3,10 @@ id: RISK-007
 type: risk
 title: Clinical information unavailable when needed
 status: approved
-version: "1.10"
+version: "1.12"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-11-10"
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-11-10"
-approval_note: approved by the human in chat at the close of CR-004
+updated: "2026-11-13"
 hazard: The application, its database, its object storage or its workers unavailable, or attachments unreadable.
 cause: Single-host outage, database or object-store failure, exhausted connection pool from a session leak, a missing storage SDK (PRB-002), or an encryption key rotation that makes old rows unreadable → the clinician cannot open the record → they proceed without it or wait.
 harm: Delayed care; decisions made without available history. No direct physical harm from the software itself.
@@ -18,6 +15,10 @@ probability_initial: 2
 severity_residual: 3
 probability_residual: 2
 acceptability: alarp
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-11-13"
+approved_digest: 83a55202c7579eddc9cdff61b7024f960c9945d044d0616b855a94f39c47033b
+approval_note: self-approved
 links:
   - target: SOUP-020
     relation: relates_to
@@ -76,8 +77,14 @@ occur); the score is severity × P2, the probability that the hazardous situatio
 | Measure | Type | Implemented by | Verified by |
 |---|---|---|---|
 | Documented backup, monitoring and deployment procedure | Protective | SR-028, TASK-115 | TR-001, TS-013. **Backup part not met:** no backup and restore procedure exists for `postgres_data` or `object_store_data` with its key ([PRB-057](../problem-reports/PRB-057-no-backup-and-restore-procedure.md), major, open, found 2026-10-30 by CR-002 TASK-180) |
-| Performance budgets so routine operations stay usable | Design | SR-026 | none yet: SR-026 has no performance test (AC 4); suite timings before and after CR-004 recorded in RISK-006 (no slowdown seen) |
-| Worker retries with backoff and no silent enqueue failures | Protective | TASK-141 | none yet |
+| Performance budgets so routine operations stay usable | Design | SR-026 | none yet: SR-026 has no performance test (AC 4); suite timings before and after CR-004 recorded in RISK-006 (no slowdown seen). CR-006 plans the first one (SR-026 AC 5 row below) |
+| Worker retries with backoff and no silent enqueue failures | Protective | TASK-141 | none yet. CR-006: the retention-sweep part is SR-024 AC 5 (row below); the enqueue logging is done (TASK-207, TS-017 TC-017.6, TS-003 TC-003.7) |
+| No blocking IO on the event loop, with thread-pool and connection-pool sizes set together: 20 concurrent mixed clients on one API worker get no 5xx and the SR-026 AC 1 and AC 2 budgets hold; a slow call for one request does not delay unrelated ones (CR-006, PRB-009; PRB-072 if added) | Design | SR-026 AC 5; TASK-136 (final load test TASK-226) | none yet (planned: load test on a started stack with before and after figures in the TR; static test that no `async def` dependency or handler calls a blocking client) |
+| Attachment upload and download in bounded chunks; an over-limit upload refused after at most the limit plus one chunk; the download checksum kept by a first chunked pass before the streaming pass (CR-006, PRB-008, D-6) | Design | SR-013 AC 6, AC 5; SR-026 AC 5; TASK-135 (upload), TASK-217 (download) | none yet (planned: TS-007 over-limit upload, memory-bounded download, TC-007.6 to TC-007.8 unchanged) |
+| DICOM stored-size and declared-decoded-size bounds checked before decoding, so one study cannot exhaust the API process (CR-006, PRB-006, D-2) | Protective | SR-017 AC 6; TASK-218 | none yet (planned: TS-010 or a new TS) |
+| Data-access cost does not grow with the data: indexes on the four authorization lookups, constant queries for `groups_of`, one-row activation check (CR-006, PRB-021, PRB-024, PRB-022 regression) | Design | SR-026 AC 6; TASK-219 (indexes, activation), TASK-220 (`groups_of`) | none yet (planned: query-count test; `EXPLAIN` on a seeded database; migration test on an empty and a populated database, upgrade and downgrade) |
+| Retention sweep isolates a failing dataset, releases every session it opens and retries at most 3 times, so it cannot exhaust the connection pool (CR-006, PRB-012) | Protective | SR-024 AC 5; TASK-141 | none yet (planned: TS-004, failing dataset, every opened session closed) |
+| A route chunk that fails to load (route-level code splitting) shows a clear message with a retry, never a blank route (CR-006 change-analysis cause 11, PRB-020) | Protective | SR-027 AC 3, SR-026 AC 7; TASK-145 | none yet (planned: Vitest failed-chunk case with a working retry, TS-012) |
 | Object storage SDK declared as a required runtime dependency and verified in CI | Design | TASK-157 (CR-001, resolves PRB-002) | TS-007 TC-007.5, TS-013 TC-013.8 |
 | Key identifier in the ciphertext envelope so rotation cannot orphan rows | Design | SR-022, PRB-004 resolution | TR-001, TS-008 |
 | Bucket initialisation ordered after the store is healthy and fail-fast: the backend does not start on a missing or misconfigured bucket (CR-002, PRB-039) | Protective | SR-040 AC 4; TASK-175 (re-run on SeaweedFS by TASK-176) | TS-014 TC-014.4: initialiser starts only after `object-store` is healthy (`docker events` order); an unreachable store gives exit 1 and `backend` stays `Created`; idempotent re-run (TASK-175 and TASK-176 QA reruns) |
@@ -105,6 +112,21 @@ the runtime-role grants can make a statement fail. Each has a fail-safe control 
 single-host decision (ADR-0010) and PRB-057 as before. Confirmed at verification (TASK-202).
 
 **Verification and proposed residual (CR-004 Checkpoint F, TASK-202, 2026-11-08).** Checkpoint F evidence (TASK-202, 2026-11-08, HEAD 579aaaa plus TASK-202's small edits): backend 1547 passed, 6 skipped, coverage 94.51% (floor 85%); DICOM module 25 passed; frontend 315 passed; infra 110 passed; started stack (project `task202`, empty template, generated secrets): `infra/smoke-test.sh` 78 passed, 0 failed; `infra/log-secrets-check.sh` 38 passed, 0 failed. The migration, the rotation and the SSE-key copy each have a test that ran and a started-stack repetition (rotation with attachments, bucket object count unchanged). The celery worker and beat run (smoke test, PRB-061 resolved), and the retention sweep is in the beat schedule. Right after `docker compose up -d --build` replaced the backend, one sign-in got 502 and the same request succeeded seconds later: the stack was not ready yet, which DEPLOY.md should say (a note for the human, not a defect measured). **Proposed residual: severity 3 × probability 2 → alarp** (derived from `risk_matrix`; unchanged). Not lowered: PRB-057 (no backup and restore, `major`, open) is untouched by CR-004. PRB-072 (twenty parallel writes answer 502 and kill the single API worker, `major`, open) and PRB-075 (the backend does not start when a module with group enablement rows is uninstalled or its manifest is rejected, `major`, open) are two further availability causes found during CR-004; both are known anomalies outside it. They are consistent with 3 × 2 but argue against lowering it, and PRB-072 must be re-evaluated at the first release.
+
+**Change analysis (CR-006, Risk stage, 2026-11-13).** CR-006 removes several availability
+causes: whole-object buffering of attachments (PRB-008), an unbounded DICOM decode (PRB-006),
+blocking IO on the event loop of every authenticated request (PRB-009, the likely mechanism of
+PRB-072), data-access cost that grows with the data (PRB-021, PRB-024) and the session leak of the
+retention sweep, which is the "exhausted connection pool from a session leak" cause above
+(PRB-012). It also introduces causes of its own, each with a control in the CR: the size bounds
+refuse a study above 150 MiB; the two-pass download doubles object-store reads for a large study
+(measured against SR-026 AC 3); a thread pool sized above the connection pools makes requests
+queue and time out (pool sizes set together, verified by the SR-026 AC 5 load test); the index
+migration blocks writes to four tables while it runs (ask first, tested on a populated database);
+a lazy route chunk that fails to load leaves a route blank (error boundary with retry). **Expected
+residual: 3 × 2 → alarp, unchanged**, set by the single-host decision (ADR-0010) and PRB-057, both
+outside CR-006. Re-scored from the evidence at the CR-006 verification checkpoint; PRB-072 is
+re-evaluated there (CR-006 D-1).
 
 **Decided by:** pending — the owner's acceptance is the approval of this record.
 
@@ -149,6 +171,20 @@ CR-004 (2026-10-31), availability effects introduced by its controls:
 - The frontend now listens on 8080; a proxy still pointing at 80 serves nothing. The smoke test
   checks the page through the proxy.
 
+CR-006 (2026-11-13), availability effects introduced by its controls:
+
+- A DICOM study above 150 MiB stored or 1 GiB decoded, and an attachment above 150 MiB, is refused
+  with an RFC 7807 error naming the limit (SR-017 AC 6, SR-013).
+- The two-pass download reads each object twice from the store; a large study takes longer to
+  start (SR-026 AC 3, measured in the load test).
+- Moving the dependencies off the event loop puts every authenticated request on a thread; the
+  thread pool and the database and Redis pools are sized together, or requests queue on the pool.
+- Migration 0011 blocks writes to the appointment, consent, clinical-entry and attachment tables
+  while the indexes build (deployment time, ask first).
+- An erasure request fails with a retryable error when its retrieval-code e-mail cannot be queued
+  (D-5): the erasure is delayed, not lost (RISK-008).
+- A lazy route chunk that fails to load shows an error with a retry instead of the view.
+
 ## Version history
 
 - 1.2 (2026-10-21) — Approved (self-approved, 2026-10-21).
@@ -179,3 +215,5 @@ CR-004 (2026-10-31), availability effects introduced by its controls:
 - 1.8 (2026-11-07) — TASK-207 (TASK-206 QA finding 1): one control row, dispatch does not wait on a result store (TS-003 TC-003.7). Residual unchanged.
 - 1.9 (2026-11-08) — CR-004 Checkpoint F (TASK-202): planned verification replaced by the tests that ran and the started-stack repetition; the retrieval-limit row names TASK-185; PRB-072 and PRB-075 recorded; residual proposed from the evidence, 3 × 2 → alarp, unchanged. Content change; `in_review`.
 - 1.10 (2026-11-08) — TASK-202 round 2: PRB-076 (the fixed `medhub` subnet could overlap the `object-store` network and stop the start) found in QA and fixed by moving the subnet outside Docker's default pools; recorded in the CR-004 availability effects below. Scores unchanged. `in_review`.
+- 1.11 (2026-11-13) — CR-006 Risk stage, §7.4 change analysis (Software Architect role). Five control rows added (no blocking IO with pool sizing, SR-026 AC 5; bounded attachment IO, SR-013 AC 6; DICOM bounds, SR-017 AC 6; data-access cost, SR-026 AC 6; retention sweep session release and retries, SR-024 AC 5), each with its planned verification and its TASK left to the Plan stage; the budget and worker-retry rows annotated; expected residual stated; "Risks introduced by controls" extended for CR-006. Scores unchanged (3 × 2 → alarp). Content change, so the approval record (approved 2026-11-10 in chat) is cleared and the record returns to review.
+- 1.12 (2026-11-13) — CR-006 Plan gate (D-22, D-23): the CR-006 rows name their tasks (TASK-135 and TASK-217 bounded attachment IO; TASK-218 DICOM bounds; TASK-219 and TASK-220 data-access cost; TASK-136 and TASK-141 unchanged, "at Plan stage" removed); one control row added for a failed lazy route chunk (cause 11; SR-027 AC 3, SR-026 AC 7; TASK-145). Scores unchanged. Content change, so the approval record is cleared and the record returns to review.

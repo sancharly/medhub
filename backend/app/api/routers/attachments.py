@@ -6,6 +6,7 @@ import uuid
 from collections.abc import Iterator
 
 from fastapi import APIRouter, Depends, UploadFile, status
+from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 
@@ -59,8 +60,11 @@ async def upload_attachment(
     """
     filename = file.filename or "unknown"
     content_type = file.content_type or "application/octet-stream"
-    data = await file.read()
-    attachment = svc.store(actor, entry_id, filename, content_type, data)
+    # The spooled file (on disk beyond 1 MiB) is read in chunks by the service, never as one
+    # bytes object (SR-013 AC 6); the blocking store runs off the event loop.
+    attachment = await run_in_threadpool(
+        svc.store, actor, entry_id, filename, content_type, file.file
+    )
     return AttachmentResponse.model_validate(attachment)
 
 

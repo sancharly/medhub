@@ -3,13 +3,14 @@ id: ADD-005
 type: architecture-doc
 title: API Layer / Routers (SI-API)
 status: approved
-version: "1.2"
+version: "1.3"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-11-10"
+updated: "2026-11-13"
 approved_by: Carlos Santiago Liceras
-approved_on: "2026-11-10"
-approval_note: approved by the human in chat at the close of CR-004
+approved_on: "2026-11-13"
+approved_digest: 00a6768d42b51eb8699126bccaf0a19916ccb188886db93ad999506477e288e6
+approval_note: self-approved
 links:
   - target: SR-001
     relation: implements
@@ -89,6 +90,16 @@ HTTP endpoints, request/response DTOs, validation, error formatting, AuthZ depen
   template, never the raw path (section 12; SR-043 AC 4).
 - The API process installs the shared log redaction filter (SR-043 AC 2) and binds the configured
   Celery app as the process default in its lifespan (`_bind_celery_app()`, see ADD-017).
+- **CR-006 (planned, ADR-0022; TASK-136):** `U-API-Deps` and every router that makes a blocking call
+  are plain `def`, so FastAPI runs them in the worker-thread pool; a handler that must stay `async`
+  (the attachment upload) calls its service through `run_in_threadpool`. A static test keeps any
+  `async def` in `app/api` from calling a blocking client. The lifespan applies
+  `API_THREADPOOL_SIZE` to AnyIO's default limiter and refuses to start when it exceeds
+  `DB_POOL_SIZE + DB_MAX_OVERFLOW` (ADD-016) (SR-026 AC 5).
+- **CR-006 (planned, ADR-0021; TASK-135):** the attachment upload route has a byte-counting body
+  guard that refuses an over-limit body after the maximum plus one chunk (SR-013 AC 6), with the
+  existing problem type, so the OpenAPI document is unchanged.
+- **CR-006 (planned; TASK-224):** the JSON logger documents only the fields it emits (no request id, D-7).
 
 Class B requires decomposition down to software units, not per-unit detailed design
 (§5.4.2–5.4.4 are class C). Each unit above is independently unit-testable and is the granularity
@@ -112,7 +123,7 @@ This record is a summary and traceability anchor, not the narrative. The design 
 arc42 sections — [05 building blocks](../../design/05-building-blocks.md) for the decomposition,
 [04 solution strategy](../../design/04-solution-strategy.md),
 [08 cross-cutting concepts](../../design/08-cross-cutting-concepts.md) and, for deployment,
-[07 deployment view](../../design/07-deployment-view.md). Governing decisions: [ADR-0003](../../design/adr/), [ADR-0006](../../design/adr/), [ADR-0008](../../design/adr/), [ADR-0009](../../design/adr/), [ADR-0010](../../design/adr/), [ADR-0011](../../design/adr/), [ADR-0019](../../design/adr/0019-originating-client-address-trusted-proxy-rule.md).
+[07 deployment view](../../design/07-deployment-view.md). Governing decisions: [ADR-0003](../../design/adr/), [ADR-0006](../../design/adr/), [ADR-0008](../../design/adr/), [ADR-0009](../../design/adr/), [ADR-0010](../../design/adr/), [ADR-0011](../../design/adr/), [ADR-0019](../../design/adr/0019-originating-client-address-trusted-proxy-rule.md), [ADR-0021](../../design/adr/0021-bounded-attachment-io-and-bound-two-pass-download.md), [ADR-0022](../../design/adr/0022-blocking-io-off-the-event-loop-with-matched-pools.md).
 
 ## Risk relevance
 
@@ -122,3 +133,4 @@ Participates in RISK-001, RISK-005, RISK-007 (see `docs/risks/`); the control me
 
 - 1.1 (2026-10-31) — CR-004 Plan stage (Software Architect role): unit changes for the planned design added (marked "CR-004"), links added. Content change, so the approval record is cleared and the record returns to review. The implementing tasks confirm the unit text when they land.
 - 1.2 (2026-11-08) — TASK-201 (CR-004): unit text replaced with the unit as built (`U-API-ClientAddress`, `U-API-RateLimit`, `U-API-Security`); router actions and `requires_admin_projection` added to `U-API-Routers`; the 503 and 400 problems added to `U-API-ErrorHandler`. Arc42 sections 05, 06, 08 and 12 updated. Content change, so the 1.1 approval record is cleared and the record returns to review.
+- 1.3 (2026-11-13) — CR-006 Plan stage (Software Architect role): planned units for blocking IO off the event loop and pool sizing (ADR-0022), the upload body guard (ADR-0021) and the logger field list (D-7), marked "CR-006 (planned)". Content change, so the 1.2 approval record is cleared and the record returns to review; the implementing tasks confirm the text when they land.

@@ -90,6 +90,9 @@ services:
       SESSION_COOKIE_SECURE: ${SESSION_COOKIE_SECURE:-true}
       CORS_ORIGINS: "${CORS_ORIGINS:-}"
       TRUSTED_PROXIES: 10.77.77.2
+      # 150 MiB (SR-013 AC 6). The reverse proxy's client_max_body_size
+      # (infra/reverse-proxy/nginx.conf, 151m) is sized from the default: lower it freely, not above.
+      ATTACHMENT_MAX_BYTES: ${ATTACHMENT_MAX_BYTES:-157286400}
     expose:
       - "8000"
     depends_on:

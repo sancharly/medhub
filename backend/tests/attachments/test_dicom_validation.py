@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import io
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -13,7 +14,7 @@ from app.attachments.dicom_validation import validate_dicom
 def test_invalid_dicom_raises_validation_problem() -> None:
     """Non-DICOM bytes raise ValidationProblem."""
     with pytest.raises(ValidationProblem):
-        validate_dicom(b"not a dicom file")
+        validate_dicom(io.BytesIO(b"not a dicom file"))
 
 
 def test_valid_dicom_returns_metadata() -> None:
@@ -24,7 +25,7 @@ def test_valid_dicom_returns_metadata() -> None:
     mock_dataset.StudyDate = "20240101"
 
     with patch("pydicom.dcmread", return_value=mock_dataset):
-        result = validate_dicom(b"fake dicom bytes")
+        result = validate_dicom(io.BytesIO(b"fake dicom bytes"))
 
     assert result["modality"] == "CT"
     assert result["patient_id"] == "P001"
@@ -39,9 +40,30 @@ def test_dicom_with_none_attributes_returns_none_for_absent_fields() -> None:
     mock_dataset.StudyDate = None
 
     with patch("pydicom.dcmread", return_value=mock_dataset):
-        result = validate_dicom(b"fake bytes")
+        result = validate_dicom(io.BytesIO(b"fake bytes"))
 
     assert "modality" in result
     assert result["modality"] is None
     assert result["patient_id"] is None
     assert result["study_date"] is None
+
+
+def test_dicom_validation_reads_header_from_file() -> None:
+    """SR-013 AC 1/6: the header is read from the file object, not pixels; it is rewound."""
+    fp = io.BytesIO(b"fake dicom bytes")
+    mock_dataset = MagicMock()
+    mock_dataset.Modality = "MR"
+    mock_dataset.PatientID = None
+    mock_dataset.StudyDate = None
+
+    def fake_dcmread(arg, **kwargs):
+        assert arg is fp
+        assert kwargs == {"stop_before_pixels": True}
+        arg.read(4)  # the parser consumed part of the file
+        return mock_dataset
+
+    with patch("pydicom.dcmread", side_effect=fake_dcmread):
+        result = validate_dicom(fp)
+
+    assert result["modality"] == "MR"
+    assert fp.tell() == 0

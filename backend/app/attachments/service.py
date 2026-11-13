@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import hmac
 import uuid
+from typing import BinaryIO
 
 from app.api.errors import (
     AttachmentIntegrityError,
@@ -22,6 +23,7 @@ from app.db.repositories.attachment_repo import AttachmentRepository
 from app.db.repositories.clinical_repo import ClinicalRepository
 
 MAX_FILENAME_BYTES = 255
+_CHUNK_SIZE = 65536  # 64 KiB
 
 
 class AttachmentService:
@@ -45,9 +47,9 @@ class AttachmentService:
         entry_id: uuid.UUID,
         filename: str,
         content_type: str,
-        data: bytes,
+        file: BinaryIO,
     ) -> Attachment:
-        """Upload an attachment for a clinical entry."""
+        """Upload an attachment for a clinical entry, read from ``file`` in bounded chunks."""
         from app.db.models.account import Account  # noqa: PLC0415
 
         actor_acct: Account = actor  # type: ignore[assignment]
@@ -66,13 +68,18 @@ class AttachmentService:
             ),
         )
 
-        # Size validation
-        settings = get_settings()
-        max_bytes = getattr(settings, "attachment_max_bytes", 104857600)
-        if len(data) > max_bytes:
-            raise ValidationProblem(
-                f"Attachment size {len(data)} exceeds maximum {max_bytes} bytes."
-            )
+        # Size validation and checksum in one bounded pass (SR-013 AC 6): read in chunks, hash
+        # incrementally, refuse as soon as the count passes the maximum.
+        max_bytes = get_settings().attachment_max_bytes
+        digest = hashlib.sha256()
+        size = 0
+        while chunk := file.read(_CHUNK_SIZE):
+            size += len(chunk)
+            if size > max_bytes:
+                raise ValidationProblem(f"Attachment size exceeds maximum {max_bytes} bytes.")
+            digest.update(chunk)
+        file.seek(0)
+        checksum = digest.hexdigest()
 
         # File name bound (SR-013 AC 1, PRB-069): refused, never truncated, as the stored name is
         # part of the clinical record (SR-013 AC 2). 255 bytes is NAME_MAX and bounds the header.
@@ -94,14 +101,12 @@ class AttachmentService:
         if is_dicom:
             from app.attachments.dicom_validation import validate_dicom  # noqa: PLC0415
 
-            dicom_meta = validate_dicom(data)
+            dicom_meta = validate_dicom(file)
 
-        # Compute storage key and checksum
         storage_key = f"attachments/{entry.patient_id}/{uuid.uuid4()}/{filename}"
-        checksum = hashlib.sha256(data).hexdigest()
 
-        # Upload to object storage
-        self._storage.put_object(storage_key, data, content_type)  # type: ignore[attr-defined]
+        # Upload to object storage: one PutObject, the file as body
+        self._storage.put_object(storage_key, file, size, content_type)  # type: ignore[attr-defined]
 
         # Persist record
         attachment = Attachment(
@@ -109,7 +114,7 @@ class AttachmentService:
             patient_id=entry.patient_id,
             filename=filename,
             content_type=content_type,
-            size=len(data),
+            size=size,
             storage_key=storage_key,
             checksum=checksum,
             dicom_metadata=dicom_meta,

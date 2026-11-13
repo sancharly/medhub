@@ -1,16 +1,20 @@
 ---
-id: "SR-027"
+id: SR-027
 type: software-requirement
-title: "Usability controls"
+title: Usability controls
 status: approved
-version: "1.1"
-author: "Carlos Santiago Liceras"
+version: "1.2"
+author: Carlos Santiago Liceras
 created: "2026-07-07"
-updated: "2026-09-17"
+updated: "2026-11-13"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-11-13"
+approved_digest: d42e3be159aae577eba45d0f52a1b4a82628569e0c61ab1d4cb9acb596787894
+approval_note: self-approved
 links:
-  - target: "RR-009"
+  - target: RR-009
     relation: satisfies
-  - target: "NFR-009"
+  - target: NFR-009
     relation: derives_from
 tags: []
 ---
@@ -29,6 +33,7 @@ This requirement implements the usability NFR through concrete controls. Navigat
 2. Destructive or safety-relevant actions (e.g., revoking access, deleting data) require an explicit confirmation step before execution.
 3. When an operation fails or input is invalid, the system shows a clear, actionable message identifying the problem.
 4. In usability evaluation, each user type can complete its primary core task using only on-screen guidance.
+5. In the confirmation step of a destructive or safety-relevant action (AC 2), keyboard focus starts on the cancel action, so that pressing Enter or Space as soon as the dialog opens does not execute the action.
 
 ## Origin Requirement
 
@@ -55,3 +60,4 @@ Usability controls reduce user error and support safe operation, consistent with
 - 1.1 (2026-09-17) — Added `satisfies` link to RR-009 (regulatory requirements
   extracted from the NFRs with clause citations). Traceability only: the requirement content is
   unchanged, so the existing approval stands.
+- 1.2 (2026-11-13) — Content change, so the approval is cleared and the record returns to review (CR-006, GitHub sancharly/medhub#28). Added AC 5 (initial focus on cancel in a destructive confirmation). Reason: AC 2 requires a confirmation step but not that the step can be dismissed by accident; the dialog focused Confirm (PRB-031; RISK-008).

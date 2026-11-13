@@ -2,18 +2,14 @@
 id: SOUP-003
 type: soup
 title: Starlette
-status: approved
-version: "1.2"
+status: in_review
+version: "1.3"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
-updated: "2026-10-30"
+updated: "2026-11-13"
 manufacturer: Encode
 soup_version: 1.3.1
 anomaly_review: "2026-10-29"
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-10-30"
-approved_digest: 0b4d1a042b8af2b6cc927cd2db62244f97ef887c8a4cbf6e30cd70876822ade8
-approval_note: self-approved
 links: []
 tags:
   - soup
@@ -26,6 +22,19 @@ tags:
 ## Functional and performance requirements
 
 ASGI application and middleware chain; MedHub's security-headers and CSRF middleware subclass it directly (`app/core/security_middleware.py`).
+
+**Relied-on behaviour: multipart upload spooling (SR-013 AC 6, ADR-0021, TASK-135).** The attachment
+upload route keeps an `UploadFile` parameter and reads the file in bounded chunks. The claim that its
+memory does not grow with the object size rests on Starlette 1.3.1's multipart parser
+(`starlette/formparsers.py`, `MultiPartParser.spool_max_size = 1024 * 1024`): each file part is written
+to a `tempfile.SpooledTemporaryFile` that stays in memory up to 1 MiB and is rolled over to a temporary
+file on disk beyond that, so `UploadFile.file` is an on-disk file for any upload above 1 MiB. Related
+limits in the same parser: `max_part_size = 1024 * 1024` applies to non-file form fields only. Both
+values are class attributes of the installed version, not a documented interface: an upgrade of
+Starlette must re-check them (the through-the-app test
+`test_upload_above_one_mib_reaches_the_service_as_a_file_already_on_disk`, TS-007 TC-007.12, fails if
+the file is no longer rolled to disk). The temporary directory (`TMPDIR`) must hold the concurrent
+uploads on the API host (ADR-0021, consequences).
 
 ## Required hardware and software environment
 
@@ -114,3 +123,4 @@ accountable. Hazard-relevant anomalies go to `risk-management`; defects affectin
   ADD-004 to one `soup` record per component (medical-records 0.3.2).
 - 2026-10-22 — 1.3.1 (unchanged). First anomaly-list review (TASK-154, CR-001 AC-11/AC-12): Starlette none found; three anyio 4.14.0 advisories (fixed in 4.14.2) apply to the version but not to MedHub's use; nothing hazard-relevant; recorded for upgrade in PRB-047 (minor). Record 1.0 → 1.1; approval record removed for re-review.
 - 2026-10-29 — anyio 4.14.0 → 4.14.2 (transitive); Starlette 1.3.1 unchanged; PRB-047, CR-003 (D-3), TASK-164. Second anomaly-list review, at the new version: no anomaly applies, and the three anyio advisories are fixed at 4.14.2. The lock moved only anyio (and urllib3, SOUP-019); idna 3.18 and typing-extensions 4.15.0 unchanged. Change analysis: two fixes touch a path MedHub uses, the `CapacityLimiter` fix (thread pool) and the `CancelScope` cancellation CPU-spin fix (`BaseHTTPMiddleware`), both in the safe direction (the second is CPU-only); the middleware tests and the rebuilt stack confirm the RISK-005 controls. Record 1.1 → 1.2; approval record removed for re-review.
+- 2026-11-13 — 1.3.1 (unchanged). Relied-on behaviour added: multipart upload spooling to disk above 1 MiB (`MultiPartParser.spool_max_size`), on which the bounded-memory attachment upload depends (SR-013 AC 6, ADR-0021; CR-006 TASK-135, QA round 1 finding 1). Verified by `test_upload_above_one_mib_reaches_the_service_as_a_file_already_on_disk`. Record 1.2 → 1.3; approval record removed for re-review.
