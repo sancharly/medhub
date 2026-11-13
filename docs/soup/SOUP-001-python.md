@@ -2,14 +2,18 @@
 id: SOUP-001
 type: soup
 title: Python runtime
-status: in_review
+status: approved
 version: "1.3"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
-updated: "2026-11-12"
+updated: "2026-11-13"
 manufacturer: Python Software Foundation
 soup_version: 3.12.15
 anomaly_review: "2026-10-22"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-11-13"
+approved_digest: 3a8cd4616c682603e659b82510da9929a1b64edcd0ba9cee15d8ac61e07ebc8d
+approval_note: self-approved
 links: []
 tags:
   - soup

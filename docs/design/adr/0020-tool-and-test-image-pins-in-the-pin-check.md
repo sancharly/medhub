@@ -11,7 +11,7 @@ acknowledged the amendment on 2026-11-12.** The decision (option 1, sources of t
 dated notes in the Decision.
 
 Amended 2026-11-12 (TASK-213 QA round 2): the test-container rule (rule 4) and the limit of its
-guarantee. **Amendment pending the human's acknowledgement.**
+guarantee. **The human (Carlos Santiago Liceras) acknowledged the amendment on 2026-11-13.**
 
 ## Context
 
@@ -76,7 +76,7 @@ Option 1.
     > binding forms listed in ADD-024 (assignment forms, `import`, `def`, `class`, `match` captures,
     > `global`, and `globals()` / `locals()` / `vars()` / `setattr()` calls) are a second assignment; in
     > another `backend/**/*.py` file the same bindings, a function parameter and an attribute store are
-    > findings. Forms the script does not see are listed under "not seen" in ADD-024. **Amendment pending the human's acknowledgement.**
+    > findings. Forms the script does not see are listed under "not seen" in ADD-024. **The human (Carlos Santiago Liceras) acknowledged the amendment on 2026-11-13.**
 - **Sources of truth** are the shipped references, never a second list: the CI Python version is
   the tag version of `FROM python:X.Y.Z-…` in `backend/Dockerfile` (equal to SOUP-001
   `soup_version`); the CI Node.js version is the tag version of `FROM node:X.Y.Z-…` in

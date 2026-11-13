@@ -1,41 +1,49 @@
 ---
-id: "ADD-026"
+id: ADD-026
 type: architecture-doc
-title: "Deployment configuration, secrets and runtime users (SI-DEPLOY)"
-status: in_review
+title: Deployment configuration, secrets and runtime users (SI-DEPLOY)
+status: approved
 version: "1.5"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-10-31"
-updated: "2026-11-12"
+updated: "2026-11-13"
 safety_class: B
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-11-13"
+approved_digest: 021ba752dfff09d0f0ce946236ff8c6e3e6a2c4d0f4ef98e186670ba4380fdcd
+approval_note: self-approved
 links:
-  - target: "SR-041"
+  - target: SR-041
     relation: implements
-  - target: "SR-042"
+  - target: SR-042
     relation: implements
-  - target: "SR-023"
+  - target: SR-023
     relation: implements
-  - target: "SR-022"
+  - target: SR-022
     relation: implements
-  - target: "RISK-001"
+  - target: RISK-001
     relation: relates_to
-  - target: "RISK-005"
+  - target: RISK-005
     relation: relates_to
-  - target: "RISK-006"
+  - target: RISK-006
     relation: relates_to
-  - target: "RISK-007"
+  - target: RISK-007
     relation: relates_to
-  - target: "RISK-011"
+  - target: RISK-011
     relation: relates_to
-  - target: "SOUP-020"
+  - target: SOUP-020
     relation: relates_to
-  - target: "SOUP-024"
+  - target: SOUP-024
     relation: relates_to
-  - target: "SOUP-005"
+  - target: SOUP-005
     relation: relates_to
-  - target: "CR-004"
+  - target: CR-004
     relation: relates_to
-tags: ["software-item:SI-DEPLOY", "class:B", "layer:infrastructure", "cr:CR-004"]
+tags:
+  - software-item:SI-DEPLOY
+  - class:B
+  - layer:infrastructure
+  - cr:CR-004
 ---
 
 # ADD-026 — Deployment configuration, secrets and runtime users (SI-DEPLOY)

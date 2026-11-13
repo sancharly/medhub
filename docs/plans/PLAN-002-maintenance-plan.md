@@ -2,12 +2,16 @@
 id: PLAN-002
 type: lifecycle-plan
 title: Software maintenance plan
-status: in_review
+status: approved
 version: "1.3"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
 updated: "2026-11-13"
 plan_kind: maintenance
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-11-13"
+approved_digest: 9c5ccae22bee12a60bafb1084c0215767984e8a5a3d5d0f81c579c933f5f46b8
+approval_note: self-approved
 links: []
 tags:
   - regulatory

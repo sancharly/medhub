@@ -2,8 +2,8 @@
 id: "TASK-216"
 type: task
 title: "Verify CR-005 end to end"
-status: in_review
-version: "1.6"
+status: approved
+version: "1.8"
 author: "Carlos Santiago Liceras"
 created: "2026-11-12"
 updated: "2026-11-13"
@@ -83,9 +83,10 @@ are complete and traceable, and that the §7.4.3 verification of the affected co
 - [x] CR-005 AC-11: every record above updated and in review; four PRB resolutions written. (QA 2026-11-13:
       records in review, PRB-034/038/040/041 `resolved` with `## Resolution` and an incoming CR-005 `resolves`;
       M-1 below to fix in RISK-010 before the human approves it.)
-- [ ] CR-005 AC-12: all local suites green (coverage ≥ 85 %); every hosted job green with the
+- [x] CR-005 AC-12: all local suites green (coverage ≥ 85 %); every hosted job green with the
       pinned versions visible in the logs. (QA 2026-11-13: local part re-run and green, see "QA review,
-      local part"; box stays open for the hosted run.)
+      local part"; hosted run 43385410662 on `a5fd91a`, 8 of 8 jobs green with the pins in the logs, see
+      "QA review, hosted part".)
 - [x] CR-005 AC-13: `traceability-check` 0 errors for CR-005's records; negative controls re-run. (QA
       2026-11-13: 0 errors, 17 W5; negative controls re-run by QA.)
 
@@ -94,9 +95,9 @@ are complete and traceable, and that the §7.4.3 verification of the affected co
 Non-blocking findings on `infra/check_image_pins.py`, ADR-0020, ADD-024 and TS-013 (details and
 reproductions in TASK-213, "QA review round 2"); resolve before CR-005 closes:
 
-- [ ] MEDIUM: ADR-0020 dated amendment note under the literal-rule bullet (rule 4, guarantee limited
+- [x] MEDIUM: ADR-0020 dated amendment note under the literal-rule bullet (rule 4, guarantee limited
       to `PostgresContainer` call sites, `DockerContainer` Redis call not checked), README note line
-      written (done, see Evidence); **the human's acknowledgement is not recorded: pending, box stays open.**
+      written (done, see Evidence); the human (Carlos Santiago Liceras) acknowledged it on 2026-11-13.
 - [x] LOW 1: definition rebinding by tuple unpacking, `:=`, `for`, `import ... as`, `;` or `globals()`
       is reported (`ast`) or listed under "not seen"; "in any form" wording corrected.
 - [x] LOW 2: `PostgresContainer` imported under an alias, and a `POSTGRES_IMAGE` rebinding in a test
@@ -239,12 +240,19 @@ orchestrator's commit decision: the parser output above is the summary).
 
 ## Pending: hosted CI (needs a push, which the human must allow)
 
-- [ ] Push the branch (orchestrator asks the human). Every job of the pushed head green.
-- [ ] From the hosted logs record: `Python 3.12.15` in every Python job; `v24.22.2` in every Node job;
+- [x] Push the branch (orchestrator asks the human). Every job of the pushed head green. (QA 2026-11-13:
+      run 43385410662, head `a5fd91a`, 8 of 8 jobs `success`.)
+- [x] From the hosted logs record: `Python 3.12.15` in every Python job; `v24.22.2` in every Node job;
       `uv-0.13.7`; `@redocly/cli` 2.77.0 with the same lint result as run 42779806388 (valid, 9 warnings
       locally); each action downloaded at its pinned SHA (`actions/checkout`, `setup-python`, `setup-node`).
+      (QA 2026-11-13: recorded in "QA review, hosted part".)
 - [ ] TC-013.12 hosted part, and the RISK-010 control-row text "hosted-log evidence pending": replace by
       the run URL and the head SHA once green; TS-013 environment: add the pushed head.
+      (QA 2026-11-13: TS-013 needs no edit. Its environment line and TC-013.12 already say the hosted run
+      "is recorded in TASK-216", and it is now recorded there. RISK-010 control row 4 still says
+      "pending the push of TASK-216". Not edited: RISK-010 1.7 and TS-013 1.6 carry the human's
+      approval of 2026-11-13 with an `approved_digest`, uncommitted in the working tree, and an edit
+      would make them "modified after approval". Box open: finding H-1 below, before CR-005 closes.)
 
 ## Records awaiting the human's approval at closure
 
@@ -259,7 +267,7 @@ Left `in_review` by CR-005 (the human sets `approved`; nothing was approved by t
 | TS-013 Lifecycle record and traceability verification | 1.6 | TASK-211..213 |
 | PLAN-002 Software maintenance plan | 1.3 | new tool-pin paragraph (Q-5) |
 | RISK-010 Unreviewed SOUP change | 1.7 | was approved at 1.6; Q-6 text and evidence |
-| ADR-0020 amendment (2026-11-12, TASK-213 QA round 2) | n/a | acknowledgement, not recorded |
+| ADR-0020 amendment (2026-11-12, TASK-213 QA round 2) | n/a | acknowledged by the human 2026-11-13 |
 
 Also for closure, by the roles that own them: TASK-216 (QA, `in_review → approved`), PRB-034, 038, 040
 and 041 (`resolved → closed`), CR-005 (`open → closed`), after the hosted run is recorded.
@@ -419,6 +427,83 @@ The throwaway database and Redis for the backend suite ran as `qa216-pg` and `qa
   regress script (HEAD against the tree, 16 rule 1 definition forms) gives identical output and
   exit codes. `graphify update .` run.
 
+## QA review, hosted part (2026-11-13): APPROVED
+
+**Verdict:** APPROVED. Hosted CI run
+[43385410662](https://github.com/sancharly/medhub/actions/runs/43385410662) (workflow CI, event
+`push`, branch `bug/build-hygiene`) ran on head `a5fd91aaa0020f4c5c945ba84f6debd5cf2923e1`, which
+is the branch tip on `origin`. All 8 jobs concluded `success`. Every item of "What QA checks in
+the hosted logs" holds. AC-12 is met, and TASK-216 goes `in_review → approved`.
+
+The ADR-0020 MEDIUM box stays open for the human's acknowledgement. It does not block this
+approval: the carried section says to resolve those findings "before CR-005 closes", not before
+this task is approved. The same applies to H-1.
+
+### Findings
+
+- **H-1 [LOW] RISK-010 still says the hosted evidence is pending** —
+  `docs/risks/RISK-010-unreviewed-soup-change.md:168`, control row "Every tool that builds the
+  images or runs CI pinned", column "Verified by". The row says "hosted CI logs (Python 3.12.15,
+  Node v24.22.2, uv 0.13.7, redocly 2.77.0): pending the push of TASK-216" and "170 infra unit tests
+  OK" (174 at `a5fd91a`). The record is approved at 1.7 in the working tree, so QA did not edit it.
+  → Before CR-005 closes, with the human's agreement, replace the row text with "TC-013.11 (174
+  infra unit tests OK, local and hosted); TC-013.12 (`python3 infra/check_image_pins.py` exit 0,
+  local and hosted); hosted CI run 43385410662 on `a5fd91a` (Python 3.12.15, Node v24.22.2,
+  uv 0.13.7, `@redocly/cli@2.77.0`, actions at their pinned SHAs; TASK-216 QA, hosted part)". Then
+  add a 1.7 history line and have the human approve again. The residual 3 × 1 → `acceptable` is
+  not affected.
+
+### Checklist evidence (hosted log, `gh run view 43385410662 --log`)
+
+| # | Check | Evidence | Result |
+|---|---|---|---|
+| 1 | Head SHA | `headSha` a5fd91aaa0020f4c5c945ba84f6debd5cf2923e1. Every job's checkout runs `fetch ... origin +a5fd91aaa0020f4c5c945ba84f6debd5cf2923e1:refs/remotes/origin/bug/build-hygiene`. `git ls-remote origin bug/build-hygiene` gives the same SHA. `a5fd91a` contains M-1 and L-1 (`git show --stat`) | holds |
+| 2 | Every job green | Backend Quality, Image Pin Check, Docker Build, Frontend Quality, Frontend Tests, Backend Tests, Object Store Integration and OpenAPI Lint: all `success`, and no step failed. This is the same 8-job set as run 42779806388 | holds |
+| 3 | Actions at the `ci.yml` SHAs | 15 "Download action repository" lines. `actions/checkout@11d5960a326750d5838078e36cf38b85af677262` appears in all 8 jobs. `actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065` appears in Backend Quality, Backend Tests, Object Store Integration and OpenAPI Lint. `actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020` appears in Frontend Quality, Frontend Tests and OpenAPI Lint. Each line shows `(SHA:<same>)`, so no tag was resolved | holds |
+| 4a | CPython 3.12.15 | "Successfully set up CPython (3.12.15)" appears in the 4 Python jobs, followed by `uv sync` "Using CPython 3.12.15 interpreter at: /opt/hostedtoolcache/Python/3.12.15/x64/bin/python3". The image builds (Docker Build, and the object store's backend build) use `/usr/local/bin/python3` 3.12.15 | holds |
+| 4b | Node v24.22.2 | "node: v24.22.2" appears in the 3 Node jobs (Frontend Quality, Frontend Tests, OpenAPI Lint) | holds |
+| 5 | uv 0.13.7 | `Run pip install uv==0.13.7`, then "Successfully installed uv-0.13.7", in the 4 jobs that install uv. The two image builds also print it (Docker Build backend image, Object Store Integration). 6 occurrences in total, and no other uv version anywhere | holds |
+| 6 | Linter pin and result | `Run npx --yes @redocly/cli@2.77.0 lint openapi.json`, then "Woohoo! Your API description is valid." and "You have 9 warnings." (`info-license` and `operation-4xx-response`). Run 42779806388 also gave valid with 9 warnings | holds |
+| 7a | Pin check job | `python3 -m unittest discover -s infra/tests -v`: "Ran 174 tests", "OK". This includes the L-1 tests `test_binding_forms_of_the_second_amendment_in_the_definition_file_fail`, `test_setattr_in_the_definition_file_fails`, `test_function_parameter_named_postgres_image_outside_the_definition_fails` and `test_match_capture_outside_the_definition_fails`. `python3 infra/check_image_pins.py` printed nothing and the step succeeded | holds |
+| 7b | Backend coverage and DICOM | "1549 passed, 6 skipped" and "Required test coverage of 85% reached. Total coverage: 94.51%". "Run DICOM viewer module tests": "25 passed". The 6 skipped tests are the ones Object Store Integration runs ("6 passed, 1549 deselected") | holds |
+| AC-7 (hosted) | Test PostgreSQL image | The Backend Tests service container shows `docker pull postgres:16.15@sha256:9e2cf6287f25c3151f4c9421ccce2b17f3e60061c111a29165e0d2cdd9ff0a97`, "Digest: sha256:9e2cf6…0a97". This equals `backend/postgres_image.py` and `infra/docker-compose.yml:126`. Redis is `redis:7.4.12-bookworm@sha256:b6b6e3…82f5`. Testcontainers pulls are not logged; `tests/db/test_postgres_image.py` is among the 1549 passed | holds |
+| Other | Quality and frontend | `uv lock --check` "Resolved 86 packages". Ruff "All checks passed!". Black "265 files would be left unchanged.". Mypy "no issues found in 133 source files". Vitest "32 passed (32)" files and "315 passed (315)" tests | holds |
+
+**Observation (not a finding).** Each job ends with "Node.js 20 is deprecated. The following actions
+target Node.js 20 but are being forced to run on Node.js 24", naming the pinned
+checkout, setup-python and setup-node v4.4.0/v5.6.0. The actions ran and passed. A later SOUP or
+tool-pin review under PLAN-002 Q-5 should consider moving to releases that target Node 24.
+
+### M-1 / L-1 follow-up spot-check (`a5fd91a`)
+
+- M-1: RISK-010:168-170 "Implemented by" now reads TASK-209, TASK-210 / TASK-212 / TASK-211,
+  TASK-213, and the 1.7 history line notes the correction.
+- L-1: `python3 -m unittest discover -s infra/tests` gives 174 tests OK locally (and the same 174
+  hosted). `python3 infra/check_image_pins.py` exits 0. The new tests cover each probe form of L-1:
+  def, async def, class, the four match forms, bare `import` and `from x import`, `setattr`, and
+  def, keyword-only and lambda parameters.
+- ADR-0020's second amendment now names "the binding forms listed in ADD-024", not "every
+  rebinding form", so it is true as written. It ends "**Amendment pending the human's
+  acknowledgement.**", and the README line says it is pending.
+
+### Records state seen at this review
+
+The working tree is uncommitted, and nothing there was changed by QA. It shows SOUP-001 1.3,
+SOUP-005 1.3, ADD-024 1.3, ADD-026 1.5, TS-013 1.6, PLAN-002 1.3 and RISK-010 1.7 as `approved` on
+2026-11-13 by the human. Each has an `approved_digest`, with `approval_note: self-approved`, and
+`docs/medtrace.yml` has `allow_self_approval: true`. QA did not change their status or content. These
+approvals are not in `a5fd91a`: the orchestrator's commit carries them.
+
+### Traceability (`medical-records:traceability-check`, fallback parser, after this edit)
+
+The CR-005 scope is CR-005, SR-028, TASK-209..216, TS-013, ADD-024, ADD-026, SOUP-001, SOUP-005,
+RISK-010, PLAN-002, PRB-034, PRB-038, PRB-040 and PRB-041 (21 records). It has **0 errors and 0
+warnings**. The 17 W5 of the local review are cleared by the working-tree approvals. Across the
+whole of `docs/` (439 records) there are 0 errors and 11 warnings, all outside the scope and from
+before CR-005: W1 SR-017, SR-018, SR-026; W5 TASK-132, TASK-142 → TASK-101 and TASK-202 →
+TASK-113; W6 TASK-165, 175, 176 and CR-002 → obsolete SOUP. No MedTrace run was made, because the
+desktop app is not available to the agent. `approved_digest` is not recomputed by the fallback.
+
 ## Version history
 
 - 1.0 (2026-11-12) — Created at the CR-005 Plan stage (Software Architect role); `draft`.
@@ -428,3 +513,5 @@ The throwaway database and Redis for the backend suite ran as `qa216-pg` and `qa
 - 1.4 (2026-11-13) — Local part built (Software Developer role): carried findings handled, Q-5 and Q-6 recorded, local suites and negative controls run, traceability summarised; the hosted-CI part stays pending. `draft → in_review`. Boxes left unticked for QA.
 - 1.5 (2026-11-13) — QA review, local part: APPROVED-LOCAL (1 MEDIUM, 1 LOW, non-blocking, to fix before the push). AC-11, AC-13 and the carried boxes the developer resolved are ticked; the ADR-0020 acknowledgement, AC-12 and the hosted-CI boxes stay open. Status stays `in_review` until the hosted run is recorded.
 - 1.6 (2026-11-13) — Follow-up to the QA review, local part: M-1 (RISK-010 task attribution) and L-1 (`ast` rule forms, "not seen" list, ADR-0020 wording) fixed. Status stays `in_review`.
+- 1.7 (2026-11-13) — QA review, hosted part: APPROVED on run 43385410662 (head `a5fd91a`, 8 of 8 jobs green, pins visible in the logs). AC-12 and the hosted boxes are ticked. The RISK-010 hosted-evidence row is left open as H-1 (LOW, the record is human-approved). The ADR-0020 acknowledgement is still pending (before CR-005 closes). `in_review → approved`.
+- 1.8 (2026-11-13) — Orchestrator: the human acknowledged the second ADR-0020 amendment (box ticked) and approved SOUP-001 1.3, SOUP-005 1.3, ADD-024 1.3, ADD-026 1.5, TS-013 1.6, PLAN-002 1.3 and RISK-010 1.7 in MedTrace. H-1 (RISK-010 hosted-evidence cell) stays open before CR-005 closes. Status stays `approved`.
