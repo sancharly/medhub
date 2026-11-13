@@ -93,6 +93,9 @@ services:
       # 150 MiB (SR-013 AC 6). The reverse proxy's client_max_body_size
       # (infra/reverse-proxy/nginx.conf, 151m) is sized from the default: lower it freely, not above.
       ATTACHMENT_MAX_BYTES: ${ATTACHMENT_MAX_BYTES:-157286400}
+      # DICOM viewer bounds before any pixel decode (SR-017 AC 6): 150 MiB stored, 1 GiB decoded.
+      DICOM_MAX_STORED_BYTES: ${DICOM_MAX_STORED_BYTES:-157286400}
+      DICOM_MAX_DECODED_BYTES: ${DICOM_MAX_DECODED_BYTES:-1073741824}
     expose:
       - "8000"
     depends_on:

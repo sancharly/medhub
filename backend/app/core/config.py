@@ -81,6 +81,12 @@ class Settings(BaseSettings):
     # reverse proxy's client_max_body_size (infra/reverse-proxy/nginx.conf) must stay above it.
     attachment_max_bytes: int = 157286400
 
+    # DICOM module bounds checked before any pixel data is decoded (SR-017 AC 6, CR-006 D-2,
+    # PRB-006): the largest stored object (150 MiB) and the largest decoded size declared in the
+    # header (1 GiB).
+    dicom_max_stored_bytes: int = 157286400
+    dicom_max_decoded_bytes: int = 1073741824
+
     # CORS
     # An empty value is [], a JSON list or a comma-separated list is accepted (PRB-056, D-6).
     cors_origins: Annotated[list[str], NoDecode] = []

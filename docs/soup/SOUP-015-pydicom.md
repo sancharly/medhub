@@ -2,18 +2,14 @@
 id: SOUP-015
 type: soup
 title: pydicom
-status: approved
-version: "1.1"
+status: in_review
+version: "1.2"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
-updated: "2026-10-23"
+updated: "2026-11-13"
 manufacturer: pydicom contributors
 soup_version: 3.0.2
 anomaly_review: "2026-10-22"
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-10-23"
-approved_digest: b86493c5cdec03b6bb7ebfc822fbf0f7669cdeffea679d8a76c0b3352eb3826a
-approval_note: self-approved
 links: []
 tags:
   - soup
@@ -73,7 +69,12 @@ Upload validation calls `pydicom.dcmread(..., stop_before_pixels=True)`
 (`app/attachments/dicom_validation.py`) and reads metadata only. It needs no NumPy and is
 unaffected. The frame endpoint, `GET /studies/{id}?frame=N`
 (`modules/dicom_viewer/dicom_viewer/dicom.py`), calls `ds.pixel_array`, which cannot decode
-without NumPy.
+without NumPy. Before that call (CR-006 TASK-218, SR-017 AC 6) the module reads the header only,
+with `pydicom.dcmread(..., stop_before_pixels=True)`, and computes the declared decoded size from
+Rows, Columns, SamplesPerPixel, BitsAllocated and NumberOfFrames; a missing or non-positive value,
+or a size above `dicom_max_decoded_bytes`, is refused before any pixel data is read. Relied on: a
+header-only read returns those attributes without touching the pixel data element. Verified by
+`modules/dicom_viewer/tests/test_size_bounds.py` (TS-019).
 
 Today that endpoint is unreachable. The QA review of TASK-154 found that the `dicom_viewer`
 module is installed in no environment, so its router is never mounted and the request gets a
@@ -104,3 +105,4 @@ accountable. Hazard-relevant anomalies go to `risk-management`; defects affectin
 - 2026-10-21 — Record created at the locked/declared version when the SOUP list moved from
   ADD-004 to one `soup` record per component (medical-records 0.3.2).
 - 2026-10-22 — 3.0.2 (unchanged). First anomaly-list review (TASK-154, CR-001 AC-11/AC-12): no upstream anomaly applies to 3.0.2 (CVE-2026-32711 is fixed in it); found that NumPy, which pixel-data access needs, is not installed, so the `?frame=` path cannot decode (MedHub-affecting: PRB-046, minor; the module itself is not installed anywhere: PRB-048, major, found by QA); environment section corrected. Record 1.0 → 1.1; approval record removed for re-review.
+- 2026-11-13 — 3.0.2 (unchanged). Relied-on behaviour added: header-only read on the frame endpoint path to bound the decoded size before `pixel_array` (CR-006 TASK-218, SR-017 AC 6, D-2). Record 1.1 → 1.2; approval record removed for re-review.
