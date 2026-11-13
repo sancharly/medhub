@@ -2,11 +2,15 @@
 id: ADD-012
 type: architecture-doc
 title: Attachment Service (SI-ATTACH)
-status: in_review
+status: approved
 version: "1.8"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-11-13"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-11-13"
+approved_digest: 3d42056e4b2b38fe7c5515fa4b7211e2e8f353eaeb7b02e8207109deb21b3cfc
+approval_note: self-approved
 links:
   - target: SR-013
     relation: implements

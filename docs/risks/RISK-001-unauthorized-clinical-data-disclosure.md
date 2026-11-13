@@ -2,7 +2,7 @@
 id: RISK-001
 type: risk
 title: Clinical data disclosed to a user without authorization or consent
-status: in_review
+status: approved
 version: "1.5"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
@@ -15,6 +15,10 @@ probability_initial: 4
 severity_residual: 2
 probability_residual: 2
 acceptability: acceptable
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-11-13"
+approved_digest: 17b8006f11a0578b44c57f99752b9c1a6f954f6d2842c82cdb88cc001894c649
+approval_note: self-approved
 links:
   - target: SOUP-002
     relation: relates_to

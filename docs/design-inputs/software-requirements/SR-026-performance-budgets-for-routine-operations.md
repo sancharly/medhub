@@ -2,11 +2,15 @@
 id: SR-026
 type: software-requirement
 title: Performance budgets for routine operations
-status: in_review
+status: approved
 version: "1.6"
 author: Carlos Santiago Liceras
 created: "2026-07-07"
 updated: "2026-11-13"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-11-13"
+approved_digest: 006224474ad88681023e6daf56e2b0aec368cbde14b733cb63c0e58cff93ed0a
+approval_note: self-approved
 links:
   - target: RR-010
     relation: satisfies

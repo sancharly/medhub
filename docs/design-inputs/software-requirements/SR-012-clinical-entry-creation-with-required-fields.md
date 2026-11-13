@@ -1,20 +1,25 @@
 ---
-id: "SR-012"
+id: SR-012
 type: software-requirement
-title: "Clinical entry creation with required fields"
-status: in_review
+title: Clinical entry creation with required fields
+status: approved
 version: "1.3"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-07-07"
 updated: "2026-11-13"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-11-13"
+approved_digest: 598bb89ac3aa3fbfb2490c9b2a953b7b32cbb93192dd1ffa7e0e252953131da5
+approval_note: self-approved
 links:
-  - target: "RISK-002"
+  - target: RISK-002
     relation: mitigates
-  - target: "RISK-007"
+  - target: RISK-007
     relation: mitigates
-  - target: "UN-008"
+  - target: UN-008
     relation: derives_from
-tags: ["control:design"]
+tags:
+  - control:design
 ---
 
 ## Summary

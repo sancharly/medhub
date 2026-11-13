@@ -133,13 +133,7 @@ class GroupService:
 
     def groups_of(self, account_id: uuid.UUID) -> list[Group]:
         """Return all groups the account belongs to (any source)."""
-        memberships = self._group_repo.memberships_for_account(account_id)
-        groups = []
-        for m in memberships:
-            group = self._group_repo.get(m.group_id)
-            if group is not None:
-                groups.append(group)
-        return groups
+        return self._group_repo.groups_for_account(account_id)
 
     def sync_automatic_membership(self, account: Account) -> None:
         """Sync AUTO group memberships based on account.user_type."""

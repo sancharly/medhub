@@ -2,7 +2,7 @@
 id: RISK-006
 type: risk
 title: Audit trail incomplete, so a wrong disclosure or entry goes undetected
-status: in_review
+status: approved
 version: "1.6"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
@@ -15,6 +15,10 @@ probability_initial: 3
 severity_residual: 2
 probability_residual: 2
 acceptability: acceptable
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-11-13"
+approved_digest: 6b1ce3c9fb4687208d71bbe6484aa9e7460c7061badc42d711ba958abdab1aa9
+approval_note: self-approved
 links:
   - target: SOUP-008
     relation: relates_to

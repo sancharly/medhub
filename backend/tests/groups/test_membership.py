@@ -114,18 +114,15 @@ def test_groups_of_returns_groups_for_all_memberships() -> None:
     account_id = uuid.uuid4()
     group_id_1 = uuid.uuid4()
     group_id_2 = uuid.uuid4()
-    memberships = [
-        GroupMembership(group_id=group_id_1, account_id=account_id, source=MembershipSource.AUTO),
-        GroupMembership(group_id=group_id_2, account_id=account_id, source=MembershipSource.MANUAL),
-    ]
     g1 = Group(id=group_id_1, name="A")
     g2 = Group(id=group_id_2, name="B")
 
-    svc, mock_group_repo, _ = _build_svc(memberships=memberships)
-    mock_group_repo.get.side_effect = lambda gid: g1 if gid == group_id_1 else g2
+    svc, mock_group_repo, _ = _build_svc()
+    mock_group_repo.groups_for_account.return_value = [g1, g2]
 
     result = svc.groups_of(account_id)
-    assert len(result) == 2
+    mock_group_repo.groups_for_account.assert_called_once_with(account_id)
+    assert result == [g1, g2]
 
 
 def test_add_member_emits_audit() -> None:

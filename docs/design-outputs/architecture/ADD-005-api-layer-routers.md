@@ -2,11 +2,15 @@
 id: ADD-005
 type: architecture-doc
 title: API Layer / Routers (SI-API)
-status: in_review
+status: approved
 version: "1.4"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-11-13"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-11-13"
+approved_digest: 544ff447a8984e65dfeae1089fbe3e95f2a9b29e99187dba68bc855bcad1f09f
+approval_note: self-approved
 links:
   - target: SR-001
     relation: implements

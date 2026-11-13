@@ -2,11 +2,11 @@
 id: "TASK-220"
 type: task
 title: "Constant-query group membership lookup (characterisation first) and the remaining lookup indexes (migration 0012)"
-status: draft
-version: "1.1"
+status: approved
+version: "1.5"
 author: "Carlos Santiago Liceras"
 created: "2026-11-13"
-updated: "2026-11-13"
+updated: "2026-11-14"
 links:
   - target: "SR-026"
     relation: implements
@@ -110,19 +110,127 @@ cannot serve a lookup by doctor. The three 0011 indexes that no current query us
 
 ## Acceptance criteria
 
-- [ ] SR-026 AC 6: constant queries at 1, 10, 100 memberships.
-- [ ] SR-014 AC 4 / RISK-004: characterisation test identical before and after.
-- [ ] SR-026 AC 6: the attachment-by-entry and patients-by-doctor lookups use the 0012 indexes (no sequential
+- [x] SR-026 AC 6: constant queries at 1, 10, 100 memberships.
+- [x] SR-014 AC 4 / RISK-004: characterisation test identical before and after.
+- [x] SR-026 AC 6: the attachment-by-entry and patients-by-doctor lookups use the 0012 indexes (no sequential
   scan, seqscan enabled); both scan at 0011.
-- [ ] Migration 0012 up and down on an empty and a populated database; ORM and migration head agree.
-- [ ] 0012 not applied to any existing database without the human's go-ahead.
+- [x] Migration 0012 up and down on an empty and a populated database; ORM and migration head agree.
+- [x] 0012 not applied to any existing database without the human's go-ahead.
 
 ## Definition of Done
 
-- [ ] `ruff`, `mypy`, backend suite green
-- [ ] TS-005, TS-018 updated; ADD-009 consistent; ADD-016 confirmed for 0012 by TASK-225 (do not edit
+- [x] `ruff`, `mypy`, backend suite green
+- [x] TS-005, TS-018 updated; ADD-009 consistent; ADD-016 confirmed for 0012 by TASK-225 (do not edit
   ADD-016 here: TASK-227 changes it concurrently)
-- [ ] `traceability-check` no error for this record
+- [x] `traceability-check` no error for this record
+
+## QA review round 1 (qa-engineer, 2026-11-14) — CHANGES REQUESTED
+
+The code is correct and the suite is green. The changes requested are about what the evidence proves and about
+the PRB-024 record.
+
+1. **HIGH: TC-018.7 checks a function that no request path calls, so SR-026 AC 6 "listing a user's groups" is
+   not verified on the paths the AC names.** `GroupService.groups_of` has no caller in `backend/app/` or
+   `backend/modules/` (grep: only its definition, `groups/service.py:134`). Module gating resolves
+   memberships elsewhere: `ModuleAccessGuard.is_module_enabled` (`authz/module_guard.py:16-27`, called from
+   `api/deps.py:179` for every module route) and `GET /me/modules` (`api/routers/me.py:33-35`). Both use
+   `memberships_for_account` plus `enabled_module_keys_for_groups`, which is already a constant number of
+   queries. A QA probe on PostgreSQL measured `is_module_enabled` at `{1: 3, 10: 3, 100: 3}`. No regression
+   test covers that path, so a future N+1 in the guard would pass TC-018.7. SR-026 AC 6 says "data-access
+   paths used by authorization and module gating", and those paths are not the one under test.
+   → Add `test_module_gate_query_count_constant` to `backend/tests/groups/test_groups_of.py`. It should count
+   `ModuleAccessGuard(GroupRepository(s), ModuleRepository(s)).is_module_enabled(acct.id, key)` at 1, 10 and
+   100 memberships with the same `before_cursor_execute` counter and `expire_all()`, and assert that the
+   counts are equal. Cover the `/me/modules` pair too (call it through the router or assert the same two repo
+   calls). List the test in TS-018 TC-018.7 and TS-005 TC-005.4 as the module-gating case. Keep the
+   `groups_of` test as the PRB-024 case.
+2. **MEDIUM: PRB-024 is not updated, and the path its Impact names is not the module-gating path.**
+   `docs/problem-reports/PRB-024-*.md` 1.0 says "Latency grows with membership count on a path used by
+   module gating", and its Resolution still reads "Not yet tracked by a task". It cannot move to `resolved`
+   as written (problem-report-resolution: Resolution names the change and its verification).
+   → PRB-024 1.1 (Software Developer):
+   - Correct the Observed and Impact sections: `groups_of` is unused. The cost was latent, with no request path
+     affected, and module gating already used a constant number of queries (finding 1).
+   - Add an `## Investigation` section with the `file:line` references above.
+   - Write a Resolution that names TASK-220: `group_repo.py:54-61` `groups_for_account`, `service.py:134-136`,
+     and the tests with their negative control on `c69d7dc`, `{1: 3, 10: 12, 100: 102}`.
+   - Leave the status `open` for QA to move to `resolved`.
+   If the human prefers, PRB-024 could instead be reworded so that its criticality and safety evaluation say
+   "latent". Either way, the record must not say a hot path was fixed.
+3. **LOW: the unit test stub is now a pass-through.**
+   `backend/tests/groups/test_membership.py:113-124` asserts only `len(result) == 2`.
+   → Also assert `mock_group_repo.groups_for_account.assert_called_once_with(account_id)` and
+   `result == [g1, g2]`. The real-database TC-005.4 carries the behaviour, so this is LOW.
+4. **LOW: TC-018.8 does not say why `account` is allowed a `Seq Scan`.**
+   `test_remaining_lookups_use_index` asserts no `Seq Scan` only on `attachment`/`consent_grant`, and the plan
+   for the doctor lookup still has `Seq Scan on account`. QA probe results: at 10 000 accounts the planner
+   hash-joins 150 of the 10 000 rows, a small-table choice. At 210 000 accounts it switches to
+   `Index Scan using account_pkey` (merge join). The join is therefore index-servable and the assertion
+   scope is acceptable.
+   → Add one sentence to TC-018.8: the `account` side is joined by primary key, and a seq scan there is a
+   planner choice at seed size.
+
+Checked and accepted:
+- Characterisation: the four new tests run on HEAD `03b1400` (the per-membership `groups_of`). The three
+  characterisation tests pass, and the query-count test fails with `{1: 3, 10: 12, 100: 102}`, which
+  reproduces the developer's claim.
+- Positive index test without 0012: a QA mutant ran the positive test body with the upgrade removed. For both
+  lookups the index name is absent and `Seq Scan on <table>` is present, so both of its assertions are
+  discriminating. The negative control covers it.
+- 0012 upgrade/downgrade, drift test, and `ix_consent_grant_doctor_id_active` used as `Bitmap Index Scan`
+  with `Index Cond (doctor_id, active = true)`.
+- PRB-021 stays `open` as its own Resolution requires: it waits for the TASK-226 query-plan record, which
+  this review cannot replace.
+
+Verification run (2026-11-14):
+- `uv run pytest -q`: 1661 passed, 10 skipped.
+- `modules/dicom_viewer/tests`: 31 passed.
+- `ruff check .`: clean. `ruff format --check` on the 8 changed files: clean.
+- `mypy app`: 136 files, no issues.
+- `python3 -m unittest discover -s infra/tests`: 178 OK.
+- traceability scope TASK-220, TS-005, TS-018, PRB-021, PRB-024, PRB-082, SR-026 (39 records): 0 errors,
+  2 W5 warnings. TASK-136 and TP-001, both `approved`, link the `in_review` TS-018 and TS-005; this is
+  expected while these are under review.
+
+## QA review round 2 (qa-engineer, 2026-11-14) — APPROVED
+
+The four round-1 findings and the PRB-082 line references were checked again:
+
+1. **HIGH, fixed.** `test_module_gate_query_count_constant` counts `is_module_enabled` and the `/me/modules`
+   repository pair at 1, 10 and 100 memberships. In a QA mutant, a scratch copy with a per-membership
+   `GroupRepository.get` planted in `module_guard.py` failed with `{1: 4, 10: 13, 100: 103}`. The working-tree
+   `module_guard.py` has no diff.
+2. **MEDIUM, fixed.** PRB-024 1.1 now describes a latent cost, with Investigation and Resolution sections and
+   the correct `file:line` references.
+3. **LOW, fixed.** The stub test asserts `assert_called_once_with(account_id)` and `result == [g1, g2]`.
+4. **LOW, fixed.** TC-018.8 has the note on the `account` seq scan.
+5. **PRB-082 references verified against the code:**
+   - `service.py:187-190` is the pass-2 `get_object_stream` call.
+   - `service.py:197-204` is the SUCCESS audit row.
+   - `service.py:206-232` and `230-232` are still correct.
+   - `attachments.py:109-116` and `117-119` are still correct.
+
+Remaining LOWs (not blocking):
+- The `/me/modules` case calls the same two repository methods as `me.py:33-35` through a copy in the
+  test, not through the router. A change to the router alone would not be caught. Calling `get_my_modules`
+  directly with the session would close this.
+- TS-005 (1.2) and TS-018 (1.3) changed content in round 2 without a version bump. Both were unapproved
+  and `in_review`, and their version histories record the change.
+
+The local `infra-postgres-1` is still at revision 0010, so 0012 was not applied to an existing database.
+
+Verification run (2026-11-14):
+- `uv run pytest -q`: 1662 passed, 10 skipped.
+- `modules/dicom_viewer/tests`: 31 passed.
+- `ruff check .`: clean. `ruff format --check` on the 8 files: clean.
+- `mypy app`: 136 files, no issues.
+- `infra/tests`: 178 OK.
+- traceability scope TASK-220, TS-005, TS-018, PRB-021, PRB-024, PRB-082, SR-026 (39 records): 0 errors,
+  2 W5 warnings. TASK-136 and TP-001, both `approved`, link TS-018 and TS-005, which were still `in_review`
+  when the check ran; these are resolved by this approval.
+
+Status changes: TASK-220, TS-005 and TS-018 move `in_review → approved`, and PRB-024 moves `open → resolved`
+(CR-006 holds the `resolves` link). PRB-021 stays `open`: its Resolution waits for TASK-226.
 
 ## Version history
 
@@ -132,3 +240,13 @@ cannot serve a lookup by doctor. The three 0011 indexes that no current query us
   with upgrade/downgrade, `EXPLAIN`, negative-control and drift tests; `ask first` for existing databases;
   depends on TASK-219; size S → M; TS-018 ids corrected (TC-018.6 is taken); links to PRB-021, ADD-016,
   SOUP-009 and TASK-219 added. Stays `draft` (not started).
+- 1.2 (2026-11-14) — Implemented (Software Developer): `GroupRepository.groups_for_account` (one join query, order
+  unspecified as before), `groups_of` uses it; models and migration `0012_remaining_lookup_indexes`; tests
+  `tests/groups/test_groups_of.py` (characterisation written and green on the old code first; query-count test
+  failed there with `{1: 3, 10: 12, 100: 102}`) and `tests/db/test_migration_0012_indexes.py` (0012 applied only to
+  throwaway testcontainers databases). `test_membership.py::test_groups_of_returns_groups_for_all_memberships`
+  stubs `groups_for_account` instead of `get` per membership. TS-005 1.2 (TC-005.4) and TS-018 1.3 (TC-018.7,
+  TC-018.8), both `in_review` with the approval removed. ADD-016 not edited (TASK-225). `in_review`.
+- 1.3 (2026-11-14) — QA review round 1: CHANGES REQUESTED (1 HIGH: the module-gating path has no query-count test; 1 MEDIUM: PRB-024 not updated, premise wrong; 2 LOW). `in_review → draft`.
+- 1.4 (2026-11-14) — round 2 (Software Developer): finding 1 `test_module_gate_query_count_constant` added (constant at 1, 10, 100; fails with `{1: 4, 10: 13, 100: 103}` when an N+1 is planted in `ModuleAccessGuard`, guard restored); finding 2 PRB-024 1.1 (latent, Investigation, Resolution; status left `open`); finding 3 stub test asserts the call and `[g1, g2]`; finding 4 TC-018.8 note; finding 5 PRB-082 refs. TS-005 and TS-018 list the module-gating case. `in_review`.
+- 1.5 (2026-11-14) — QA review round 2: APPROVED (2 LOW carried: `/me/modules` case mirrors the router; TS round-2 edits without a version bump). Checkboxes ticked; `in_review → approved`.

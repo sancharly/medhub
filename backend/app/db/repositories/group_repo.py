@@ -51,6 +51,15 @@ class GroupRepository(Repository[Group]):
         )
         return list(result.scalars().all())
 
+    def groups_for_account(self, account_id: uuid.UUID) -> list[Group]:
+        """The groups the account belongs to, in one query. Order unspecified (no ORDER BY)."""
+        result = self._session.execute(
+            select(Group)
+            .join(GroupMembership, GroupMembership.group_id == Group.id)
+            .where(GroupMembership.account_id == account_id)
+        )
+        return list(result.scalars().all())
+
     def members_of_group(self, group_id: uuid.UUID) -> list[GroupMembership]:
         result = self._session.execute(
             select(GroupMembership).where(GroupMembership.group_id == group_id)

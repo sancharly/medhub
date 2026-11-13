@@ -21,6 +21,7 @@ class ConsentGrant(UUIDMixin, TimestampMixin, Base):
     __table_args__ = (
         Index("ix_consent_grant_patient_doctor_active", "patient_id", "doctor_id", "active"),
         Index("ix_consent_grant_appointment_id", "appointment_id"),
+        Index("ix_consent_grant_doctor_id_active", "doctor_id", "active"),
     )
 
     patient_id: Mapped[uuid.UUID] = mapped_column(

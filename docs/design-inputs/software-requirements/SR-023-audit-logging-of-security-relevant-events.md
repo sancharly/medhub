@@ -1,30 +1,36 @@
 ---
-id: "SR-023"
+id: SR-023
 type: software-requirement
-title: "Audit logging of security-relevant events"
-status: in_review
+title: Audit logging of security-relevant events
+status: approved
 version: "1.5"
-author: "Carlos Santiago Liceras"
+author: Carlos Santiago Liceras
 created: "2026-07-07"
 updated: "2026-11-13"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-11-13"
+approved_digest: f478cdd5f6fc988804365b19bb56dd5e46910bd18787f141871f65975952759e
+approval_note: self-approved
 links:
-  - target: "RR-004"
+  - target: RR-004
     relation: satisfies
-  - target: "RISK-001"
+  - target: RISK-001
     relation: mitigates
-  - target: "RISK-004"
+  - target: RISK-004
     relation: mitigates
-  - target: "RISK-005"
+  - target: RISK-005
     relation: mitigates
-  - target: "RISK-006"
+  - target: RISK-006
     relation: mitigates
-  - target: "NFR-004"
+  - target: NFR-004
     relation: derives_from
-  - target: "NFR-007"
+  - target: NFR-007
     relation: derives_from
-  - target: "NFR-005"
+  - target: NFR-005
     relation: derives_from
-tags: ["control:design", "control:protective"]
+tags:
+  - control:design
+  - control:protective
 ---
 
 ## Summary

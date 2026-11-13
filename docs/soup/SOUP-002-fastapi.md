@@ -2,7 +2,7 @@
 id: SOUP-002
 type: soup
 title: FastAPI
-status: in_review
+status: approved
 version: "1.2"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
@@ -10,6 +10,10 @@ updated: "2026-11-13"
 manufacturer: Sebastián Ramírez (tiangolo)
 soup_version: 0.138.0
 anomaly_review: "2026-10-22"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-11-13"
+approved_digest: 3b1121df3a516bfccfaee624dabf07b4169a3548a4ee8c329f3ab0cbb276dabd
+approval_note: self-approved
 links: []
 tags:
   - soup
