@@ -2,18 +2,14 @@
 id: SOUP-036
 type: soup
 title: SeaweedFS object store
-status: approved
-version: "1.4"
+status: in_review
+version: "1.5"
 author: Carlos Santiago Liceras
 created: "2026-10-30"
 updated: "2026-11-13"
 manufacturer: SeaweedFS project (Chris Lu)
 soup_version: "4.51"
 anomaly_review: "2026-10-30"
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-11-13"
-approved_digest: 3333b2830faedc7a7eee5c8f1394acfa6478e33405d0a3a9eaa01c2a9b86ae71
-approval_note: self-approved
 links:
   - target: ADD-025
     relation: relates_to
@@ -93,10 +89,14 @@ TASK-172, "Evidence".
     `validateConditionalHeadersForReads` evaluates `If-Match` first (RFC 7232 §6 order) and,
     when `s3a.getObjectETag(entry)` does not match, returns `s3err.ErrPreconditionFailed`, which
     `weed/s3api/s3err/s3api_errors.go` maps to `http.StatusPreconditionFailed` (412). A missing
-    object with `If-Match` answers `NoSuchKey`. **Not yet confirmed by a run** against the pinned
-    digest (with SSE-S3 on, which is MedHub's configuration): that run is the first step of
-    TASK-217, recorded here before the download code relies on it. If the run fails, the D-10
-    fallback applies (SR-013 AC 5 change, RISK-012 back to 4 × 2 → alarp). The streaming pass
+    object with `If-Match` answers `NoSuchKey`. **Confirmed by a run (2026-11-13, TASK-217
+    step 1)** against the pinned digest with SSE-S3 on (bucket default AES256 via
+    `object_store_init.initialise`), boto3/botocore 1.43.117: `IfMatch=<ETag>` (quoted or
+    unquoted) → 200 with the bytes; after an overwrite, `IfMatch=<old ETag>` and a bogus ETag →
+    `ClientError` `PreconditionFailed`, HTTP 412, no body. Full output in TASK-217's
+    "Implementation record"; repeatable with `OBJECT_STORE_INTEGRATION=1` and
+    `backend/tests/integration/test_object_store_conditional_read.py`. The D-10 fallback is not
+    needed. The streaming pass
     also hashes the bytes it sends and aborts on a mismatch, so a change between the server's
     precondition check and its read is still never served as verified content.
 10. A plaintext marker written in an object is not found in the data directory.
@@ -267,3 +267,8 @@ a tool check.
   pinned digest is TASK-217 step 1. Used by ADD-012 (attachment download) in addition to ADD-025.
   `soup_version`, digest and anomaly review unchanged. Version 1.3 was approved, so the approval
   record is cleared and the record returns to `in_review`.
+- 2026-11-13 — Version 1.5: CR-006 TASK-217 step 1. Behaviour 14 confirmed by a run against the
+  pinned digest with SSE-S3 on (200 on a matching ETag, 412 `PreconditionFailed` after an
+  overwrite or on a bogus ETag); the D-10 fallback is not needed. `soup_version`, digest and
+  anomaly review unchanged. Version 1.4 was approved, so the approval record is cleared and the
+  record returns to `in_review`.

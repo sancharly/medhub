@@ -7,9 +7,16 @@ instantiation time if boto3 is missing, rather than at module import time.
 
 from __future__ import annotations
 
+from collections.abc import Iterator
 from typing import BinaryIO
 
 from app.core.config import get_settings
+
+_CHUNK_SIZE = 65536  # 64 KiB
+
+
+class ObjectChangedError(Exception):
+    """The object no longer has the ETag the caller named (HTTP 412 ``PreconditionFailed``)."""
 
 
 class ObjectStorageClient:
@@ -49,6 +56,33 @@ class ObjectStorageClient:
         """Download bytes from object storage."""
         response = self._client.get_object(Bucket=self._bucket, Key=key)
         return response["Body"].read()  # type: ignore[no-any-return]
+
+    def get_object_stream(
+        self, key: str, if_match: str | None = None
+    ) -> tuple[Iterator[bytes], str]:
+        """Open an object and return (64 KiB chunks, ETag) without reading it into memory.
+
+        The response is opened before this returns, so a failure (and, with ``if_match``, a 412
+        mapped to ``ObjectChangedError``) is raised before the caller starts a response
+        (SR-013 AC 5 and AC 6, ADR-0021; SOUP-036 relied-on behaviour 14).
+        """
+        options = {"IfMatch": if_match} if if_match is not None else {}
+        try:
+            response = self._client.get_object(Bucket=self._bucket, Key=key, **options)
+        except Exception as exc:
+            error = getattr(exc, "response", {}).get("Error", {})
+            if error.get("Code") == "PreconditionFailed":
+                raise ObjectChangedError(key) from exc
+            raise
+        body = response["Body"]
+
+        def _chunks() -> Iterator[bytes]:
+            try:
+                yield from body.iter_chunks(_CHUNK_SIZE)
+            finally:
+                body.close()
+
+        return _chunks(), response["ETag"]
 
     def delete_object(self, key: str) -> None:
         """Delete an object from storage. Best-effort — ignores errors."""

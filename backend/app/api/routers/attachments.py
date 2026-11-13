@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import uuid
-from collections.abc import Iterator
 
 from fastapi import APIRouter, Depends, UploadFile, status
 from fastapi.concurrency import run_in_threadpool
@@ -82,9 +81,6 @@ def list_attachments(
     return [AttachmentResponse.model_validate(a) for a in attachments]
 
 
-_CHUNK_SIZE = 65536  # 64 KiB
-
-
 @router.get(
     "/attachments/{attachment_id}",
     responses={
@@ -103,19 +99,21 @@ def fetch_attachment(
     actor: Account = Depends(get_current_user),
     svc: AttachmentService = Depends(_get_attachment_service),
 ) -> StreamingResponse:
-    data, content_type, filename = svc.open(actor, attachment_id)
-
-    def _chunks(b: bytes, size: int) -> Iterator[bytes]:
-        for i in range(0, len(b), size):
-            yield b[i : i + size]
+    # Two-pass, bounded read (SR-013 AC 5, AC 6): every byte sent was verified against the stored
+    # SHA-256; a failure before the first byte is a 502 problem, one after the last aborts the
+    # transfer.
+    chunks, content_type, filename, size = svc.open_stream(actor, attachment_id)
 
     # SR-023 AC 2 / ADR-0016: the open succeeded but no content is served; the independent
     # FAILURE row is the record of the attempt.
     try:
         return StreamingResponse(
-            _chunks(data, _CHUNK_SIZE),
+            chunks,
             media_type=content_type,
-            headers={"Content-Disposition": content_disposition(filename)},
+            headers={
+                "Content-Disposition": content_disposition(filename),
+                "Content-Length": str(size),
+            },
         )
     except Exception:
         svc.record_access_failure(actor, attachment_id)
