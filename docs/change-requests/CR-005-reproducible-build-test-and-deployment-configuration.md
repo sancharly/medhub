@@ -2,7 +2,7 @@
 id: CR-005
 type: change-request
 title: Make the build, test and deployment configuration reproducible
-status: open
+status: closed
 version: "1.4"
 author: Carlos Santiago Liceras
 created: "2026-11-12"
