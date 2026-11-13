@@ -3,7 +3,7 @@ id: CR-006
 type: change-request
 title: Close the open reliability and performance defects from the 2026-07 review and audit
 status: in_progress
-version: "1.5"
+version: "1.7"
 author: Carlos Santiago Liceras
 created: "2026-11-13"
 updated: "2026-11-13"
@@ -49,7 +49,7 @@ links:
   - target: PRB-079
     relation: relates_to
   - target: PRB-072
-    relation: relates_to
+    relation: resolves
   - target: SR-013
     relation: relates_to
   - target: SR-014
@@ -461,6 +461,20 @@ coordinating agent. The records stay `in_review` until the human's MedTrace appr
   009 already did).
 - **D-23 (P-9):** RISK-007 gets a control row for a failed lazy chunk (TASK-145); RISK-009's row names
   TS-004 instead of TS-006; the retrieval scan is recorded as PRB-079, out of CR-006 scope.
+- **D-24 (approved 2026-11-13, Carlos Santiago Liceras, with the TASK-136 load-test evidence):** deployed
+  values `API_THREADPOOL_SIZE=20`, `DB_POOL_SIZE=20`, `DB_MAX_OVERFLOW=20`, `DB_POOL_TIMEOUT=10` s; the Redis pool
+  `max_connections` equals the thread limit. Rationale: 20 threads cover the 20 SR-026 AC 5 clients and 40
+  measured no better; 40 connections = 2x threads because a FAILURE audit row uses a second connection
+  (ADR-0016); a 10 s pool timeout fails before Gunicorn's 30 s worker kill. The start-up invariant bounds
+  threads, not requests: a connection belongs to the request, so one worker serves about threads + connections
+  concurrent requests (59 pass, 60 fail with 20 / 40) and answers 500 beyond that; recorded as PRB-081, outside
+  CR-006 scope until the human decides. Evidence: baseline `8028685`, 456
+  requests, 210 transport errors, 10 worker kills; working tree 0 errors, 0 kills, p95 0.17-1.12 s across
+  configurations.
+- **D-25:** code defaults 15 threads / pool 5 + overflow 10 / 30 s timeout, per ADR-0022 (today's effective
+  database behaviour; the invariant caps threads at 15 outside Compose).
+- **D-26:** PRB-072 is added to CR-006 and resolved by TASK-136 (the 8-ok / 16-and-20-fail pattern reproduces on
+  `8028685` and disappears with the event-loop fix alone; `POST /accounts` was not exercised directly).
 
 ## Change analysis (Risk stage, §7.4, 2026-11-13)
 
@@ -804,3 +818,5 @@ TASK-141 (RISK-009: the erasure-site log-capture test is in TS-004, not TS-006).
 - 1.3 (2026-11-13) — Risk gate: the human accepted R-1 to R-5 as recommended, recorded as D-10 to D-14 (conditional second read; SR-024 AC 6; four `mitigates` links; RISK acceptance in MedTrace; pool sizes approved at Plan).
 - 1.4 (2026-11-13) — Plan stage (Software Architect role): "Plan" filled with 17 TASKs (TASK-135, 136, 141, 143–146 updated; TASK-217–226 new), checkpoints, AC, ADD and SOUP coverage and plan risks; Plan-stage open items D-8 (bundle measured, 165 kB gzip proposed), D-10 (SeaweedFS `If-Match` in the 4.51 source, run pending in TASK-217) and D-14 (candidate pool values, measured in TASK-136) recorded; ADR-0021 and ADR-0022 proposed; ADD-005, 006, 008, 009, 012, 015, 016, 017, 018, 019, 021, 023, 026 and SOUP-019, SOUP-036 back to `in_review`; links to the new TASKs and the two SOUP records added.
 - 1.5 (2026-11-13) — Plan gate: the human approved the plan and P-1 to P-9 as recommended, recorded as D-15 to D-23. PRB-078 (proxy body limit) created and added to the scope with a `resolves` link (TASK-135); PRB-079 (retrieval scan) created, `relates_to` only, out of scope. RISK-003, 004, 005, 007, 009 and 012 updated with the TASK ids (D-22, D-23) and back in `in_review`. Stays `in_progress`.
+- 1.6 (2026-11-13) — TASK-136 pool values approved by the human, recorded as D-24 to D-26. PRB-072 moved from `relates_to` to `resolves` (D-26). Stays `in_progress`.
+- 1.7 (2026-11-13) — TASK-136 round 2: D-24 rationale corrected (the invariant bounds threads, not requests); PRB-080 and PRB-081 raised from QA round 1, not added to the scope pending the human. Stays `in_progress`.

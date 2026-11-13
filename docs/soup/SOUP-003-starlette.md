@@ -36,6 +36,18 @@ Starlette must re-check them (the through-the-app test
 the file is no longer rolled to disk). The temporary directory (`TMPDIR`) must hold the concurrent
 uploads on the API host (ADR-0021, consequences).
 
+**Relied-on behaviour: the thread pool and its limit (SR-026 AC 5, ADR-0022, TASK-136).** FastAPI
+runs a plain `def` dependency or handler, and `starlette.concurrency.run_in_threadpool` runs a
+blocking call, through `anyio.to_thread.run_sync` on AnyIO's default `CapacityLimiter` (40 tokens
+in anyio 4.14.2). MedHub relies on two things: such calls run in a worker thread and not on the
+event loop, and setting `anyio.to_thread.current_default_thread_limiter().total_tokens` in the
+lifespan (to `API_THREADPOOL_SIZE`) caps the number of those calls running at once, the others
+waiting for a token. The start-up check keeps that cap at or below the SQLAlchemy pool (SOUP-008)
+and the Redis pool is sized to it (SOUP-013). Verified by `test_lifespan_applies_the_thread_limit`
+(`tests/core/test_pool_settings.py`), the static check `tests/api/test_no_blocking_in_async.py`
+and the SR-026 AC 5 load test (TS-018). The anyio 4.14.2 `CapacityLimiter` fix (no over-granting
+on asyncio, below) is the version this relies on.
+
 ## Required hardware and software environment
 
 Python 3.12; anyio 4.14.2.
@@ -123,4 +135,4 @@ accountable. Hazard-relevant anomalies go to `risk-management`; defects affectin
   ADD-004 to one `soup` record per component (medical-records 0.3.2).
 - 2026-10-22 — 1.3.1 (unchanged). First anomaly-list review (TASK-154, CR-001 AC-11/AC-12): Starlette none found; three anyio 4.14.0 advisories (fixed in 4.14.2) apply to the version but not to MedHub's use; nothing hazard-relevant; recorded for upgrade in PRB-047 (minor). Record 1.0 → 1.1; approval record removed for re-review.
 - 2026-10-29 — anyio 4.14.0 → 4.14.2 (transitive); Starlette 1.3.1 unchanged; PRB-047, CR-003 (D-3), TASK-164. Second anomaly-list review, at the new version: no anomaly applies, and the three anyio advisories are fixed at 4.14.2. The lock moved only anyio (and urllib3, SOUP-019); idna 3.18 and typing-extensions 4.15.0 unchanged. Change analysis: two fixes touch a path MedHub uses, the `CapacityLimiter` fix (thread pool) and the `CancelScope` cancellation CPU-spin fix (`BaseHTTPMiddleware`), both in the safe direction (the second is CPU-only); the middleware tests and the rebuilt stack confirm the RISK-005 controls. Record 1.1 → 1.2; approval record removed for re-review.
-- 2026-11-13 — 1.3.1 (unchanged). Relied-on behaviour added: multipart upload spooling to disk above 1 MiB (`MultiPartParser.spool_max_size`), on which the bounded-memory attachment upload depends (SR-013 AC 6, ADR-0021; CR-006 TASK-135, QA round 1 finding 1). Verified by `test_upload_above_one_mib_reaches_the_service_as_a_file_already_on_disk`. Record 1.2 → 1.3; approval record removed for re-review.
+- 2026-11-13 — 1.3.1 (unchanged). Relied-on behaviour added: multipart upload spooling to disk above 1 MiB (`MultiPartParser.spool_max_size`), on which the bounded-memory attachment upload depends (SR-013 AC 6, ADR-0021; CR-006 TASK-135, QA round 1 finding 1). Verified by `test_upload_above_one_mib_reaches_the_service_as_a_file_already_on_disk`. Also relied-on: AnyIO's default thread limiter runs the blocking handlers and its `total_tokens` is set from `API_THREADPOOL_SIZE` (SR-026 AC 5, ADR-0022; CR-006 TASK-136, D-24). Record 1.2 → 1.3; approval record removed for re-review.

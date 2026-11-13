@@ -5,6 +5,7 @@ Deny-by-default: only health and openapi endpoints are unauthenticated.
 
 from __future__ import annotations
 
+import functools
 from collections.abc import Callable
 
 import redis as redis_lib
@@ -24,9 +25,22 @@ from app.db.repositories.session import get_db
 # ---------------------------------------------------------------------------
 
 
+@functools.lru_cache(maxsize=1)
+def _redis_client() -> redis_lib.Redis:
+    """One client, one bounded connection pool for the process (ADR-0022).
+
+    A client per request opened a pool per request. The pool holds at most as many connections as
+    the API has threads, so a request never finds the pool empty.
+    """
+    settings = get_settings()
+    return redis_lib.Redis.from_url(
+        settings.redis_url, decode_responses=False, max_connections=settings.api_threadpool_size
+    )
+
+
 def get_redis() -> redis_lib.Redis:
-    """Return a Redis client from the configured URL."""
-    return redis_lib.Redis.from_url(get_settings().redis_url, decode_responses=False)
+    """Return the process-wide Redis client."""
+    return _redis_client()
 
 
 def get_session_service(r: redis_lib.Redis = Depends(get_redis)) -> SessionService:
@@ -40,7 +54,7 @@ def get_session_service(r: redis_lib.Redis = Depends(get_redis)) -> SessionServi
 _SESSION_COOKIE = "medhub_session"
 
 
-async def get_session(
+def get_session(
     request: Request,
     svc: SessionService = Depends(get_session_service),
 ) -> UserSession:
@@ -67,7 +81,7 @@ async def get_session(
 # ---------------------------------------------------------------------------
 
 
-async def get_current_user(
+def get_current_user(
     session: UserSession = Depends(get_session),
     db: Session = Depends(get_db),
 ) -> Account:
@@ -135,7 +149,7 @@ def get_platform_services(
 def require_module_enabled(module_key: str) -> Callable[..., object]:
     """Return a FastAPI dependency that raises AuthorizationError if module not enabled."""
 
-    async def _dependency(
+    def _dependency(
         actor: Account = Depends(get_current_user),
         db: Session = Depends(get_db),
     ) -> None:

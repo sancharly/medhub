@@ -2,18 +2,14 @@
 id: SOUP-008
 type: soup
 title: SQLAlchemy
-status: approved
-version: "1.1"
+status: in_review
+version: "1.2"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
-updated: "2026-10-23"
+updated: "2026-11-13"
 manufacturer: SQLAlchemy authors
 soup_version: 2.0.51
 anomaly_review: "2026-10-22"
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-10-23"
-approved_digest: 3e260c8b4d3382936c66a6073035224f8e8445011baee3f4c03131cf6d8b2ccf
-approval_note: self-approved
 links: []
 tags:
   - soup
@@ -26,6 +22,20 @@ tags:
 ## Functional and performance requirements
 
 ORM and repositories with parameterized queries only (SQL-injection mitigation, SR-031.1), transactions and constraint enforcement.
+
+**Relied-on behaviour: connection pool sizing (SR-026 AC 5, ADR-0022, TASK-136).** The one engine
+(`app/db/repositories/session.py`) is created with `pool_size=DB_POOL_SIZE`,
+`max_overflow=DB_MAX_OVERFLOW` and `pool_timeout=DB_POOL_TIMEOUT` (deployed 20 / 20 / 10 s, code
+defaults 5 / 10 / 30 s, CR-006 D-24/D-25). MedHub relies on `QueuePool` keeping at most
+`pool_size + max_overflow` connections open, making a caller wait up to `pool_timeout` seconds for
+one, and then raising `sqlalchemy.exc.TimeoutError` ("QueuePool limit of size … overflow … reached")
+rather than opening more. The start-up check keeps the API thread limit (SOUP-003) at or below
+that total, which does not make a checkout wait-free: a connection belongs to the request (its `get_db`
+session, held between dependency steps, through a whole streaming download and until `get_db` exits after
+the response is sent), not to the thread, so one worker serves about threads + connections concurrent
+requests; beyond that, requests wait `pool_timeout` and answer 500 (PRB-081). A FAILURE audit row on its
+own transaction (ADR-0016) is why the deployed total is twice the thread limit. Verified by `test_engine_pool_follows_the_settings`
+(`tests/core/test_pool_settings.py`) and the SR-026 AC 5 load test (TS-018).
 
 ## Required hardware and software environment
 
@@ -81,3 +91,4 @@ accountable. Hazard-relevant anomalies go to `risk-management`; defects affectin
 - 2026-10-21 — Record created at the locked/declared version when the SOUP list moved from
   ADD-004 to one `soup` record per component (medical-records 0.3.2).
 - 2026-10-22 — 2.0.51 (unchanged). First anomaly-list review (TASK-154, CR-001 AC-11/AC-12): no advisory for 2.0.51; later 2.0.x bug fixes reviewed, none on MedHub's query paths; nothing hazard-relevant. Record 1.0 → 1.1; approval record removed for re-review.
+- 2026-11-13 — 2.0.51 (unchanged). Relied-on behaviour added: `QueuePool` sizing (`pool_size`, `max_overflow`, `pool_timeout`) from settings, matched to the API thread limit (SR-026 AC 5, ADR-0022; CR-006 TASK-136, D-24/D-25). No version change, no new anomaly review. Record 1.1 → 1.2; approval record removed for re-review. Same day, TASK-136 round 2: corrected the relied-on wording (a connection belongs to the request, not the thread, so the limit is about threads + connections concurrent requests per worker, PRB-081); still 1.2, `in_review`.

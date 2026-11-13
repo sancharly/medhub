@@ -99,7 +99,7 @@ def login(
 
 
 @router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
-async def logout(
+def logout(
     response: Response,
     request: Request,
     session: UserSession = Depends(get_session),
@@ -122,7 +122,7 @@ async def logout(
 
 
 @router.post("/session/extend", response_model=SessionExtendResponse)
-async def extend_session(
+def extend_session(
     session: UserSession = Depends(get_session),
     svc: SessionService = Depends(get_session_service),
     _csrf: None = Depends(require_csrf),

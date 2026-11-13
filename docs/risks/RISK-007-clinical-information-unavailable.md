@@ -2,8 +2,8 @@
 id: RISK-007
 type: risk
 title: Clinical information unavailable when needed
-status: approved
-version: "1.12"
+status: in_review
+version: "1.13"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-11-13"
@@ -15,10 +15,6 @@ probability_initial: 2
 severity_residual: 3
 probability_residual: 2
 acceptability: alarp
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-11-13"
-approved_digest: 83a55202c7579eddc9cdff61b7024f960c9945d044d0616b855a94f39c47033b
-approval_note: self-approved
 links:
   - target: SOUP-020
     relation: relates_to
@@ -79,7 +75,7 @@ occur); the score is severity × P2, the probability that the hazardous situatio
 | Documented backup, monitoring and deployment procedure | Protective | SR-028, TASK-115 | TR-001, TS-013. **Backup part not met:** no backup and restore procedure exists for `postgres_data` or `object_store_data` with its key ([PRB-057](../problem-reports/PRB-057-no-backup-and-restore-procedure.md), major, open, found 2026-10-30 by CR-002 TASK-180) |
 | Performance budgets so routine operations stay usable | Design | SR-026 | none yet: SR-026 has no performance test (AC 4); suite timings before and after CR-004 recorded in RISK-006 (no slowdown seen). CR-006 plans the first one (SR-026 AC 5 row below) |
 | Worker retries with backoff and no silent enqueue failures | Protective | TASK-141 | none yet. CR-006: the retention-sweep part is SR-024 AC 5 (row below); the enqueue logging is done (TASK-207, TS-017 TC-017.6, TS-003 TC-003.7) |
-| No blocking IO on the event loop, with thread-pool and connection-pool sizes set together: 20 concurrent mixed clients on one API worker get no 5xx and the SR-026 AC 1 and AC 2 budgets hold; a slow call for one request does not delay unrelated ones (CR-006, PRB-009; PRB-072 if added) | Design | SR-026 AC 5; TASK-136 (final load test TASK-226) | none yet (planned: load test on a started stack with before and after figures in the TR; static test that no `async def` dependency or handler calls a blocking client) |
+| No blocking IO on the event loop, with thread-pool and connection-pool sizes set together: 20 concurrent mixed clients on one API worker get no 5xx and the SR-026 AC 1 and AC 2 budgets hold; a slow call for one request does not delay unrelated ones (CR-006, PRB-009, PRB-072) | Design | SR-026 AC 5; TASK-136 (final load test TASK-226) | TS-018 TC-018.1 (static test), TC-018.2 (slow call isolation), TC-018.4 (pool settings and start-up invariant); TC-018.3 (20-client load test) final run in TASK-226. Residual: about threads + connections concurrent requests per worker, beyond that 500s after the pool timeout ([PRB-081](../problem-reports/PRB-081-requests-beyond-threads-plus-db-connections-fail-with-500.md), minor, open) |
 | Attachment upload and download in bounded chunks; an over-limit upload refused after at most the limit plus one chunk; the download checksum kept by a first chunked pass before the streaming pass (CR-006, PRB-008, D-6) | Design | SR-013 AC 6, AC 5; SR-026 AC 5; TASK-135 (upload), TASK-217 (download) | none yet (planned: TS-007 over-limit upload, memory-bounded download, TC-007.6 to TC-007.8 unchanged) |
 | DICOM stored-size and declared-decoded-size bounds checked before decoding, so one study cannot exhaust the API process (CR-006, PRB-006, D-2) | Protective | SR-017 AC 6; TASK-218 | none yet (planned: TS-010 or a new TS) |
 | Data-access cost does not grow with the data: indexes on the four authorization lookups, constant queries for `groups_of`, one-row activation check (CR-006, PRB-021, PRB-024, PRB-022 regression) | Design | SR-026 AC 6; TASK-219 (indexes, activation), TASK-220 (`groups_of`) | none yet (planned: query-count test; `EXPLAIN` on a seeded database; migration test on an empty and a populated database, upgrade and downgrade) |
@@ -217,3 +213,4 @@ CR-006 (2026-11-13), availability effects introduced by its controls:
 - 1.10 (2026-11-08) — TASK-202 round 2: PRB-076 (the fixed `medhub` subnet could overlap the `object-store` network and stop the start) found in QA and fixed by moving the subnet outside Docker's default pools; recorded in the CR-004 availability effects below. Scores unchanged. `in_review`.
 - 1.11 (2026-11-13) — CR-006 Risk stage, §7.4 change analysis (Software Architect role). Five control rows added (no blocking IO with pool sizing, SR-026 AC 5; bounded attachment IO, SR-013 AC 6; DICOM bounds, SR-017 AC 6; data-access cost, SR-026 AC 6; retention sweep session release and retries, SR-024 AC 5), each with its planned verification and its TASK left to the Plan stage; the budget and worker-retry rows annotated; expected residual stated; "Risks introduced by controls" extended for CR-006. Scores unchanged (3 × 2 → alarp). Content change, so the approval record (approved 2026-11-10 in chat) is cleared and the record returns to review.
 - 1.12 (2026-11-13) — CR-006 Plan gate (D-22, D-23): the CR-006 rows name their tasks (TASK-135 and TASK-217 bounded attachment IO; TASK-218 DICOM bounds; TASK-219 and TASK-220 data-access cost; TASK-136 and TASK-141 unchanged, "at Plan stage" removed); one control row added for a failed lazy route chunk (cause 11; SR-027 AC 3, SR-026 AC 7; TASK-145). Scores unchanged. Content change, so the approval record is cleared and the record returns to review.
+- 1.13 (2026-11-13) — TASK-136 round 2: the TASK-136 control row names PRB-072 and TS-018 (TC-018.1 to TC-018.4) and the residual limit (PRB-081). Scores unchanged. Content change, so the approval record is cleared and the record returns to review.

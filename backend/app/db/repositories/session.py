@@ -12,8 +12,19 @@ from app.core.config import get_settings
 
 @lru_cache(maxsize=1)
 def get_engine() -> Engine:
-    """Create the application-wide SQLAlchemy engine (one connection pool, cached)."""
-    return create_engine(str(get_settings().database_url), hide_parameters=True)
+    """Create the application-wide SQLAlchemy engine (one connection pool, cached).
+
+    The pool is sized with the API thread limit (ADR-0022): at most ``pool_size + max_overflow``
+    connections, and a request waits ``pool_timeout`` seconds for one.
+    """
+    settings = get_settings()
+    return create_engine(
+        str(settings.database_url),
+        hide_parameters=True,
+        pool_size=settings.db_pool_size,
+        max_overflow=settings.db_max_overflow,
+        pool_timeout=settings.db_pool_timeout,
+    )
 
 
 def get_session_factory(engine: Engine) -> sessionmaker[Session]:

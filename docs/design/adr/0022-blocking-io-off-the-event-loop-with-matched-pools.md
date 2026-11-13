@@ -65,6 +65,11 @@ worker; SR-026 AC 5 is stated per worker.
 - A thread per in-flight request: memory grows with the limiter size (about 8 MiB of stack
   reserved per thread, mostly untouched).
 - A pool-size change is a deployed-configuration change and needs the human's approval (D-14).
+- The invariant bounds threads, not requests. A connection belongs to the request (its `get_db` session, kept
+  between dependency steps, through a streaming download and until after the response is sent), so one worker
+  serves about threads + connections concurrent requests; beyond that, requests wait `DB_POOL_TIMEOUT` and answer
+  500, a bounded burst and not the PRB-072 worker kill. The PRB-072 shape is therefore avoided, not every
+  pool-wait failure. Tracked as PRB-081.
 
 ### Neutral
 

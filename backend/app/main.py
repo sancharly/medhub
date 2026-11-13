@@ -46,11 +46,20 @@ async def _lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     _bind_celery_app()
 
     settings = get_settings()
+    # ADR-0022: the thread limit that runs the blocking handlers is a setting, checked against the
+    # database pool when the settings load (a violation stops start-up above).
+    import anyio.to_thread  # noqa: PLC0415
+
+    anyio.to_thread.current_default_thread_limiter().total_tokens = settings.api_threadpool_size
     logger.info(
         "MedHub API starting up",
         extra={
             "environment": settings.environment,
             "cors_origins": settings.cors_origins,
+            "api_threadpool_size": settings.api_threadpool_size,
+            "db_pool_size": settings.db_pool_size,
+            "db_max_overflow": settings.db_max_overflow,
+            "db_pool_timeout": settings.db_pool_timeout,
         },
     )
 

@@ -87,6 +87,22 @@ class Settings(BaseSettings):
     dicom_max_stored_bytes: int = 157286400
     dicom_max_decoded_bytes: int = 1073741824
 
+    # Blocking IO runs in worker threads, so the thread limit and the database connection pool are
+    # sized together (SR-026 AC 5, ADR-0022). API_THREADPOOL_SIZE is applied to AnyIO's default
+    # limiter at start-up and is also the Redis pool size; DB_POOL_SIZE + DB_MAX_OVERFLOW is the
+    # most database connections the engine opens. Start-up is refused when the threads outnumber
+    # the connections, because the surplus threads would queue for a connection until
+    # DB_POOL_TIMEOUT and then fail with a 500 (PRB-072). This does not make a checkout wait-free: a
+    # connection belongs to the request (its get_db session, kept through a streaming download and
+    # until after the response is sent), not to the thread, so one worker serves about threads +
+    # connections concurrent requests and answers 500 beyond that (PRB-081). The defaults are the
+    # largest thread limit the engine's pool (5 + 10, 30 s) can serve (CR-006 D-25); the deployed
+    # values are in infra/ (D-24).
+    api_threadpool_size: int = 15
+    db_pool_size: int = 5
+    db_max_overflow: int = 10
+    db_pool_timeout: int = 30
+
     # CORS
     # An empty value is [], a JSON list or a comma-separated list is accepted (PRB-056, D-6).
     cors_origins: Annotated[list[str], NoDecode] = []
@@ -107,6 +123,24 @@ class Settings(BaseSettings):
     def _require_smtp_password_with_user(self) -> "Settings":
         if self.smtp_user.strip() and self.smtp_password is None:
             raise ValueError("SMTP_PASSWORD is required when SMTP_USER is set")
+        return self
+
+    @model_validator(mode="after")
+    def _check_pool_sizes(self) -> "Settings":
+        """Threads must not outnumber database connections (ADR-0022, PRB-072)."""
+        if (
+            min(self.api_threadpool_size, self.db_pool_size, self.db_pool_timeout) < 1
+            or self.db_max_overflow < 0
+        ):
+            raise ValueError(
+                "API_THREADPOOL_SIZE, DB_POOL_SIZE and DB_POOL_TIMEOUT must be at least 1 and "
+                "DB_MAX_OVERFLOW at least 0"
+            )
+        if self.api_threadpool_size > self.db_pool_size + self.db_max_overflow:
+            raise ValueError(
+                f"API_THREADPOOL_SIZE ({self.api_threadpool_size}) must not exceed DB_POOL_SIZE + "
+                f"DB_MAX_OVERFLOW ({self.db_pool_size + self.db_max_overflow})"
+            )
         return self
 
     @model_validator(mode="after")
