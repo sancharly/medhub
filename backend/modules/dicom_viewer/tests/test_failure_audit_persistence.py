@@ -29,11 +29,12 @@ from app.db.models.base import Base
 from app.db.repositories.audit_repo import AuditRepository
 from app.db.repositories.session import get_db
 from app.modules.platform_services import PlatformServices
+from postgres_image import POSTGRES_IMAGE
 
 
 @pytest.fixture(scope="module")
 def pg_engine():
-    with PostgresContainer("postgres:16") as container:
+    with PostgresContainer(POSTGRES_IMAGE) as container:
         engine = create_engine(container.get_connection_url())
         Base.metadata.create_all(engine)
         yield engine

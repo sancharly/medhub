@@ -1,0 +1,6 @@
+jobs:
+  a:
+    steps:
+      - uses: docker://alpine:3.20
+      - uses: "docker://alpine:3.20" # quoted
+      - uses: docker://alpine:${{ env.ALPINE }}@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa

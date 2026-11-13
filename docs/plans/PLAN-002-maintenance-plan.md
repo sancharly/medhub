@@ -3,14 +3,14 @@ id: PLAN-002
 type: lifecycle-plan
 title: Software maintenance plan
 status: approved
-version: "1.2"
+version: "1.3"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
-updated: "2026-10-31"
+updated: "2026-11-13"
 plan_kind: maintenance
 approved_by: Carlos Santiago Liceras
-approved_on: "2026-10-31"
-approved_digest: abcbce078f287e3e84b27195e3345e95657329c0412c77283ae01efe39dc9db1
+approved_on: "2026-11-13"
+approved_digest: 9c5ccae22bee12a60bafb1084c0215767984e8a5a3d5d0f81c579c933f5f46b8
 approval_note: self-approved
 links: []
 tags:
@@ -47,6 +47,18 @@ SOUP anomaly lists and security advisories are reviewed for each `soup` record i
 [`../soup/`](../soup/) at every dependency change, before every release, and at most 365 days
 apart (`soup_anomaly_max_age_days` in `docs/medtrace.yml`). The review date goes in the record's
 `anomaly_review`. Owner: the Software Architect role, with the human accountable.
+
+### Build and CI tool pins
+
+The tool pins of [SR-028](../design-inputs/software-requirements/SR-028-traceable-version-controlled-development-records.md) AC-8 and AC-9 are not SOUP and have no `soup` record: the commit SHAs of the
+GitHub Actions, the CI Python and Node.js versions, the `uv` version, the `npx` package versions
+(`@redocly/cli`) and the test and CI service images (PostgreSQL, Redis). They are reviewed together
+with the SOUP list, before every release and at most 365 days apart: is each still maintained, is
+there a fix for an advisory against the pinned version, and does the `infra/check_image_pins.py`
+check still pass. A pin is moved only by a reviewed commit (a change request when it changes a
+shipped version), never by automated update tooling. The hosted runner image (`runs-on: ubuntu-latest`)
+is outside this review: no repository reference pins it (ADD-024, RISK-010 path 3). Owner: the
+Software Architect role, with the human accountable.
 
 ### End of support (obsolescence)
 
@@ -106,3 +118,4 @@ This plan is a living document; a change is a new `version` and a new review.
 | 1.0 | 2026-10-21 | Split out of ADD-002 v2.0 as a `lifecycle-plan` record |
 | 1.1 | 2026-10-30 | End-of-support criterion added to SOUP monitoring (§6.1 f), with a 12-month horizon and the action on a shortfall. Root cause of [PRB-045](../problem-reports/PRB-045-redis-image-base-os-end-of-support.md) (Redis image on Alpine 3.21, support ending 2026-11-01) and [PRB-035](../problem-reports/PRB-035-frontend-build-on-end-of-life-node.md) (frontend built on Node 20, end of life 2026-04-30): the reviews checked anomaly lists only, and nothing checked end of support. Raised as a separate plan revision by CR-003 Q-5 |
 | 1.2 | 2026-10-30 | Monthly review for items with rolling releases and a recent critical advisory added to SOUP monitoring (§6.1 f). Current item: SOUP-036 (SeaweedFS, ADR-0015, CR-002 TASK-172). The yearly review of every other item is unchanged. Proposed; approval record cleared for re-approval by the human |
+| 1.3 | 2026-11-13 | Build and CI tool pins (SR-028 AC-8, AC-9) reviewed with the SOUP list, before every release and at most 365 days apart, moved only by a reviewed commit (CR-005 Q-5, TASK-216). Proposed; approval record cleared for re-approval by the human |

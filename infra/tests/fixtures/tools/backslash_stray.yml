@@ -1,0 +1,10 @@
+jobs:
+  a:
+    steps:
+      - run: |
+          pip install \
+            uvicorn \
+      - uses: actions/checkout@v4
+      - run: echo done \
+
+      - run: pip install uv

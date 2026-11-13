@@ -1,0 +1,9 @@
+jobs:
+  a:
+    steps:
+      - name: Lint with npx for the OpenAPI schema
+        run: npx --yes @redocly/cli@2.77.0 lint openapi.json
+      - run: |
+          cd x && npx -y prettier@3.3.3 --check .
+      - run: "npx --yes @redocly/cli@2.77.0 lint openapi.json"
+      - run: FOO=1 npx eslint@9.1.0 .

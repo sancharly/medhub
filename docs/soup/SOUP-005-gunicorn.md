@@ -3,16 +3,17 @@ id: SOUP-005
 type: soup
 title: Gunicorn
 status: approved
-version: "1.2"
+version: "1.3"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
-updated: "2026-11-10"
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-11-10"
-approval_note: approved by the human in chat at the close of CR-004
+updated: "2026-11-13"
 manufacturer: Benoit Chesneau
 soup_version: 26.0.0
 anomaly_review: "2026-10-22"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-11-13"
+approved_digest: a79e6547a2a8e6d9424e9282f8722a17d884f215f68c6a3aff8dd0d6e3b3e0ec
+approval_note: self-approved
 links: []
 tags:
   - soup
@@ -25,6 +26,12 @@ tags:
 ## Functional and performance requirements
 
 Production process manager supervising Uvicorn workers.
+
+Relied-on configuration: the control socket is **disabled** by `--no-control-socket` (setting
+`control_socket_disable`) in the backend image `CMD` (PRB-041, TASK-214). MedHub does not use the
+`gunicornc` management interface (worker status, graceful reload). Reload (`HUP`) and shutdown
+(`TERM`) by signal are unaffected: the flag only skips starting the control server. Without the flag the control
+server fails at every start because the service user has no home (`Errno 13`), logging an ERROR.
 
 ## Required hardware and software environment
 
@@ -53,8 +60,8 @@ No security advisory for 26.0.0 in OSV, the GitHub Advisory Database, the reposi
 
 | Item | Source | Fixed in | MedHub affected? |
 |---|---|---|---|
-| Control socket on by default: `control_socket_disable` defaults to `False`; the socket goes to `$XDG_RUNTIME_DIR/gunicorn.ctl`, else `$HOME/.gunicorn/gunicorn.ctl` (since 25.1.0) | Settings reference | Behaviour, not a defect | Yes: the service user has no home, so the control server fails at every start. Already open as **PRB-041** (minor); not a new escalation |
-| Control socket leaks a thread, selector fd and socket per worker on each SIGHUP reload (#3648) | 26.1.0 notes | 26.1.0 | No: MedHub does not reload by SIGHUP, and the control server does not start (PRB-041). PRB-041's proposed `--no-control-socket` removes it |
+| Control socket on by default: `control_socket_disable` defaults to `False`; the socket goes to `$XDG_RUNTIME_DIR/gunicorn.ctl`, else `$HOME/.gunicorn/gunicorn.ctl` (since 25.1.0) | Settings reference | Behaviour, not a defect | Yes: the service user has no home, so the control server fails at every start. Was open as **PRB-041** (minor); disabled by configuration since TASK-214 (`--no-control-socket`, see Functional requirements); not a new escalation |
+| Control socket leaks a thread, selector fd and socket per worker on each SIGHUP reload (#3648) | 26.1.0 notes | 26.1.0 | No: MedHub does not reload by SIGHUP, and the control server does not start (PRB-041); with `--no-control-socket` (TASK-214) it is never created |
 | Children reparented to gunicorn as PID 1 are reaped as workers; one exiting with code 3 or 4 halts the server (#3220) | 26.1.0 notes | 26.1.0 | Applies in principle: `exec gunicorn` makes it PID 1 in the backend container and Compose sets no `init`. Triggered only by an orphaned process; the backend starts no subprocesses and the healthcheck's `python -c` does not fork. Availability only |
 | HTTP parser fixes: truncated chunked bodies accepted, duplicate `Host`/`Content-Type` accepted (26.1.0); HTTP/2 header policy and `Upgrade` bodies dropped on the ASGI worker (26.2.0) | 26.1.0 / 26.2.0 notes | 26.1.0 / 26.2.0 | No: these are Gunicorn's own sync/gthread/asgi workers and parser. MedHub uses `UvicornWorker`, where Uvicorn parses HTTP; HTTP/2 is off |
 
@@ -62,19 +69,19 @@ No security advisory for 26.0.0 in OSV, the GitHub Advisory Database, the reposi
 
 ### MedHub use and judgement
 
-Gunicorn only supervises the Uvicorn workers (`backend/entrypoint.sh`); it parses no requests. The
-control-socket failure is PRB-041 (open, minor). Its effect on log monitoring, which RISK-007
-relies on, is evaluated there. The PID-1 reaping bug can at worst stop the API (availability,
+Gunicorn only supervises the Uvicorn workers (the backend image `CMD`, `backend/Dockerfile`); it
+parses no requests. The control-socket failure was PRB-041 (minor), disabled by configuration since
+TASK-214. Its effect on log monitoring, which RISK-007 relies on, is evaluated there. The PID-1 reaping bug can at worst stop the API (availability,
 RISK-007: covered by `restart: unless-stopped` and the healthcheck), and MedHub's container gives
 it no trigger. Nothing here is hazard-relevant and no MedHub behaviour beyond PRB-041 is affected:
-no new RISK or PRB. When PRB-041 is fixed, its CR can also consider `init: true` for the backend
-service. Moving to 26.1.0 or later is a separate CR (CR-001 A-4).
+no new RISK or PRB. `init: true` for the backend service was considered and not adopted (CR-005
+Q-3). Moving to 26.1.0 or later is a separate CR (CR-001 A-4).
 
 ## Forwarded-header handling (CR-004, TASK-185)
 
 MedHub relies on Gunicorn's `forwarded_allow_ips` being **empty**. The default is `127.0.0.1,::1`
 (or `$FORWARDED_ALLOW_IPS`), and `UvicornWorker` passes it to Uvicorn's proxy-headers handling, which
-would rewrite `request.client` for those peers. `backend/entrypoint.sh` starts Gunicorn with
+would rewrite `request.client` for those peers. The backend image `CMD` (`backend/Dockerfile`) starts Gunicorn with
 `--forwarded-allow-ips=` (empty): the setting parses to an empty list, so no peer is trusted and
 `request.client` is always the TCP peer. The application applies the one trusted-proxy rule of
 SR-042 itself (`backend/app/core/client_address.py`, ADR-0019). Verified for 26.0.0 on the started
@@ -93,3 +100,5 @@ accountable. Hazard-relevant anomalies go to `risk-management`; defects affectin
   ADD-004 to one `soup` record per component (medical-records 0.3.2).
 - 2026-10-22 — 26.0.0 (unchanged). First anomaly-list review (TASK-154, CR-001 AC-11/AC-12): no advisory for 26.0.0; control socket on by default and failing in MedHub's image (PRB-041, already open); later-fixed process-manager and parser bugs judged; nothing hazard-relevant. Record 1.0 → 1.1; approval record removed for re-review.
 - 2026-10-31 — 26.0.0 (unchanged). TASK-185 (CR-004): records the reliance on `forwarded_allow_ips` being empty (SR-042, ADR-0019). Record 1.1 → 1.2; approval record removed for re-review.
+- 2026-11-12 — 26.0.0 (unchanged). TASK-214 (CR-005, PRB-041): control socket disabled by configuration (`--no-control-socket` in the backend image `CMD`); relied-on configuration and Findings rows updated; also corrected the stale references: the Gunicorn command is the image `CMD` (not `backend/entrypoint.sh`, since TASK-191), PRB-041 is no longer open, `init: true` was not adopted (CR-005 Q-3); and stated that reload/shutdown by signal are unaffected (QA round 1, 2026-11-12). The version and the published information are unchanged, so no new anomaly review (`anomaly_review` stays 2026-10-22). Record 1.2 → 1.3; approval record removed for re-review.
+- 2026-11-13 — Wording corrected under TASK-216 (TASK-214 QA round 2, LOW 2): a sentence capitalised and the QA round 1 date fixed in the 2026-11-12 line above. No change of content; record stays 1.3, `in_review`.

@@ -7,11 +7,12 @@ from testcontainers.postgres import PostgresContainer
 
 import app.db.models  # noqa: F401 — ensure all models are registered with Base.metadata
 from app.db.models.base import Base
+from postgres_image import POSTGRES_IMAGE
 
 
 @pytest.fixture(scope="module")
 def pg_container():
-    with PostgresContainer("postgres:16") as container:
+    with PostgresContainer(POSTGRES_IMAGE) as container:
         yield container
 
 

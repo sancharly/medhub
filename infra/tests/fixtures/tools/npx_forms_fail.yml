@@ -1,0 +1,7 @@
+jobs:
+  a:
+    steps:
+      - run: "npx @redocly/cli lint openapi.json"
+      - run: FOO=1 npx eslint .
+      - run: |
+          cd x && CI=true npx prettier --check .

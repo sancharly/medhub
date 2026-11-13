@@ -27,6 +27,7 @@ from testcontainers.postgres import PostgresContainer
 
 import app.db.crypto as crypto_mod
 from app.db.crypto import decrypt, encrypt
+from postgres_image import POSTGRES_IMAGE
 
 _DOCKER_SOCKET = os.path.expanduser("~/.docker/run/docker.sock")
 if os.path.exists(_DOCKER_SOCKET) and not os.environ.get("DOCKER_HOST"):
@@ -59,7 +60,7 @@ def legacy_decrypt(value: str, key: bytes) -> str:
 
 @pytest.fixture(scope="module")
 def pg_url() -> Iterator[str]:
-    with PostgresContainer("postgres:16") as container:
+    with PostgresContainer(POSTGRES_IMAGE) as container:
         url = container.get_connection_url()
         cfg = Config(str(_BACKEND_DIR / "alembic.ini"))
         cfg.set_main_option("script_location", str(_BACKEND_DIR / "app" / "db" / "alembic"))

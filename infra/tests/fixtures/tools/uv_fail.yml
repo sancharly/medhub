@@ -1,0 +1,8 @@
+jobs:
+  a:
+    steps:
+      - run: pip install uv
+      - run: pip install "uv>=0.13"
+      - run: pipx install uv
+      - run: pip install uv==0.13
+      - run: pip install uvicorn==0.30.0

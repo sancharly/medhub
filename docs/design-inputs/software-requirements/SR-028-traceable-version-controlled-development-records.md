@@ -3,13 +3,12 @@ id: SR-028
 type: software-requirement
 title: Traceable, version-controlled development records
 status: approved
-version: "1.6"
+version: "1.7"
 author: Carlos Santiago Liceras
 created: "2026-07-07"
-updated: "2026-10-30"
+updated: "2026-11-12"
 approved_by: Carlos Santiago Liceras
-approved_on: "2026-10-30"
-approved_digest: 48fcf3109fc7b116257f58ca9f2fab0cdfca1ee76fecb7550bc479f157209377
+approved_on: "2026-11-12"
 approval_note: self-approved
 links:
   - target: RR-006
@@ -35,13 +34,15 @@ tags:
 
 ## Summary
 
-The development shall maintain uniquely identified, version-controlled requirements with bidirectional traceability and risk analysis, shall trace each software requirement to at least one test, and shall identify every third-party (SOUP) component of the build by an exact, immutable version with a dated anomaly-list review.
+The development shall maintain uniquely identified, version-controlled requirements with bidirectional traceability and risk analysis, shall trace each software requirement to at least one test, shall identify every third-party (SOUP) component of the build by an exact, immutable version with a dated anomaly-list review, and shall build and verify the software with exactly versioned tools against the SOUP versions it ships.
 
 ## Description
 
 This requirement implements the process/documentation obligations of the medical-device regulation and IEC 62304. Each requirement (user need, NFR, software requirement) is uniquely identified, kept under version control with status and version history, and carries risk analysis. Software requirements reference their origin user need/NFR, and each is traced to at least one system test, forming an auditable design and verification record.
 
 The same obligation covers the software of unknown provenance the build is assembled from (RR-008, RR-010): every third-party package, language runtime and container image resolves to exactly one version that cannot change without a commit, so the released build is reproducible from version-controlled sources and each SOUP record states what is actually deployed.
+
+Reproducing a build also needs the tools that assemble and verify it to be fixed (IEC 62304 §5.8.5, §8.1; RR-010): the CI actions, the language runtimes CI installs and the package manager that installs the locked dependencies into the image are not SOUP, because none ships in the product, but a moving version of any of them can change what is built or verified with no commit. Likewise, verification evidence supports a SOUP item only when the tests ran against the version the deployment uses.
 
 ## Acceptance Criteria
 
@@ -52,6 +53,8 @@ The same obligation covers the software of unknown provenance the build is assem
 5. Every third-party component that the deployed software ships or requires at runtime is declared in a version-controlled manifest and resolves to exactly one version: packages through the committed lock files, container images through a reference that carries both a release tag and an immutable content digest (`@sha256:`). The CI pipeline fails on a change that leaves a container image reference in the deployment or image-build files (Compose files, Dockerfiles) without a digest.
 6. Every SOUP component in use has a `soup` record whose `soup_version` equals the version the build resolves, and a dated review of its published anomaly list that cites the source reviewed; at release the review is no older than `soup_anomaly_max_age_days` in `docs/medtrace.yml`.
 7. Every container image the deployment references can be obtained, by its pinned tag and digest or by a documented build from version-controlled sources with verified checksums, on a host that holds no cached images: building and starting the stack on such a host succeeds.
+8. Every tool that builds the release images or runs the CI pipeline is referenced in the repository by an exact, immutable version: each GitHub Action by a full 40-character commit SHA; each language runtime the CI pipeline installs by a full patch version, equal to the version of the matching base image (Python: the SOUP-001 version; Node.js: the frontend build image); and the Python package manager by one exact version, the same in the backend image build and in every CI job. The CI pipeline fails, naming file and line, on a change that leaves any of these references without its exact version.
+9. Every automated test that starts a SOUP component as a container uses the same image reference, release tag and `@sha256:` digest, as the deployment definition (`infra/docker-compose.yml`). The CI pipeline fails, naming file and line, on a change that makes a test's image reference differ from the deployment's or drop its digest.
 
 ## Origin Requirement
 
@@ -68,11 +71,13 @@ Traceable, controlled records are mandatory for MDR/FDA technical documentation 
 - Compliance risk: missing traceability or records blocks regulatory acceptance.
 - Quality risk: untraced requirements may go unverified.
 - Safety risk: a floating or undeclared third-party component changes or disappears between builds, silently weakening a verified risk control or disabling a function (RISK-010).
+- Verification risk: a floating build or CI tool, or a test that starts a different SOUP version from the shipped one, makes the verification evidence of a risk control (for example the real-database audit tests of RISK-006) apply to software other than the released build.
 
 ### Control Measures
 
 - Maintain requirements in the repository using the template (IDs, status, version history, origin, risk analysis); establish requirement-to-test traceability during the testing phase per the development plan.
 - Pin every package through the lock files and every container image by tag and digest, enforced by a CI check; review each SOUP item's anomaly list per PLAN-002 (AC-5, AC-6; verified through TS-013 once it covers them).
+- Pin CI actions, CI runtimes and the package manager to exact versions, and start test containers from the deployment's image reference, both enforced by a CI check (AC-8, AC-9; verified through TS-013 once it covers them).
 
 ## Version history
 
@@ -96,3 +101,4 @@ Traceable, controlled records are mandatory for MDR/FDA technical documentation 
   the anomaly review of CR-001 (PRB-001, PRB-002, PRB-033, TASK-154) had no testable criterion to
   verify against.
 - 1.6 (2026-10-30) — Content change, so the approval record is cleared and the record returns to review (CR-002). Added AC-7 (every pinned component can be obtained on a host with no cached images). Reason: the pinned MinIO images can no longer be pulled from any registry, so the pinned build is not reproducible on a fresh or amd64 host (PRB-042, §5.8.5).
+- 1.7 (2026-11-12) — Content change, so the approval record is cleared and the record returns to review (CR-005). Added AC-8 (build and CI tooling referenced by exact versions: actions by commit SHA, CI runtimes by patch version equal to the base images, one exact package-manager version; enforced in CI) and AC-9 (test containers of SOUP components use the deployment's image reference, enforced in CI), with the matching summary, description, risk and control-measure text. Reason: RR-010 asks for a reproducible build and AC-5 covers only components that ship or run, so the floating tooling of PRB-034 and the floating test image of PRB-040 had no testable criterion.
