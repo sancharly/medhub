@@ -22,6 +22,7 @@ class Appointment(UUIDMixin, TimestampMixin, Base):
     __table_args__ = (
         Index("ix_appointment_doctor_id", "doctor_id"),
         Index("ix_appointment_patient_id", "patient_id"),
+        Index("ix_appointment_scheduled_at", "scheduled_at"),
     )
 
     doctor_id: Mapped[uuid.UUID] = mapped_column(

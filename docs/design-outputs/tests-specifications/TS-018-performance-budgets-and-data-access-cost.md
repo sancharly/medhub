@@ -3,7 +3,7 @@ id: "TS-018"
 type: test-specification
 title: "Performance budgets and data-access cost verification"
 status: approved
-version: "1.1"
+version: "1.2"
 author: "Carlos Santiago Liceras"
 created: "2026-11-13"
 updated: "2026-11-13"
@@ -17,29 +17,30 @@ tags: ["level:unit", "level:integration", "level:system", "class:B", "cr:CR-006"
 
 ## Scope
 
-Software requirement covered: SR-026. This version (TASK-136) holds the test cases for **SR-026 AC 5**
+Software requirement covered: SR-026. This version holds the test cases for **SR-026 AC 5**
 (20 concurrent clients on one API worker: no 5xx, the AC 1 and AC 2 budgets hold, a slow call does not
 delay unrelated requests) and the part of **AC 1 and AC 2** that the same load test measures
-(TC-018.3). The remaining acceptance criteria are added by the tasks that implement them and are not
+(TC-018.3) (TASK-136), and the index-served lookups and the one-row activation of **SR-026 AC 6**
+(TC-018.5, TC-018.6) (TASK-219). The remaining acceptance criteria are added by the tasks that implement them and are not
 yet mapped, so this specification is incomplete for SR-026 until then:
 
 | SR-026 AC | Task that adds its test cases |
 |---|---|
 | AC 3 (DICOM first image within 10 s), AC 4 (budgets verified by performance tests) | TASK-226 |
-| AC 6 (data-access cost: activation token, group listing, index-served lookups) | TASK-219, TASK-220 |
+| AC 6, group listing (constant number of queries) | TASK-220 |
 | AC 7 (initial JavaScript at most 165 kB gzip) | TASK-145 |
 | AC 8 (inactivity tracking re-arms at most once per second) | TASK-222 |
 
 Software items under test: SI-API `U-API-Deps`, `api/routers/auth.py` and the lifespan (ADD-005);
 SI-PERSIST engine (ADD-016); the Redis client of `api/deps.py` (SI-AUTH, ADD-006, no behaviour change).
-Levels: unit (TC-018.1, TC-018.4), integration through the ASGI app (TC-018.2) and system (TC-018.3).
+SI-PERSIST migration 0011 and SI-IDENTITY activation (ADD-016, SOUP-009 PostgreSQL). Levels: unit (TC-018.1, TC-018.4), integration through the ASGI app (TC-018.2), integration against PostgreSQL (TC-018.5, TC-018.6) and system (TC-018.3).
 
 ## Preconditions and environment
 
 Branch `fix/review-2026-07-reliability`. Backend Python 3.12 with the dependencies locked in
 `backend/uv.lock`; Starlette 1.3.1 and anyio 4.14.2 (SOUP-003), SQLAlchemy `QueuePool` (SOUP-008),
 redis-py (SOUP-013). TC-018.1, TC-018.2 and TC-018.4 need no database, Redis or object store (the
-session service and the database dependency are stubbed). TC-018.3 needs a started stack
+session service and the database dependency are stubbed). TC-018.5 and TC-018.6 need Docker (a PostgreSQL container of the project image, `backend/tests/postgres_image.py`). TC-018.3 needs a started stack
 (`infra/docker-compose.yml`, one Gunicorn worker) with the load-test accounts seeded, and a host that
 has the same CPU for every compared run; the data set grows with every run (see TASK-136), so only
 runs made in sequence on one stack are comparable in throughput.
@@ -52,6 +53,8 @@ runs made in sequence on one stack are comparable in throughput.
 | TC-018.2 | SR-026 AC 5 | `backend/tests/api/test_no_blocking_in_async.py::test_slow_db_call_does_not_block_unrelated_request` (the session lookup is patched to sleep 2 s while a concurrent `GET /healthz` is timed from the moment it was due). Negative control: same test on `8028685` | With a dependency call blocked for 2 s, an unrelated request completes in under 200 ms | The test passes; on `8028685` it fails with `/healthz waited 1.73 s` |
 | TC-018.3 | SR-026 AC 5, AC 1, AC 2 | `backend/scripts/load_test.py` (seed, then run): 20 clients, 5 min, mix of `GET /me`, list appointments, list clinical entries, create clinical entry, 1 MiB upload and download, plus a 10 Hz `GET /healthz` probe; started stack, one worker. Results and the before/after table: TASK-136 "Load test". The final run with the approved pool values is TASK-226 | No 5xx and no transport error; no gunicorn `WORKER TIMEOUT` and no `QueuePool limit` line in the server log; p95 of every routine operation within 3 s (AC 1) and of the clinical-entry create within 3 s (AC 2, upload time excluded) | **Pending the final run (TASK-226).** TASK-136 evidence: 0 × 5xx, 0 transport errors, 0 worker timeouts, every p95 under 1.2 s, on four pool configurations; the pre-TASK-136 build fails the same test (210 transport errors, 10 worker kills) |
 | TC-018.4 | SR-026 AC 5 (ADR-0022) | `backend/tests/core/test_pool_settings.py`: `test_startup_refuses_threadpool_larger_than_db_pool`, `test_lifespan_refuses_to_start_with_threads_over_connections`, `test_threads_equal_to_connections_is_accepted`, `test_non_positive_pool_values_are_refused`, `test_defaults_satisfy_the_invariant`, `test_lifespan_applies_the_thread_limit`, `test_engine_pool_follows_the_settings`, `test_redis_pool_is_bounded_by_the_thread_limit` | Settings with more threads than `DB_POOL_SIZE + DB_MAX_OVERFLOW` (the 40 against 15 of PRB-072) are refused, also at lifespan start; the lifespan sets anyio's thread limiter; the engine and the Redis client are built with the configured sizes, one client per process | All listed tests pass |
+| TC-018.5 | SR-026 AC 6 (PRB-021) | `backend/tests/db/test_migration_0011_indexes.py`: `test_upgrade_downgrade_0011_empty_and_populated`, `test_authorization_lookups_use_index`, `test_without_the_indexes_the_same_lookups_scan` (negative control) | Migration 0011 upgrades and downgrades on an empty database and on one with 10 000 rows in each of `appointment`, `consent_grant`, `clinical_entry`, `attachment`, creating and dropping `ix_appointment_scheduled_at`, `ix_consent_grant_appointment_id`, `ix_clinical_entry_patient_id`, `ix_attachment_patient_id` with row counts unchanged; after `ANALYZE` with `enable_seqscan` on, `EXPLAIN` of the lookup by patient (clinical entries, attachments), by a one-hour appointment-time window and by consent appointment names the new index and has no `Seq Scan`; at revision 0010 the clinical-entry lookup is a `Seq Scan` | All listed tests pass; `test_migration.py` (no ORM/migration drift) still passes |
+| TC-018.6 | SR-026 AC 6 (PRB-022 regression) | `backend/tests/identity/test_activation_one_row.py::test_activation_reads_one_account_row`. Negative control: `AccountRepository.get_by_id` replaced by a `list()` scan fails with `assert 1001 == 1` | `ActivationService.activate` against PostgreSQL with 1 and with 1 001 accounts issues the same number of statements on `account` and fetches exactly one account row | The test passes |
 
 TS-001 and TS-002 (authorization and session decisions, RISK-001 and RISK-005) run unchanged as the guard
 for this task: the dependencies changed from `async def` to `def`, their decisions did not.
@@ -75,3 +78,5 @@ pre-TASK-136 build and the working tree, and the two infra tests, green since th
   TASK-226, TASK-219, TASK-220, TASK-145 and TASK-222. `in_review`.
 - 1.1 (2026-11-13): Pool values approved (CR-006 D-24); verification note updated. `in_review`.
 - 1.1 (2026-11-13): QA review of TASK-136 (round 1): `approved` (status only; content unchanged).
+- 1.2 (2026-11-13): TASK-219. Added TC-018.5 (indexes of migration 0011) and TC-018.6 (activation reads one account row) for SR-026 AC 6; AC 6 group listing stays with TASK-220. Content change, so the approval record is removed. `in_review`.
+- 1.2 (2026-11-13): QA review of TASK-219 (round 1): `approved` (status only; content unchanged).
