@@ -2,15 +2,11 @@
 id: SR-026
 type: software-requirement
 title: Performance budgets for routine operations
-status: approved
-version: "1.5"
+status: in_review
+version: "1.6"
 author: Carlos Santiago Liceras
 created: "2026-07-07"
 updated: "2026-11-13"
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-11-13"
-approved_digest: b89db0f7adc43a5b6a6374a0aa7546057fbbb7e490299f22391228739f6b1d6e
-approval_note: self-approved
 links:
   - target: RR-010
     relation: satisfies
@@ -37,7 +33,7 @@ This requirement implements the performance NFR with concrete, testable budgets.
 3. Opening a DICOM image presents an initial rendered image within 10 seconds under normal load for a typical study.
 4. These budgets are verified by performance/system tests.
 5. With 20 authenticated clients issuing requests at the same time (reads and writes mixed) against one API worker, no request is answered with a 5xx status and the budgets of AC 1 and AC 2 hold. A slow database or object-store call made for one request does not delay unrelated requests beyond those budgets. (20 clients, CR-006 D-3.)
-6. The cost of data-access paths used by authorization and module gating does not grow with the size of the data set: validating an activation token reads at most one account row, listing a user's groups issues a constant number of queries independent of the number of memberships, and the lookups by appointment time, by consent appointment, and by patient for clinical entries and for attachments are served by an index (a query-plan check on a seeded database shows no sequential scan of those tables).
+6. The cost of data-access paths used by authorization and module gating does not grow with the size of the data set: validating an activation token reads at most one account row, listing a user's groups issues a constant number of queries independent of the number of memberships, and the lookups by appointment time, by consent appointment, by patient for clinical entries and for attachments, by clinical entry for attachments, and by doctor for active consents are served by an index (a query-plan check on a seeded database shows no sequential scan of those tables).
 7. The initial JavaScript payload of the web application excludes the code of routes and modules that the landing route does not render; those are loaded when first navigated to. The initial JavaScript payload is at most 165 kB gzip on the production build (CR-006 D-8, Plan gate P-2; baseline measured 2026-11-13: one chunk, 559.07 kB minified, 172.55 kB gzip).
 8. The web application's inactivity tracking re-arms its timers at most once per second of continuous user activity, and the inactivity deadlines of SR-030 AC 1 and AC 2 remain accurate to within that second.
 
@@ -70,3 +66,4 @@ Concrete budgets make the performance NFR testable and protect clinical-workflow
   medical-records 0.3.2). Traceability only: the content is unchanged, so the existing approval stands.
 - 1.4 (2026-11-13) — Content change, so the approval is cleared and the record returns to review (CR-006, GitHub sancharly/medhub#28). Added AC 5 to AC 8: the budgets under concurrent load, non-growing data-access cost, route-level code splitting and bounded inactivity tracking. Reason: AC 1 to AC 4 say 'under normal load' without defining it or the cost of the paths that run on every request, and the review found blocking IO, a missing index set, a full table scan, an N+1 query, an unsplit bundle and an unbounded event handler (PRB-008, PRB-009, PRB-020, PRB-021, PRB-022, PRB-024, PRB-025; RISK-007).
 - 1.5 (2026-11-13) — Content change, so the approval is cleared and the record returns to review (CR-006 Plan gate P-2). AC 7 budget set: initial JavaScript at most 165 kB gzip on the production build (baseline 172.55 kB gzip).
+- 1.6 (2026-11-13) — Content change, so the approval is cleared and the record returns to review (CR-006 D-29, Software Architect role at the human's direction). AC 6 extended with the two lookups the code issues that no index served after migration 0011: attachments by clinical entry and active consents by doctor (TASK-219 QA finding 1; TASK-220, migration 0012). The four lookups already listed stay.

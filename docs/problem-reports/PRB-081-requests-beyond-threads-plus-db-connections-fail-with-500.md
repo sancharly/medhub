@@ -3,7 +3,7 @@ id: "PRB-081"
 type: problem-report
 title: "Concurrent requests beyond threads plus database connections per worker fail with 500"
 status: open
-version: "1.0"
+version: "1.1"
 author: "Carlos Santiago Liceras"
 created: "2026-11-13"
 updated: "2026-11-13"
@@ -64,8 +64,12 @@ no notification is needed. The human sets the final criticality.
 
 ## Resolution
 
-Not started. Out of CR-006 scope until the human decides.
+Outside CR-006 (D-27, human decision 2026-11-13): availability only and beyond SR-026 AC 5; left `open` for a
+later CR with a decision on a per-worker concurrency cap. CR-006 links it `relates_to`. TASK-227 (PRB-080) ends
+the request transaction before the response, so a streamed download no longer holds a connection during the
+transfer; that removes one contribution, not the bound itself.
 
 ## Version history
 
 - 1.0 (2026-11-13) — Created from TASK-136 QA round 1 finding 1. `open`, `minor`.
+- 1.1 (2026-11-13) — CR-006 D-27: kept out of scope; Resolution updated. Still `open`.

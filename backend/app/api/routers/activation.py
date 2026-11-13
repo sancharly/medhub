@@ -6,7 +6,6 @@ import hashlib
 from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends, status
-from sqlalchemy.orm import Session
 
 from app.api.errors import ValidationProblem
 from app.api.schemas.account import ActivationRequest, ActivationTokenStatus
@@ -18,13 +17,13 @@ from app.db.repositories.account_repo import AccountRepository
 from app.db.repositories.audit_repo import AuditRepository
 from app.db.repositories.consent_repo import ConsentRepository
 from app.db.repositories.group_repo import GroupRepository
-from app.db.repositories.session import get_db
+from app.db.repositories.session import DbSession
 from app.identity.activation import ActivationService
 
 router = APIRouter(prefix="/activation", tags=["activation"])
 
 
-def _get_activation_service(db: Session = Depends(get_db)) -> ActivationService:
+def _get_activation_service(db: DbSession) -> ActivationService:
     audit_svc = AuditService(AuditRepository(db))
     password_svc = PasswordService()
     group_repo = GroupRepository(db)
@@ -35,7 +34,7 @@ def _get_activation_service(db: Session = Depends(get_db)) -> ActivationService:
 @router.get("/{token}", response_model=ActivationTokenStatus)
 def validate_token(
     token: str,
-    db: Session = Depends(get_db),
+    db: DbSession,
 ) -> ActivationTokenStatus:
     """Validate an activation token without consuming it."""
     token_hash = hashlib.sha256(token.encode()).hexdigest()

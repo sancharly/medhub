@@ -5,7 +5,6 @@ from __future__ import annotations
 import uuid
 
 from fastapi import APIRouter, Depends, status
-from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user
 from app.api.errors import AuthorizationError, NotFoundError
@@ -17,17 +16,17 @@ from app.authz.service import AuthorizationService, Resource
 from app.db.models.account import Account
 from app.db.repositories.audit_repo import AuditRepository
 from app.db.repositories.consent_repo import ConsentRepository
-from app.db.repositories.session import get_db
+from app.db.repositories.session import DbSession
 
 router = APIRouter(tags=["consents"])
 
 
-def _get_consent_service(db: Session = Depends(get_db)) -> ConsentService:
+def _get_consent_service(db: DbSession) -> ConsentService:
     audit_svc = AuditService(AuditRepository(db))
     return ConsentService(ConsentRepository(db), audit_svc)
 
 
-def _get_authz_service(db: Session = Depends(get_db)) -> AuthorizationService:
+def _get_authz_service(db: DbSession) -> AuthorizationService:
     audit_svc = AuditService(AuditRepository(db))
     return AuthorizationService(ConsentService(ConsentRepository(db), audit_svc), audit_svc)
 
@@ -41,7 +40,7 @@ def _patient_only(authz: AuthorizationService, actor: Account, action: str, mess
         raise AuthorizationError(message)
 
 
-def _get_consent_repo(db: Session = Depends(get_db)) -> ConsentRepository:
+def _get_consent_repo(db: DbSession) -> ConsentRepository:
     return ConsentRepository(db)
 
 

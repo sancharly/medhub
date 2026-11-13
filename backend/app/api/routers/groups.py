@@ -22,13 +22,13 @@ from app.db.repositories.account_repo import AccountRepository
 from app.db.repositories.audit_repo import AuditRepository
 from app.db.repositories.group_repo import GroupRepository
 from app.db.repositories.module_repo import ModuleRepository
-from app.db.repositories.session import get_db
+from app.db.repositories.session import DbSession
 from app.groups.service import GroupService
 
 router = APIRouter(prefix="/groups", tags=["groups"])
 
 
-def _get_group_service(db: Session = Depends(get_db)) -> GroupService:
+def _get_group_service(db: DbSession) -> GroupService:
     from app.authz.consent import ConsentService  # noqa: PLC0415
     from app.db.repositories.consent_repo import ConsentRepository  # noqa: PLC0415
 
@@ -89,9 +89,9 @@ def _to_group_response(group: object, db: Session) -> GroupResponse:
 
 @router.get("", response_model=list[GroupResponse])
 def list_groups(
+    db: DbSession,
     actor: Account = Depends(get_current_user),
     svc: GroupService = Depends(_get_group_service),
-    db: Session = Depends(get_db),
 ) -> list[GroupResponse]:
     groups = svc.list_groups(actor)
     return [_to_group_response(g, db) for g in groups]

@@ -2,15 +2,11 @@
 id: ADD-012
 type: architecture-doc
 title: Attachment Service (SI-ATTACH)
-status: approved
-version: "1.7"
+status: in_review
+version: "1.8"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-11-13"
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-11-13"
-approved_digest: 70882ca6e2da9cf7ef18164df01ce37474f351e264dc3a32b588bbb35e640c4f
-approval_note: self-approved
 links:
   - target: SR-013
     relation: implements
@@ -70,6 +66,14 @@ Upload/fetch attachment binaries via object storage, authorized
   a mismatch with a FAILURE row (SR-013 AC 5, D-6, D-10; RISK-012). `open(..., max_bytes=)` keeps the
   verified whole-object read for the DICOM module and refuses from the stored size before reading
   (SR-017 AC 6, ADD-015).
+- **CR-006 (TASK-227, ADR-0023).** `U-ATT-Fetch`: the SUCCESS `ATTACHMENT_ACCESS` row and the
+  `AUTHZ_ALLOWED` row are committed with the request transaction before the first byte is sent; when
+  that commit fails nothing is served (SR-023 AC 10). The response generator runs after the request
+  session is closed, so it follows a generator rule: `open_stream` captures the plain values it needs
+  (attachment id, size, checksum, storage key, actor id) before it returns, and the pass-2 FAILURE row
+  is written from those values on its own transaction (ADR-0016), never through the closed session or
+  an ORM instance. An aborted pass 2 therefore leaves the SUCCESS row and one FAILURE row after it
+  (SR-013 AC 5). The download holds no pooled connection during the transfer.
 
 Class B requires decomposition down to software units, not per-unit detailed design
 (§5.4.2–5.4.4 are class C). Each unit above is independently unit-testable and is the granularity
@@ -112,3 +116,4 @@ Participates in RISK-002, RISK-007, RISK-011 (see `docs/risks/`); the control me
 - 1.5 (2026-11-07): TASK-206 (PRB-069). `U-ATT-Upload` validates the name length (255 UTF-8 bytes, 400); `U-ATT-Fetch` bounds the header. Approval record cleared; `in_review`.
 - 1.6 (2026-11-08) — TASK-201: `U-ATT-Upload` notes the open dot-segment defect (PRB-073). No other change.
 - 1.7 (2026-11-13) — CR-006 Plan stage (Software Architect role): bounded upload and bound two-pass download (ADR-0021) marked "CR-006 (planned)"; links to SOUP-036 (conditional read), SOUP-003 (spooled upload file) and RISK-012 added. Content change, so the 1.6 approval record is cleared and the record returns to review.
+- 1.8 (2026-11-13) — TASK-227 (CR-006, ADR-0023): `U-ATT-Fetch` commits its audit rows before the body and follows the generator rule (plain values, own-transaction FAILURE row). Content change, so the 1.7 approval record is cleared and the record returns to review.

@@ -157,38 +157,48 @@ class AttachmentService:
         actor_acct: Account = actor  # type: ignore[assignment]
         attachment = self._authorized_attachment(actor_acct, attachment_id)
 
+        # ADR-0023: the response generator runs after the request session is committed and closed,
+        # so it must not touch an ORM instance. Plain values only from here on.
+        actor_id = actor_acct.id
+        att_id = attachment.id
+        storage_key = attachment.storage_key
+        checksum = attachment.checksum
+        size = attachment.size
+        content_type = attachment.content_type
+        filename = attachment.filename
+
         def _refuse() -> AttachmentIntegrityError:
-            self.record_access_failure(actor_acct, attachment.id)
+            self._record_failure(actor_id, att_id)
             return AttachmentIntegrityError(
                 f"Attachment {attachment_id} failed its integrity check and was not served."
             )
 
         try:
-            chunks, etag = self._storage.get_object_stream(attachment.storage_key)  # type: ignore[attr-defined]
+            chunks, etag = self._storage.get_object_stream(storage_key)  # type: ignore[attr-defined]
             digest = hashlib.sha256()
             for chunk in chunks:
                 digest.update(chunk)
         except Exception:
-            self.record_access_failure(actor_acct, attachment.id)
+            self._record_failure(actor_id, att_id)
             raise
-        if not hmac.compare_digest(digest.hexdigest(), attachment.checksum):
+        if not hmac.compare_digest(digest.hexdigest(), checksum):
             raise _refuse()
 
         try:
             chunks, _ = self._storage.get_object_stream(  # type: ignore[attr-defined]
-                attachment.storage_key, if_match=etag
+                storage_key, if_match=etag
             )
         except ObjectChangedError:
             raise _refuse() from None
         except Exception:
-            self.record_access_failure(actor_acct, attachment.id)
+            self._record_failure(actor_id, att_id)
             raise
 
         self._audit_svc.record(
-            actor=actor_acct.id,
+            actor=actor_id,
             action=AuditAction.ATTACHMENT_ACCESS,
             target_type="attachment",
-            target_id=str(attachment.id),
+            target_id=str(att_id),
             outcome=AuditOutcome.SUCCESS,
             ip=None,
         )
@@ -205,7 +215,7 @@ class AttachmentService:
                     if not chunk:
                         continue
                     count += len(chunk)
-                    if count > attachment.size:
+                    if count > size:
                         # More bytes than were stored: stop before anything further is sent
                         # (the held chunk included), so Content-Length is never satisfied.
                         raise _refuse()
@@ -213,9 +223,7 @@ class AttachmentService:
                     if held is not None:
                         yield held
                     held = chunk
-                if count != attachment.size or not hmac.compare_digest(
-                    served.hexdigest(), attachment.checksum
-                ):
+                if count != size or not hmac.compare_digest(served.hexdigest(), checksum):
                     raise _refuse()
                 if held is not None:
                     yield held
@@ -223,7 +231,7 @@ class AttachmentService:
                 # Starlette does not close a sync iterator when the client disconnects.
                 chunks.close()
 
-        return _verified(), attachment.content_type, attachment.filename, attachment.size
+        return _verified(), content_type, filename, size
 
     def _authorized_attachment(self, actor: object, attachment_id: uuid.UUID) -> Attachment:
         attachment = self._attachment_repo.get(attachment_id)
@@ -292,8 +300,12 @@ class AttachmentService:
         SR-023 AC 2 / ADR-0016: a FAILURE row is independent, so it survives the request's
         rollback. ``ip=None`` uses the request's client address (SR-023 AC 6).
         """
+        self._record_failure(actor.id, attachment_id)  # type: ignore[attr-defined]
+
+    def _record_failure(self, actor_id: uuid.UUID, attachment_id: uuid.UUID) -> None:
+        """The FAILURE row from plain values: callable after the request session is closed."""
         self._audit_svc.record(
-            actor=actor.id,  # type: ignore[attr-defined]
+            actor=actor_id,
             action=AuditAction.ATTACHMENT_ACCESS,
             target_type="attachment",
             target_id=str(attachment_id),

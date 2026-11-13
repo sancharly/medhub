@@ -5,7 +5,6 @@ from __future__ import annotations
 import uuid
 
 from fastapi import APIRouter, Depends, status
-from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user
 from app.api.schemas.appointments import AppointmentCreate, AppointmentResponse
@@ -17,12 +16,12 @@ from app.db.repositories.account_repo import AccountRepository
 from app.db.repositories.appointment_repo import AppointmentRepository
 from app.db.repositories.audit_repo import AuditRepository
 from app.db.repositories.consent_repo import ConsentRepository
-from app.db.repositories.session import get_db
+from app.db.repositories.session import DbSession
 
 router = APIRouter(prefix="/appointments", tags=["appointments"])
 
 
-def _get_appointment_service(db: Session = Depends(get_db)) -> AppointmentService:
+def _get_appointment_service(db: DbSession) -> AppointmentService:
     from app.authz.consent import ConsentService  # noqa: PLC0415
 
     audit_svc = AuditService(AuditRepository(db))

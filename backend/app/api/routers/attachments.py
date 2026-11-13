@@ -7,7 +7,6 @@ import uuid
 from fastapi import APIRouter, Depends, UploadFile, status
 from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import StreamingResponse
-from sqlalchemy.orm import Session
 
 from app.api.content_disposition import content_disposition
 from app.api.deps import get_current_user
@@ -20,12 +19,12 @@ from app.db.repositories.attachment_repo import AttachmentRepository
 from app.db.repositories.audit_repo import AuditRepository
 from app.db.repositories.clinical_repo import ClinicalRepository
 from app.db.repositories.consent_repo import ConsentRepository
-from app.db.repositories.session import get_db
+from app.db.repositories.session import DbSession
 
 router = APIRouter(tags=["attachments"])
 
 
-def _get_attachment_service(db: Session = Depends(get_db)) -> AttachmentService:
+def _get_attachment_service(db: DbSession) -> AttachmentService:
     from app.authz.consent import ConsentService  # noqa: PLC0415
     from app.core.object_storage import ObjectStorageClient  # noqa: PLC0415
 

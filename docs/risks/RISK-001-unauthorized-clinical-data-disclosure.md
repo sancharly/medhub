@@ -2,14 +2,11 @@
 id: RISK-001
 type: risk
 title: Clinical data disclosed to a user without authorization or consent
-status: approved
-version: "1.4"
+status: in_review
+version: "1.5"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-11-10"
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-11-10"
-approval_note: approved by the human in chat at the close of CR-004
+updated: "2026-11-13"
 hazard: Protected health information reaching a person who has neither a role-based right nor the patient's consent to see it.
 cause: A defect or misconfiguration in the authorization or consent evaluation (a route missing the `AuthorizationService` dependency, a wrong consent union, an admin projection not applied) → the API returns clinical data or PII to the caller → the caller reads information about a patient who never granted access.
 harm: "Privacy harm: loss of confidentiality of health data, loss of trust, potential social or employment consequences for the patient; a reportable GDPR breach. No direct physical injury."
@@ -70,6 +67,7 @@ occur); the score is severity × P2, the probability that the hazardous situatio
 | CSRF exemptions as an exact path set with a route-inventory test (CR-004) | Design | SR-031 AC 3; TASK-139 | TS-011 TC-011.6, including the login-CSRF defence (a non-JSON login body is refused with 400 before `LoginService.login` runs; a cross-origin JSON post meets no CORS and gets 405 on the preflight) and the module-router assertion (TASK-202) |
 | Route-level role guard in the client, driven by the navigation's role table: defence in depth only, the server stays the control (CR-004 Q-4) | Protective | SR-005; TASK-142 | TS-002 TC-002.9 |
 | No known or placeholder credential in the deployment; no root process in an image MedHub builds; the application connects with a non-superuser runtime role (CR-004) | Design | SR-041 AC 1 to AC 4, SR-023 AC 8; TASK-197, TASK-203, TASK-198, TASK-190, TASK-191 | TS-015 TC-015.1..4; TS-009 TC-009.11 (started stack: the runtime role is refused `UPDATE audit_log`, smoke test) |
+| A consent revoke, or any write, is answered only after it is committed, so "revoked" is never reported for a grant that still exists; a failed commit is a 5xx, not a success (CR-006 D-27, PRB-080, ADR-0023) | Design | SR-008 AC 4, SR-012 AC 5; TASK-227 | none yet (planned: TS-002 new case, revoke whose commit fails gives 5xx and the grant is reported unchanged; TASK-227 test 1, response sent after the commit) |
 
 ## Residual risk
 
@@ -118,3 +116,4 @@ because the server decides.
     does not change. Acceptance is the human's, through approval of this version.
 - 1.3 (2026-10-31) — CR-004 Risk stage, §7.4 change analysis (Software Architect role). Control rows added for the CR-004 controls with their planned verification; expected residual stated in "Residual risk"; "Risks introduced by controls" extended. Scores not changed: they are re-scored from the evidence at verification (TASK-202). Content change, so the approval record is cleared and the record returns to review.
 - 1.4 (2026-11-08) — CR-004 Checkpoint F (TASK-202): planned verification replaced by the tests that ran; residual proposed from the evidence, 2 × 2 → acceptable, unchanged. Content change, so `in_review` and the approval record cleared; the owner's acceptance is the approval of this version.
+- 1.5 (2026-11-13) — CR-006 D-27 (PRB-080), §7.4 change analysis (Software Architect role): control row added for the request commit before the response (TASK-227), so a revoke is never acknowledged before it takes effect or when its commit fails. Scores unchanged (2 × 2 → acceptable): the window was milliseconds and a lost revoke needed a commit failure. Content change, so the approval record is cleared and the record returns to review.

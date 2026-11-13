@@ -2,7 +2,7 @@
 id: SOUP-013
 type: soup
 title: redis-py
-status: in_review
+status: approved
 version: "1.4"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
@@ -10,6 +10,10 @@ updated: "2026-11-13"
 manufacturer: Redis Ltd.
 soup_version: 8.0.0
 anomaly_review: "2026-10-22"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-11-13"
+approved_digest: 7c7488026787aaaa0076ad873ed1b71accf3d484c4d3a0295fb8ed53603a33a2
+approval_note: self-approved
 links: []
 tags:
   - soup

@@ -2,15 +2,11 @@
 id: ADD-005
 type: architecture-doc
 title: API Layer / Routers (SI-API)
-status: approved
-version: "1.3"
+status: in_review
+version: "1.4"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-11-13"
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-11-13"
-approved_digest: 00a6768d42b51eb8699126bccaf0a19916ccb188886db93ad999506477e288e6
-approval_note: self-approved
 links:
   - target: SR-001
     relation: implements
@@ -99,6 +95,12 @@ HTTP endpoints, request/response DTOs, validation, error formatting, AuthZ depen
 - **CR-006 (planned, ADR-0021; TASK-135):** the attachment upload route has a byte-counting body
   guard that refuses an over-limit body after the maximum plus one chunk (SR-013 AC 6), with the
   existing problem type, so the OpenAPI document is unchanged.
+- **CR-006 (TASK-227, ADR-0023):** every router and `U-API-Deps` provider gets its database session
+  through the one alias `DbSession` (`Depends(get_db, scope="function")`, ADD-016). The commit or
+  rollback of the request therefore runs before the response is sent, and a failed commit is a 5xx
+  problem response (SR-012 AC 5, SR-023 AC 10). A route that declared plain `Depends(get_db)` would get
+  a second session in the same request; a route-walking test refuses that. No path, status code or
+  schema changes: the OpenAPI document is unchanged.
 - **CR-006 (planned; TASK-224):** the JSON logger documents only the fields it emits (no request id, D-7).
 
 Class B requires decomposition down to software units, not per-unit detailed design
@@ -134,3 +136,4 @@ Participates in RISK-001, RISK-005, RISK-007 (see `docs/risks/`); the control me
 - 1.1 (2026-10-31) — CR-004 Plan stage (Software Architect role): unit changes for the planned design added (marked "CR-004"), links added. Content change, so the approval record is cleared and the record returns to review. The implementing tasks confirm the unit text when they land.
 - 1.2 (2026-11-08) — TASK-201 (CR-004): unit text replaced with the unit as built (`U-API-ClientAddress`, `U-API-RateLimit`, `U-API-Security`); router actions and `requires_admin_projection` added to `U-API-Routers`; the 503 and 400 problems added to `U-API-ErrorHandler`. Arc42 sections 05, 06, 08 and 12 updated. Content change, so the 1.1 approval record is cleared and the record returns to review.
 - 1.3 (2026-11-13) — CR-006 Plan stage (Software Architect role): planned units for blocking IO off the event loop and pool sizing (ADR-0022), the upload body guard (ADR-0021) and the logger field list (D-7), marked "CR-006 (planned)". Content change, so the 1.2 approval record is cleared and the record returns to review; the implementing tasks confirm the text when they land.
+- 1.4 (2026-11-13) — TASK-227 (CR-006, ADR-0023): `U-API-Routers` and `U-API-Deps` use the `DbSession` alias (scope `function`). Content change, so the 1.3 approval record is cleared and the record returns to review.

@@ -2,8 +2,8 @@
 id: "PRB-080"
 type: problem-report
 title: "Request database transaction commits after the response is sent"
-status: open
-version: "1.0"
+status: resolved
+version: "1.3"
 author: "Carlos Santiago Liceras"
 created: "2026-11-13"
 updated: "2026-11-13"
@@ -64,8 +64,32 @@ exists (CR-004 A-1), so no notification is needed. The human sets the final crit
 
 ## Resolution
 
-Not started. Out of CR-006 scope until the human decides; needs its own CR or a decision to add it.
+In CR-006 scope (D-27, human decision 2026-11-13), resolved by TASK-227 under ADR-0023 (approved by the
+human 2026-11-13, decisions P-10 to P-15): every use of `get_db` goes through one alias,
+`DbSession = Annotated[Session, Depends(get_db, scope="function")]`, so the commit runs before the response is
+sent and a failed commit is a 5xx. The streamed download's generator runs after the session is closed, so
+`open_stream` captures plain values (actor id, attachment id, size, checksum, storage key) and the pass-2
+FAILURE row is written on its own transaction from them (ADR-0016); an aborted pass 2 now leaves the SUCCESS rows
+and one FAILURE row after them (P-12). RISK-002 assessed as not affected (CR-006 change analysis).
+
+Evidence (TASK-227, branch `fix/review-2026-07-reliability`, HEAD c69d7dc plus the working tree), real
+PostgreSQL where stated:
+
+- Reproduction on HEAD behaviour: the recorded events of `POST` clinical entry were `['response_start', 'commit']`
+  (`test_success_response_is_sent_after_commit`); a failing `Session.commit` gave 201
+  (`test_commit_failure_is_a_5xx_not_a_success`); the three download cases failed (`test_download_audit_order.py`: audit rows and pool probe at the first body
+  chunk, commit failure, aborted pass 2). With the fix: commit before
+  `response_start`, 5xx problem with no row stored, both SUCCESS rows visible and `pool.checkedout() == 0`.
+- Scope inventory (`tests/api/test_db_dependency_scope.py`): every `get_db` dependant of every route has scope
+  `function`, one cache key per route, with two planted negative controls.
+- OpenAPI export byte-identical to `backend/openapi/openapi.json`.
+- Verified by TS-007 TC-007.14 and TC-007.15, TS-009 TC-009.13, TS-002 TC-002.10 (`in_review`).
+
+QA verification (TASK-227 round 1, 2026-11-13): reproduced independently in a scratch copy (plain `Depends(get_db)` alias: 7 of 8 new tests fail; HEAD `open_stream`: `DetachedInstanceError`); with the fix the backend suite (1653 passed), the DICOM module suite, `mypy` and `ruff check` are green and the OpenAPI export is byte-identical. Fixed and verified in the working tree, so `resolved`; `closed` once confirmed through a shipped release.
 
 ## Version history
 
 - 1.0 (2026-11-13) — Created from TASK-136 QA round 1 (download 4xx note). `open`, `major`.
+- 1.1 (2026-11-13) — Added to CR-006 by D-27; Resolution names TASK-227 and ADR-0023. Still `open`.
+- 1.2 (2026-11-13) — TASK-227 implemented: Resolution names the implementation and its evidence. Still `open` until the human's decision.
+- 1.3 (2026-11-13) — QA review of TASK-227 (round 1): APPROVED; fix verified, `open → resolved` (CR-006 holds the `resolves` link).

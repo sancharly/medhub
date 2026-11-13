@@ -11,10 +11,10 @@ from unittest.mock import MagicMock
 
 import pytest
 from dicom_viewer.router import build_router
-from fastapi import Depends, FastAPI
+from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine, delete, select
-from sqlalchemy.orm import Session, sessionmaker
+from sqlalchemy.orm import sessionmaker
 from testcontainers.postgres import PostgresContainer
 
 import app.db.models  # noqa: F401 — register all models
@@ -27,7 +27,7 @@ from app.db.models.account import Account, AccountStatus, UserType
 from app.db.models.audit import AuditLog, AuditOutcome
 from app.db.models.base import Base
 from app.db.repositories.audit_repo import AuditRepository
-from app.db.repositories.session import get_db
+from app.db.repositories.session import DbSession
 from app.modules.platform_services import PlatformServices
 from postgres_image import POSTGRES_IMAGE
 
@@ -72,7 +72,7 @@ def test_dicom_study_read_failure_persists_after_403(
     actor.status = AccountStatus.ACTIVE
     attachment_id = uuid.uuid4()
 
-    def _services(db: Session = Depends(get_db)) -> PlatformServices:
+    def _services(db: DbSession) -> PlatformServices:
         attachments = MagicMock()
         attachments.open.side_effect = AuthorizationError("Forbidden")
         return PlatformServices(

@@ -2,14 +2,11 @@
 id: RISK-006
 type: risk
 title: Audit trail incomplete, so a wrong disclosure or entry goes undetected
-status: approved
-version: "1.5"
+status: in_review
+version: "1.6"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-11-10"
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-11-10"
-approval_note: approved by the human in chat at the close of CR-004
+updated: "2026-11-13"
 hazard: Security-relevant or clinical-data events not recorded, or recorded without the information needed to reconstruct them.
 cause: A code path bypasses `AuditService`, an audit row is rolled back with the failed request that recorded it, the client IP is not captured, the scrub drops needed context, or the log store is writable → an incident cannot be reconstructed → a wrong disclosure or falsified entry is never noticed or corrected.
 harm: "Indirect: the harms of RISK-001/002/005 persist uncorrected, and the legal obligation to notify cannot be met."
@@ -77,6 +74,7 @@ occur); the score is severity × P2, the probability that the hazardous situatio
 | Every authorization decision, allowed or denied, audited by the single decision point (CR-004) | Design | SR-023 AC 7; TASK-187, TASK-188, TASK-189 | TS-009 TC-009.10 |
 | Append-only enforced by privilege: the runtime role cannot `UPDATE`, `DELETE` or `TRUNCATE` `audit_log`; the silent rules dropped (CR-004, ADR-0017) | Design | SR-023 AC 8; TASK-190, TASK-191 | TS-009 TC-009.11; started stack: `UPDATE audit_log` is refused for the runtime role (smoke test) |
 | Typed audit fields: no field can hold a credential or secret, whatever the caller passes (CR-004) | Design | SR-023 AC 9; TASK-192 | TS-009 TC-009.12 |
+| Success audit rows committed before the response, and before the first byte of a download; a failed commit serves no content; an aborted download keeps its SUCCESS row and adds a FAILURE row (CR-006 D-27, PRB-080, ADR-0023) | Design | SR-023 AC 10; TASK-227 | none yet (planned: TS-009 new case, SUCCESS `ATTACHMENT_ACCESS` and `AUTHZ_ALLOWED` committed when the first chunk is produced; commit failure gives 5xx and no byte; pass-2 mismatch gives SUCCESS then FAILURE, real PostgreSQL) |
 
 ## Residual risk
 
@@ -149,6 +147,11 @@ CR-004 (2026-10-31):
   a visible error, which is the safer direction for this hazard.
 - Privilege-based append-only cannot stop the owner role; the owner credential is given only to
   `db-migrate` (ADR-0017, SR-041).
+- Committing SUCCESS rows before the response (SR-023 AC 10, ADR-0023) changes how an aborted
+  download reads: the SUCCESS row stays and a FAILURE row follows ("serving started, then aborted"),
+  where before only the FAILURE row remained. An investigator must read the pair together; the
+  order is preserved by the timestamps. A FAILURE written by the response generator after the request
+  session is closed must still reach the database (TASK-227 test 3 (c)).
 
 ## Version history
 
@@ -163,3 +166,4 @@ CR-004 (2026-10-31):
 - 1.3 (2026-10-31) — CR-004 Risk stage, §7.4 change analysis (Software Architect role). Control rows added for the CR-004 controls with their planned verification; expected residual stated in "Residual risk"; "Risks introduced by controls" extended. Scores not changed: they are re-scored from the evidence at verification (TASK-202). Content change, so the approval record is cleared and the record returns to review.
 - 1.4 (2026-11-08) — CR-004 Checkpoint F (TASK-202): planned verification replaced by the tests that ran; stale text corrected (append-only, source address, TASK-137 `draft`, "none yet" rows, TASK-183 note); PRB-060 and the measured audit volume recorded; residual proposed from the evidence, 2 × 2 → acceptable, unchanged. Content change, so `in_review` and the approval record cleared.
 - 1.5 (2026-11-08) — TASK-202 round 2 (QA finding 4): the address-less `AUTHZ_ALLOWED` row explained. Scores unchanged.
+- 1.6 (2026-11-13) — CR-006 D-27 (PRB-080), §7.4 change analysis (Software Architect role): control row added for SR-023 AC 10 (audit entry committed before the disclosure it records, TASK-227); "Risks introduced by controls" notes the changed reading of an aborted download. Scores unchanged (2 × 2 → acceptable). Content change, so the approval record is cleared and the record returns to review.

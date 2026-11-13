@@ -2,15 +2,11 @@
 id: ADD-016
 type: architecture-doc
 title: Persistence (SI-PERSIST)
-status: approved
-version: "1.3"
+status: in_review
+version: "1.4"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-11-13"
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-11-13"
-approved_digest: 7f0c9e0ee1f8f722bbbaf1839a8a449b9114a3f4741d7957288a9268dfc6f512
-approval_note: self-approved
 links:
   - target: SR-026
     relation: implements
@@ -62,6 +58,14 @@ SQLAlchemy models, repositories, Alembic migrations, encryption-at-rest config
 
 - `U-PER-Models` — SQLAlchemy ORM models (FHIR-aligned, SR-021).
 - `U-PER-Repos` — repositories with parameterized queries (SR-031.1).
+  **CR-006 (TASK-227, ADR-0023):** the request transaction ends before the response is sent. `get_db`
+  keeps its body (commit on return, rollback on exception, close) and is declared only through the
+  alias `DbSession = Annotated[Session, Depends(get_db, scope="function")]`, so FastAPI tears it down
+  when the endpoint has returned and the response is serialised, before it is sent. A commit failure is
+  a 5xx problem response, never the prepared success status (SR-012 AC 5, SR-023 AC 10). A test walks
+  the dependants of every route and fails on any `get_db` with another scope or on a route that
+  resolves two `get_db` cache keys (two sessions). `AuditRepository.add_independent` binds its own
+  session to the bind of the request session, which is available after the close (ADR-0016).
 - `U-PER-Crypto` — field encryption (`EncryptedString`): AES-256-GCM envelope
   `mh1:<key-id>:<base64url(nonce || ciphertext)>` with the prefix as associated data. A keyring
   holds the current key (`AT_REST_ENCRYPTION_KEY`, id `AT_REST_ENCRYPTION_KEY_ID`) and optional
@@ -120,3 +124,4 @@ Participates in RISK-002, RISK-007, RISK-011 (see `docs/risks/`); the control me
 - 1.1 (2026-10-31) — CR-004 Plan stage (Software Architect role): unit changes for the planned design added (marked "CR-004"), links added. Content change, so the approval record is cleared and the record returns to review. The implementing tasks confirm the unit text when they land.
 - 1.2 (2026-11-08) — TASK-201 (CR-004): unit text replaced with the unit as built; `U-PER-Crypto` names the keyring, `decrypt_legacy` and `app.db.reencrypt`; `U-PER-Roles` notes the unsafe-role refusal. Arc42 sections 05, 06 and 08 hold the narrative. Content change, so the 1.1 approval record is cleared and the record returns to review.
 - 1.3 (2026-11-13) — CR-006 Plan stage (Software Architect role): migration 0011 indexes, the joined group lookup and the pool settings (ADR-0022) marked "CR-006 (planned)"; `implements` SR-026 added. Content change, so the 1.2 approval record is cleared and the record returns to review.
+- 1.4 (2026-11-13) — TASK-227 (CR-006, ADR-0023): `U-PER-Repos` states that the request transaction ends before the response (`DbSession`, scope `function`). Content change, so the 1.3 approval record is cleared and the record returns to review.

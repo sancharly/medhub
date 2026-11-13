@@ -3,7 +3,7 @@ id: CR-006
 type: change-request
 title: Close the open reliability and performance defects from the 2026-07 review and audit
 status: in_progress
-version: "1.7"
+version: "1.9"
 author: Carlos Santiago Liceras
 created: "2026-11-13"
 updated: "2026-11-13"
@@ -48,8 +48,16 @@ links:
     relation: resolves
   - target: PRB-079
     relation: relates_to
+  - target: PRB-080
+    relation: resolves
+  - target: PRB-081
+    relation: relates_to
   - target: PRB-072
     relation: resolves
+  - target: SR-008
+    relation: relates_to
+  - target: SR-012
+    relation: relates_to
   - target: SR-013
     relation: relates_to
   - target: SR-014
@@ -59,6 +67,8 @@ links:
   - target: SR-016
     relation: relates_to
   - target: SR-017
+    relation: relates_to
+  - target: SR-023
     relation: relates_to
   - target: SR-024
     relation: relates_to
@@ -79,6 +89,8 @@ links:
   - target: NFR-006
     relation: relates_to
   - target: NFR-008
+    relation: relates_to
+  - target: RISK-001
     relation: relates_to
   - target: RISK-003
     relation: relates_to
@@ -131,6 +143,8 @@ links:
   - target: TASK-225
     relation: relates_to
   - target: TASK-226
+    relation: relates_to
+  - target: TASK-227
     relation: relates_to
   - target: SOUP-019
     relation: relates_to
@@ -202,13 +216,14 @@ the architect. Line numbers are those found on 2026-11-13.
 | PRB-017 Security-relevant frontend units have no unit tests | major | **Partly fixed**: `core/clinical/AttachmentUpload.test.tsx` now exists (TASK-206). Still without a test file: `SessionActivityProvider`, `AttachmentItem`; `api/csrf.ts` has no dedicated test (`client.test.ts` touches the CSRF cookie only as a fixture) | NFR-006 AC 3, AC 4 and IEC 62304 §5.5 (class B unit verification); SR-030 AC 1 to AC 4, SR-015 AC 3 and AC 4, SR-031 AC 3 | TASK-146 (narrowed to the three remaining units) |
 | PRB-019 Upload bypasses the request helper; `ProblemError` hand-written in a generated file | minor | Still open: `api/client.ts:136-160` own `fetch` with no 401 handling; `api/generated/types.ts:17` exports `ProblemError` | SR-031 (error contract); SR-027 AC 3 (clear failure message); SR-030 (401 ends the session) | TASK-143 |
 | PRB-020 No route-level code splitting | minor | Still open: no `lazy(` or `Suspense` anywhere in `frontend/src` | **SR-026 AC 7 (new)**; SR-020 | TASK-145 |
-| PRB-021 Authorization lookups have no supporting indexes | major | Still open: no index on `appointment.scheduled_at`, `consent_grant.appointment_id`, `clinical_entry.patient_id` or `attachment.patient_id` in the models (`db/models/{appointment,consent,clinical,attachment}.py`) or in migrations 0001 to 0010 | **SR-026 AC 6 (new)**; RISK-007 | New at Plan stage (Alembic migration 0011) |
+| PRB-021 Authorization lookups have no supporting indexes | major | Still open: no index on `appointment.scheduled_at`, `consent_grant.appointment_id`, `clinical_entry.patient_id` or `attachment.patient_id` in the models (`db/models/{appointment,consent,clinical,attachment}.py`) or in migrations 0001 to 0010 | **SR-026 AC 6 (new)**; RISK-007 | TASK-219 (migration 0011); TASK-220 (migration 0012, D-29: the two lookups the code issues that 0011 left unindexed) |
 | PRB-022 Activation token validation scans the account table | major | **Already fixed**: `identity/activation.py:67` loads one row with `get_by_id(account_id)` and `_validate_token` (`:162-168`) checks only that row; no `list()` scan remains in `app/identity/` for activation (last change 2026-10-31, TASK-188 / PRB-070 route change). See Q-1 | SR-026 AC 6 (new, kept as the regression guard); SR-033 | None: PRB-022 `rejected` (D-1); SR-026 AC 6 gets a regression test |
 | PRB-024 Group membership N+1 query | minor | Still open: `groups/service.py:131-138` `groups_of` calls `self._group_repo.get(m.group_id)` per membership | **SR-026 AC 6 (new)**; SR-014 AC 4 | New at Plan stage |
 | PRB-025 Idle timer resets on every mouse and scroll event | minor | Still open: `auth/useIdleTimer.ts` registers `resetDeadline` directly on each activity event; no debounce or throttle | **SR-026 AC 8 (new)**; SR-030 AC 1 to AC 4 (timings unchanged) | New at Plan stage |
 | PRB-030 Module boundary test denies only two import substrings | minor | Still open: `backend/tests/modules/test_module_boundary.py:9-12` lists `app.db` and `app.core.object_storage` only | SR-016 AC 3 (a module obtains data only through the platform's authorized interfaces) | New at Plan stage |
 | PRB-031 Destructive dialog focuses Confirm instead of Cancel | minor | **Already fixed**: `core/confirm/ConfirmDialog.tsx:46,51` focus Cancel when `destructive`, and `ConfirmDialog.test.tsx:120` asserts it (fixed by the phase-6 audit remediations, commit 24240f8). See Q-1 | **SR-027 AC 5 (new)**; SR-027 AC 2; SR-034 AC 6 | None: PRB-031 to be `rejected` (D-1) |
 | PRB-032 JSON logger drops the request-id field | minor | Still open: `core/logging.py` has no request-id field and no `request_id` exists anywhere in `backend/app` | None exists; see Q-7 (emit it, or drop the promise from the docstring) | New at Plan stage |
+| PRB-080 Request database transaction commits after the response is sent (added by D-27) | major | Open: `db/repositories/session.py:34-45` commits in a `yield` dependency of default scope `"request"`, which FastAPI 0.138 tears down after `await response(...)` (`fastapi/routing.py:131-137`); 31 `Depends(get_db)` sites in 15 files | **SR-012 AC 5 (new)**, **SR-023 AC 10 (new)**; SR-008 AC 4, SR-013 AC 5 (restored); RISK-007, RISK-006, RISK-001 | TASK-227 |
 | PRB-078 Reverse proxy rejects uploads larger than 1 MiB (added at the Plan gate, D-18) | major | Open: `infra/reverse-proxy/nginx.conf` sets no `client_max_body_size`, so nginx's 1 MiB default refuses larger bodies before the backend | SR-013 AC 1, AC 6; RISK-007 | TASK-135 |
 
 Existing TASKs whose records will need updating at the Plan stage: TASK-141 (narrow PRB-013 to the
@@ -248,6 +263,9 @@ PRB-030 (SR-016 AC 3 already covers it).
 - PRB-079 (anonymized-data retrieval verifies the code against every dataset), raised at the Plan
   gate (D-23): a `relates_to` link only; it needs its own CR with a decision on the retrieval-code
   format.
+- PRB-081 (concurrent requests beyond threads plus connections per worker answer 500), raised by TASK-136
+  QA: a `relates_to` link only (D-27). It is availability only and beyond SR-026 AC 5; it needs its own CR
+  with a decision on a per-worker concurrency cap. TASK-227 removes only its streaming contribution.
 - PRB-072 (concurrent writes collapse the API) unless the human adds it (Q-1). It is investigated
   in TASK-136's area and its hypothesis is a consequence of PRB-009 and the pool sizes.
 - Moving the object store, the DICOM viewer UI and Cornerstone3D integration. PRB-020 only makes
@@ -476,6 +494,40 @@ coordinating agent. The records stay `in_review` until the human's MedTrace appr
 - **D-26:** PRB-072 is added to CR-006 and resolved by TASK-136 (the 8-ok / 16-and-20-fail pattern reproduces on
   `8028685` and disappears with the event-loop fix alone; `POST /accounts` was not exercised directly).
 
+- **D-27 (human decision 2026-11-13, "PRB-080 sí, 081 aparte", relayed by the coordinating agent):**
+  PRB-080 (request transaction commits after the response, major) joins CR-006 with a `resolves` link and
+  is resolved by TASK-227 (design: ADR-0023, Proposed). PRB-081 stays outside CR-006, `open`, with a
+  `relates_to` link, for a later CR. Reason for PRB-081: availability only (a bounded burst of 500s with
+  self-recovery; no data disclosed or altered), and the load needed (more than 59 concurrent requests on one
+  deployed worker) is beyond SR-026 AC 5 (20 clients, D-3). The content consequences (SR-012 AC 5, SR-023
+  AC 10, the RISK rows, the order of TASK-227) are proposed below as P-10 to P-15 for the human's approval.
+
+D-27 follow-up (2026-11-13): asked whether to approve P-10 to P-15 as recommended and to add the missing
+indexes inside TASK-220, the human answered "Aprobar todo" (approve all) in chat, relayed by the coordinating
+agent. The records stay `in_review` until the human's MedTrace approval.
+
+- **D-28 (P-10 to P-15, human decision 2026-11-13):** accepted as recommended. P-10: the new criteria are
+  SR-012 AC 5 and SR-023 AC 10 (no new SR). P-11: `get_db` uses `scope="function"` at every site through one
+  alias, with a route-inventory test (ADR-0023, now Accepted). P-12: an aborted download records SUCCESS then
+  FAILURE once the response has started, amending ADR-0016's "Unchanged" note for that case. P-13: RISK-001,
+  RISK-006 and RISK-007 get the control rows; RISK-002 and RISK-012 stay unchanged (the human confirmed the
+  assessment). P-14: TASK-227 is step 4b, after TASK-136 and before TASK-141, parallel with TASK-219 and
+  TASK-220. P-15: ADD-016, ADD-005, ADD-012 and SOUP-002 are updated by TASK-227 when it lands.
+- **D-29 (human decision 2026-11-13, from the TASK-219 QA review, finding 1, MEDIUM):** of the four 0011
+  indexes only `clinical_entry.patient_id` serves a current query (`ClinicalRepository.list_for_patient`);
+  the consent decision itself is served by the existing `ix_consent_grant_patient_doctor_active`. Two lookups
+  the code issues have no index and still scan after 0011: `attachment.clinical_entry_id`
+  (`AttachmentRepository.list_for_clinical_entry`, `backend/app/attachments/service.py:332`) and
+  `consent_grant(doctor_id, active)` (`ConsentRepository.list_patients_for_doctor`,
+  `backend/app/clinical/service.py:106`; the existing composite index starts with `patient_id`). Both are
+  added to TASK-220 as migration 0012 (1.1, `ask first` on existing databases, same verification as
+  TASK-219). The three unused 0011 indexes stay, as SR-026 AC 6 names them. Consequences: SR-026 AC 6 names
+  the two lookups (1.6, `in_review`, approval cleared), so the 0012 query-plan check traces to a criterion;
+  PRB-021's Observed text is corrected (1.1, stays `open`); RISK-007's data-access row names 0012 (1.15);
+  TASK-225 confirms ADD-016 for 0011 and 0012 (TASK-219 QA finding 5) and indexes ADR-0021 to ADR-0023.
+  Change analysis: cause 4 now also covers 0012 (writes to `attachment` and `consent_grant` blocked while
+  the two indexes build; same "ask first" control and migration test); no new hazard, class B unchanged.
+
 ## Change analysis (Risk stage, §7.4, 2026-11-13)
 
 The Software Architect role ran this analysis. Scales and matrix: `docs/medtrace.yml` (5 × 5
@@ -624,6 +676,69 @@ finding R-3; the D-5 control has no acceptance criterion of its own (R-2).
 - **R-5. Thread-pool and connection-pool sizes** (cause 3) are a deployed-configuration change
   ("ask first"); the Plan stage proposes the values with the load-test evidence.
 
+### Change analysis for PRB-080 (§7.4, D-27, 2026-11-13)
+
+Software Architect role. Code read: `backend/app/db/repositories/session.py:34-45`; the 31
+`Depends(get_db)` sites; `api/routers/attachments.py` and `AttachmentService.open_stream`
+(`attachments/service.py:144-226`); `audit/service.py` and `AuditRepository.add_independent`; FastAPI
+0.138 `routing.py:120-137`, `dependencies/utils.py:318-329, 664-672`, `dependencies/models.py:63-71`.
+
+- **No new hazard; class B unchanged (§7.4.1).** The fix moves the commit earlier; it removes a path to
+  harm already in RISK-007 (a write acknowledged then lost, or not yet readable), RISK-006 (content
+  disclosed before its audit row is committed; a failed audit commit invisible) and RISK-001 (a consent
+  revoke acknowledged before it takes effect, or lost on a commit failure, while SR-008 AC 4 requires the
+  next request to be denied). The highest severity reached is 3 (RISK-007); nothing approaches the class C
+  boundary.
+- **RISK-002 (misattribution): not affected.** PRB-080 lists it, but a lost or late write is missing
+  information (RISK-007), not information attributed to the wrong patient or author; no path changes the
+  subject or author of a record. No row added (P-13).
+- **RISK-012 (two-pass download): control kept, record unchanged.** Today the streamed download holds its
+  request session and connection through the whole transfer, and the SUCCESS `ATTACHMENT_ACCESS` row is
+  committed after the transfer (a pass-2 mismatch rolls it back, leaving only the FAILURE row). With
+  ADR-0023 the SUCCESS row commits before the first byte and the generator runs after the session is
+  closed. The SR-013 AC 5 control (bytes served are bytes verified; abort on mismatch; FAILURE row) is
+  unchanged in substance, but its FAILURE write now happens after the close: that is cause 13 below, and
+  TS-007 TC-007.6 to TC-007.8 plus TASK-227 test 3 (c) verify it. RISK-012's scores and rows stay.
+- **Where the SUCCESS row commits (SR-013 AC 5, ADR-0021, SR-023 AC 2).** Decision proposed: **before
+  the response is sent and before the first byte** (SR-023 AC 10). Alternatives rejected: after the
+  transfer (today; content disclosed with no committed record, a disconnect or a commit failure leaves
+  none, and the connection is held through the transfer), and on its own transaction at stream end
+  (same disclosure gap, and a SUCCESS for a transfer that may still be aborted). Consequence: an aborted
+  pass 2 leaves SUCCESS then FAILURE, which is accurate (all but the held last chunk was sent) and amends
+  ADR-0016's "Unchanged" note for failures after the response started (P-12).
+- **Upload:** the body is parsed before the handler, so the scope changes nothing in the upload path;
+  the 201 follows the commit. A commit failure after the object was stored leaves an unreferenced,
+  encrypted object, as any rollback does today (no record points to it; no new hazard).
+- **New causes introduced by the change itself:**
+  12. **Mixed dependency scopes** (RISK-007, RISK-006): FastAPI's dependency cache key includes the scope,
+      so one site left on the default scope gives a request two sessions; part of its unit of work (for
+      example the audit row) would still commit after the response, or separately from the business
+      write. Control: one alias for every `get_db` use and a route-inventory test with a negative
+      control (TASK-227 test 4).
+  13. **Response generator after the session is closed** (RISK-012 audit part, RISK-006): the commit
+      expires the ORM instances and the close detaches them; a generator reading `attachment.size` or
+      `actor.id` raises, and a FAILURE row written through the closed session could be lost. Control:
+      `open_stream` captures plain values; the independent write is bound to the engine; TASK-227 test 3 (c)
+      on real PostgreSQL.
+- **SOUP:** no new item. SOUP-002 (FastAPI 0.138) gains a relied-on behaviour: `Depends(scope="function")`
+  tears down before the response is sent, and the cache key includes the scope (recorded by TASK-227).
+  SOUP-008 (session expiry on commit) as recorded.
+- **SR coverage of the controls (§5.2.3):** no SR stated the commit order. Two criteria are proposed, in
+  existing SRs (P-10): **SR-012 AC 5** (a save is acknowledged only after its commit; a failed commit is
+  a 5xx) and **SR-023 AC 10** (a SUCCESS audit entry is committed before the response and before any
+  content). SR-008 AC 4 (revocation effective for the next request) and SR-013 AC 5 already state the rest
+  and are not changed. SR-012 gains `mitigates` RISK-007. SR-012 1.3 and SR-023 1.5 are `in_review`, their
+  approval cleared.
+
+| Change (PRB) | Software items | §7.4.1 contribution | §7.4.2 controls affected | §7.4.3 verification (TASK-227) |
+|---|---|---|---|---|
+| Request transaction ends before the response; one dependency scope; streamed download uses captured values (PRB-080) | SI-PERSIST, SI-API, SI-ATTACH, SI-AUDIT; SOUP-002 | Removes acknowledged-but-uncommitted writes, silent commit failures and content-before-audit. New: causes 12, 13 | RISK-007, RISK-006, RISK-001 (new rows); RISK-012 (control kept, verified again); RISK-002 none | Commit before response start (fails on `9109267`); commit failure gives 5xx, not 201, for an entry and a revoke; SUCCESS rows committed at the first chunk; pass-2 abort gives SUCCESS then FAILURE; no pooled connection during a download; scope inventory with a negative control; TS-007, TS-009, TS-002 regression |
+
+**Residual scores:** unchanged in every touched record (RISK-001 2 × 2 → acceptable; RISK-006 2 × 2 →
+acceptable; RISK-007 3 × 2 → alarp, set by ADR-0010 and PRB-057). The window was milliseconds and a lost
+write needed a commit failure, so the fix lowers no score on its own. RISK-001 1.5, RISK-006 1.6 and
+RISK-007 1.14 are `in_review` with the approval record cleared.
+
 ## Plan
 
 Plan stage, 2026-11-13, Software Architect role. The plan is the TASK records below (overlay: no
@@ -638,8 +753,8 @@ ADR-0022, the changed ADD and SOUP records, and the findings P-1 to P-9.
   SR-026; TASK-136 creates it), TS-019 "DICOM image opening and rendering" (`verifies` SR-017;
   TASK-218). No TS verifies SR-026 or SR-017 today.
 - **"Ask first" steps** (Boundaries): the pool and thread values in the deployed configuration
-  (TASK-136, D-14: proposed with the load-test evidence, approved before `infra/` changes); migration
-  0011 on an existing database (TASK-219); the additive HTTP contract changes of TASK-144 (`GET /me`
+  (TASK-136, D-14: proposed with the load-test evidence, approved before `infra/` changes); migrations
+  0011 and 0012 on an existing database (TASK-219, TASK-220); the additive HTTP contract changes of TASK-144 (`GET /me`
   `sessionExpiresInSeconds`, extend `expiresInSeconds`) and TASK-141 (erasure 503), each with a
   regenerated OpenAPI document and frontend types. No new runtime dependency is planned (no NumPy,
   no streaming parser, no load-test package).
@@ -684,9 +799,10 @@ ADR-0022, the changed ADD and SOUP records, and the findings P-1 to P-9.
 | — | **Checkpoint A** | | | | | 1–3 | |
 | 4 | [TASK-136](../design-outputs/tasks/TASK-136-align-async-handlers-with-sync-io-stack.md) Blocking IO off the event loop; pool settings; load test before/after; values proposed (**ask first** for deployed values) | 009 (072 relates) | SR-026 AC 5, AC 1, AC 2; NFR-008 | 007 | M | 217 (step 1 first of the CR) | updated |
 | 5 | [TASK-219](../design-outputs/tasks/TASK-219-indexes-for-authorization-lookups-migration-0011.md) Indexes, migration 0011 (**ask first** on existing DBs); activation one-row guard | 021, 022 (regression) | SR-026 AC 6 | 007 | S | — (parallel with 1–4) | new |
-| 6 | [TASK-220](../design-outputs/tasks/TASK-220-constant-query-group-membership-lookup.md) Constant-query `groups_of`, characterisation first | 024 | SR-026 AC 6; SR-014 AC 4 | 004, 007 | S | — (parallel) | new |
+| 6 | [TASK-220](../design-outputs/tasks/TASK-220-constant-query-group-membership-lookup.md) Constant-query `groups_of`, characterisation first; migration 0012 indexes (attachments by entry, consents by doctor; **ask first** on existing DBs, D-29) | 024, 021 (remaining) | SR-026 AC 6; SR-014 AC 4 | 004, 007 | M | 219 (0012 revises 0011; parallel otherwise) | new (1.1, D-29) |
 | 7 | [TASK-141](../design-outputs/tasks/TASK-141-worker-reliability-retention-sessions-retries-silent-failures.md) Retention isolation and retries; erasure rolled back on enqueue failure (PRB-013 folded in) | 012, 013 | SR-024 AC 5, AC 6, AC 1; SR-043 | 007, 008, 009 | M | — (parallel) | updated |
-| — | **Checkpoint B** | | | | | 4–7 | |
+| 4b | [TASK-227](../design-outputs/tasks/TASK-227-commit-the-request-transaction-before-the-response.md) Request transaction commits before the response (`scope="function"` on every `get_db`); download audit order (D-27, ADR-0023) | 080 (081 relates) | SR-012 AC 5; SR-023 AC 10; SR-008 AC 4; SR-013 AC 5 | 007, 006, 001 | M | 136; before 141 (parallel with 219, 220) | new (`in_review`) |
+| — | **Checkpoint B** | | | | | 4–7, 4b | |
 | 8 | [TASK-143](../design-outputs/tasks/TASK-143-unify-frontend-api-client-upload-and-problem-types.md) Upload through `request()`; `ProblemError` from the schema | 019 | SR-030 AC 8; SR-031; SR-027 AC 3 | 005 | S | — (parallel; frontend) | updated |
 | 9 | [TASK-144](../design-outputs/tasks/TASK-144-shared-useme-hook-session-ttl-reconciliation-module-cache-invalidation.md) One `me` query; client deadline from the server-reported expiry (additive API field) | 016 | SR-030 AC 8, AC 4 | 005 | M | — (parallel) | updated |
 | 10 | [TASK-221](../design-outputs/tasks/TASK-221-module-gating-refresh-for-every-affected-user.md) Module gating refresh within 60 s for every affected user | 015 | SR-015 AC 5 | 004 | S | 144 | new (split from 144) |
@@ -714,9 +830,11 @@ each other; 143 shares none with 144 (`client.ts` only).
 
 - **A** (after 1–3): backend and DICOM-module suites green; TS-007 and TS-019 cases pass; SOUP-036
   behaviour 14 confirmed by the run; OpenAPI export unchanged.
-- **B** (after 4–7): backend suite (coverage ≥ 85 %) green; static no-blocking test green; load test
-  on the task head recorded with the proposed pool values (human decision pending or taken); migration
-  0011 up and down on test databases; TS-001 and TS-002 unchanged.
+- **B** (after 4–7 and 4b): backend suite (coverage ≥ 85 %) green; TASK-227 tests 1 to 3 recorded failing on
+  `9109267` and passing on the task head; scope inventory green with its negative control; OpenAPI export
+  byte-identical; static no-blocking test green; load test
+  on the task head recorded with the proposed pool values (human decision pending or taken); migrations
+  0011 and 0012 up and down on test databases; TS-001 and TS-002 unchanged.
 - **C** (after 8–13): frontend lint, type check, suite with coverage and build plus budget check
   green; OpenAPI and generated types drift-free; one `me` query; module refresh and session timers
   verified with fake timers.
@@ -726,13 +844,16 @@ each other; 143 shares none with 144 (`client.ts` only).
 
 | SR | AC → task |
 |---|---|
-| SR-013 | AC 1 (uploads > 1 MiB through the proxy) → 135; AC 5 → 217; AC 6 → 135 (upload), 217 (download) |
+| SR-013 | AC 1 (uploads > 1 MiB through the proxy) → 135; AC 5 → 217, 227 (regression after the session closes); AC 6 → 135 (upload), 217 (download) |
 | SR-015 | AC 5 → 221; AC 3, AC 4 (unit level) → 146 |
 | SR-017 | AC 6 → 218 |
 | SR-024 | AC 5 → 141; AC 6 → 141; AC 1 to AC 4 (unchanged, regression) → 141 |
 | SR-026 | AC 1, AC 2 → 136, 226; AC 3 → 218, 226; AC 5 → 136, 135, 217, 226; AC 6 → 219, 220; AC 7 → 145; AC 8 → 222 |
 | SR-027 | AC 3 → 143, 145; AC 5 (fixed, PRB-031) → 226 regression |
 | SR-030 | AC 8 → 144, 143; AC 4 → 144; AC 1, AC 2 → 222; AC 1 to AC 5 (unit level) → 146 |
+| SR-012 | AC 5 → 227 |
+| SR-023 | AC 10 → 227 |
+| SR-008 | AC 4 (restored) → 227 |
 | SR-014 AC 4 | 220 |
 | SR-016 AC 3 | 223 |
 | SR-031 | 143, 146 |
@@ -797,6 +918,28 @@ TASK-141 (RISK-009: the erasure-site log-capture test is in TS-004, not TS-006).
   (`identity/erasure.py`, "scan all datasets"), so its cost grows with the data; no PRB records it.
   Recommendation: raise a PRB.
 
+### Findings for the human (D-27 scope change)
+
+- **P-10. Where the new criteria live.** Recommendation: SR-012 AC 5 (commit before a success response;
+  a failed commit is a 5xx) and SR-023 AC 10 (SUCCESS audit entry committed before the response and before
+  any content), both now `in_review`. Alternative: one platform-wide criterion in a new SR; rejected as
+  more records for the same tests. Consent revoke and the download checksum rely on the existing SR-008
+  AC 4 and SR-013 AC 5.
+- **P-11. ADR-0023 (Proposed): `scope="function"` on every `get_db` use, through one alias, with a
+  route-inventory test.** Explicit commits and per-route scopes are rejected (a mixed scope gives two
+  sessions per request).
+- **P-12. Audit reading of an aborted download.** The SUCCESS row is committed before the first byte; a
+  pass-2 mismatch then adds a FAILURE row (today only the FAILURE row remains). Recommendation: accept, as
+  it records what happened; it amends the ADR-0016 "Unchanged" note for failures after the response started.
+- **P-13. RISK scope.** RISK-007, RISK-006 and RISK-001 get a control row (`in_review`); RISK-002 and
+  RISK-012 are assessed and left unchanged (see the change analysis). Recommendation: accept.
+- **P-14. Order.** TASK-227 after TASK-136 and before TASK-141, because TASK-141's erasure-rollback test
+  (D-11) should be written against the final transaction boundary, and TASK-227 touches every router once
+  before 141, 143 and 144 regenerate the contract. Parallel with TASK-219 and TASK-220 (no shared file).
+- **P-15. Records deferred to TASK-227.** ADD-016, ADD-005, ADD-012 and SOUP-002 are updated by the task
+  when it lands, not now: ADD-016 is also in TASK-219's area, which is being implemented concurrently.
+  Every SR in scope is already covered by an ADD (SR-012 ADD-011, SR-023 ADD-013, SR-008 ADD-007).
+
 ### Plan risks
 
 | Risk | Impact | Mitigation |
@@ -808,6 +951,8 @@ TASK-141 (RISK-009: the erasure-site log-capture test is in TS-004, not TS-006).
 | Two object-store reads per download slow a 150 MiB study | SR-026 AC 3 at risk once the viewer is deployed | Measured in TASK-226; viewer is not deployed (PRB-048) |
 | Initial payload above 165 kB after splitting (shared MUI code) | SR-026 AC 7 value too tight | TASK-145 reports the measured value; human sets the final number |
 | `useMe` replacement misses a call site | Repeated session checks, two sources | Static test in TASK-144; one commit for all sites |
+| A `get_db` site left on the default scope after TASK-227 | Two sessions per request; part of the work commits after the response | Route-inventory test with a negative control (TASK-227 test 4) |
+| A response generator touches the closed session | Aborted download raises or loses its FAILURE row (RISK-006, RISK-012) | Captured values; real-PostgreSQL abort test (TASK-227 test 3 (c)) |
 | Erasure 503 changes the operator flow | A retry is needed when the broker is down | Clear problem text and `Retry-After`; TS-004 case |
 
 ## Version history
@@ -820,3 +965,5 @@ TASK-141 (RISK-009: the erasure-site log-capture test is in TS-004, not TS-006).
 - 1.5 (2026-11-13) — Plan gate: the human approved the plan and P-1 to P-9 as recommended, recorded as D-15 to D-23. PRB-078 (proxy body limit) created and added to the scope with a `resolves` link (TASK-135); PRB-079 (retrieval scan) created, `relates_to` only, out of scope. RISK-003, 004, 005, 007, 009 and 012 updated with the TASK ids (D-22, D-23) and back in `in_review`. Stays `in_progress`.
 - 1.6 (2026-11-13) — TASK-136 pool values approved by the human, recorded as D-24 to D-26. PRB-072 moved from `relates_to` to `resolves` (D-26). Stays `in_progress`.
 - 1.7 (2026-11-13) — TASK-136 round 2: D-24 rationale corrected (the invariant bounds threads, not requests); PRB-080 and PRB-081 raised from QA round 1, not added to the scope pending the human. Stays `in_progress`.
+- 1.8 (2026-11-13) — Human decision D-27 ("PRB-080 sí, 081 aparte"): PRB-080 added with a `resolves` link, PRB-081 linked `relates_to` and kept out of scope (availability only, beyond SR-026 AC 5). §7.4 change analysis for PRB-080 (class B unchanged; RISK-007, 006, 001 rows; RISK-002 and RISK-012 unchanged; causes 12 and 13); TASK-227 added to the plan (order 4b, Checkpoint B) with SR-012 AC 5 and SR-023 AC 10 (both `in_review`); ADR-0023 proposed; findings P-10 to P-15 for the human. Links to SR-008, SR-012, SR-023, RISK-001 and TASK-227 added. Stays `in_progress`.
+- 1.9 (2026-11-13) — Human decision "Aprobar todo": D-28 (P-10 to P-15 accepted as recommended; ADR-0023 Accepted; RISK-002 and RISK-012 unchanged, confirmed) and D-29 (TASK-219 QA finding 1: indexes on `attachment.clinical_entry_id` and `consent_grant(doctor_id, active)` added to TASK-220 as migration 0012; the three unused 0011 indexes stay). Scope row of PRB-021, plan row of TASK-220 (size M, depends on TASK-219), "ask first" steps and Checkpoint B updated. SR-026 1.6 (AC 6 names the two lookups), PRB-021 1.1, RISK-007 1.15, TASK-220 1.1 and TASK-225 1.1 changed; ADR-0023 Accepted. Stays `in_progress`.

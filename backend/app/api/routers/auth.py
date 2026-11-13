@@ -6,7 +6,6 @@ from datetime import UTC, datetime
 
 import redis as redis_lib
 from fastapi import APIRouter, Depends, Request, Response, status
-from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user, get_redis, get_session, get_session_service
 from app.api.errors import (
@@ -36,13 +35,13 @@ from app.db.models.audit import AuditOutcome
 from app.db.repositories.account_repo import AccountRepository
 from app.db.repositories.audit_repo import AuditRepository
 from app.db.repositories.password_history_repo import PasswordHistoryRepository
-from app.db.repositories.session import get_db
+from app.db.repositories.session import DbSession
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
 def _get_login_service(
-    db: Session = Depends(get_db),
+    db: DbSession,
     r: redis_lib.Redis = Depends(get_redis),
 ) -> LoginService:
     audit_svc = AuditService(AuditRepository(db))
@@ -57,11 +56,11 @@ def _get_login_service(
     responses={503: {"description": "Session cap contention; retry after 1 second."}},
 )
 def login(
+    db: DbSession,
     body: LoginRequest,
     request: Request,
     response: Response,
     svc: LoginService = Depends(_get_login_service),
-    db: Session = Depends(get_db),
     r: redis_lib.Redis = Depends(get_redis),
 ) -> LoginResponse:
     """Authenticate; set session+CSRF cookies; return user summary."""
@@ -100,11 +99,11 @@ def login(
 
 @router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
 def logout(
+    db: DbSession,
     response: Response,
     request: Request,
     session: UserSession = Depends(get_session),
     svc: SessionService = Depends(get_session_service),
-    db: Session = Depends(get_db),
     _csrf: None = Depends(require_csrf),
 ) -> None:
     """Invalidate session, clear cookie, audit LOGOUT."""
@@ -134,12 +133,12 @@ def extend_session(
 
 @router.post("/password", status_code=status.HTTP_204_NO_CONTENT)
 def change_password(
+    db: DbSession,
     body: PasswordChangeRequest,
     request: Request,
     actor: Account = Depends(get_current_user),
     session: UserSession = Depends(get_session),
     svc: SessionService = Depends(get_session_service),
-    db: Session = Depends(get_db),
     _csrf: None = Depends(require_csrf),
 ) -> None:
     """Verify current password, validate new, hash+persist, invalidate other sessions."""

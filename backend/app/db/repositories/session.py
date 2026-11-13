@@ -2,7 +2,9 @@
 
 from collections.abc import Generator
 from functools import lru_cache
+from typing import Annotated
 
+from fastapi import Depends
 from sqlalchemy import create_engine
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session, sessionmaker
@@ -43,3 +45,10 @@ def get_db() -> Generator[Session, None, None]:
         raise
     finally:
         session.close()
+
+
+# ADR-0023 / PRB-080: scope="function" tears the dependency down (commit or rollback) when the
+# endpoint has returned, before the response is sent, so a success status means a committed change
+# and a failed commit is a 5xx. The dependency cache key includes the scope: every use of get_db
+# must go through this alias, or one request gets two sessions (tests/api/test_db_dependency_scope).
+DbSession = Annotated[Session, Depends(get_db, scope="function")]

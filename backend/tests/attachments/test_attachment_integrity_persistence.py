@@ -27,7 +27,7 @@ from app.db.models.attachment import Attachment
 from app.db.models.audit import AuditLog, AuditOutcome
 from app.db.models.base import Base
 from app.db.repositories.audit_repo import AuditRepository
-from app.db.repositories.session import get_db
+from app.db.repositories.session import DbSession
 from app.main import create_app
 from postgres_image import POSTGRES_IMAGE
 from tests.attachments.fake_object_store import FakeObjectStore
@@ -99,9 +99,7 @@ def _download(
             storage,
         )
 
-    from fastapi import Depends  # noqa: PLC0415
-
-    def _dep(db: Session = Depends(get_db)) -> AttachmentService:
+    def _dep(db: DbSession) -> AttachmentService:
         return _service(db)
 
     app = create_app()

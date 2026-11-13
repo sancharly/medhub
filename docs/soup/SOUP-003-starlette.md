@@ -2,7 +2,7 @@
 id: SOUP-003
 type: soup
 title: Starlette
-status: in_review
+status: approved
 version: "1.3"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
@@ -10,6 +10,10 @@ updated: "2026-11-13"
 manufacturer: Encode
 soup_version: 1.3.1
 anomaly_review: "2026-10-29"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-11-13"
+approved_digest: 6508a89b842acdef149ee5702e275dc413de6684428f930c87f921d7ef909e03
+approval_note: self-approved
 links: []
 tags:
   - soup

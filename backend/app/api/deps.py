@@ -10,7 +10,6 @@ from collections.abc import Callable
 
 import redis as redis_lib
 from fastapi import Depends, Request
-from sqlalchemy.orm import Session
 
 from app.api.errors import UnauthenticatedError
 from app.auth.session import Session as UserSession
@@ -18,7 +17,7 @@ from app.auth.session import SessionService
 from app.core.config import get_settings
 from app.db.models.account import Account
 from app.db.repositories.account_repo import AccountRepository
-from app.db.repositories.session import get_db
+from app.db.repositories.session import DbSession
 
 # ---------------------------------------------------------------------------
 # Redis client dependency
@@ -82,8 +81,8 @@ def get_session(
 
 
 def get_current_user(
+    db: DbSession,
     session: UserSession = Depends(get_session),
-    db: Session = Depends(get_db),
 ) -> Account:
     """Load the Account for the current session.
 
@@ -109,7 +108,7 @@ def get_current_user(
 
 
 def get_platform_services(
-    db: Session = Depends(get_db),
+    db: DbSession,
 ) -> object:
     """Yield a request-scoped PlatformServices wired from FastAPI DI."""
     from app.attachments.service import AttachmentService  # noqa: PLC0415
@@ -150,8 +149,8 @@ def require_module_enabled(module_key: str) -> Callable[..., object]:
     """Return a FastAPI dependency that raises AuthorizationError if module not enabled."""
 
     def _dependency(
+        db: DbSession,
         actor: Account = Depends(get_current_user),
-        db: Session = Depends(get_db),
     ) -> None:
         from app.api.errors import AuthorizationError  # noqa: PLC0415
         from app.audit.service import AuditService  # noqa: PLC0415
