@@ -2,8 +2,8 @@
 id: RISK-010
 type: risk
 title: Unreviewed SOUP change weakens a verified risk control
-status: approved
-version: "1.7"
+status: in_review
+version: "1.8"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-11-13"
@@ -15,10 +15,6 @@ probability_initial: 2
 severity_residual: 3
 probability_residual: 1
 acceptability: acceptable
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-11-13"
-approved_digest: 29150838ba6ada4c17288278a929989b23277d5674417a5411ed766e9180c3d1
-approval_note: self-approved
 links:
   - target: SOUP-001
     relation: relates_to
@@ -165,7 +161,7 @@ Scored before CR-001 (floating tags, no anomaly review); unchanged.
 | CI rejects any image reference without a digest | Protective | SR-028 AC-5; TASK-156 (`infra/check_image_pins.py`, CI job `image-pins`, ADD-024) | TS-013 TC-013.5, TC-013.6 |
 | Anomaly and advisory review per version, at least yearly and before release | Protective | SR-028 AC-6; TASK-154 (first review), PLAN-002 "SOUP monitoring" (cadence and owner). CR-003 re-reviews SOUP-003, 011, 019 and 021 at their new versions (TASK-161, TASK-163, TASK-164). CR-002 reviews SOUP-036 (TASK-172) | The dated, sourced reviews (`anomaly_review`; 2026-10-22 from TASK-154, re-dated by CR-003 for SOUP-003, 011, 019, 021; 2026-10-30 for SOUP-036 from TASK-172, spot-checked by QA) in SOUP-001..017, SOUP-019..021, SOUP-024..032, SOUP-034..036; TS-013 TC-013.9 |
 | Monthly advisory check for items with rolling releases; a fix for a hazard-relevant advisory adopted by a reviewed digest change no later than the next check | Protective | SR-028 AC-6; TASK-172 (PLAN-002 1.2 "Items with rolling releases", SOUP-036 "Monitoring"; first check due 2026-11-30) | SOUP-036 review of 2026-10-30 as the baseline; TS-013 TC-013.9. PLAN-002 1.2 is `in_review`: the rule binds once the human approves it |
-| Every tool that builds the images or runs CI pinned: actions by 40-hex commit SHA, CI Python and Node.js at the base-image patch versions, one exact `uv` version (CR-005) | Design | SR-028 AC-8; TASK-209, TASK-210 | TS-013 TC-013.11 (170 infra unit tests OK), TC-013.12 (pins read in the repository by `python3 infra/check_image_pins.py`, exit 0; local run of TASK-216 on `bug/build-hygiene`); hosted CI logs (Python 3.12.15, Node v24.22.2, uv 0.13.7, redocly 2.77.0): pending the push of TASK-216 |
+| Every tool that builds the images or runs CI pinned: actions by 40-hex commit SHA, CI Python and Node.js at the base-image patch versions, one exact `uv` version (CR-005) | Design | SR-028 AC-8; TASK-209, TASK-210 | TS-013 TC-013.11 (174 infra unit tests OK, local and hosted); TC-013.12 (`python3 infra/check_image_pins.py` exit 0, local and hosted); hosted CI run 43385410662 on `a5fd91a` (Python 3.12.15, Node v24.22.2, uv 0.13.7, `@redocly/cli@2.77.0`, actions at their pinned SHAs; TASK-216 QA, hosted part) |
 | Test containers of SOUP components started from the deployment's image reference, from one definition (CR-005) | Design | SR-028 AC-9; TASK-212 | TS-013 TC-013.14: `docker inspect` of a started test container shows the SOUP-020 digest (TASK-212 QA; `backend/tests/db/test_postgres_image.py` in the TASK-216 backend run) |
 | CI rejects a floating tool reference, and a test image that differs from the deployment's (CR-005, extension of the pin check) | Protective | SR-028 AC-8, AC-9; TASK-211, TASK-213 (`infra/check_image_pins.py`, ADR-0020) | TS-013 TC-013.11, TC-013.13, with negative controls (TASK-211, TASK-213, TASK-214 mutations re-run on a scratch copy by TASK-216: each makes the check or the unit test fail) |
 | Tests asserting the security headers, encryption and hashing behaviour | Protective | SR-001, SR-022, SR-025 | TR-001, TS-001, TS-008, TS-011 |
@@ -333,3 +329,4 @@ with PLAN-002 1.2.
     "one definition" row TASK-212 (was TASK-211); "CI rejects" row TASK-211 and TASK-213 (was
     TASK-210, TASK-212); tool pins row TASK-209 and TASK-210 (was TASK-209). The 1.6 line's range
     "TASK-209..212" now reads "TASK-209..213" (the check rules are TASK-211 and TASK-213).
+- 1.8 (2026-11-13) — CR-005 closure (TASK-216 QA hosted part, finding H-1): the tool-pin control row now cites hosted CI run 43385410662 on `a5fd91a` and 174 infra unit tests, replacing "pending the push of TASK-216". Evidence only; controls and residual (3 × 1, acceptable) unchanged. Content change, so the approval record is cleared and the record returns to review.
