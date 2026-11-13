@@ -2,7 +2,7 @@
 id: RISK-010
 type: risk
 title: Unreviewed SOUP change weakens a verified risk control
-status: in_review
+status: approved
 version: "1.8"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
@@ -15,6 +15,10 @@ probability_initial: 2
 severity_residual: 3
 probability_residual: 1
 acceptability: acceptable
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-11-13"
+approved_digest: 0051fe9ea64c2863ac256c4df47ee7d0d46c45e0bbf0020a3b47841c430903ab
+approval_note: self-approved
 links:
   - target: SOUP-001
     relation: relates_to

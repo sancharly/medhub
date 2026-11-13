@@ -3,7 +3,7 @@ id: "TASK-216"
 type: task
 title: "Verify CR-005 end to end"
 status: approved
-version: "1.8"
+version: "1.9"
 author: "Carlos Santiago Liceras"
 created: "2026-11-12"
 updated: "2026-11-13"
@@ -246,7 +246,7 @@ orchestrator's commit decision: the parser output above is the summary).
       `uv-0.13.7`; `@redocly/cli` 2.77.0 with the same lint result as run 42779806388 (valid, 9 warnings
       locally); each action downloaded at its pinned SHA (`actions/checkout`, `setup-python`, `setup-node`).
       (QA 2026-11-13: recorded in "QA review, hosted part".)
-- [ ] TC-013.12 hosted part, and the RISK-010 control-row text "hosted-log evidence pending": replace by
+- [x] TC-013.12 hosted part, and the RISK-010 control-row text "hosted-log evidence pending": replace by
       the run URL and the head SHA once green; TS-013 environment: add the pushed head.
       (QA 2026-11-13: TS-013 needs no edit. Its environment line and TC-013.12 already say the hosted run
       "is recorded in TASK-216", and it is now recorded there. RISK-010 control row 4 still says
@@ -515,3 +515,4 @@ desktop app is not available to the agent. `approved_digest` is not recomputed b
 - 1.6 (2026-11-13) — Follow-up to the QA review, local part: M-1 (RISK-010 task attribution) and L-1 (`ast` rule forms, "not seen" list, ADR-0020 wording) fixed. Status stays `in_review`.
 - 1.7 (2026-11-13) — QA review, hosted part: APPROVED on run 43385410662 (head `a5fd91a`, 8 of 8 jobs green, pins visible in the logs). AC-12 and the hosted boxes are ticked. The RISK-010 hosted-evidence row is left open as H-1 (LOW, the record is human-approved). The ADR-0020 acknowledgement is still pending (before CR-005 closes). `in_review → approved`.
 - 1.8 (2026-11-13) — Orchestrator: the human acknowledged the second ADR-0020 amendment (box ticked) and approved SOUP-001 1.3, SOUP-005 1.3, ADD-024 1.3, ADD-026 1.5, TS-013 1.6, PLAN-002 1.3 and RISK-010 1.7 in MedTrace. H-1 (RISK-010 hosted-evidence cell) stays open before CR-005 closes. Status stays `approved`.
+- 1.9 (2026-11-13) — Orchestrator: H-1 fixed in RISK-010 1.8 (commit 14317e6), which the human re-approved in MedTrace; last hosted box ticked. Status stays `approved`.
