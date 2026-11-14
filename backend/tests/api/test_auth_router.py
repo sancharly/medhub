@@ -271,6 +271,9 @@ class TestSessionExtendEndpoint:
     def test_extend_returns_expiry(self, client):
         account = _make_account()
         _auth_as(client, account)
+        mock_svc = client.app.dependency_overrides[get_session_service]()
+        mock_svc.get_inactivity_expiry.return_value = datetime.now(UTC)
+        mock_svc.remaining_seconds.return_value = 900
 
         resp = client.post(
             "/api/v1/auth/session/extend",
@@ -283,6 +286,83 @@ class TestSessionExtendEndpoint:
         data = resp.json()
         assert "expiresAt" in data
 
+    def test_extend_reports_remaining_seconds(self, client):
+        """TASK-144: the extend response carries expiresInSeconds (SR-030 AC 8)."""
+        account = _make_account()
+        session = _auth_as(client, account)
+        mock_svc = client.app.dependency_overrides[get_session_service]()
+        mock_svc.remaining_seconds.return_value = 900
+        mock_svc.get_inactivity_expiry.return_value = datetime.now(UTC)
+
+        resp = client.post(
+            "/api/v1/auth/session/extend",
+            cookies={"medhub_session": session.session_id, "medhub_csrf": "token123"},
+            headers={"X-CSRF-Token": "token123"},
+        )
+
+        client.app.dependency_overrides = {}
+        assert resp.status_code == 200
+        assert resp.json()["expiresInSeconds"] == 900
+
     def test_extend_requires_auth(self, client):
         resp = client.post("/api/v1/auth/session/extend")
         assert resp.status_code == 403
+
+
+class TestChangePasswordWrongCurrentPassword:
+    """TASK-144: a wrong current password is a validation error, not a session failure.
+
+    A 401 would be read by the client as an ended session and sign the user out (mid forced
+    password change); the answer is 400 with an error on ``currentPassword``.
+    """
+
+    def _post(self, client, session):
+        return client.post(
+            "/api/v1/auth/password",
+            cookies={"medhub_session": session.session_id, "medhub_csrf": "token123"},
+            headers={"X-CSRF-Token": "token123"},
+            json={
+                "currentPassword": "not-the-password",
+                "newPassword": "Another-Passw0rd!x",
+                "confirmNewPassword": "Another-Passw0rd!x",
+            },
+        )
+
+    def test_wrong_current_password_is_400_on_current_password(self, client):
+        from app.auth.password import PasswordService
+
+        account = _make_account()
+        original_hash = PasswordService().hash("Password123!")
+        account.password_hash = original_hash
+        session = _auth_as(client, account)
+
+        resp = self._post(client, session)
+
+        client.app.dependency_overrides = {}
+        assert resp.status_code == 400
+        assert resp.headers["content-type"].startswith("application/problem+json")
+        body = resp.json()
+        assert body["type"].endswith("/errors/validation-error")
+        assert body["errors"][0]["field"] == "currentPassword"
+        assert body["detail"] == "Current password is incorrect."
+
+    def test_wrong_current_password_changes_nothing_and_audits_nothing(self, client):
+        from app.auth.password import PasswordService
+
+        account = _make_account()
+        original_hash = PasswordService().hash("Password123!")
+        account.password_hash = original_hash
+        session = _auth_as(client, account)
+        mock_svc = client.app.dependency_overrides[get_session_service]()
+        db = MagicMock()
+        client.app.dependency_overrides[get_db] = lambda: (yield db)
+
+        with patch("app.api.routers.auth.AuditService") as audit_cls:
+            resp = self._post(client, session)
+
+        client.app.dependency_overrides = {}
+        assert resp.status_code == 400
+        assert account.password_hash == original_hash
+        db.commit.assert_not_called()
+        audit_cls.return_value.record.assert_not_called()
+        mock_svc.invalidate.assert_not_called()

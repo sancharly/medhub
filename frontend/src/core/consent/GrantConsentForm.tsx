@@ -5,6 +5,7 @@ import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import { apiClient } from "../../api";
+import { queryKeys } from "../../api/queryKeys";
 
 export function GrantConsentForm() {
   const [doctorId, setDoctorId] = useState("");
@@ -13,7 +14,7 @@ export function GrantConsentForm() {
   const mutation = useMutation({
     mutationFn: () => apiClient.grantConsent({ doctorId }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["me", "consents"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.myConsents });
       setDoctorId("");
     },
   });

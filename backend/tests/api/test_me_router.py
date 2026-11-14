@@ -3,13 +3,15 @@
 from __future__ import annotations
 
 import uuid
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from unittest.mock import MagicMock, patch
 
+import fakeredis
 import pytest
 from fastapi.testclient import TestClient
 
-from app.api.deps import get_current_user
+from app.api.deps import get_current_user, get_session, get_session_service
+from app.auth.session import SessionService
 from app.db.models.account import Account, AccountStatus, UserType
 from app.db.repositories.session import get_db
 from app.main import create_app
@@ -41,11 +43,56 @@ def client(app):
 
 def _auth_as(client, actor: Account) -> None:
     client.app.dependency_overrides[get_current_user] = lambda: actor
+    mock_svc = MagicMock(spec=SessionService)
+    mock_svc.remaining_seconds.return_value = 900
+    client.app.dependency_overrides[get_session_service] = lambda: mock_svc
+    client.app.dependency_overrides[get_session] = lambda: MagicMock()
 
     def override_db():
         yield MagicMock()
 
     client.app.dependency_overrides[get_db] = override_db
+
+
+class TestGetMeSessionExpiry:
+    """TASK-144: GET /me reports the remaining session seconds (SR-030 AC 8, AC 1, AC 2, AC 3)."""
+
+    @pytest.mark.parametrize(
+        ("user_type", "expected"),
+        [
+            (UserType.DOCTOR, 900),
+            (UserType.PATIENT, 900),
+            (UserType.ADMIN, 1800),
+            (UserType.SYSADMIN, 1800),
+        ],
+    )
+    def test_me_reports_remaining_session_seconds(self, client, user_type, expected):
+        actor = _make_account(user_type)
+        _auth_as(client, actor)
+        svc = SessionService(fakeredis.FakeRedis())
+        session = svc.create_session(actor).session
+        client.app.dependency_overrides[get_session_service] = lambda: svc
+        client.app.dependency_overrides[get_session] = lambda: session
+
+        resp = client.get("/api/v1/me")
+
+        client.app.dependency_overrides = {}
+        assert resp.status_code == 200
+        assert expected - 2 <= resp.json()["sessionExpiresInSeconds"] <= expected
+
+    def test_me_reports_the_absolute_limit_when_it_is_nearer(self, client):
+        actor = _make_account(UserType.ADMIN)
+        _auth_as(client, actor)
+        svc = SessionService(fakeredis.FakeRedis())
+        session = svc.create_session(actor).session
+        session.absolute_expires_at = datetime.now(UTC) + timedelta(seconds=90)
+        client.app.dependency_overrides[get_session_service] = lambda: svc
+        client.app.dependency_overrides[get_session] = lambda: session
+
+        resp = client.get("/api/v1/me")
+
+        client.app.dependency_overrides = {}
+        assert 88 <= resp.json()["sessionExpiresInSeconds"] <= 90
 
 
 class TestGetMe:

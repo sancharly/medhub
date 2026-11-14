@@ -9,6 +9,7 @@ from fastapi import APIRouter, Depends, Request, Response, status
 
 from app.api.deps import get_current_user, get_redis, get_session, get_session_service
 from app.api.errors import (
+    ProblemDetail,
     SessionCapContentionProblem,
     UnauthenticatedError,
     ValidationProblem,
@@ -128,7 +129,9 @@ def extend_session(
 ) -> SessionExtendResponse:
     """TTL was already slid by resolve() in get_session; return the new inactivity deadline."""
     new_expiry = svc.get_inactivity_expiry(session)
-    return SessionExtendResponse(expires_at=new_expiry)
+    return SessionExtendResponse(
+        expires_at=new_expiry, expires_in_seconds=svc.remaining_seconds(session)
+    )
 
 
 @router.post("/password", status_code=status.HTTP_204_NO_CONTENT)
@@ -150,7 +153,17 @@ def change_password(
 
     current_hash = actor.password_hash or ""
     if not password_svc.verify(current_hash, body.current_password):
-        raise UnauthenticatedError("Current password is incorrect.")
+        # Not a 401: that means "no valid session" and the client signs the user out on it.
+        raise ValidationProblem(
+            "Current password is incorrect.",
+            errors=[
+                ProblemDetail(
+                    field="currentPassword",
+                    rule="CURRENT_PASSWORD_INCORRECT",
+                    message="Current password is incorrect.",
+                )
+            ],
+        )
 
     try:
         password_svc.validate_policy(actor, body.new_password)

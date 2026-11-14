@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
@@ -9,8 +8,9 @@ import Button from "@mui/material/Button";
 import Alert from "@mui/material/Alert";
 import { useChangePassword, extractChangePasswordError } from "./useChangePassword";
 import { PolicyHints } from "./PolicyHints";
-import { apiClient } from "../api";
 import { queryClient } from "../api/queryClient";
+import { queryKeys } from "../api/queryKeys";
+import { useMe } from "./useMe";
 
 export function ChangePasswordPage() {
   const navigate = useNavigate();
@@ -22,10 +22,7 @@ export function ChangePasswordPage() {
   const changePassword = useChangePassword();
   const fieldError = extractChangePasswordError(changePassword.error);
 
-  const { data: me } = useQuery({
-    queryKey: ["me"],
-    queryFn: () => apiClient.me(),
-  });
+  const { data: me } = useMe();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -37,8 +34,11 @@ export function ChangePasswordPage() {
 
     try {
       await changePassword.mutateAsync({ currentPassword, newPassword, confirmNewPassword: confirmPassword });
-      queryClient.setQueryData(["me"], (old: typeof me) =>
-        old ? { ...old, mustChangePassword: false } : old
+      // Keep the receipt time of `me`: the session deadline is derived from it (SR-030 AC 8).
+      queryClient.setQueryData(
+        queryKeys.me,
+        (old: typeof me) => (old ? { ...old, mustChangePassword: false } : old),
+        { updatedAt: queryClient.getQueryState(queryKeys.me)?.dataUpdatedAt }
       );
       navigate("/profile");
     } catch {

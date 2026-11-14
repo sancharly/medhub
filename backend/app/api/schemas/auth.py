@@ -47,3 +47,4 @@ class PasswordChangeRequest(_CamelModel):
 
 class SessionExtendResponse(_CamelModel):
     expires_at: datetime
+    expires_in_seconds: int

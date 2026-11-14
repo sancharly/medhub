@@ -53,7 +53,8 @@ export function IdleWarningDialog({
     setExtending(true);
     try {
       const result = await apiClient.extendSession();
-      onExtended(new Date(result.expiresAt).getTime());
+      // Relative to receipt, so the client clock does not matter (SR-030 AC 8).
+      onExtended(Date.now() + result.expiresInSeconds * 1000);
     } catch (err) {
       if (err instanceof AuthError) {
         navigate("/login?timeout=1");

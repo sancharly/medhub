@@ -222,13 +222,19 @@ class SessionService:
         raw_ids: list[bytes | str] = self._redis.zrange(account_key, 0, -1)  # type: ignore[assignment]
         return [sid.decode() if isinstance(sid, bytes) else str(sid) for sid in raw_ids]
 
-    def get_inactivity_expiry(self, session: Session) -> datetime:
-        """Compute the inactivity expiry deadline for a resolved session."""
+    def remaining_seconds(self, session: Session) -> int:
+        """Seconds left before the session ends: the role's inactivity timeout, capped by what
+        remains of the absolute lifetime. The client derives its deadline from this value, so it
+        is relative and the client clock does not matter (SR-030 AC 8)."""
         now = datetime.now(UTC)
         ttl = self._inactivity_ttl(session.role)
         remaining_absolute = int((session.absolute_expires_at - now).total_seconds())
-        effective_ttl = min(ttl, max(0, remaining_absolute))
-        return datetime.fromtimestamp(now.timestamp() + effective_ttl, UTC)
+        return min(ttl, max(0, remaining_absolute))
+
+    def get_inactivity_expiry(self, session: Session) -> datetime:
+        """Compute the inactivity expiry deadline for a resolved session."""
+        now = datetime.now(UTC)
+        return datetime.fromtimestamp(now.timestamp() + self.remaining_seconds(session), UTC)
 
     def invalidate_all(self, account_id: uuid.UUID) -> None:
         """Delete all sessions for an account. Idempotent."""

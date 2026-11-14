@@ -353,3 +353,43 @@ def test_invalidate_all_is_idempotent() -> None:
     svc.create_session(acct)
     svc.invalidate_all(acct.id)
     svc.invalidate_all(acct.id)  # second call must not raise
+
+
+# --- remaining_seconds (TASK-144: the server-reported expiry, SR-030 AC 1-3 and AC 8) ---
+
+
+@pytest.mark.parametrize(
+    ("user_type", "expected"),
+    [
+        (UserType.PATIENT, 900),
+        (UserType.DOCTOR, 900),
+        (UserType.ADMIN, 1800),
+        (UserType.SYSADMIN, 1800),
+    ],
+)
+def test_remaining_seconds_is_the_role_inactivity_timeout(
+    user_type: UserType, expected: int
+) -> None:
+    svc = _svc(_redis())
+    s = svc.create_session(_make_account(user_type)).session
+    assert expected - 2 <= svc.remaining_seconds(s) <= expected
+
+
+def test_remaining_seconds_is_capped_by_the_absolute_lifetime() -> None:
+    """Near the 8 h limit the remaining time is what is left of the lifetime (SR-030 AC 3)."""
+    svc = _svc(_redis())
+    s = svc.create_session(_make_account(UserType.ADMIN)).session
+    near_end = s.absolute_expires_at - timedelta(seconds=120)
+    with patch("app.auth.session.datetime") as mock_dt:
+        mock_dt.now.return_value = near_end
+        mock_dt.fromtimestamp.side_effect = datetime.fromtimestamp
+        assert 118 <= svc.remaining_seconds(s) <= 120
+
+
+def test_remaining_seconds_is_zero_after_the_absolute_lifetime() -> None:
+    svc = _svc(_redis())
+    s = svc.create_session(_make_account()).session
+    with patch("app.auth.session.datetime") as mock_dt:
+        mock_dt.now.return_value = s.absolute_expires_at + timedelta(seconds=5)
+        mock_dt.fromtimestamp.side_effect = datetime.fromtimestamp
+        assert svc.remaining_seconds(s) == 0

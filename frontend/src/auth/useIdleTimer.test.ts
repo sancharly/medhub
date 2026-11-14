@@ -17,7 +17,7 @@ describe("useIdleTimer", () => {
 
     renderHook(() =>
       useIdleTimer({
-        timeoutMinutes: 15,
+        timeoutSeconds: 900,
         warningLeadMinutes: 2,
         onWarn,
         onExpired,
@@ -38,7 +38,7 @@ describe("useIdleTimer", () => {
 
     renderHook(() =>
       useIdleTimer({
-        timeoutMinutes: 15,
+        timeoutSeconds: 900,
         warningLeadMinutes: 2,
         onWarn,
         onExpired,
@@ -58,7 +58,7 @@ describe("useIdleTimer", () => {
 
     renderHook(() =>
       useIdleTimer({
-        timeoutMinutes: 30,
+        timeoutSeconds: 1800,
         warningLeadMinutes: 2,
         onWarn,
         onExpired,
@@ -79,7 +79,7 @@ describe("useIdleTimer", () => {
 
     renderHook(() =>
       useIdleTimer({
-        timeoutMinutes: 15,
+        timeoutSeconds: 900,
         warningLeadMinutes: 2,
         onWarn,
         onExpired,
@@ -101,7 +101,7 @@ describe("useIdleTimer", () => {
 
     renderHook(() =>
       useIdleTimer({
-        timeoutMinutes: 15,
+        timeoutSeconds: 900,
         warningLeadMinutes: 2,
         onWarn,
         onExpired,
@@ -113,5 +113,23 @@ describe("useIdleTimer", () => {
 
     act(() => vi.advanceTimersByTime(2 * 60 * 1000));
     expect(onExpired).toHaveBeenCalledTimes(1);
+  });
+
+  it("treats a deadline already in the past as expired", () => {
+    const onWarn = vi.fn();
+    const onExpired = vi.fn();
+
+    renderHook(() =>
+      useIdleTimer({
+        timeoutSeconds: 900,
+        warningLeadMinutes: 2,
+        onWarn,
+        onExpired,
+        deadlineOverride: Date.now() - 1,
+      })
+    );
+
+    expect(onExpired).toHaveBeenCalledTimes(1);
+    expect(onWarn).not.toHaveBeenCalled();
   });
 });

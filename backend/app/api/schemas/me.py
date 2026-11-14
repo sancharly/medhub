@@ -25,6 +25,8 @@ class MeResponse(_CamelModel):
     date_of_birth: date | None
     created_at: datetime
     must_change_password: bool = False  # computed, not from Account attributes
+    # Computed from the session, always set by the route: seconds until it ends (SR-030 AC 8)
+    session_expires_in_seconds: int
 
     model_config = ConfigDict(
         alias_generator=to_camel,

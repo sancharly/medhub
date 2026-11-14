@@ -6,12 +6,10 @@ import Box from "@mui/material/Box";
 import { apiClient } from "../../../api";
 import { AccountList } from "./AccountList";
 import { CreateAccountForm } from "./CreateAccountForm";
+import { useMe } from "../../../auth/useMe";
 
 export function AccountsPage() {
-  const { data: me, isLoading: meLoading } = useQuery({
-    queryKey: ["me"],
-    queryFn: () => apiClient.me(),
-  });
+  const { data: me, isLoading: meLoading } = useMe();
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["accounts"],

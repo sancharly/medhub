@@ -184,8 +184,9 @@ describe("route-level role guards (TASK-142, PRB-014)", () => {
       { status: 500, headers: { "Content-Type": "application/problem+json" } }
     );
 
-  // PRB-067: a failing /me is retried a bounded number of times, not in a loop, then an alert shows (SR-027 AC 3).
-  it("requests /me a bounded number of times when it fails with 500 and shows an alert", async () => {
+  // PRB-067, TASK-144: a failing /me is requested once, not in a loop and not retried, then an alert
+  // with "Try again" shows (SR-027 AC 3, SR-030 AC 8).
+  it("requests /me once when it fails with 500 and shows an alert", async () => {
     let calls = 0;
     server.use(
       http.get(`${BASE}/me`, () => {
@@ -198,8 +199,7 @@ describe("route-level role guards (TASK-142, PRB-014)", () => {
     await act(async () => {
       await new Promise((r) => setTimeout(r, 500));
     });
-    // 1 request plus the 3 retries of the client-wide policy.
-    expect(calls).toBe(4);
+    expect(calls).toBe(1);
     expect(mounted).not.toHaveBeenCalled();
   });
 

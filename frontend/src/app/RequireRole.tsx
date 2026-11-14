@@ -1,7 +1,6 @@
 import { Navigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import { apiClient } from "../api";
 import type { UserType } from "../api/generated/types";
+import { useMe } from "../auth/useMe";
 
 interface RequireRoleProps {
   roles: readonly UserType[];
@@ -15,10 +14,7 @@ interface RequireRoleProps {
  * `RequireAuth`, which wraps this guard.
  */
 export function RequireRole({ roles, children }: RequireRoleProps) {
-  const { data: me } = useQuery({
-    queryKey: ["me"],
-    queryFn: () => apiClient.me(),
-  });
+  const { data: me } = useMe();
 
   if (!me) return null;
   if (!roles.includes(me.userType)) return <Navigate to="/profile" replace />;

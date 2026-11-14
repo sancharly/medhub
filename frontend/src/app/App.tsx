@@ -19,20 +19,16 @@ import { AppointmentsPage } from "../core/appointments";
 import { ConsentPage } from "../core/consent";
 import { AccountsPage } from "../core/admin/accounts";
 import { GroupsPage } from "../core/admin/groups";
-import { useQuery } from "@tanstack/react-query";
-import { apiClient } from "../api";
 import { routeRoles, type RoutePath } from "../core/nav/routeRoles";
 import { RequireRole } from "./RequireRole";
+import { useMe } from "../auth/useMe";
 
 function guarded(path: RoutePath, element: React.ReactElement) {
   return <RequireRole roles={routeRoles[path]}>{element}</RequireRole>;
 }
 
 function AuthenticatedApp() {
-  const { data: me } = useQuery({
-    queryKey: ["me"],
-    queryFn: () => apiClient.me(),
-  });
+  const { data: me } = useMe();
 
   return (
     <AppLayout navigation={me ? <AppNavigation userType={me.userType} /> : null}>

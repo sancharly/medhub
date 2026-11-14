@@ -3,6 +3,7 @@ import Button from "@mui/material/Button";
 import { apiClient } from "../../api";
 import { useConfirm } from "../confirm/useConfirm";
 import { useErrorToast } from "../error/useErrorToast";
+import { queryKeys } from "../../api/queryKeys";
 
 interface RevokeActionProps {
   grantId: string;
@@ -16,7 +17,7 @@ export function RevokeAction({ grantId }: RevokeActionProps) {
   const mutation = useMutation({
     mutationFn: () => apiClient.revokeConsent(grantId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["me", "consents"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.myConsents });
     },
     onError: (err) => {
       errorToast(err as Error);

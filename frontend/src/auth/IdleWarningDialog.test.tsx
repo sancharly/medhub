@@ -61,8 +61,10 @@ describe("IdleWarningDialog", () => {
 
     server.use(
       http.post(`${BASE}/auth/session/extend`, () =>
+        // expiresAt is a server-clock instant; the client must use the relative value (SR-030 AC 8)
         HttpResponse.json({
-          expiresAt: new Date(newExpiry).toISOString(),
+          expiresAt: new Date(newExpiry - 3 * 60 * 60 * 1000).toISOString(),
+          expiresInSeconds: 1800,
         })
       )
     );
@@ -77,7 +79,7 @@ describe("IdleWarningDialog", () => {
 
     await waitFor(() => expect(onExtended).toHaveBeenCalled());
     const arg = onExtended.mock.calls[0][0] as number;
-    expect(arg).toBeGreaterThan(Date.now());
+    expect(Math.abs(arg - newExpiry)).toBeLessThan(5000);
   });
 
   it("Log out now calls onLogout", async () => {

@@ -9,15 +9,17 @@ const ACTIVITY_EVENTS = [
 ] as const;
 
 interface UseIdleTimerOptions {
-  timeoutMinutes: number;
+  /** Length of the session as last reported by the server; activity re-arms to this. */
+  timeoutSeconds: number;
   warningLeadMinutes: number;
   onWarn: () => void;
   onExpired: () => void;
+  /** Deadline (ms) derived from the server-reported expiry; no timers run until it is known. */
   deadlineOverride?: number;
 }
 
 export function useIdleTimer({
-  timeoutMinutes,
+  timeoutSeconds,
   warningLeadMinutes,
   onWarn,
   onExpired,
@@ -25,7 +27,7 @@ export function useIdleTimer({
 }: UseIdleTimerOptions) {
   const warnTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const expireTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const deadlineRef = useRef<number>(Date.now() + timeoutMinutes * 60 * 1000);
+  const deadlineRef = useRef<number>(Date.now() + timeoutSeconds * 1000);
 
   const clearTimers = useCallback(() => {
     if (warnTimerRef.current) clearTimeout(warnTimerRef.current);
@@ -39,6 +41,12 @@ export function useIdleTimer({
       const expireIn = fromDeadline - now;
       const warnIn = expireIn - warningLeadMinutes * 60 * 1000;
 
+      // A deadline that has already passed is an ended session, not a timer that never starts.
+      if (expireIn <= 0) {
+        onExpired();
+        return;
+      }
+
       if (warnIn > 0) {
         warnTimerRef.current = setTimeout(onWarn, warnIn);
       }
@@ -50,10 +58,12 @@ export function useIdleTimer({
   );
 
   const resetDeadline = useCallback(() => {
-    const newDeadline = Date.now() + timeoutMinutes * 60 * 1000;
+    // No server-reported length yet: nothing to re-arm to.
+    if (!(timeoutSeconds > 0)) return;
+    const newDeadline = Date.now() + timeoutSeconds * 1000;
     deadlineRef.current = newDeadline;
     scheduleTimers(newDeadline);
-  }, [timeoutMinutes, scheduleTimers]);
+  }, [timeoutSeconds, scheduleTimers]);
 
   useEffect(() => {
     if (deadlineOverride !== undefined) {

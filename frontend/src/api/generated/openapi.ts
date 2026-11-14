@@ -958,6 +958,8 @@ export interface components {
              * @default false
              */
             mustChangePassword: boolean;
+            /** Sessionexpiresinseconds */
+            sessionExpiresInSeconds: number;
         };
         /** MeSummary */
         MeSummary: {
@@ -1020,6 +1022,8 @@ export interface components {
              * Format: date-time
              */
             expiresAt: string;
+            /** Expiresinseconds */
+            expiresInSeconds: number;
         };
         /** SetModuleEnabledRequest */
         SetModuleEnabledRequest: {

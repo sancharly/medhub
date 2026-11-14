@@ -3307,6 +3307,10 @@
             "type": "boolean",
             "title": "Mustchangepassword",
             "default": false
+          },
+          "sessionExpiresInSeconds": {
+            "type": "integer",
+            "title": "Sessionexpiresinseconds"
           }
         },
         "type": "object",
@@ -3318,7 +3322,8 @@
           "firstName",
           "surname",
           "dateOfBirth",
-          "createdAt"
+          "createdAt",
+          "sessionExpiresInSeconds"
         ],
         "title": "MeResponse"
       },
@@ -3496,11 +3501,16 @@
             "type": "string",
             "format": "date-time",
             "title": "Expiresat"
+          },
+          "expiresInSeconds": {
+            "type": "integer",
+            "title": "Expiresinseconds"
           }
         },
         "type": "object",
         "required": [
-          "expiresAt"
+          "expiresAt",
+          "expiresInSeconds"
         ],
         "title": "SessionExtendResponse"
       },

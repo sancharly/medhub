@@ -2,15 +2,11 @@
 id: ADD-006
 type: architecture-doc
 title: Authentication & Session (SI-AUTH)
-status: approved
-version: "1.4"
+status: in_review
+version: "1.5"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-11-13"
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-11-13"
-approved_digest: 8759bc9a7f0114408e7ff28e477220bcb19dd0fa939964ffe228b61a630f028e
-approval_note: self-approved
+updated: "2026-11-14"
 links:
   - target: SR-002
     relation: implements
@@ -62,8 +58,8 @@ Login, logout, password change, session lifecycle, lockout
   (PRB-065). The refresh is a conditional write (`SET … EX … XX`): a session key deleted by
   logout, eviction or the password-change session kill is never written again, and `resolve()`
   then answers "ended" (SR-030 AC 5, PRB-064).
-  **CR-006 (planned; TASK-144):** the remaining lifetime computed by `resolve()` (the smaller of the
-  role's idle timeout and the absolute remainder) is returned to the caller; `GET /me` reports it as
+  **CR-006 (TASK-144):** the remaining lifetime (`SessionService.remaining_seconds`: the smaller of the
+  role's idle timeout and the absolute remainder, never negative) is read by the route; `GET /me` reports it as
   `sessionExpiresInSeconds` and the extend response as `expiresInSeconds` next to `expiresAt`, so the
   client's deadline follows the server (SR-030 AC 8). Additive response fields; the session decision
   is unchanged. The session dependencies run in the thread pool (ADR-0022, ADD-005).
@@ -104,3 +100,5 @@ Participates in RISK-005 (see `docs/risks/`); the control measures are carried b
 - 1.2 (2026-11-06) — TASK-205 (CR-004 D-11): `U-AUTH-Session` refresh is a conditional write; the cap counts live members and prunes dead ones in the same transaction; `U-AUTH-Login` reports the eviction and answers cap contention 503. Content change, so the 1.1 approval record is cleared and the record returns to review.
 - 1.3 (2026-11-08) — TASK-201 (CR-004): the "CR-004 change" unit notes merged into the unit text as built; `U-AUTH-Login` notes that a failed attempt is counted before it is audited. No change of meaning. Arc42 sections 05, 06 and 12 updated.
 - 1.4 (2026-11-13) — CR-006 Plan stage (Software Architect role): `U-AUTH-Session` reports the remaining session seconds through `GET /me` and extend (SR-030 AC 8), marked "CR-006 (planned)". Content change, so the 1.3 approval record is cleared and the record returns to review.
+- 1.5 (2026-11-14) — TASK-144 (CR-006): "CR-006 (planned)" removed from `U-AUTH-Session`; `SessionService.remaining_seconds` feeds `sessionExpiresInSeconds` (`GET /me`) and `expiresInSeconds` (extend). Content change, so the 1.4 approval record is cleared and the record returns to review.
+- 1.5 (2026-11-14) — TASK-144 QA round 1: `sessionExpiresInSeconds` is required on `GET /me`; `POST /auth/password` answers a wrong current password with 400 `validation-error` (`currentPassword`), not 401, because a 401 means "no valid session" to the client. Still `in_review`.

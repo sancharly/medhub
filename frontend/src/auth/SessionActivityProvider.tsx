@@ -1,11 +1,10 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "../api";
-import { queryClient as qc } from "../api/queryClient";
+import { queryClient as qc, setAuthExpiredHandler } from "../api/queryClient";
+import { useMe } from "./useMe";
 import { useIdleTimer } from "./useIdleTimer";
 import { IdleWarningDialog } from "./IdleWarningDialog";
-import { getTimeoutMinutes } from "./roleTimeouts";
 import { roleTimeouts } from "./roleTimeouts";
 
 export function SessionActivityProvider({
@@ -15,23 +14,24 @@ export function SessionActivityProvider({
 }) {
   const navigate = useNavigate();
   const [showWarning, setShowWarning] = useState(false);
-  const [expiresAt, setExpiresAt] = useState(
-    () => Date.now() + 15 * 60 * 1000
-  );
-  const [deadlineOverride, setDeadlineOverride] = useState<
-    number | undefined
+  const [extension, setExtension] = useState<
+    { receivedAt: number; deadline: number } | undefined
   >();
 
-  const { data: me } = useQuery({
-    queryKey: ["me"],
-    queryFn: () => apiClient.me(),
-  });
+  const { data: me, dataUpdatedAt } = useMe();
 
-  const timeoutMinutes = me ? getTimeoutMinutes(me.userType) : 15;
+  // The deadline is the time the server's relative expiry was received plus that expiry, so the
+  // client clock and a client constant play no part (SR-030 AC 8). The newest of the `me`
+  // response and the last extend response wins.
+  const reported = me?.sessionExpiresInSeconds;
+  const meDeadline =
+    typeof reported === "number" ? dataUpdatedAt + reported * 1000 : undefined;
+  const deadline =
+    extension && extension.receivedAt >= dataUpdatedAt
+      ? extension.deadline
+      : meDeadline;
 
   const handleWarn = useCallback(() => {
-    const deadline = Date.now() + roleTimeouts.warningLeadMinutes * 60 * 1000;
-    setExpiresAt(deadline);
     setShowWarning(true);
   }, []);
 
@@ -40,18 +40,28 @@ export function SessionActivityProvider({
     navigate("/login?timeout=1");
   }, [navigate]);
 
-  const { resetDeadline } = useIdleTimer({
-    timeoutMinutes,
+  // A 401 on any mutation (the attachment upload included) ends the session once.
+  useEffect(
+    () =>
+      setAuthExpiredHandler(() => {
+        setShowWarning(false);
+        navigate("/login?timeout=1");
+        qc.clear();
+      }),
+    [navigate]
+  );
+
+  useIdleTimer({
+    timeoutSeconds: reported ?? 0,
     warningLeadMinutes: roleTimeouts.warningLeadMinutes,
     onWarn: handleWarn,
     onExpired: handleExpired,
-    deadlineOverride,
+    deadlineOverride: deadline,
   });
 
   function handleExtended(newDeadline: number) {
     setShowWarning(false);
-    setDeadlineOverride(newDeadline);
-    resetDeadline();
+    setExtension({ receivedAt: Date.now(), deadline: newDeadline });
   }
 
   async function handleLogout() {
@@ -69,7 +79,7 @@ export function SessionActivityProvider({
       {children}
       <IdleWarningDialog
         open={showWarning}
-        expiresAt={expiresAt}
+        expiresAt={deadline ?? 0}
         onExtended={handleExtended}
         onLogout={handleLogout}
       />
