@@ -2,11 +2,11 @@
 id: RISK-007
 type: risk
 title: Clinical information unavailable when needed
-status: approved
-version: "1.15"
+status: in_review
+version: "1.16"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-11-13"
+updated: "2026-11-14"
 hazard: The application, its database, its object storage or its workers unavailable, or attachments unreadable.
 cause: Single-host outage, database or object-store failure, exhausted connection pool from a session leak, a missing storage SDK (PRB-002), or an encryption key rotation that makes old rows unreadable → the clinician cannot open the record → they proceed without it or wait.
 harm: Delayed care; decisions made without available history. No direct physical harm from the software itself.
@@ -15,10 +15,6 @@ probability_initial: 2
 severity_residual: 3
 probability_residual: 2
 acceptability: alarp
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-11-13"
-approved_digest: 2e2af7274c2906e1db885da69434f5c1aa027cb4d1b55aa3d6e7422ce26a9a84
-approval_note: self-approved
 links:
   - target: SOUP-020
     relation: relates_to
@@ -84,7 +80,7 @@ occur); the score is severity × P2, the probability that the hazardous situatio
 | DICOM stored-size and declared-decoded-size bounds checked before decoding, so one study cannot exhaust the API process (CR-006, PRB-006, D-2) | Protective | SR-017 AC 6; TASK-218 | none yet (planned: TS-010 or a new TS) |
 | Data-access cost does not grow with the data: indexes on the lookups of SR-026 AC 6 (migration 0011, four; migration 0012, attachments by clinical entry and active consents by doctor, D-29), constant queries for `groups_of`, one-row activation check (CR-006, PRB-021, PRB-024, PRB-022 regression) | Design | SR-026 AC 6; TASK-219 (0011 indexes, activation), TASK-220 (`groups_of`, 0012 indexes) | none yet (planned: query-count test; `EXPLAIN` on a seeded database; migration test on an empty and a populated database, upgrade and downgrade) |
 | Retention sweep isolates a failing dataset, releases every session it opens and retries at most 3 times, so it cannot exhaust the connection pool (CR-006, PRB-012) | Protective | SR-024 AC 5; TASK-141 | none yet (planned: TS-004, failing dataset, every opened session closed) |
-| A route chunk that fails to load (route-level code splitting) shows a clear message with a retry, never a blank route (CR-006 change-analysis cause 11, PRB-020) | Protective | SR-027 AC 3, SR-026 AC 7; TASK-145 | none yet (planned: Vitest failed-chunk case with a working retry, TS-012) |
+| A route chunk that fails to load (route-level code splitting) shows a clear message with a retry, never a blank route (CR-006 change-analysis cause 11, PRB-020) | Protective | SR-027 AC 3, SR-026 AC 7; TASK-145 | TS-012 TC-012.6 (failed chunk shows the message, Retry imports it again and the page renders; negative control without the rebuild fails); TS-018 TC-018.10 (initial payload 159.93 kB gzip, within 165 kB) |
 | Object storage SDK declared as a required runtime dependency and verified in CI | Design | TASK-157 (CR-001, resolves PRB-002) | TS-007 TC-007.5, TS-013 TC-013.8 |
 | Key identifier in the ciphertext envelope so rotation cannot orphan rows | Design | SR-022, PRB-004 resolution | TR-001, TS-008 |
 | Bucket initialisation ordered after the store is healthy and fail-fast: the backend does not start on a missing or misconfigured bucket (CR-002, PRB-039) | Protective | SR-040 AC 4; TASK-175 (re-run on SeaweedFS by TASK-176) | TS-014 TC-014.4: initialiser starts only after `object-store` is healthy (`docker events` order); an unreachable store gives exit 1 and `backend` stays `Created`; idempotent re-run (TASK-175 and TASK-176 QA reruns) |
@@ -221,3 +217,4 @@ CR-006 (2026-11-13), availability effects introduced by its controls:
 - 1.13 (2026-11-13) — TASK-136 round 2: the TASK-136 control row names PRB-072 and TS-018 (TC-018.1 to TC-018.4) and the residual limit (PRB-081). Scores unchanged. Content change, so the approval record is cleared and the record returns to review.
 - 1.14 (2026-11-13) — CR-006 D-27 (PRB-080), §7.4 change analysis (Software Architect role): control row added for the request commit before the response (SR-012 AC 5, TASK-227). PRB-081 stays out of scope (D-27); TASK-227 removes only its streaming contribution. Scores unchanged (3 × 2 → alarp; the residual is set by ADR-0010 and PRB-057). Content change, so the approval record is cleared and the record returns to review.
 - 1.15 (2026-11-13) — CR-006 D-29 (Software Architect role): the data-access-cost row names migration 0012 (TASK-220) for the two lookups the code issues that 0011 did not index (TASK-219 QA finding 1). Scores unchanged. Content change; the record stays in review (no approval record to clear).
+- 1.16 (2026-11-14) — TASK-145: the failed-route-chunk control row cites its verification (TS-012 TC-012.6, TS-018 TC-018.10). Scores unchanged. Content change, so the approval record is cleared and the record returns to review.

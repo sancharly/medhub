@@ -9,19 +9,37 @@ import { RequireAuth } from "../auth/RequireAuth";
 import { ForcedPasswordGate } from "../auth/ForcedPasswordGate";
 import { SessionActivityProvider } from "../auth/SessionActivityProvider";
 import { AppErrorBoundary } from "../core/error/AppErrorBoundary";
-import { ChangePasswordPage } from "../auth/ChangePasswordPage";
+import { lazyRoute } from "../core/error/lazyRoute";
 import { AppLayout } from "../core/layout/AppLayout";
 import { AppNavigation } from "../core/nav/AppNavigation";
 import { ProfilePage } from "../core/profile";
-import { PatientListPage } from "../core/patients";
-import { ClinicalEntriesPage } from "../core/clinical";
-import { AppointmentsPage } from "../core/appointments";
-import { ConsentPage } from "../core/consent";
-import { AccountsPage } from "../core/admin/accounts";
-import { GroupsPage } from "../core/admin/groups";
 import { routeRoles, type RoutePath } from "../core/nav/routeRoles";
 import { RequireRole } from "./RequireRole";
 import { useMe } from "../auth/useMe";
+
+// Every routed page except sign-in, activation and the landing route loads on first navigation
+// (SR-026 AC 7). The gates stay eager; the admin pages share one chunk.
+const ChangePasswordPage = lazyRoute(() =>
+  import("../auth/ChangePasswordPage").then((m) => ({ default: m.ChangePasswordPage }))
+);
+const PatientListPage = lazyRoute(() =>
+  import("../core/patients").then((m) => ({ default: m.PatientListPage }))
+);
+const ClinicalEntriesPage = lazyRoute(() =>
+  import("../core/clinical").then((m) => ({ default: m.ClinicalEntriesPage }))
+);
+const AppointmentsPage = lazyRoute(() =>
+  import("../core/appointments").then((m) => ({ default: m.AppointmentsPage }))
+);
+const ConsentPage = lazyRoute(() =>
+  import("../core/consent").then((m) => ({ default: m.ConsentPage }))
+);
+const AccountsPage = lazyRoute(() =>
+  import("../core/admin").then((m) => ({ default: m.AccountsPage }))
+);
+const GroupsPage = lazyRoute(() =>
+  import("../core/admin").then((m) => ({ default: m.GroupsPage }))
+);
 
 function guarded(path: RoutePath, element: React.ReactElement) {
   return <RequireRole roles={routeRoles[path]}>{element}</RequireRole>;

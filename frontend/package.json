@@ -5,8 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
-    "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "build": "tsc && vite build && node scripts/check-bundle-budget.mjs --clean",
+    "check:budget": "node scripts/check-bundle-budget.mjs",
+    "lint": "eslint src scripts --ext ts,tsx,mjs --report-unused-disable-directives --max-warnings 0",
     "format": "prettier --write src tests",
     "test": "vitest",
     "typecheck": "tsc --noEmit",

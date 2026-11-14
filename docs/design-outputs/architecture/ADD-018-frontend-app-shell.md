@@ -2,15 +2,11 @@
 id: ADD-018
 type: architecture-doc
 title: Frontend App Shell (SI-FE-SHELL)
-status: approved
-version: "1.3"
+status: in_review
+version: "1.5"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-11-13"
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-11-13"
-approved_digest: 6ed163b876390a9c81cabe4fc105045a186cd88093aee74c0997f631a45d0569
-approval_note: self-approved
+updated: "2026-11-14"
 links:
   - target: SR-026
     relation: implements
@@ -75,11 +71,17 @@ Layout, routing, responsive frame, navigation, module mounting, error/confirmati
   `frontend/src/core/nav/routeRoles.ts`; `navConfig.ts` derives its role lists from it, so the two
   cannot diverge. Every `<Route>` in `App.tsx` has an entry. Defence in depth only: the server stays the control
   (SR-005, SR-009, SR-031 AC 5; PRB-014).
-- **CR-006 (planned; TASK-145):** `U-FE-Routing` — routed pages other than sign-in, activation and the
-  landing route are `React.lazy` chunks (admin pages share one) under one `Suspense` in the layout; the
-  gates stay eager. A build-time check keeps the initial payload (entry chunk and its static imports,
-  gzip) within the SR-026 AC 7 budget. `U-FE-Error` gains a route-chunk boundary: a chunk that fails to
-  load shows a clear message with a retry, never a blank route (SR-027 AC 3; RISK-007 cause 11).
+- **CR-006 (TASK-145):** `U-FE-Routing` — routed pages other than sign-in, activation and the landing
+  route (`/profile`) are lazy chunks made by `lazyRoute` (`core/error/lazyRoute.tsx`) in `app/App.tsx`; the
+  admin pages share one chunk (`core/admin/index.ts`). `AppLayout` puts its content under one `Suspense`
+  (accessible "Loading page" indicator) inside `RouteChunkBoundary`. The gates (`RequireAuth`,
+  `ForcedPasswordGate`, `RequireRole`, `SessionActivityProvider`) stay eager and wrap the layout, so no
+  page chunk is requested before sign-in. `scripts/check-bundle-budget.mjs` (run by `npm run build`) keeps
+  the initial payload (entry chunk and its static imports, gzip, from the Vite manifest) within the
+  SR-026 AC 7 budget of 165 kB and requires each lazy group to be a chunk of its own (a page made eager is merged into the entry chunk); it then removes `dist/.vite` (manifest) so it is not served. `U-FE-Error` gains `RouteChunkBoundary`: a chunk that fails to load
+  shows "This page could not be loaded." with a Retry that imports it again, never a blank route; it
+  resets when the path changes and rethrows any other error to `AppErrorBoundary` (SR-027 AC 3;
+  RISK-007 cause 11).
 
 Class B requires decomposition down to software units, not per-unit detailed design
 (§5.4.2–5.4.4 are class C). Each unit above is independently unit-testable and is the granularity
@@ -114,3 +116,5 @@ Participates in RISK-002 (see `docs/risks/`); the control measures are carried b
 - 1.1 (2026-10-31) — CR-004 Plan stage (Software Architect role): unit changes for the planned design added (marked "CR-004"), links added. Content change, so the approval record is cleared and the record returns to review. The implementing tasks confirm the unit text when they land.
 - 1.2 (2026-11-08) — TASK-201 (CR-004), from the TASK-142 QA review: `U-FE-RouteGuard` names `routeRoles.ts` as the role table and `navConfig.ts` as its consumer (it named `navConfig.ts` as the table). Content change, so the 1.1 approval record is cleared and the record returns to review.
 - 1.3 (2026-11-13) — CR-006 Plan stage (Software Architect role): lazy routes, the initial-payload check and the route-chunk boundary marked "CR-006 (planned)"; `implements` SR-026 and `relates_to` RISK-007 added. Content change, so the 1.2 approval record is cleared and the record returns to review.
+- 1.4 (2026-11-14) — TASK-145: the CR-006 routing and route-chunk boundary text states what was built (it said "planned"). Content change, so the 1.3 approval record is cleared and the record returns to review.
+- 1.5 (2026-11-14) — TASK-145 QA round 1 fixes: the lazy-group check, manifest removal and the reload step after a failed retry are stated. Content change, so the record stays in review.

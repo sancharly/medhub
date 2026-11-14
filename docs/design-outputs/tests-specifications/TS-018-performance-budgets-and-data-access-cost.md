@@ -3,14 +3,10 @@ id: TS-018
 type: test-specification
 title: Performance budgets and data-access cost verification
 status: approved
-version: "1.4"
+version: "1.6"
 author: Carlos Santiago Liceras
 created: "2026-11-13"
 updated: "2026-11-14"
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-11-14"
-approved_digest: 1528c841692e8a76f406a8f8306316f6a2c5ffd09586f7c6d7b1640b7ea55c00
-approval_note: self-approved
 links:
   - target: SR-026
     relation: verifies
@@ -30,17 +26,16 @@ Software requirement covered: SR-026. This version holds the test cases for **SR
 (20 concurrent clients on one API worker: no 5xx, the AC 1 and AC 2 budgets hold, a slow call does not
 delay unrelated requests) and the part of **AC 1 and AC 2** that the same load test measures
 (TC-018.3) (TASK-136), and the index-served lookups and the one-row activation of **SR-026 AC 6**
-(TC-018.5, TC-018.6) (TASK-219), the group listing and the two remaining lookup indexes (TC-018.7, TC-018.8) (TASK-220), and **AC 8** (TC-018.9) (TASK-222). The remaining acceptance criteria are added by the tasks that implement them and are not
+(TC-018.5, TC-018.6) (TASK-219), the group listing and the two remaining lookup indexes (TC-018.7, TC-018.8) (TASK-220), **AC 8** (TC-018.9) (TASK-222) and **AC 7** (TC-018.10) (TASK-145). The remaining acceptance criteria are added by the tasks that implement them and are not
 yet mapped, so this specification is incomplete for SR-026 until then:
 
 | SR-026 AC | Task that adds its test cases |
 |---|---|
 | AC 3 (DICOM first image within 10 s), AC 4 (budgets verified by performance tests) | TASK-226 |
-| AC 7 (initial JavaScript at most 165 kB gzip) | TASK-145 |
 
 Software items under test: SI-API `U-API-Deps`, `api/routers/auth.py` and the lifespan (ADD-005);
 SI-PERSIST engine (ADD-016); the Redis client of `api/deps.py` (SI-AUTH, ADD-006, no behaviour change).
-SI-PERSIST migrations 0011 and 0012 and SI-IDENTITY activation (ADD-016, SOUP-009 PostgreSQL); SI-GROUPS `groups_of` (ADD-009). Levels: unit (TC-018.1, TC-018.4, TC-018.9), integration through the ASGI app (TC-018.2), integration against PostgreSQL (TC-018.5 to TC-018.8) and system (TC-018.3).
+SI-PERSIST migrations 0011 and 0012 and SI-IDENTITY activation (ADD-016, SOUP-009 PostgreSQL); SI-GROUPS `groups_of` (ADD-009); SI-FE-SHELL `app/App.tsx` and `scripts/check-bundle-budget.mjs` (ADD-018). Levels: unit (TC-018.1, TC-018.4, TC-018.9, TC-018.10), integration through the ASGI app (TC-018.2), integration against PostgreSQL (TC-018.5 to TC-018.8) and system (TC-018.3).
 
 ## Preconditions and environment
 
@@ -65,6 +60,7 @@ runs made in sequence on one stack are comparable in throughput.
 | TC-018.7 | SR-026 AC 6 (PRB-024) | `backend/tests/groups/test_groups_of.py::test_groups_of_query_count_constant` (the PRB-024 case) and `::test_module_gate_query_count_constant` (the module-gating case: `ModuleAccessGuard.is_module_enabled` and the two repository calls of `GET /me/modules`) (`before_cursor_execute` counter; identity map expired before each count). Negative control: the same test on `c69d7dc` (`groups_of` calling `GroupRepository.get` per membership) | `GroupService.groups_of`, `ModuleAccessGuard.is_module_enabled` and the `/me/modules` repository pair each issue the same number of statements for an account with 1, 10 and 100 memberships; the returned set is unchanged (characterisation in TC-005.4) | The tests pass; on `c69d7dc` the `groups_of` test fails with `{1: 3, 10: 12, 100: 102}`; with an N+1 planted in the guard the module-gating test fails with `{1: 4, 10: 13, 100: 103}` (`groups_of` has no caller; module gating already used a constant 3 queries) |
 | TC-018.8 | SR-026 AC 6 (PRB-021, CR-006 D-29) | `backend/tests/db/test_migration_0012_indexes.py`: `test_upgrade_downgrade_0012_empty_and_populated`, `test_remaining_lookups_use_index`, `test_without_the_0012_indexes_the_same_lookups_scan` (negative control), `test_orm_drift_at_head_and_at_0011` | Migration 0012 upgrades and downgrades on an empty database and on one with 10 000 attachments, 10 000 consent grants (50 doctors, a quarter revoked) and 10 000 patient accounts, creating and dropping `ix_attachment_clinical_entry_id` and `ix_consent_grant_doctor_id_active` with row counts unchanged; after `ANALYZE` with `enable_seqscan` on, `EXPLAIN` of `AttachmentRepository.list_for_clinical_entry` and `ConsentRepository.list_patients_for_doctor` (statements captured from the repositories) names the new index and has no `Seq Scan` on `attachment` or `consent_grant` (`account` may be seq-scanned: at 10 000 accounts the planner hash-joins about 150 rows, at 210 000 it uses `account_pkey`, so the assertion is limited to those two tables); at revision 0011 both are a `Seq Scan` on their table; ORM metadata and migrations agree at head and differ at 0011 by exactly the two `add_index` diffs | All listed tests pass; `test_migration.py` still passes |
 | TC-018.9 | SR-026 AC 8 (PRB-025, TASK-222) | `frontend/src/auth/useIdleTimer.test.ts`: `no listeners registered for activity events` (`window.addEventListener` is called for none of `mousemove`, `keydown`, `click`, `touchstart`, `scroll`), `activity events do not move the deadline` (the five events dispatched at 10 minutes of a 15-minute deadline; warning and expiry still fire at the reported time minus 2 minutes and at the reported time). Negative control: one activity listener that re-arms the timers | Input events do no session-timer work: no activity listener exists, so there is nothing to re-arm at most once per second (zero re-arms, which satisfies AC 8). The wording of AC 8 is left to the human (CR-006 P-20); reword this case if AC 8 is retired or changed | Both tests pass; with a re-arming `mousemove`/`keydown` listener added both fail (the second also fails `reading without requests is warned at 13 min and signed out at 15 min` in `SessionActivityProvider.test.tsx`, TC-001.13) |
+| TC-018.10 | SR-026 AC 7 (PRB-020, TASK-145) | `frontend/scripts/check-bundle-budget.test.mjs`: `counts the entry chunk and its static imports, not the lazy chunks`, `fails when the initial payload is over the budget`, `fails when a lazy chunk is pulled into the static graph`, `the budget is the approved 165 kB gzip`, and on a real `vite build` (production mode, temporary output): `landing route does not import admin pages or any other lazy page`, `admin pages share one chunk`, `initial JavaScript is within 165 kB gzip`, `a lazy page imported eagerly fails the check` (real build with `PatientListPage` imported statically, which Rollup merges into the entry chunk); synthetic cases also cover a lazy group missing as a chunk, a group's modules inside the entry chunk, and `--clean` removing `dist/.vite` after a pass only; `frontend/src/app/App.lazy.test.tsx`: `an unauthenticated deep link loads no page chunk`, `landing route does not import the other pages`, `a lazy page is requested on first navigation and renders`. `npm run build` runs the same check (`scripts/check-bundle-budget.mjs --clean`) after `vite build`: it requires each lazy group (change-password, patients, clinical, appointments, consent, admin) to be its own dynamic chunk with none of its modules in the initial chunks, then removes `dist/.vite` (manifest, chunk-module list) so it is not published. Negative control: `App.tsx` with static page imports | Initial JavaScript (entry chunk plus its static imports, from the Vite manifest) is at most 165 kB gzip (1 kB = 1000 bytes, zlib default level); each of the change-password page, patients, clinical, appointments, consent and the admin pages (one chunk) is its own dynamic chunk outside that graph; a page chunk is requested only after sign-in succeeded and the route was navigated to | All listed tests pass and `npm run build` ends with "within the budget": 160.06 kB gzip (504.51 kB raw) against 172.68 kB gzip (558.87 kB raw) before; with static imports the build measures 173.00 kB gzip, the budget test and all three `App.lazy` tests fail; with only `PatientListPage` imported statically the size stays under budget (160.4 kB) and the lazy-group check is what fails |
 
 TS-001 and TS-002 (authorization and session decisions, RISK-001 and RISK-005) run unchanged as the guard
 for this task: the dependencies changed from `async def` to `def`, their decisions did not.
@@ -94,3 +90,7 @@ pre-TASK-136 build and the working tree, and the two infra tests, green since th
 - 1.3 (2026-11-14, round 2): TC-018.7 adds the module-gating case; TC-018.8 explains why `account` may be scanned. Still `in_review`.
 - 1.3 (2026-11-14): QA review of TASK-220 (round 2): `approved` (status only; content unchanged).
 - 1.4 (2026-11-14): TASK-222. Added TC-018.9 (no activity listener, no timer work, SR-026 AC 8); the AC 8 row is removed from the pending table. Content change, so the status `approved` no longer applies: `in_review`, no approval record on the file.
+- 1.5 (2026-11-14): TASK-145. Added TC-018.10 (initial JavaScript within 165 kB gzip, lazy route chunks, SR-026 AC 7); the AC 7 row is removed from the pending table. The task text named TC-018.8, which TASK-220 had already used. Content change, so the approval record is removed. `in_review`.
+- 1.5 (2026-11-14): QA review of TASK-145 (round 1): `approved` (status only; content unchanged).
+- 1.6 (2026-11-14): TASK-145 QA round 1 fixes. TC-018.10: lazy-group check (a page made eager is merged into the entry chunk and no longer a chunk of its own), real-build negative control, manifest removed after the check. Content change, so the approval record is removed. `in_review`.
+- 1.6 (2026-11-14): QA review of TASK-145 (round 2): `approved` (status only; content unchanged).
