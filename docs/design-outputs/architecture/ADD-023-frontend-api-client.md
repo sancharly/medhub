@@ -2,11 +2,15 @@
 id: ADD-023
 type: architecture-doc
 title: Frontend API Client (SI-FE-APICLIENT)
-status: in_review
+status: approved
 version: "1.3"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-11-14"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-11-14"
+approved_digest: 9197ad453a44e08d0b6db004ef547c79baa50a4aab3bd5080cc9e7cb8f1b297a
+approval_note: self-approved
 links:
   - target: SR-031
     relation: implements
