@@ -3,7 +3,7 @@ id: TS-001
 type: test-specification
 title: Authentication, password policy, lockout and session verification
 status: approved
-version: "1.8"
+version: "1.9"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-11-14"
@@ -61,10 +61,11 @@ Exact SOUP versions: the `soup` records in [`../../soup/`](../../soup/).
 - Each acceptance criterion of SR-002, SR-025, SR-029 and SR-030 maps to at least one case above.
 - Boundary conditions covered: exactly-at-threshold failed attempts, session expiry at the idle and absolute limits, password at minimum length.
 - Fault handling: a Redis outage surfaces as an error, never as an authenticated session.
+- Client session unit (`SessionActivityProvider`, §5.5.3; TASK-146 maps each case to an existing test): data flow, the deadline comes only from `me` and extend responses and a skewed client clock does not move it (TC-001.11, TC-001.13); initialization, nothing is scheduled until a deadline is known (TC-001.5); boundary, the warning at the deadline minus 2 minutes and the end at the deadline, a deadline already past is expired (TC-001.5, TC-001.13); fault handling, a 401 on a mutation or on extend, or a failing logout, ends the session once with an empty cache (TC-001.11, TC-001.13).
 
 ## Notes
 
-`SessionActivityProvider` and `api/csrf.ts` have no unit tests (PRB-017, TASK-146); until that closes, the client side of SR-030 is only partly verified.
+The client side of SR-030 is verified by the unit tests of TC-001.5, TC-001.11 and TC-001.13 (PRB-017 closed by TASK-146: `SessionActivityProvider.test.tsx` already holds the cases of the provider, so TASK-146 added none to this file). Coverage of `auth/SessionActivityProvider.tsx` in the TASK-146 run: statements 100 %, lines 100 %, branches 94.73 %. System level stays TC-001.14.
 
 ## Version history
 
@@ -83,3 +84,5 @@ Exact SOUP versions: the `soup` records in [`../../soup/`](../../soup/).
 - 1.7 (2026-11-14) — TASK-222 (CR-006 D-33; PRB-025, PRB-087, PRB-089): TC-001.5 and TC-001.11 drop the PRB-087 limitation (the deadline comes only from `me` and extend, no activity listeners); added TC-001.13 (client timeout logs out, clears the cache, redirects once; Back shows no clinical data) and TC-001.14 (system level, pending). Content change, so the 1.6 approval no longer applies. (The MedTrace approval of 1.7 was given by the human on 2026-11-14, before QA; the earlier wording here, "no approval record", was wrong.)
 - 1.8 (2026-11-14) — TASK-222 round 2 (QA, PRB-090): TC-001.13 gains the clock-jump, one-pass, extend-401-then-Back and Log-out-now cases and the dialog tests (the dialog reports expiry through `onExpired`; `handleExpired` is idempotent). Content change, so the approval of 1.7 is cleared: `in_review`.
 - 1.8 (2026-11-14) — QA review of TASK-222 (round 2): `approved` (status only; content unchanged).
+- 1.9 (2026-11-14) — TASK-146 (CR-006 D-9; PRB-017): Notes no longer say that `SessionActivityProvider` has no unit tests; client-session unit acceptance criterion added (every case already exists in TC-001.5, TC-001.11, TC-001.13). Content change, so the approval of 1.8 is cleared: `in_review`.
+- 1.9 (2026-11-14) — QA review of TASK-146 (round 1): `approved` (status only; content unchanged).
