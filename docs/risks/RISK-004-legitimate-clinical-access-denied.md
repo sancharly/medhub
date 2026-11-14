@@ -2,11 +2,11 @@
 id: RISK-004
 type: risk
 title: Legitimate clinical access wrongly denied or delayed
-status: approved
-version: "1.5"
+status: in_review
+version: "1.6"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-11-13"
+updated: "2026-11-14"
 hazard: A clinician with a legitimate care relationship cannot reach the patient's clinical data when needed.
 cause: An over-restrictive or mis-scoped consent evaluation (a declined appointment revoking a grant from another source, a per-source union computed wrongly, a module guard denying an enabled module) → the API denies the request → the clinician proceeds without the available history.
 harm: Care based on incomplete information, or delayed care while access is sorted out; recoverable in most workflows.
@@ -15,10 +15,6 @@ probability_initial: 3
 severity_residual: 3
 probability_residual: 2
 acceptability: alarp
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-11-13"
-approved_digest: 41a21fbfc56ac39d42378f5bb81a412750fd5bdfff104711871d65e92c5d3a85
-approval_note: self-approved
 links: []
 tags:
   - hazard:denial-of-care
@@ -63,7 +59,7 @@ occur); the score is severity × P2, the probability that the hazardous situatio
 | Denials are audited with the reason, so a wrong denial is diagnosable | Protective | SR-023 | TS-009 |
 | Patient-facing consent UI shows exactly who has access | Information for safety | SR-008 | TR-001, TS-002 |
 | Decision-table characterisation tests, written before the authorization checks are moved into `AuthorizationService` and unchanged after it, so no legitimate access is newly denied (CR-004) | Protective | SR-005, SR-023 AC 7; TASK-187, TASK-188, TASK-189 | TS-002 TC-002.7, TS-003 TC-003.6 (characterisation tables written before each move, same cases after it) |
-| A module enablement change reaches every affected user's UI within 60 seconds or the next navigation (short stale time, refetch on focus); a failed refetch keeps the last known value rather than hiding an enabled module; the server guard stays the authority (CR-006 D-4, PRB-015) | Design | SR-015 AC 5, AC 3; TASK-221 | none yet (planned: Vitest refetch and failed-refetch cases; TS-005 at system level) |
+| A module enablement change reaches every affected user's UI within 60 seconds or the next navigation (poll about every 50 s with a stale time no larger, so the bound holds with the round trip and one retry; refetch on focus; the poll does not extend the server session, CR-006 D-32); a failed refetch keeps the last known value rather than hiding an enabled module; the server guard stays the authority (CR-006 D-4, PRB-015) | Design | SR-015 AC 5, AC 3; TASK-221 | none yet (planned: Vitest refetch and failed-refetch cases; TS-005 at system level) |
 | `groups_of` rewritten without the per-membership query only after a characterisation test of its results, unchanged after the rewrite, so no enabled module is newly denied (CR-006, PRB-024) | Protective | SR-026 AC 6, SR-014 AC 4; TASK-220 | none yet (planned: characterisation and query-count tests, TS-005) |
 
 ## Residual risk
@@ -104,8 +100,10 @@ audited, so a wrong denial leaves an `AUTHZ_DENIED` row with the actor and the t
 client route guard (TASK-142) can, if its role table is wrong, hide a view; the server
 response is unchanged, and a test ties the guard to the navigation table.
 
-CR-006 (2026-11-13): the module-list refetch adds requests on focus and navigation; a stale
-"enabled" state can show a link that the server then refuses (no disclosure, RISK-001 unaffected).
+CR-006 (2026-11-13, D-32 2026-11-14): the module-list refetch adds requests on focus, on navigation
+and every 50 s or so while the tab is visible. A stale "enabled" state can show a link that the server then
+refuses (no disclosure, RISK-001 unaffected). The poll checks the session without extending it, so it does
+not keep an unattended session alive (RISK-005).
 
 ## Version history
 
@@ -113,3 +111,4 @@ CR-006 (2026-11-13): the module-list refetch adds requests on focus and navigati
 - 1.3 (2026-11-08) — CR-004 Checkpoint F (TASK-202): planned verification replaced by the tests that ran; residual proposed from the evidence, 3 × 2 → alarp, unchanged. Content change, so `in_review` and the approval record cleared.
 - 1.4 (2026-11-13) — CR-006 Risk stage, §7.4 change analysis (Software Architect role). Two control rows added (module-list refresh, SR-015 AC 5; `groups_of` characterisation, SR-026 AC 6), TASKs left to the Plan stage; expected residual stated; "Risks introduced by controls" extended. Scores unchanged (3 × 2 → alarp). Content change, so the approval record (approved 2026-11-10 in chat) is cleared and the record returns to review.
 - 1.5 (2026-11-13) — CR-006 Plan gate (D-22): the module-refresh row names TASK-221 (split from TASK-144) and the `groups_of` row names TASK-220. Scores unchanged. Content change, so the approval record is cleared and the record returns to review.
+- 1.6 (2026-11-14) — CR-006 D-32 (TASK-221 QA round 1 HIGH 1, MEDIUM 2): the module-refresh row and "Risks introduced by controls" name the ~50 s poll (stale time no larger) and the non-sliding session check. Scores unchanged (3 × 2 → alarp). Content change, so the approval record (approved 2026-11-13) is cleared and the record returns to review.

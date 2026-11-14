@@ -2,18 +2,14 @@
 id: SOUP-028
 type: soup
 title: TanStack Query (@tanstack/react-query)
-status: approved
-version: "1.1"
+status: in_review
+version: "1.2"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
-updated: "2026-10-23"
+updated: "2026-11-14"
 manufacturer: Tanner Linsley / TanStack
 soup_version: 5.101.0
 anomaly_review: "2026-10-22"
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-10-23"
-approved_digest: 514664394ef5fa3b589e36872ccd4f5e26b22868f7a902a704dca6d258ff7c42
-approval_note: self-approved
 links: []
 tags:
   - soup
@@ -26,6 +22,8 @@ tags:
 ## Functional and performance requirements
 
 Server-state caching and invalidation; consent and module changes depend on correct invalidation (SR-008, SR-015).
+
+Relied-on behaviours of the RISK-004 module-refresh control (TASK-221, SR-015 AC 5): `refetchInterval` polling that pauses while the browser tab is hidden, refetch on window focus, refetch on every mount (`refetchOnMount: "always"`), and the last `data` kept when a refetch fails. `frontend/src/modules/useMyModules.test.tsx` (TS-005 TC-005.5) pins the interval refetch, the refetch on mount and the kept data at this version; the pause while the tab is hidden and the focus refetch are documented TanStack Query behaviour that no test here exercises.
 
 ## Required hardware and software environment
 
@@ -117,3 +115,4 @@ accountable. Hazard-relevant anomalies go to `risk-management`; defects affectin
 - 2026-10-22 — 5.101.0 (unchanged). First anomaly-list review (TASK-154, CR-001 AC-11, AC-12): none
   found for 5.101.0; not among the malicious `@tanstack/*` versions of CVE-2026-45321. Record 1.0 →
   1.1, approval record removed for re-approval.
+- 1.2 (2026-11-14) — TASK-221: functional requirements list the behaviours the module-refresh control relies on. Content change, so the 1.1 approval record is removed. `in_review`.

@@ -3,7 +3,7 @@ id: CR-006
 type: change-request
 title: Close the open reliability and performance defects from the 2026-07 review and audit
 status: in_progress
-version: "1.11"
+version: "1.12"
 author: Carlos Santiago Liceras
 created: "2026-11-13"
 updated: "2026-11-14"
@@ -549,6 +549,16 @@ agent. The records stay `in_review` until the human's MedTrace approval.
   as recommended (the ~10-minute commit re-check window is the accepted residual of cause 14; bounding the erasure
   transaction itself is left to a later CR); P-17 accepted as recommended (no SR-024 change; the e-mail gate traces
   to AC 6); PRB-083 and PRB-084 confirmed `minor`. TASK-228 built and QA-approved (round 1).
+- **D-32 (human decision 2026-11-14, "Opción (a)", relayed by the coordinating agent, from the TASK-221 QA
+  review round 1, HIGH 1 and MEDIUM 2):** QA option (a) is taken. `GET /me/modules` checks the session
+  without extending it, through its own dependency (a non-sliding `SessionService.resolve(..., slide=False)`
+  behind a dedicated `get_current_user` variant that keeps the active-account re-check). Every other route keeps
+  the sliding check. A backend test proves that `remaining_seconds` (and the Redis TTL) does not grow after
+  `GET /me/modules`. The poll interval drops to about 50 s, with `staleTime` no larger, so SR-015 AC 5's
+  60-second bound holds including the round trip and one retry (MEDIUM 2). Option (b), polling only after user
+  activity plus a client-side logout on expiry, is not taken. The pre-existing gap that `handleExpired` neither
+  logs out on the server nor clears the cache is not in D-32 and stays with the human (P-18). Change analysis
+  below.
 
 ## Change analysis (Risk stage, §7.4, 2026-11-13)
 
@@ -811,6 +821,64 @@ RISK-006 1.7 are `in_review` with the approval record cleared.
   Owner adds "the retrieval-code e-mail is sent only once the erasure is committed" to AC 6. SR-024 is
   approved, so this needs re-approval.
 
+### Change analysis for the non-sliding module poll (§7.4, D-32, 2026-11-14)
+
+Software Architect role. Code read: `backend/app/api/deps.py:55-95`, `backend/app/auth/session.py:168-205`,
+`backend/app/api/routers/me.py:40-50`, `frontend/src/modules/useMyModules.ts`,
+`frontend/src/auth/SessionActivityProvider.tsx:25-60`. `useMyModules` is the only `refetchInterval` in
+`frontend/src`.
+
+- **No new hazard; class B unchanged (§7.4.1).** The defect QA found (a background poll that keeps an
+  unattended session alive) is a cause of the existing RISK-005 hazard: someone else rides an authenticated
+  session at an unattended workstation. D-32 removes that cause. The change adds a read-only session check,
+  which can only end a session earlier, never keep it longer. The highest severity reached is 3 (RISK-005). Nothing
+  approaches the class C boundary.
+- **Controls affected (§7.4.2).**
+  - RISK-005: the idle-expiry control (SR-030 AC 1, AC 2) is restored for the poll. A new control row says
+    background polls do not extend the session. The client-session row's claim "Server enforcement of SR-030
+    AC 1 to AC 3 is unchanged" is corrected: it now names the one non-sliding route.
+  - RISK-004: the module-refresh row and its "risks introduced by controls" line name the ~50 s interval and the
+    non-sliding check. SR-015 AC 5 is met with a margin, not exactly at 60 s.
+  - RISK-001: not touched. The poll returns only module keys, never PHI.
+- **New causes introduced by the change itself:**
+  17. **Wrong dependency on a route** (RISK-005): a route that serves user actions given the non-sliding check
+      would end a working user's session early (an availability effect), never extend one. Control: only
+      `GET /me/modules` uses it, and the backend test pins both sides: no TTL growth there, and growth on a
+      normal route.
+  18. **Non-sliding path skips a check** (RISK-005): the non-sliding resolve must still apply the absolute
+      lifetime and the missing or ended session result, and the dependency must still re-check that the
+      account is active. Control: the same `resolve` body with only the write skipped; tests for an expired,
+      ended and inactive account on `GET /me/modules`.
+  - The ~50 s interval adds about 20% more requests than 60 s (about 0.4 requests per second at 20 clients,
+    D-3). That is negligible against SR-026 AC 5.
+- **SOUP:** no new item. SOUP-028 (TanStack Query) is relied on for `refetchInterval` restarting on each query
+  update, which is why 50 s rather than 60 s is chosen. That is recorded with TASK-221 (QA LOW 6).
+- **SR coverage (§5.2.3):** the non-sliding check traces to SR-030 AC 1 and AC 2 (inactivity means no user
+  request, so a background poll is not activity), and the interval to SR-015 AC 5. No SR is changed. TASK-221
+  implements SR-015 only today. It should also `implements` SR-030 and `mitigates` RISK-005 (see P-19).
+
+| Change | Software items | §7.4.1 contribution | §7.4.2 controls affected | §7.4.3 verification (planned, TASK-221) |
+|---|---|---|---|---|
+| `GET /me/modules` checks the session without extending it (QA HIGH 1) | SI-AUTH `U-AUTH-Session`, SI-API (`deps.py`, `me.py`) | Removes the cause "background poll keeps the session alive". New: causes 17, 18 | RISK-005 (new row; row "client session timers" corrected) | Backend: `remaining_seconds` and the Redis TTL do not grow after `GET /me/modules`, and still grow after a sliding route; expired, ended and inactive cases still 401. New TS-001 case |
+| Poll about 50 s, `staleTime` no larger (QA MEDIUM 2) | SI-FE-MODREG (`useMyModules.ts`) | None new. The SR-015 AC 5 bound holds with a round trip | RISK-004 (row and introduced-risk line) | Vitest with MSW `delay()`: the link is gone 60 s after a change that lands just after the server read. TS-005 TC-005.5 |
+
+**Residual scores:** unchanged (RISK-005 3 × 1 → acceptable; RISK-004 3 × 2 → alarp). The defect was found
+before merge, so the approved residuals never rested on it. With D-32 they rest again on the server's idle
+expiry. RISK-005 1.9 and RISK-004 1.6 are `in_review` with the approval record cleared.
+
+**Findings for the human (D-32):**
+
+- **P-18. `handleExpired` leaves the server session and the cache in place** (pre-existing; not covered by
+  PRB-087, TASK-222 or TASK-146). At the client timeout, `SessionActivityProvider.tsx:39-42` only navigates
+  to `/login?timeout=1`. Unlike the `AuthError` handler a few lines below, it calls neither
+  `apiClient.logout()` nor `qc.clear()`. With D-32, the server session has already ended by then. But the
+  query cache still holds the clinical data shown before, and Back re-renders it until a request answers 401.
+  Recommendation: raise a new PRB (proposed `minor`, or `major` if you read a cached PHI view on an
+  unattended workstation as a disclosure under RISK-001 and RISK-005), resolved by calling logout and clearing
+  the cache in `handleExpired`. Not created here.
+- **P-19. TASK-221 links.** Add `implements` SR-030 and `mitigates` RISK-005 to TASK-221 (the developer is
+  editing it now), so the new RISK-005 row traces to its task.
+
 ## Plan
 
 Plan stage, 2026-11-13, Software Architect role. The plan is the TASK records below (overlay: no
@@ -1042,3 +1110,4 @@ TASK-141 (RISK-009: the erasure-site log-capture test is in TS-004, not TS-006).
 - 1.9 (2026-11-13) — Human decision "Aprobar todo": D-28 (P-10 to P-15 accepted as recommended; ADR-0023 Accepted; RISK-002 and RISK-012 unchanged, confirmed) and D-29 (TASK-219 QA finding 1: indexes on `attachment.clinical_entry_id` and `consent_grant(doctor_id, active)` added to TASK-220 as migration 0012; the three unused 0011 indexes stay). Scope row of PRB-021, plan row of TASK-220 (size M, depends on TASK-219), "ask first" steps and Checkpoint B updated. SR-026 1.6 (AC 6 names the two lookups), PRB-021 1.1, RISK-007 1.15, TASK-220 1.1 and TASK-225 1.1 changed; ADR-0023 Accepted. Stays `in_progress`.
 - 1.10 (2026-11-14) — Human decision D-30 ("Arreglarlos ahora", TASK-141 QA LOW 1 and LOW 3): PRB-083 (misleading erasure e-mail) and PRB-084 (duplicate retention audit row) created, `minor`, linked `resolves`; TASK-228 added (order 7b, Checkpoint B); §7.4 change analysis (class B unchanged, causes 14 to 16, residuals unchanged); cause 6 "harmless" corrected; RISK-008 1.5 and RISK-006 1.7 back in `in_review`; findings P-16 and P-17 for the human. Stays `in_progress`.
 - 1.11 (2026-11-14) — Human decision D-31 ("Aprobar y construir"): P-16 and P-17 accepted as recommended, PRB-083 and PRB-084 confirmed `minor`; TASK-228 plan row updated to `approved` (QA round 1). Stays `in_progress`.
+- 1.12 (2026-11-14) — Human decision D-32 ("Opción (a)", TASK-221 QA round 1 HIGH 1 and MEDIUM 2): `GET /me/modules` checks the session without extending it, and the poll is about 50 s. §7.4 change analysis (no new hazard, class B unchanged, causes 17 and 18, residuals unchanged). RISK-005 1.9 and RISK-004 1.6 are back in `in_review`. Findings P-18 (`handleExpired` gap, PRB proposed and not created) and P-19 (TASK-221 links) for the human. Stays `in_progress`.

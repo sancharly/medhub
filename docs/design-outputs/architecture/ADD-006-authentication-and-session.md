@@ -63,6 +63,11 @@ Login, logout, password change, session lifecycle, lockout
   `sessionExpiresInSeconds` and the extend response as `expiresInSeconds` next to `expiresAt`, so the
   client's deadline follows the server (SR-030 AC 8). Additive response fields; the session decision
   is unchanged. The session dependencies run in the thread pool (ADR-0022, ADD-005).
+  **CR-006 (TASK-221):** `resolve(session_id, slide=False)` validates the session (it exists and is inside
+  its absolute lifetime) and writes nothing; the dependencies `get_session_no_slide` and
+  `get_current_user_no_slide` use it and serve only `GET /me/modules`, which the client polls on a timer
+  (SR-015 AC 5). A background poll therefore cannot keep an idle session alive; every other route still
+  slides the session on resolve (SR-030 AC 1, AC 2; RISK-005).
 - `U-AUTH-PasswordPolicy` — server-side complexity, history(12), max-age(180d), reuse/username checks (SR-025).
 - `U-AUTH-Cookie` — Secure/HttpOnly/SameSite=Strict cookie issuing (SR-030.6).
 
@@ -102,3 +107,4 @@ Participates in RISK-005 (see `docs/risks/`); the control measures are carried b
 - 1.4 (2026-11-13) — CR-006 Plan stage (Software Architect role): `U-AUTH-Session` reports the remaining session seconds through `GET /me` and extend (SR-030 AC 8), marked "CR-006 (planned)". Content change, so the 1.3 approval record is cleared and the record returns to review.
 - 1.5 (2026-11-14) — TASK-144 (CR-006): "CR-006 (planned)" removed from `U-AUTH-Session`; `SessionService.remaining_seconds` feeds `sessionExpiresInSeconds` (`GET /me`) and `expiresInSeconds` (extend). Content change, so the 1.4 approval record is cleared and the record returns to review.
 - 1.5 (2026-11-14) — TASK-144 QA round 1: `sessionExpiresInSeconds` is required on `GET /me`; `POST /auth/password` answers a wrong current password with 400 `validation-error` (`currentPassword`), not 401, because a 401 means "no valid session" to the client. Still `in_review`.
+- 1.5 (2026-11-14) — TASK-221 (CR-006, SR-030 AC 1, AC 2): `U-AUTH-Session` gains `resolve(..., slide=False)` and the non-sliding dependencies for `GET /me/modules`. Still `in_review`.

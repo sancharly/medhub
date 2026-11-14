@@ -53,6 +53,18 @@ def get_session_service(r: redis_lib.Redis = Depends(get_redis)) -> SessionServi
 _SESSION_COOKIE = "medhub_session"
 
 
+def _resolve_session(request: Request, svc: SessionService, *, slide: bool) -> UserSession:
+    session_id = request.cookies.get(_SESSION_COOKIE)
+    if not session_id:
+        raise UnauthenticatedError("No session cookie present.")
+
+    session = svc.resolve(session_id, slide=slide)
+    if session is None:
+        raise UnauthenticatedError("Session expired or invalid.")
+
+    return session
+
+
 def get_session(
     request: Request,
     svc: SessionService = Depends(get_session_service),
@@ -64,20 +76,34 @@ def get_session(
     state-changing request outside the reviewed exempt paths (SR-031); ``require_csrf``
     on the routes is a second check of the same token, not the control.
     """
-    session_id = request.cookies.get(_SESSION_COOKIE)
-    if not session_id:
-        raise UnauthenticatedError("No session cookie present.")
+    return _resolve_session(request, svc, slide=True)
 
-    session = svc.resolve(session_id)
-    if session is None:
-        raise UnauthenticatedError("Session expired or invalid.")
 
-    return session
+def get_session_no_slide(
+    request: Request,
+    svc: SessionService = Depends(get_session_service),
+) -> UserSession:
+    """Like ``get_session`` but does not extend the session (TASK-221, SR-030 AC 1, AC 2).
+
+    For routes the client calls on a timer rather than on user activity. An expired or invalid
+    session still raises UnauthenticatedError (401). Use it only on ``GET /me/modules``.
+    """
+    return _resolve_session(request, svc, slide=False)
 
 
 # ---------------------------------------------------------------------------
 # Current-user dependency
 # ---------------------------------------------------------------------------
+
+
+def _active_account(db: DbSession, session: UserSession) -> Account:
+    from app.db.models.account import AccountStatus  # noqa: PLC0415
+
+    repo = AccountRepository(db)
+    account = repo.get_by_id(session.account_id)
+    if account is None or account.status != AccountStatus.ACTIVE:
+        raise UnauthenticatedError("Account is not active.")
+    return account
 
 
 def get_current_user(
@@ -88,13 +114,15 @@ def get_current_user(
 
     Defense-in-depth: re-checks that the account is still active.
     """
-    from app.db.models.account import AccountStatus  # noqa: PLC0415
+    return _active_account(db, session)
 
-    repo = AccountRepository(db)
-    account = repo.get_by_id(session.account_id)
-    if account is None or account.status != AccountStatus.ACTIVE:
-        raise UnauthenticatedError("Account is not active.")
-    return account
+
+def get_current_user_no_slide(
+    db: DbSession,
+    session: UserSession = Depends(get_session_no_slide),
+) -> Account:
+    """``get_current_user`` over the non-sliding session check (``GET /me/modules`` only)."""
+    return _active_account(db, session)
 
 
 # ---------------------------------------------------------------------------

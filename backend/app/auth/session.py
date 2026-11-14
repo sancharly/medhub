@@ -164,8 +164,13 @@ class SessionService:
             f"session cap not applied after {_MAX_CAP_ATTEMPTS} attempts: {account_key}"
         )
 
-    def resolve(self, session_id: str) -> Session | None:
-        """Look up a session by ID, refresh its sliding TTL, return None if expired/missing."""
+    def resolve(self, session_id: str, *, slide: bool = True) -> Session | None:
+        """Look up a session by ID, refresh its sliding TTL, return None if expired/missing.
+
+        ``slide=False`` validates the session (it must exist and be inside its absolute lifetime)
+        but writes nothing: the TTL and ``last_seen_at`` are left as they were. Only a background
+        poll that is not user activity may use it (``GET /me/modules``, SR-030 AC 1, AC 2).
+        """
         raw = self._redis.get(_session_key(session_id))
         if raw is None:
             return None
@@ -178,6 +183,9 @@ class SessionService:
         if now >= session.absolute_expires_at:
             self.invalidate(session_id)
             return None
+
+        if not slide:
+            return session
 
         # Slide TTL (capped by absolute_expires_at)
         ttl = self._inactivity_ttl(session.role)

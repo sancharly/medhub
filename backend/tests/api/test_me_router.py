@@ -10,7 +10,12 @@ import fakeredis
 import pytest
 from fastapi.testclient import TestClient
 
-from app.api.deps import get_current_user, get_session, get_session_service
+from app.api.deps import (
+    get_current_user,
+    get_current_user_no_slide,
+    get_session,
+    get_session_service,
+)
 from app.auth.session import SessionService
 from app.db.models.account import Account, AccountStatus, UserType
 from app.db.repositories.session import get_db
@@ -43,6 +48,7 @@ def client(app):
 
 def _auth_as(client, actor: Account) -> None:
     client.app.dependency_overrides[get_current_user] = lambda: actor
+    client.app.dependency_overrides[get_current_user_no_slide] = lambda: actor
     mock_svc = MagicMock(spec=SessionService)
     mock_svc.remaining_seconds.return_value = 900
     client.app.dependency_overrides[get_session_service] = lambda: mock_svc

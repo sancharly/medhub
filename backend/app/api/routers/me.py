@@ -4,7 +4,12 @@ from __future__ import annotations
 
 from fastapi import APIRouter, Depends
 
-from app.api.deps import get_current_user, get_session, get_session_service
+from app.api.deps import (
+    get_current_user,
+    get_current_user_no_slide,
+    get_session,
+    get_session_service,
+)
 from app.api.schemas.me import MeModulesResponse, MeResponse
 from app.auth.password import PasswordService
 from app.auth.session import Session as UserSession
@@ -40,7 +45,9 @@ def get_me(
 @router.get("/modules", response_model=MeModulesResponse)
 def get_my_modules(
     db: DbSession,
-    actor: Account = Depends(get_current_user),
+    # The client polls this route on a timer (SR-015 AC 5). The session is validated but not
+    # extended, so polling cannot keep an idle session alive (SR-030 AC 1, AC 2; RISK-005).
+    actor: Account = Depends(get_current_user_no_slide),
 ) -> MeModulesResponse:
     group_repo = GroupRepository(db)
     module_repo = ModuleRepository(db)

@@ -227,7 +227,7 @@ async def test_slow_db_call_does_not_block_unrelated_request() -> None:
     app.dependency_overrides[get_redis] = lambda: MagicMock()
     app.dependency_overrides[get_db] = lambda: MagicMock()
 
-    def slow_resolve(self: object, session_id: str) -> None:
+    def slow_resolve(self: object, session_id: str, *, slide: bool = True) -> None:
         time.sleep(2)
 
     async with AsyncClient(

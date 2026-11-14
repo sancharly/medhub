@@ -10,6 +10,7 @@ import Typography from "@mui/material/Typography";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import { apiClient } from "../../../api";
+import { queryKeys } from "../../../api/queryKeys";
 import type { GroupMember } from "../../../api/generated/types";
 
 interface GroupMembersProps {
@@ -23,13 +24,17 @@ export function GroupMembers({ groupId, members }: GroupMembersProps) {
 
   const removeMutation = useMutation({
     mutationFn: (id: string) => apiClient.removeGroupMember(groupId, id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["groups"] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["groups"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.myModules });
+    },
   });
 
   const addMutation = useMutation({
     mutationFn: (id: string) => apiClient.addGroupMember(groupId, id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["groups"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.myModules });
       setAccountId("");
     },
   });
