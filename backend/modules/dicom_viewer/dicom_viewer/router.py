@@ -11,8 +11,8 @@ from fastapi.responses import Response
 from app.api.deps import get_current_user, get_platform_services
 from app.api.errors import AuthorizationError, ProblemDetail, ValidationProblem
 from app.audit.actions import AuditAction
-from app.core.config import get_settings
 from app.modules.contract import AuditOutcome
+from app.modules.module_settings import dicom_max_stored_bytes
 from dicom_viewer.dicom import stream_dicom, validate_dicom_content_type
 
 
@@ -55,7 +55,7 @@ def build_router() -> APIRouter:
     ) -> Response:
         try:
             data, content_type, _filename = services.attachments.open(
-                actor, attachment_id, max_bytes=get_settings().dicom_max_stored_bytes
+                actor, attachment_id, max_bytes=dicom_max_stored_bytes()
             )
         except AuthorizationError:
             services.audit.record(

@@ -5,7 +5,7 @@ from __future__ import annotations
 import io
 
 from app.api.errors import ProblemDetail, ValidationProblem
-from app.core.config import get_settings
+from app.modules.module_settings import dicom_max_decoded_bytes
 
 
 def validate_dicom_content_type(content_type: str) -> None:
@@ -24,7 +24,7 @@ def _check_declared_decoded_size(data: bytes) -> None:
     """Refuse, from the header alone, an object whose decoded size is missing or too large."""
     import pydicom  # noqa: PLC0415
 
-    maximum = get_settings().dicom_max_decoded_bytes
+    maximum = dicom_max_decoded_bytes()
     try:
         header = pydicom.dcmread(io.BytesIO(data), stop_before_pixels=True)
         rows = int(header["Rows"].value)
