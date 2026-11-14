@@ -51,7 +51,9 @@ class _FakeDb:
         self._w = world
         self._pending: list[uuid.UUID] = []
 
-    def execute(self, _stmt: Any) -> Any:
+    def execute(self, stmt: Any) -> Any:
+        if getattr(stmt, "_for_update_arg", None) is not None:
+            return self._locked_select(stmt)
         # The sweep's listing session: a new sweep starts here. Expired ids only.
         self._w.sweeps += 1
         now = datetime.now(UTC)
@@ -60,8 +62,18 @@ class _FakeDb:
         result.scalars.return_value.all.return_value = ids
         return result
 
-    def get(self, _model: Any, dataset_id: uuid.UUID) -> SimpleNamespace | None:
-        return self._w.rows.get(dataset_id)
+    def _locked_select(self, stmt: Any) -> Any:
+        """``SELECT ... FOR UPDATE`` of one dataset with the deadline in the same statement
+        (TASK-228): the row only if it still exists and is due, as PostgreSQL evaluates it."""
+        params = stmt.compile().params.values()
+        dataset_id = next(v for v in params if isinstance(v, uuid.UUID))
+        now = next(v for v in params if isinstance(v, datetime))
+        row = self._w.rows.get(dataset_id)
+        result = MagicMock()
+        result.scalar_one_or_none.return_value = (
+            row if row is not None and row.retention_deadline <= now else None
+        )
+        return result
 
     def delete(self, dataset: SimpleNamespace) -> None:
         left = self._w.fail.get(dataset.id, 0)

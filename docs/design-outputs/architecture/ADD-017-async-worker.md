@@ -3,7 +3,7 @@ id: ADD-017
 type: architecture-doc
 title: Async Worker (SI-WORKER)
 status: in_review
-version: "1.5"
+version: "1.6"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-11-14"
@@ -43,6 +43,14 @@ Celery tasks: send activation & appointment emails, session-revocation propagati
 ## Software units (IEC 62304 §5.4.1)
 
 - `U-WK-Email` — render & send activation/appointment emails via SMTP (SR-033, SR-035).
+  **CR-006 (TASK-228, D-30):** `send_erasure_code_email(recipient, code, dataset_id, commit_checks=0)` reads the
+  `anonymized_dataset` row with `dataset_id` (own session, one read by primary key, closed on every path)
+  before sending, so the e-mail goes out only for a committed erasure (SR-024 AC 6, PRB-083). Row absent:
+  `self.retry` with countdown `min(2 ** (n + 1), 60)` s for re-check n = 0..13 (about 10 minutes, no exception
+  text logged), counted in `commit_checks`, apart from the 3 SMTP retries (60 s doubled), which are an explicit
+  `try/except` around `_send_smtp`; absent at the last check: the code is dropped with one WARNING naming only
+  the dataset id; the check cannot be made at the last check: the e-mail is sent with a WARNING (a lost code for
+  a committed erasure is worse than a misleading e-mail).
 - `U-WK-SessionRevoke` — propagate deactivation session-kill within 30s (SR-034.2).
 - `U-WK-RetentionErase` — scheduled job that permanently erases anonymized datasets past their 5-year retention deadline (SR-024.4, ADR-0013).
   **CR-006 (TASK-141):** a first session lists the ids of the expired datasets (a batch of 100); then one
@@ -53,6 +61,11 @@ Celery tasks: send activation & appointment emails, session-revocation propagati
   exponential backoff) and after the last retry logs the failed count (an integer) at ERROR without
   personal data (SR-024 AC 5, SR-043; RISK-007, RISK-008). Every per-dataset failure is retried, not only
   those known to be transient: a persistent one costs three more sweeps and the ERROR.
+  **CR-006 (TASK-228, D-30):** the dataset row is read with `SELECT ... FOR UPDATE` and the deadline is re-checked
+  in the same statement (`_locked_due_dataset`), so an overlapping sweep waits for the other's per-dataset
+  transaction and then finds no row: one `ANONYMIZED_DATASET_ERASED` row per dataset (SR-024 AC 3, AC 5;
+  PRB-084). `SKIP LOCKED` is not used: a skipped dataset whose lock holder rolls back would not be erased in that
+  pass.
 - Logging — worker and scheduler install the same JSON formatter and the
   shared redaction filter as the API process, through Celery's logging signals, on every handler.
   The filter replaces email-shaped values in the message and in every structured field before a
@@ -114,3 +127,4 @@ Participates in RISK-008, RISK-009 (see `docs/risks/`); the control measures are
 - 1.3 (2026-11-08) — TASK-201 (CR-004): `_bind_celery_app()` (PRB-071), `task_ignore_result` and the logged enqueue failures (TASK-207), the beat service and entrypoint (PRB-061) added; the "CR-004 change" marker removed. `in_review`.
 - 1.4 (2026-11-13) — CR-006 Plan stage (Software Architect role): retention sweep isolation, session release and retries (SR-024 AC 5) and the enqueue policy of D-5 marked "CR-006 (planned)". Content change, so the 1.3 approval record is cleared and the record returns to review.
 - 1.5 (2026-11-14) — TASK-141 (CR-006): "planned" markers of the retention sweep and of the enqueue policy removed; the implemented behaviour described (per-dataset session and transaction, retry, failed-count log). Approval record cleared; `in_review`.
+- 1.6 (2026-11-14) — TASK-228 (CR-006 D-30, PRB-083, PRB-084): the erasure e-mail task checks the dataset row before sending; the retention sweep locks the dataset row. Approval record cleared; `in_review`.

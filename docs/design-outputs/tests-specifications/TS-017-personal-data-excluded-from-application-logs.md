@@ -3,7 +3,7 @@ id: "TS-017"
 type: test-specification
 title: "Personal data excluded from application logs verification"
 status: approved
-version: "1.4"
+version: "1.5"
 author: "Carlos Santiago Liceras"
 created: "2026-11-06"
 updated: "2026-11-14"
@@ -23,7 +23,7 @@ tags: ["level:unit", "level:integration", "class:B", "cr:CR-004"]
 
 ## Scope
 
-Software requirements covered: SR-043 AC 1, AC 2, AC 3 (TASK-138) and AC 4 (TASK-206), SR-033 (the activation link and token, TASK-206), SR-023 (the enqueue-failure warning, TC-017.6, TASK-207), SR-024 AC 5 and AC 6 (the sweep's failed count and the erasure enqueue warning, TC-017.7, TC-017.8, TASK-141). Software items under test: SI-API
+Software requirements covered: SR-043 AC 1, AC 2, AC 3 (TASK-138) and AC 4 (TASK-206), SR-033 (the activation link and token, TASK-206), SR-023 (the enqueue-failure warning, TC-017.6, TASK-207), SR-024 AC 5 and AC 6 (the sweep's failed count and the erasure enqueue warning, TC-017.7, TC-017.8, TASK-141; the commit-gate WARNINGs, TC-017.9, TASK-228). Software items under test: SI-API
 logging `U-API-Logging` (`backend/app/core/logging.py`, ADD-005) and SI-WORKER logging
 (`backend/app/workers/email_tasks.py`, `backend/app/workers/celery_app.py`, ADD-017). Levels: unit
 (TC-017.1, TC-017.2, TC-017.5) and integration (TC-017.2 handler wiring, TC-017.3 over Celery's own task
@@ -50,6 +50,7 @@ records are emitted.
 | TC-017.6 | SR-043 AC 1; SR-023 | `backend/tests/identity/test_lifecycle.py::test_deactivate_logs_a_warning_when_enqueue_fails`, `backend/tests/appointments/test_notify.py::test_create_logs_a_warning_when_enqueue_fails` | A failed enqueue at the session-kill and the appointment-notification call sites writes one WARNING naming only the account or appointment id (no `exc_info`, so a broker URL in the exception stays out; no address or name), and the request still succeeds | Both tests pass; putting `pass` back at either site fails its test |
 | TC-017.7 | SR-043 AC 1; SR-024 AC 6 | `backend/tests/identity/test_erasure.py::test_erasure_enqueue_failure_logs_warning_without_personal_data` | A failed enqueue of the erasure retrieval-code e-mail writes one WARNING naming only the dataset id (no `exc_info`; no address, retrieval code or broker URL, though the raised exception carries them), and the request then fails with the 503 problem | The test passes; adding `exc_info=True` or the exception text fails it |
 | TC-017.8 | SR-043; SR-024 AC 5 | `backend/tests/workers/test_retention_tasks.py::test_sweep_retries_at_most_three_times_then_logs_count` | After the third retry the sweep logs one ERROR holding the number of datasets not erased (an integer) and no dataset id or content; the per-dataset ERROR holds the dataset id and the exception class, not its text | The test passes; logging a dataset id in the final record fails it |
+| TC-017.9 | SR-043; SR-024 AC 6 | `backend/tests/workers/test_erasure_code_email_gate.py::test_erasure_e_mail_drop_and_unconfirmed_logs_hold_no_personal_data` | With a known address and retrieval code, the WARNING of the drop path (erasure never committed) and of the unconfirmed path (the check cannot be made, exception text carrying the address) each name only the dataset id; they hold neither the address, the code nor the exception text, and have no `exc_info`; the re-check retries are made without `exc` | The test passes; passing `exc=` to the re-check retry, or logging the exception, fails it |
 
 ## Acceptance criteria (class B unit level)
 
@@ -80,3 +81,5 @@ See TASK-207 "Implementation notes and verification results" (2026-11-07): backe
 - 1.3 (2026-11-08): QA review of TASK-207 and TASK-206 re-approval: `approved` (status only; content unchanged).
 - 1.4 (2026-11-14): TASK-141 (CR-006). TC-017.7 (erasure enqueue-failure WARNING without personal data) and TC-017.8 (retention sweep failed-count log) added; `verifies` SR-024 added. Approval cleared, `in_review`.
 - 1.4 (2026-11-14): QA review of TASK-141 (round 1): `approved` (status only; content unchanged).
+- 1.5 (2026-11-14): TASK-228 (CR-006 D-30). TC-017.9 (drop and unconfirmed WARNINGs of the commit-gated erasure e-mail without personal data) added; TC-017.3 still passes with three SMTP retries (`test_erasure_code_email_failure_logs_no_address`, task now takes the dataset id). Approval cleared, `in_review`.
+- 1.5 (2026-11-14): QA review of TASK-228 (round 1): `approved` (status only; content unchanged).

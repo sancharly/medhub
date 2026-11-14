@@ -2,11 +2,11 @@
 id: RISK-006
 type: risk
 title: Audit trail incomplete, so a wrong disclosure or entry goes undetected
-status: approved
-version: "1.6"
+status: in_review
+version: "1.8"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-11-13"
+updated: "2026-11-14"
 hazard: Security-relevant or clinical-data events not recorded, or recorded without the information needed to reconstruct them.
 cause: A code path bypasses `AuditService`, an audit row is rolled back with the failed request that recorded it, the client IP is not captured, the scrub drops needed context, or the log store is writable → an incident cannot be reconstructed → a wrong disclosure or falsified entry is never noticed or corrected.
 harm: "Indirect: the harms of RISK-001/002/005 persist uncorrected, and the legal obligation to notify cannot be met."
@@ -15,10 +15,6 @@ probability_initial: 3
 severity_residual: 2
 probability_residual: 2
 acceptability: acceptable
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-11-13"
-approved_digest: 6b1ce3c9fb4687208d71bbe6484aa9e7460c7061badc42d711ba958abdab1aa9
-approval_note: self-approved
 links:
   - target: SOUP-008
     relation: relates_to
@@ -79,6 +75,7 @@ occur); the score is severity × P2, the probability that the hazardous situatio
 | Append-only enforced by privilege: the runtime role cannot `UPDATE`, `DELETE` or `TRUNCATE` `audit_log`; the silent rules dropped (CR-004, ADR-0017) | Design | SR-023 AC 8; TASK-190, TASK-191 | TS-009 TC-009.11; started stack: `UPDATE audit_log` is refused for the runtime role (smoke test) |
 | Typed audit fields: no field can hold a credential or secret, whatever the caller passes (CR-004) | Design | SR-023 AC 9; TASK-192 | TS-009 TC-009.12 |
 | Success audit rows committed before the response, and before the first byte of a download; a failed commit serves no content; an aborted download keeps its SUCCESS row and adds a FAILURE row (CR-006 D-27, PRB-080, ADR-0023) | Design | SR-023 AC 10; TASK-227 | none yet (planned: TS-009 new case, SUCCESS `ATTACHMENT_ACCESS` and `AUTHZ_ALLOWED` committed when the first chunk is produced; commit failure gives 5xx and no byte; pass-2 mismatch gives SUCCESS then FAILURE, real PostgreSQL) |
+| One retention-erasure audit row per erased dataset: the sweep locks the dataset row (`SELECT ... FOR UPDATE`, deadline re-checked in the same statement), so an overlapping sweep waits and then finds no row (CR-006 D-30, PRB-084) | Design | SR-024 AC 3, AC 5; TASK-228 | TS-004 TC-004.7, real PostgreSQL: `test_second_sweep_waits_and_writes_no_audit_row`, `test_second_sweep_erases_after_the_first_rolls_back`, `test_locked_select_rechecks_the_deadline` (TASK-228) |
 
 ## Residual risk
 
@@ -157,6 +154,10 @@ CR-004 (2026-10-31):
   order is preserved by the timestamps. A FAILURE written by the response generator after the request
   session is closed must still reach the database (TASK-227 test 3 (c)).
 
+CR-006 D-30 (2026-11-14, TASK-228): the row lock makes an overlapping sweep wait for the other
+sweep's per-dataset transaction (one delete and one insert); no new hazard. `SKIP LOCKED` was rejected because
+a skipped dataset whose lock holder rolls back would not be erased or counted in that pass.
+
 ## Version history
 
 - 1.2 (2026-10-30) — CR-002 amendment for PRB-052: new cause (audit rows rolled back with the
@@ -171,3 +172,5 @@ CR-004 (2026-10-31):
 - 1.4 (2026-11-08) — CR-004 Checkpoint F (TASK-202): planned verification replaced by the tests that ran; stale text corrected (append-only, source address, TASK-137 `draft`, "none yet" rows, TASK-183 note); PRB-060 and the measured audit volume recorded; residual proposed from the evidence, 2 × 2 → acceptable, unchanged. Content change, so `in_review` and the approval record cleared.
 - 1.5 (2026-11-08) — TASK-202 round 2 (QA finding 4): the address-less `AUTHZ_ALLOWED` row explained. Scores unchanged.
 - 1.6 (2026-11-13) — CR-006 D-27 (PRB-080), §7.4 change analysis (Software Architect role): control row added for SR-023 AC 10 (audit entry committed before the disclosure it records, TASK-227); "Risks introduced by controls" notes the changed reading of an aborted download. Scores unchanged (2 × 2 → acceptable). Content change, so the approval record is cleared and the record returns to review.
+- 1.7 (2026-11-14) — CR-006 D-30, §7.4 change analysis (Software Architect role): control row added for the locked retention row (PRB-084, duplicate `ANONYMIZED_DATASET_ERASED` row, TASK-228) with planned verification; "Risks introduced by controls" extended. Scores unchanged (2 × 2 → acceptable). Content change, so the approval record is cleared and the record returns to review.
+- 1.8 (2026-11-14) — TASK-228 verification: planned verification of the locked retention row replaced by the tests that ran. Scores unchanged (2 × 2 → acceptable). Content change, so the approval record is cleared and the record returns to review.

@@ -26,7 +26,8 @@ def test_erase_expired_datasets_deletes_expired_rows() -> None:
     mock_result.scalars.return_value.all.return_value = [expired_ds]  # only expired
     mock_result.scalars.return_value.all.return_value = [expired_ds.id]  # ids only (TASK-141)
     mock_db.execute.return_value = mock_result
-    mock_db.get.return_value = expired_ds
+    # the second session's locked select (TASK-228) returns the dataset; the listing returns ids
+    mock_db.execute.return_value.scalar_one_or_none.return_value = expired_ds
     mock_db.delete = MagicMock()
     mock_db.flush = MagicMock()
     mock_db.commit = MagicMock()
@@ -80,9 +81,9 @@ def test_erase_per_dataset_failure_isolation() -> None:
     list_db = MagicMock()
     list_db.execute.return_value.scalars.return_value.all.return_value = [ds1.id, ds2.id]
     db1, db2 = MagicMock(), MagicMock()
-    db1.get.return_value = ds1
+    db1.execute.return_value.scalar_one_or_none.return_value = ds1
     db1.delete.side_effect = RuntimeError("Simulated failure")
-    db2.get.return_value = ds2
+    db2.execute.return_value.scalar_one_or_none.return_value = ds2
 
     import app.audit.service as audit_mod
     import app.db.repositories.audit_repo as audr

@@ -3,10 +3,10 @@ id: CR-006
 type: change-request
 title: Close the open reliability and performance defects from the 2026-07 review and audit
 status: in_progress
-version: "1.9"
+version: "1.11"
 author: Carlos Santiago Liceras
 created: "2026-11-13"
-updated: "2026-11-13"
+updated: "2026-11-14"
 branch: fix/review-2026-07-reliability
 risk_impact: affects_controls
 links:
@@ -53,6 +53,10 @@ links:
   - target: PRB-081
     relation: relates_to
   - target: PRB-072
+    relation: resolves
+  - target: PRB-083
+    relation: resolves
+  - target: PRB-084
     relation: resolves
   - target: SR-008
     relation: relates_to
@@ -146,6 +150,8 @@ links:
     relation: relates_to
   - target: TASK-227
     relation: relates_to
+  - target: TASK-228
+    relation: relates_to
   - target: SOUP-019
     relation: relates_to
   - target: SOUP-036
@@ -225,6 +231,8 @@ the architect. Line numbers are those found on 2026-11-13.
 | PRB-032 JSON logger drops the request-id field | minor | Still open: `core/logging.py` has no request-id field and no `request_id` exists anywhere in `backend/app` | None exists; see Q-7 (emit it, or drop the promise from the docstring) | New at Plan stage |
 | PRB-080 Request database transaction commits after the response is sent (added by D-27) | major | Open: `db/repositories/session.py:34-45` commits in a `yield` dependency of default scope `"request"`, which FastAPI 0.138 tears down after `await response(...)` (`fastapi/routing.py:131-137`); 31 `Depends(get_db)` sites in 15 files | **SR-012 AC 5 (new)**, **SR-023 AC 10 (new)**; SR-008 AC 4, SR-013 AC 5 (restored); RISK-007, RISK-006, RISK-001 | TASK-227 |
 | PRB-078 Reverse proxy rejects uploads larger than 1 MiB (added at the Plan gate, D-18) | major | Open: `infra/reverse-proxy/nginx.conf` sets no `client_max_body_size`, so nginx's 1 MiB default refuses larger bodies before the backend | SR-013 AC 1, AC 6; RISK-007 | TASK-135 |
+| PRB-083 Erasure e-mail is sent for an erasure that did not commit (added by D-30) | minor | Open since TASK-141: `identity/erasure.py:128` enqueues before `invalidate_all`, the audit rows and the commit; `workers/email_tasks.py:142-173` sends without reading the database | SR-024 AC 6; RISK-008 | TASK-228 |
+| PRB-084 Concurrent retention sweeps write a duplicate audit row (added by D-30) | minor | Open (predates TASK-141): `workers/retention_tasks.py:67-81` reads the dataset without a lock; the second sweep's 0-row delete still records `ANONYMIZED_DATASET_ERASED` | SR-024 AC 3, AC 5; RISK-006 | TASK-228 |
 
 Existing TASKs whose records will need updating at the Plan stage: TASK-141 (narrow PRB-013 to the
 remaining policy, add the retention requirement SR-024 AC 5), TASK-146 (narrow PRB-017), TASK-136
@@ -527,6 +535,20 @@ agent. The records stay `in_review` until the human's MedTrace approval.
   TASK-225 confirms ADD-016 for 0011 and 0012 (TASK-219 QA finding 5) and indexes ADR-0021 to ADR-0023.
   Change analysis: cause 4 now also covers 0012 (writes to `attachment` and `consent_grant` blocked while
   the two indexes build; same "ask first" control and migration test); no new hazard, class B unchanged.
+- **D-30 (human decision 2026-11-14, "Arreglarlos ahora", relayed by the coordinating agent, from the TASK-141
+  QA review, LOW 1 and LOW 3):** both findings are fixed inside CR-006. LOW 1 is PRB-083 (the erasure e-mail is
+  sent although the erasure did not commit) and LOW 3 is PRB-084 (two overlapping retention sweeps write a
+  duplicate audit row). Both are `minor`, linked `resolves`, and planned as TASK-228 (Checkpoint B). Design: the
+  worker sends the e-mail only once the erasure's `anonymized_dataset` row is visible (up to 14 re-checks,
+  2 s doubling to 60 s, about 10 minutes; dropped on a positive "never committed", sent when the check
+  cannot be made). The sweep locks the row with `SELECT ... FOR UPDATE` and re-checks the deadline in the same
+  statement (not `SKIP LOCKED`). TASK-141 LOW 2 (no FAILURE audit row for a rolled-back erasure) and LOW 4 (dead
+  test assignment) are not in D-30 and stay with the human. LOW 5 (TS-004 Notes) is folded into TASK-228,
+  which edits TS-004. Change analysis below.
+- **D-31 (human decision 2026-11-14, "Aprobar y construir", relayed by the coordinating agent):** P-16 accepted
+  as recommended (the ~10-minute commit re-check window is the accepted residual of cause 14; bounding the erasure
+  transaction itself is left to a later CR); P-17 accepted as recommended (no SR-024 change; the e-mail gate traces
+  to AC 6); PRB-083 and PRB-084 confirmed `minor`. TASK-228 built and QA-approved (round 1).
 
 ## Change analysis (Risk stage, §7.4, 2026-11-13)
 
@@ -587,7 +609,9 @@ The Software Architect role ran this analysis. Scales and matrix: `docs/medtrace
      stay as they were and the operator retries. That is the safe direction (RISK-008); the
      control must keep the anonymization and the code e-mail in one outcome, never a committed
      erasure with a lost code. The converse case (enqueued, then the commit fails) sends a code
-     that matches no dataset: harmless, noted for the Plan stage. See R-2.
+     that matches no dataset: harmless, noted for the Plan stage. See R-2. *(Corrected 2026-11-14,
+     D-30: not harmless; the subject is told the account was erased when it was not. PRB-083,
+     TASK-228.)*
   7. **Retention retries** (SR-024 AC 5): a retried run must be idempotent per dataset and must
      delete only datasets past their deadline, so a retry cannot erase too much (RISK-008).
      Control: a test with a dataset that fails once and then succeeds, and a test that a dataset
@@ -739,6 +763,54 @@ acceptable; RISK-007 3 × 2 → alarp, set by ADR-0010 and PRB-057). The window 
 write needed a commit failure, so the fix lowers no score on its own. RISK-001 1.5, RISK-006 1.6 and
 RISK-007 1.14 are `in_review` with the approval record cleared.
 
+### Change analysis for PRB-083 and PRB-084 (§7.4, D-30, 2026-11-14)
+
+Software Architect role. Code read: `backend/app/identity/erasure.py:85-157`,
+`backend/app/workers/email_tasks.py:134-173`, `backend/app/workers/retention_tasks.py`,
+`backend/app/workers/celery_app.py:58`, `backend/app/api/deps.py:25-35`, `backend/app/auth/session.py:233-240`.
+
+- **No new hazard; class B unchanged (§7.4.1).** Both changes act inside RISK-008 (personal data lifecycle)
+  and RISK-006 (audit trail). The highest severity reached is 2. Nothing approaches the class C boundary.
+- **Controls affected (§7.4.2).** RISK-008: the D-5 control ("an erasure never completes with a lost code")
+  is kept as TASK-141 built it, and the e-mail is bound to the commit. RISK-006: one audit row per retention
+  erasure. RISK-009 (notification not delivered): no row changes. A dropped e-mail belongs to an erasure that
+  did not happen, and SMTP retries stay at 3.
+- **New causes introduced by the change itself:**
+  14. **False drop** (RISK-008): the erasure commits after the last re-check (about 10 minutes after the
+      enqueue). The code of a committed erasure would then be lost, which is what SR-024 AC 6 forbids. Control:
+      the window is more than twenty times the Gunicorn worker timeout, and the drop happens only on a positive
+      "row absent". Residual: nothing bounds the request transaction itself (the Redis client has no
+      `socket_timeout`), so the window is a margin, not a guarantee. See P-16.
+  15. **Worker cannot read the database** (RISK-008): the gate cannot decide. Control: the e-mail is sent after
+      the last re-check, which in the worst case gives PRB-083's misleading e-mail, never a lost code.
+  16. **Lock wait** (RISK-007, negligible): an overlapping sweep waits for one per-dataset transaction.
+      `SKIP LOCKED` was rejected because a skipped dataset whose holder rolls back would be neither erased
+      nor counted in that pass.
+- **SOUP:** no new item. SOUP-014 (Celery) is relied on for `self.retry(countdown=, kwargs=)` with an ETA under
+  the Redis `visibility_timeout`. SOUP-020 (PostgreSQL) is relied on for `FOR UPDATE` re-evaluation under READ
+  COMMITTED. TASK-228 records both.
+- **SR coverage (§5.2.3):** the e-mail gate traces to SR-024 AC 6 ("the request never reports success"; the
+  e-mail is a report of success to the subject), and the single audit row to SR-024 AC 3. No SR is changed
+  here. See P-17.
+
+| Change (PRB) | Software items | §7.4.1 contribution | §7.4.2 controls affected | §7.4.3 verification (TASK-228) |
+|---|---|---|---|---|
+| Erasure e-mail sent only once the dataset row is committed (PRB-083) | SI-WORKER, SI-IDENTITY; SOUP-014 | Removes the misleading e-mail. New: causes 14, 15 | RISK-008 (new row; "harmless" corrected) | Sent when committed; re-checked then dropped when it never commits; sent when unconfirmed; SMTP retries still 3; real-PostgreSQL visibility test; TS-004 TC-004.6, TS-017 TC-017.9 |
+| Retention row locked, deadline re-checked under the lock (PRB-084) | SI-WORKER; SOUP-020 | Removes the duplicate audit row. New: cause 16 | RISK-006 (new row) | Real PostgreSQL: a blocked second sweep writes no row; after a rollback of the first it erases once; TS-004 TC-004.7 |
+
+**Residual scores:** unchanged (RISK-008 2 × 2 → acceptable; RISK-006 2 × 2 → acceptable). RISK-008 1.5 and
+RISK-006 1.7 are `in_review` with the approval record cleared.
+
+**Findings for the human (D-30):**
+
+- **P-16. Bound of the e-mail gate.** Recommendation: accept the 10-minute margin. Alternative: also bound the
+  erasure transaction (a Redis `socket_timeout` and PostgreSQL `SET LOCAL statement_timeout` /
+  `idle_in_transaction_session_timeout` in `_erase`), so a commit after the window is impossible. That changes
+  shared client configuration, so it belongs to a later CR or an extension of TASK-228.
+- **P-17. SR wording.** Recommendation: no SR change; TC-004.6 traces to SR-024 AC 6. Alternative: the Product
+  Owner adds "the retrieval-code e-mail is sent only once the erasure is committed" to AC 6. SR-024 is
+  approved, so this needs re-approval.
+
 ## Plan
 
 Plan stage, 2026-11-13, Software Architect role. The plan is the TASK records below (overlay: no
@@ -802,7 +874,8 @@ ADR-0022, the changed ADD and SOUP records, and the findings P-1 to P-9.
 | 6 | [TASK-220](../design-outputs/tasks/TASK-220-constant-query-group-membership-lookup.md) Constant-query `groups_of`, characterisation first; migration 0012 indexes (attachments by entry, consents by doctor; **ask first** on existing DBs, D-29) | 024, 021 (remaining) | SR-026 AC 6; SR-014 AC 4 | 004, 007 | M | 219 (0012 revises 0011; parallel otherwise) | new (1.1, D-29) |
 | 7 | [TASK-141](../design-outputs/tasks/TASK-141-worker-reliability-retention-sessions-retries-silent-failures.md) Retention isolation and retries; erasure rolled back on enqueue failure (PRB-013 folded in) | 012, 013 | SR-024 AC 5, AC 6, AC 1; SR-043 | 007, 008, 009 | M | — (parallel) | updated |
 | 4b | [TASK-227](../design-outputs/tasks/TASK-227-commit-the-request-transaction-before-the-response.md) Request transaction commits before the response (`scope="function"` on every `get_db`); download audit order (D-27, ADR-0023) | 080 (081 relates) | SR-012 AC 5; SR-023 AC 10; SR-008 AC 4; SR-013 AC 5 | 007, 006, 001 | M | 136; before 141 (parallel with 219, 220) | new (`in_review`) |
-| — | **Checkpoint B** | | | | | 4–7, 4b | |
+| 7b | [TASK-228](../design-outputs/tasks/TASK-228-erasure-e-mail-after-commit-and-locked-retention-row.md) Erasure e-mail sent only once the erasure is committed; retention row locked (D-30) | 083, 084 | SR-024 AC 6, AC 3, AC 5; SR-043 | 008, 006 | S–M | 141 | `approved` (QA round 1) |
+| — | **Checkpoint B** | | | | | 4–7, 4b, 7b | |
 | 8 | [TASK-143](../design-outputs/tasks/TASK-143-unify-frontend-api-client-upload-and-problem-types.md) Upload through `request()`; `ProblemError` from the schema | 019 | SR-030 AC 8; SR-031; SR-027 AC 3 | 005 | S | — (parallel; frontend) | updated |
 | 9 | [TASK-144](../design-outputs/tasks/TASK-144-shared-useme-hook-session-ttl-reconciliation-module-cache-invalidation.md) One `me` query; client deadline from the server-reported expiry (additive API field) | 016 | SR-030 AC 8, AC 4 | 005 | M | — (parallel) | updated |
 | 10 | [TASK-221](../design-outputs/tasks/TASK-221-module-gating-refresh-for-every-affected-user.md) Module gating refresh within 60 s for every affected user | 015 | SR-015 AC 5 | 004 | S | 144 | new (split from 144) |
@@ -847,7 +920,7 @@ each other; 143 shares none with 144 (`client.ts` only).
 | SR-013 | AC 1 (uploads > 1 MiB through the proxy) → 135; AC 5 → 217, 227 (regression after the session closes); AC 6 → 135 (upload), 217 (download) |
 | SR-015 | AC 5 → 221; AC 3, AC 4 (unit level) → 146 |
 | SR-017 | AC 6 → 218 |
-| SR-024 | AC 5 → 141; AC 6 → 141; AC 1 to AC 4 (unchanged, regression) → 141 |
+| SR-024 | AC 5 → 141, 228 (lock); AC 6 → 141, 228 (commit-gated e-mail); AC 3 → 228 (one audit row); AC 1 to AC 4 (unchanged, regression) → 141 |
 | SR-026 | AC 1, AC 2 → 136, 226; AC 3 → 218, 226; AC 5 → 136, 135, 217, 226; AC 6 → 219, 220; AC 7 → 145; AC 8 → 222 |
 | SR-027 | AC 3 → 143, 145; AC 5 (fixed, PRB-031) → 226 regression |
 | SR-030 | AC 8 → 144, 143; AC 4 → 144; AC 1, AC 2 → 222; AC 1 to AC 5 (unit level) → 146 |
@@ -857,7 +930,7 @@ each other; 143 shares none with 144 (`client.ts` only).
 | SR-014 AC 4 | 220 |
 | SR-016 AC 3 | 223 |
 | SR-031 | 143, 146 |
-| SR-043 | 141 (failed-count log), 224 |
+| SR-043 | 141 (failed-count log), 228 (drop and unconfirmed WARNINGs), 224 |
 | NFR-006 AC 3, AC 4; NFR-008 | 146; 136 |
 
 **ADD coverage** (class B; every SR in scope is implemented by at least one ADD; changed ADDs are
@@ -967,3 +1040,5 @@ TASK-141 (RISK-009: the erasure-site log-capture test is in TS-004, not TS-006).
 - 1.7 (2026-11-13) — TASK-136 round 2: D-24 rationale corrected (the invariant bounds threads, not requests); PRB-080 and PRB-081 raised from QA round 1, not added to the scope pending the human. Stays `in_progress`.
 - 1.8 (2026-11-13) — Human decision D-27 ("PRB-080 sí, 081 aparte"): PRB-080 added with a `resolves` link, PRB-081 linked `relates_to` and kept out of scope (availability only, beyond SR-026 AC 5). §7.4 change analysis for PRB-080 (class B unchanged; RISK-007, 006, 001 rows; RISK-002 and RISK-012 unchanged; causes 12 and 13); TASK-227 added to the plan (order 4b, Checkpoint B) with SR-012 AC 5 and SR-023 AC 10 (both `in_review`); ADR-0023 proposed; findings P-10 to P-15 for the human. Links to SR-008, SR-012, SR-023, RISK-001 and TASK-227 added. Stays `in_progress`.
 - 1.9 (2026-11-13) — Human decision "Aprobar todo": D-28 (P-10 to P-15 accepted as recommended; ADR-0023 Accepted; RISK-002 and RISK-012 unchanged, confirmed) and D-29 (TASK-219 QA finding 1: indexes on `attachment.clinical_entry_id` and `consent_grant(doctor_id, active)` added to TASK-220 as migration 0012; the three unused 0011 indexes stay). Scope row of PRB-021, plan row of TASK-220 (size M, depends on TASK-219), "ask first" steps and Checkpoint B updated. SR-026 1.6 (AC 6 names the two lookups), PRB-021 1.1, RISK-007 1.15, TASK-220 1.1 and TASK-225 1.1 changed; ADR-0023 Accepted. Stays `in_progress`.
+- 1.10 (2026-11-14) — Human decision D-30 ("Arreglarlos ahora", TASK-141 QA LOW 1 and LOW 3): PRB-083 (misleading erasure e-mail) and PRB-084 (duplicate retention audit row) created, `minor`, linked `resolves`; TASK-228 added (order 7b, Checkpoint B); §7.4 change analysis (class B unchanged, causes 14 to 16, residuals unchanged); cause 6 "harmless" corrected; RISK-008 1.5 and RISK-006 1.7 back in `in_review`; findings P-16 and P-17 for the human. Stays `in_progress`.
+- 1.11 (2026-11-14) — Human decision D-31 ("Aprobar y construir"): P-16 and P-17 accepted as recommended, PRB-083 and PRB-084 confirmed `minor`; TASK-228 plan row updated to `approved` (QA round 1). Stays `in_progress`.

@@ -3,7 +3,7 @@ id: ADD-008
 type: architecture-doc
 title: Identity & Account Lifecycle (SI-IDENTITY)
 status: in_review
-version: "1.3"
+version: "1.4"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-11-14"
@@ -50,6 +50,10 @@ Account CRUD, role-constrained creation, activation, deactivate/reactivate/delet
   `erasure-notification-unavailable`, `app/api/errors.py`; an additive response of `DELETE /accounts/{id}`, D-21), so the severance, the dataset and the audit rows are rolled
   back and the account and its sessions stay as they were (SR-024 AC 6). Activation and appointment
   enqueues stay best effort with the WARNING log (D-5).
+  **CR-006 (TASK-228, D-30):** the enqueue passes the dataset id (`.delay(email, code, str(dataset.id))`); the
+  task sends the e-mail only after reading the `anonymized_dataset` row with that id, which is visible to its
+  own session only once the erasure's transaction has committed, and drops the code if the row never appears
+  (ADD-017; SR-024 AC 6, PRB-083). The enqueue itself stays before `invalidate_all`, inside the transaction.
 
 Class B requires decomposition down to software units, not per-unit detailed design
 (§5.4.2–5.4.4 are class C). Each unit above is independently unit-testable and is the granularity
@@ -81,3 +85,4 @@ Participates in RISK-002, RISK-008 (see `docs/risks/`); the control measures are
 - 1.1 (2026-11-08) — TASK-201 (CR-004): the lifecycle, activation and creation decisions now point to `U-AUTHZ-Policy` (ADD-007); activation link route and enqueue-failure note added. Content change, so the 1.0 approval record is cleared and the record returns to review.
 - 1.2 (2026-11-13) — CR-006 Plan stage (Software Architect role): `U-ID-Erasure` fails and rolls back when its code e-mail cannot be enqueued (SR-024 AC 6), marked "CR-006 (planned)". Content change, so the 1.1 approval record is cleared and the record returns to review.
 - 1.3 (2026-11-14) — TASK-141 (CR-006): the "planned" marker of `U-ID-Erasure` removed; the erasure enqueue, the 503 problem and its log are implemented (SR-024 AC 6). Approval record cleared; `in_review`.
+- 1.4 (2026-11-14) — TASK-228 (CR-006 D-30, PRB-083): `U-ID-Erasure` passes the dataset id to the e-mail task, which sends only for a committed erasure. Approval record cleared; `in_review`.

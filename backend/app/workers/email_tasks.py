@@ -18,6 +18,7 @@ import smtplib
 import uuid
 from datetime import UTC, datetime
 from email.message import EmailMessage
+from typing import Any
 
 from celery import shared_task
 
@@ -29,6 +30,10 @@ logger = logging.getLogger(__name__)
 
 _MAX_RETRIES = 3
 _RETRY_BACKOFF = 60  # seconds base; Celery doubles per retry with exponential=True
+# Erasure code e-mail (TASK-228): re-checks that the erasure committed, 2 s doubling to 60 s,
+# about 10 minutes in all. Kept apart from the SMTP retries (_MAX_RETRIES).
+_COMMIT_CHECKS = 14
+_COMMIT_CHECK_MAX_COUNTDOWN = 60
 
 
 def _send_smtp(notification: Notification) -> None:
@@ -131,19 +136,68 @@ def send_activation_email(self: object, account_id: str, activation_token: str) 
         db.close()
 
 
+def _erasure_committed(dataset_id: str) -> bool:
+    """True when the ``anonymized_dataset`` row of the erasure is visible to this session.
+
+    The dataset insert, the PII severance and the audit rows are one transaction, so the row
+    being visible (READ COMMITTED) means the whole erasure committed. Read-only; the session
+    is closed on every path.
+    """
+    from sqlalchemy import select  # noqa: PLC0415
+
+    from app.db.models.anonymized_dataset import AnonymizedDataset  # noqa: PLC0415
+    from app.db.repositories.session import get_db  # noqa: PLC0415
+
+    db = next(get_db())
+    try:
+        stmt = select(AnonymizedDataset.id).where(AnonymizedDataset.id == uuid.UUID(dataset_id))
+        return db.execute(stmt).first() is not None
+    finally:
+        db.close()
+
+
 @shared_task(  # type: ignore[untyped-decorator]
     bind=True,
-    max_retries=_MAX_RETRIES,
+    max_retries=_COMMIT_CHECKS + _MAX_RETRIES,
     default_retry_delay=_RETRY_BACKOFF,
-    autoretry_for=(Exception,),
-    retry_backoff=True,
     name="workers.send_erasure_code_email",
 )
-def send_erasure_code_email(self: object, recipient_email: str, retrieval_code: str) -> None:
+def send_erasure_code_email(
+    self: Any,
+    recipient_email: str,
+    retrieval_code: str,
+    dataset_id: str,
+    commit_checks: int = 0,
+) -> None:
     """Email the anonymized-data retrieval code to the erased account's pre-erasure email.
 
-    The code is passed in-memory only; it is NEVER logged or stored.
+    The code is passed in-memory only; it is NEVER logged or stored. It is sent only once the
+    erasure's dataset row is visible, i.e. the erasure committed (SR-024 AC 6, PRB-083): while
+    it is absent the task re-checks (``commit_checks``), and at the last check it drops the
+    code. If the check itself cannot be made the e-mail is sent anyway, so a committed erasure
+    never loses its code. SMTP failures keep their own budget of ``_MAX_RETRIES`` retries.
     """
+    try:
+        committed: bool | None = _erasure_committed(dataset_id)
+    except Exception:
+        committed = None  # unknown; no exception text is logged
+    if committed is not True:
+        if commit_checks < _COMMIT_CHECKS:
+            countdown = min(2 ** (commit_checks + 1), _COMMIT_CHECK_MAX_COUNTDOWN)
+            raise self.retry(
+                countdown=countdown,
+                kwargs={**(self.request.kwargs or {}), "commit_checks": commit_checks + 1},
+            )
+        if committed is False:
+            logger.warning(
+                "Erasure code e-mail not sent: dataset %s was never committed", dataset_id
+            )
+            return
+        logger.warning(
+            "Erasure code e-mail sent without confirming that dataset %s was committed",
+            dataset_id,
+        )
+
     settings = get_settings()
     subject = "Your MedHub data retrieval code"
     retrieve_url = settings.public_base_url + "/erasure/retrieve"
@@ -165,7 +219,13 @@ def send_erasure_code_email(self: object, recipient_email: str, retrieval_code: 
         subject=subject,
         body=body,
     )
-    _send_smtp(notification)
+    try:
+        _send_smtp(notification)
+    except Exception as exc:
+        smtp_retries = self.request.retries - commit_checks
+        if smtp_retries >= _MAX_RETRIES:
+            raise
+        raise self.retry(exc=exc, countdown=_RETRY_BACKOFF * 2**smtp_retries) from exc
     notification.mark_sent()
     logger.info(
         "Erasure retrieval code email sent",

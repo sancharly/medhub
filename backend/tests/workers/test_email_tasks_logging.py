@@ -19,6 +19,7 @@ import pytest
 ADDRESS = "a.person@example.org"
 CODE = "RETRIEVAL-CODE-7F3K"
 TOKEN = "ACTIVATION-TOKEN-9Q2"
+DATASET_ID = str(uuid.uuid4())
 
 
 def _enable_loggers() -> list[logging.Logger]:
@@ -71,8 +72,8 @@ def test_erasure_code_email_success_logs_no_address(worker_log) -> None:
     """SR-043 AC 1, AC 3: success path of send_erasure_code_email."""
     import app.workers.email_tasks as et  # noqa: PLC0415
 
-    with patch.object(et, "_send_smtp"):
-        et.send_erasure_code_email.run(ADDRESS, CODE)  # type: ignore[attr-defined]
+    with patch.object(et, "_send_smtp"), patch.object(et, "_erasure_committed", return_value=True):
+        et.send_erasure_code_email.run(ADDRESS, CODE, DATASET_ID)  # type: ignore[attr-defined]
     out = worker_log.getvalue()
     assert "Erasure retrieval code email sent" in out
     assert ADDRESS not in out and CODE not in out
@@ -109,8 +110,11 @@ def test_erasure_code_email_failure_logs_no_address(worker_log) -> None:
     Celery's retry and failure records (message, exception text, traceback) are logged."""
     import app.workers.email_tasks as et  # noqa: PLC0415
 
-    with patch.object(et, "_send_smtp", _refused):
-        result = et.send_erasure_code_email.apply(args=(ADDRESS, CODE))
+    with (
+        patch.object(et, "_send_smtp", _refused),
+        patch.object(et, "_erasure_committed", return_value=True),
+    ):
+        result = et.send_erasure_code_email.apply(args=(ADDRESS, CODE, DATASET_ID))
     assert result.failed()
     out = worker_log.getvalue()
     assert "SMTPRecipientsRefused" in out  # the failure was logged: real output is inspected
@@ -158,8 +162,11 @@ def test_success_records_hold_no_address_at_the_source() -> None:
     task_logger.addHandler(handler)
     task_logger.setLevel(logging.INFO)
     try:
-        with patch.object(et, "_send_smtp"):
-            et.send_erasure_code_email.run(ADDRESS, CODE)  # type: ignore[attr-defined]
+        with (
+            patch.object(et, "_send_smtp"),
+            patch.object(et, "_erasure_committed", return_value=True),
+        ):
+            et.send_erasure_code_email.run(ADDRESS, CODE, DATASET_ID)  # type: ignore[attr-defined]
     finally:
         task_logger.removeHandler(handler)
         task_logger.setLevel(saved_level)

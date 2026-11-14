@@ -120,12 +120,14 @@ class ErasureService:
         # Enqueue the retrieval-code e-mail BEFORE anything outside the database changes (SR-024
         # AC 6, D-5, D-11): if it cannot be queued the erasure fails as a whole, the request's
         # transaction rolls back and the sessions stay valid. The raw code is passed to the task
-        # and discarded after sending, never persisted. (Enqueued but the commit then fails: the
-        # code matches no dataset, which is harmless.)
+        # and discarded after sending, never persisted. The task sends it only once the dataset row
+        # is visible, i.e. this transaction committed (PRB-083): if the commit then fails the row
+        # never appears and the task drops the code instead of e-mailing an erasure that did not
+        # happen.
         try:
             from app.workers.email_tasks import send_erasure_code_email  # noqa: PLC0415
 
-            send_erasure_code_email.delay(original_email, raw_code)
+            send_erasure_code_email.delay(original_email, raw_code, str(dataset.id))
         except Exception as exc:
             # No exc_info and no exception text: they can carry the broker URL or the address.
             logger.warning(

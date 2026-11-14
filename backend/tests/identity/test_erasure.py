@@ -250,9 +250,11 @@ def test_erase_enqueues_email_with_pre_erasure_address() -> None:
     with patch("app.workers.email_tasks.send_erasure_code_email") as mock_task:
         result = svc.delete(actor, target.id)
         mock_task.delay.assert_called_once()
-        recipient, code = mock_task.delay.call_args.args
+        recipient, code, dataset_id = mock_task.delay.call_args.args
         assert recipient == "original@example.com"
         assert code == result.retrieval_code
+        # the task gates the e-mail on this dataset being committed (TASK-228, PRB-083)
+        assert dataset_id == str(svc._dataset_repo.add.call_args.args[0].id)  # noqa: SLF001
         # The PII was severed — account email is now anonymized
         assert "deleted.invalid" in target.email
 
