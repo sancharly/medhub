@@ -2,8 +2,8 @@
 id: "PRB-087"
 type: problem-report
 title: "Client idle timer re-arms on user activity while the server session slides only on requests"
-status: open
-version: "1.0"
+status: resolved
+version: "1.1"
 author: "Carlos Santiago Liceras"
 created: "2026-11-14"
 updated: "2026-11-14"
@@ -41,10 +41,8 @@ access beyond the server's decision. No release in use is affected beyond this e
 
 ## Resolution
 
-Not fixed here, and outside CR-006. Two options; the choice belongs to the human and must be coordinated with TASK-222 (activity throttling):
+Fixed in CR-006 by TASK-222 with option 1 (human decision D-33, "Server responses only"). `useIdleTimer` takes its deadline only from `deadlineOverride`, which `SessionActivityProvider` derives as the receipt time of the newest `me` or extend response plus the session seconds that response reports. The activity listeners and `resetDeadline` are removed (`frontend/src/auth/useIdleTimer.ts`), and the `timeoutSeconds` option with them. To keep the session the user makes a request that refreshes `me`, or presses Extend (SR-030 AC 4, AC 8). The client deadline can no longer run ahead of the server's, and near the 8 hour absolute limit it follows the capped server value.
 
-1. Re-arm the client deadline only from server responses (`me` and extend), not from activity events.
-2. Make activity call the server through a throttled extend request, so the server and the client slide together.
+Tests (TS-001 TC-001.5, TC-001.13): `useIdleTimer.test.ts` `activity events do not move the deadline`, `a new deadline re-arms both timers`; `SessionActivityProvider.test.tsx` `reading without requests is warned at 13 min and signed out at 15 min`, `Extend re-arms from expiresInSeconds`, `a refreshed me re-arms`.
 
-Verify with a test that mouse activity without requests does not move the client deadline (option 1), or that activity causes at most one extend call per
-throttle window and the deadline follows the response (option 2), including a case near the absolute limit.
+Verified 2026-11-14 in the working tree: `npm test -- --run` (35 files, 361 tests), `npm run typecheck`, `npm run lint`, `npm run build` clean; the six negative controls of TASK-222 each fail at least one test (TS-001 TC-001.13). Not yet confirmed through a shipped release, so the status is `resolved`, not `closed`.

@@ -2,8 +2,8 @@
 id: RISK-004
 type: risk
 title: Legitimate clinical access wrongly denied or delayed
-status: in_review
-version: "1.6"
+status: approved
+version: "1.7"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-11-14"
@@ -15,6 +15,10 @@ probability_initial: 3
 severity_residual: 3
 probability_residual: 2
 acceptability: alarp
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-11-14"
+approved_digest: 52935e44fb0a49440efb1a1137c95f2c3ae29595b6820b01f9148708734a11d2
+approval_note: self-approved
 links: []
 tags:
   - hazard:denial-of-care
@@ -105,6 +109,13 @@ and every 50 s or so while the tab is visible. A stale "enabled" state can show 
 refuses (no disclosure, RISK-001 unaffected). The poll checks the session without extending it, so it does
 not keep an unattended session alive (RISK-005).
 
+CR-006 D-33 (2026-11-14): the client session deadline now comes only from `me` and extend responses
+(PRB-087), and the client timeout logs out on the server (PRB-089). A clinician who reads without making
+requests is warned at 13 minutes and must press Extend. One who works through requests that do not refresh
+`me` can be warned before the server would end the session. Ignoring the warning signs them out at the client
+deadline. The access is delayed by a sign-in and any unsaved form input is lost. Extend and the sign-in
+recover it, and the scores do not change.
+
 ## Version history
 
 - 1.2 (2026-10-31) — CR-004 Risk stage, §7.4 change analysis (Software Architect role). Control rows added for the CR-004 controls with their planned verification; expected residual stated in "Residual risk"; "Risks introduced by controls" extended. Scores not changed: they are re-scored from the evidence at verification (TASK-202). Content change, so the approval record is cleared and the record returns to review.
@@ -112,3 +123,4 @@ not keep an unattended session alive (RISK-005).
 - 1.4 (2026-11-13) — CR-006 Risk stage, §7.4 change analysis (Software Architect role). Two control rows added (module-list refresh, SR-015 AC 5; `groups_of` characterisation, SR-026 AC 6), TASKs left to the Plan stage; expected residual stated; "Risks introduced by controls" extended. Scores unchanged (3 × 2 → alarp). Content change, so the approval record (approved 2026-11-10 in chat) is cleared and the record returns to review.
 - 1.5 (2026-11-13) — CR-006 Plan gate (D-22): the module-refresh row names TASK-221 (split from TASK-144) and the `groups_of` row names TASK-220. Scores unchanged. Content change, so the approval record is cleared and the record returns to review.
 - 1.6 (2026-11-14) — CR-006 D-32 (TASK-221 QA round 1 HIGH 1, MEDIUM 2): the module-refresh row and "Risks introduced by controls" name the ~50 s poll (stale time no larger) and the non-sliding session check. Scores unchanged (3 × 2 → alarp). Content change, so the approval record (approved 2026-11-13) is cleared and the record returns to review.
+- 1.7 (2026-11-14) — CR-006 D-33: one "Risks introduced by controls" line for the server-driven client deadline and the logout at the client timeout (availability: an earlier warning, a sign-in). Control rows and scores unchanged (3 × 2 → alarp). Content change; the record stays `in_review` with no approval record.

@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { apiClient } from "../api";
 import { queryClient as qc, setAuthExpiredHandler } from "../api/queryClient";
@@ -14,6 +14,7 @@ export function SessionActivityProvider({
 }) {
   const navigate = useNavigate();
   const [showWarning, setShowWarning] = useState(false);
+  const sessionEnded = useRef(false);
   const [extension, setExtension] = useState<
     { receivedAt: number; deadline: number } | undefined
   >();
@@ -35,24 +36,38 @@ export function SessionActivityProvider({
     setShowWarning(true);
   }, []);
 
+  // The client deadline ends the session (PRB-089): ask the server to end its session without
+  // waiting for the answer (it may already have ended, and its error must not start a second
+  // redirect), then redirect once. The cache is cleared when the redirect unmounts the signed-in
+  // tree (below): clearing it while `me` observers are still mounted makes them refetch it.
+  // The warning dialog reports its own expiry here too (PRB-090), so the first caller wins.
   const handleExpired = useCallback(() => {
+    if (sessionEnded.current) return;
+    sessionEnded.current = true;
     setShowWarning(false);
+    apiClient.logout().catch(() => undefined);
     navigate("/login?timeout=1");
   }, [navigate]);
+
+  useEffect(
+    () => () => {
+      if (sessionEnded.current) qc.clear();
+    },
+    []
+  );
 
   // A 401 on any mutation (the attachment upload included) ends the session once.
   useEffect(
     () =>
       setAuthExpiredHandler(() => {
+        sessionEnded.current = true;
         setShowWarning(false);
         navigate("/login?timeout=1");
-        qc.clear();
       }),
     [navigate]
   );
 
   useIdleTimer({
-    timeoutSeconds: reported ?? 0,
     warningLeadMinutes: roleTimeouts.warningLeadMinutes,
     onWarn: handleWarn,
     onExpired: handleExpired,
@@ -70,7 +85,7 @@ export function SessionActivityProvider({
     } catch {
       // ignore
     }
-    qc.clear();
+    sessionEnded.current = true;
     navigate("/login");
   }
 
@@ -82,6 +97,7 @@ export function SessionActivityProvider({
         expiresAt={deadline ?? 0}
         onExtended={handleExtended}
         onLogout={handleLogout}
+        onExpired={handleExpired}
       />
     </>
   );

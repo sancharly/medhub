@@ -2,14 +2,18 @@
 id: SOUP-028
 type: soup
 title: TanStack Query (@tanstack/react-query)
-status: in_review
-version: "1.2"
+status: approved
+version: "1.3"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
 updated: "2026-11-14"
 manufacturer: Tanner Linsley / TanStack
 soup_version: 5.101.0
 anomaly_review: "2026-10-22"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-11-14"
+approved_digest: fabd9d19edbbc8957c247be17dfffbd2876211fc836e8e82301a3524529c86be
+approval_note: self-approved
 links: []
 tags:
   - soup
@@ -24,6 +28,8 @@ tags:
 Server-state caching and invalidation; consent and module changes depend on correct invalidation (SR-008, SR-015).
 
 Relied-on behaviours of the RISK-004 module-refresh control (TASK-221, SR-015 AC 5): `refetchInterval` polling that pauses while the browser tab is hidden, refetch on window focus, refetch on every mount (`refetchOnMount: "always"`), and the last `data` kept when a refetch fails. `frontend/src/modules/useMyModules.test.tsx` (TS-005 TC-005.5) pins the interval refetch, the refetch on mount and the kept data at this version; the pause while the tab is hidden and the focus refetch are documented TanStack Query behaviour that no test here exercises.
+
+Relied-on behaviour of the RISK-001 session-end control (TASK-222, PRB-089): `QueryClient.clear()` removes every query and its data, so a route shown after Back finds no cached clinical data. A query observer still mounted at the time of the call recreates its query on the next render and refetches it; the session end therefore clears the cache as the redirect unmounts the signed-in tree. `frontend/src/auth/SessionActivityProvider.test.tsx` (TS-001 TC-001.13) pins the empty cache, the single `GET /me` and the Back case at this version.
 
 ## Required hardware and software environment
 
@@ -116,3 +122,4 @@ accountable. Hazard-relevant anomalies go to `risk-management`; defects affectin
   found for 5.101.0; not among the malicious `@tanstack/*` versions of CVE-2026-45321. Record 1.0 →
   1.1, approval record removed for re-approval.
 - 1.2 (2026-11-14) — TASK-221: functional requirements list the behaviours the module-refresh control relies on. Content change, so the 1.1 approval record is removed. `in_review`.
+- 1.3 (2026-11-14) — TASK-222: functional requirements name `QueryClient.clear()` and the observer behaviour the session-end control relies on. Content change, still `in_review`.

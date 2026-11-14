@@ -3,7 +3,7 @@ id: CR-006
 type: change-request
 title: Close the open reliability and performance defects from the 2026-07 review and audit
 status: in_progress
-version: "1.12"
+version: "1.14"
 author: Carlos Santiago Liceras
 created: "2026-11-13"
 updated: "2026-11-14"
@@ -57,6 +57,12 @@ links:
   - target: PRB-083
     relation: resolves
   - target: PRB-084
+    relation: resolves
+  - target: PRB-087
+    relation: resolves
+  - target: PRB-089
+    relation: resolves
+  - target: PRB-090
     relation: resolves
   - target: SR-008
     relation: relates_to
@@ -233,6 +239,9 @@ the architect. Line numbers are those found on 2026-11-13.
 | PRB-078 Reverse proxy rejects uploads larger than 1 MiB (added at the Plan gate, D-18) | major | Open: `infra/reverse-proxy/nginx.conf` sets no `client_max_body_size`, so nginx's 1 MiB default refuses larger bodies before the backend | SR-013 AC 1, AC 6; RISK-007 | TASK-135 |
 | PRB-083 Erasure e-mail is sent for an erasure that did not commit (added by D-30) | minor | Open since TASK-141: `identity/erasure.py:128` enqueues before `invalidate_all`, the audit rows and the commit; `workers/email_tasks.py:142-173` sends without reading the database | SR-024 AC 6; RISK-008 | TASK-228 |
 | PRB-084 Concurrent retention sweeps write a duplicate audit row (added by D-30) | minor | Open (predates TASK-141): `workers/retention_tasks.py:67-81` reads the dataset without a lock; the second sweep's 0-row delete still records `ANONYMIZED_DATASET_ERASED` | SR-024 AC 3, AC 5; RISK-006 | TASK-228 |
+| PRB-087 Client idle timer re-arms on activity while the server slides only on requests (added by D-33) | minor | Open (predates CR-006): `auth/useIdleTimer.ts` re-arms the deadline to now + the reported length on every activity event, which the server never sees | SR-030 AC 8, AC 4 (the warning follows the server-reported expiry) | TASK-222 |
+| PRB-089 Client inactivity timeout neither ends the server session nor clears the cached clinical data (added by D-33) | major | Open (predates CR-006): `auth/SessionActivityProvider.tsx:39-42` `handleExpired` only navigates; no `apiClient.logout()`, no `qc.clear()` | SR-030 AC 1, AC 2 (the session ends at the timeout), AC 8 (one redirect) | TASK-222 |
+| PRB-090 Idle warning dialog redirects to sign-in without clearing the cached clinical data (added by D-34) | major | Open (found in TASK-222): `auth/IdleWarningDialog.tsx` navigates to `/login?timeout=1` itself, on the countdown reaching 0 and on an extend answered 401, with no logout and no cache clear | SR-030 AC 1, AC 2 (the session ends at the timeout), AC 8 (one redirect) | TASK-222 |
 
 Existing TASKs whose records will need updating at the Plan stage: TASK-141 (narrow PRB-013 to the
 remaining policy, add the retention requirement SR-024 AC 5), TASK-146 (narrow PRB-017), TASK-136
@@ -559,6 +568,25 @@ agent. The records stay `in_review` until the human's MedTrace approval.
   activity plus a client-side logout on expiry, is not taken. The pre-existing gap that `handleExpired` neither
   logs out on the server nor clears the cache is not in D-32 and stays with the human (P-18). Change analysis
   below.
+- **D-33 (human decisions 2026-11-14, relayed by the coordinating agent, on PRB-087 and on P-18):**
+  - **PRB-087, "Server responses only".** The client inactivity deadline is re-armed only from server
+    responses: `sessionExpiresInSeconds` from `GET /me` and `expiresInSeconds` from extend. Mouse, keyboard and
+    scroll activity alone no longer re-arms or extends anything. To keep the session, the user makes a request
+    or presses Extend in the warning dialog. PRB-087 comes into CR-006 (`resolves`) and is fixed in TASK-222.
+  - **P-18, "Major, in CR-006".** The `handleExpired` gap is raised as PRB-089 (`major`, `open`), linked
+    `resolves` and fixed in TASK-222. `handleExpired` calls `apiClient.logout()` (best effort) and `qc.clear()`,
+    as the `AuthError` handler already does.
+  - Consequence for TASK-222: its debounce (SR-026 AC 8, PRB-025) has nothing left to throttle. TASK-222 1.1
+    removes the activity listeners instead, which also resolves PRB-025. SR-026 AC 8 and SR-030 AC 1 and AC 2
+    need wording decisions (P-20, P-21). Change analysis below.
+- **D-34 (human decision 2026-11-14, "Into CR-006, in 222", relayed by the coordinating agent, from the
+  TASK-222 QA review round 1, HIGH 1):** PRB-090 (`major`, raised by the developer) comes into CR-006
+  (`resolves`) and is fixed in TASK-222. `IdleWarningDialog` stops navigating on its own. It takes an
+  `onExpired` prop and calls it on the countdown reaching 0 and on an extend answered 401. The provider passes
+  `handleExpired`, which returns early once `sessionEnded` is set, so the session is ended once: cache cleared,
+  logout attempted, one redirect. QA reproduced the defect: after a clock jump, the dialog's 500 ms tick runs
+  before `handleExpired`, the session is left open, and the cached PHI is reachable with Back. Change analysis
+  below.
 
 ## Change analysis (Risk stage, §7.4, 2026-11-13)
 
@@ -635,7 +663,8 @@ The Software Architect role ran this analysis. Scales and matrix: `docs/medtrace
      enforcing idle and absolute expiry (SR-030 AC 1 to AC 3), so the client deadline only drives
      the warning and the redirect.
   10. **Debounced activity tracking** (SR-026 AC 8): the client deadline can be up to 1 s late;
-      server enforcement is unchanged (RISK-005 not raised).
+      server enforcement is unchanged (RISK-005 not raised). *Superseded by D-33: no activity tracking
+      remains, so this cause no longer exists; see causes 19 and 20.*
   11. **Lazy routes** (PRB-020, SR-026 AC 7): a chunk that fails to load leaves a route blank
       (RISK-007, minor). Control: an error boundary with a retry and a clear message (SR-027 AC 3).
 - **PRB-022 and PRB-031 (rejected, D-1): no impact.** The fixes predate CR-006 and keep their
@@ -871,13 +900,116 @@ expiry. RISK-005 1.9 and RISK-004 1.6 are `in_review` with the approval record c
 - **P-18. `handleExpired` leaves the server session and the cache in place** (pre-existing; not covered by
   PRB-087, TASK-222 or TASK-146). At the client timeout, `SessionActivityProvider.tsx:39-42` only navigates
   to `/login?timeout=1`. Unlike the `AuthError` handler a few lines below, it calls neither
-  `apiClient.logout()` nor `qc.clear()`. With D-32, the server session has already ended by then. But the
+  `apiClient.logout()` nor `qc.clear()`. With D-32, the server session has already ended by then (corrected
+  in 1.13: not when requests followed the last `me` or extend response, see D-33). But the
   query cache still holds the clinical data shown before, and Back re-renders it until a request answers 401.
   Recommendation: raise a new PRB (proposed `minor`, or `major` if you read a cached PHI view on an
   unattended workstation as a disclosure under RISK-001 and RISK-005), resolved by calling logout and clearing
   the cache in `handleExpired`. Not created here.
 - **P-19. TASK-221 links.** Add `implements` SR-030 and `mitigates` RISK-005 to TASK-221 (the developer is
   editing it now), so the new RISK-005 row traces to its task.
+
+### Change analysis for the server-driven client deadline and the timeout session end (§7.4, D-33, 2026-11-14)
+
+Software Architect role. Code read: `frontend/src/auth/useIdleTimer.ts`, `SessionActivityProvider.tsx`,
+`useMe.ts` (`staleTime` 30 s, refetch on mount when stale; `refetchOnWindowFocus: false` app-wide in `api/queryClient.ts:30`), `RequireAuth.tsx`, `api/client.ts:110`
+(`logout`), `backend/app/auth/session.py:168-205`.
+
+- **The two clocks after D-33.** The server slides the session on every request except `GET /me/modules`
+  (D-32). The client re-arms only on a `me` or extend response. Each of those is itself a sliding request, and
+  the client deadline is the receipt time plus the server's remaining seconds. So the client deadline is never
+  later than the server's. It is earlier when the user made other requests (saves, or views that do not
+  refetch `me`) after the last `me` or extend response. Before D-33 the client could run
+  *later* than the server (PRB-087: activity with no request).
+- **No new hazard; class B unchanged (§7.4.1).** Every effect falls inside RISK-005 (session at an unattended
+  workstation), RISK-001 (PHI shown to the wrong person) and RISK-004 or RISK-007 (a legitimate user signed out
+  early). The highest severity reached is 3 (RISK-005). Nothing approaches the class C boundary.
+- **RISK-005 (§7.4.2).** The warning now rests on server truth (SR-030 AC 4, AC 8). It always appears at least
+  2 minutes before the server would end the session, never after. The PRB-089 fix makes the client timeout end
+  the server session. The earlier of the two deadlines is therefore the one that applies, and an unattended
+  workstation is closed at the client deadline at the latest.
+  - Without the PRB-089 fix, D-33's server-only re-arming would make a live server session after the client
+    redirect the normal case: going Back gives the next person a working session. The two fixes must land
+    together, in one TASK and one commit (TASK-222).
+  - New row: "the client timeout ends the session". The client-session row is corrected: activity no longer
+    re-arms, and no debounce exists.
+- **RISK-001 (§7.4.2), PRB-089 disclosure aspects.** After a client timeout, Back re-renders the cached
+  clinical views. `RequireAuth` sees a successful `me` in the cache.
+  - If the server session has ended, the person at the workstation sees the PHI the clinician last loaded. It
+    stays on screen until a refetch answers 401, or indefinitely if the refetch fails for another reason
+    (PRB-067 keeps the app mounted).
+  - If the server session is alive, they reach anything that session can reach. That case is RISK-005's harm.
+  - `qc.clear()` before the redirect removes the first path and `logout` removes the second. New RISK-001 row.
+    The residual stays 2 × 2: no score was ever based on the client cache.
+- **RISK-004 (§7.4.2).** A clinician who reads without making requests now gets the warning at 13 minutes
+  (clinical roles) and must press Extend. Ignoring it signs them out at 15 minutes, now also on the server.
+  This is the SR-030 AC 1 behaviour, with "inactivity" read as "no request", which D-32 already uses. It
+  replaces a client that silently ran past the server's expiry.
+  - The availability effect is a sign-in and the loss of any unsaved form input. RISK-004 already covers
+    delayed access, and the sign-in recovers it. No score changes.
+  - One line is added under "Risks introduced by controls". The module-refresh row is unchanged.
+- **New causes introduced by the change itself:**
+  19. **Client earlier than the server** (RISK-004, RISK-007): a user who works through requests that do not
+      refetch `me` gets the warning although the server would keep the session. Extend recovers it.
+      Navigation to a view that reads `useMe` re-arms in practice, because it refetches on mount when older than
+      30 s. Window focus does not (`refetchOnWindowFocus: false`).
+      Control: the warning dialog and Extend (SR-030 AC 4), tested.
+  20. **Logout at the timeout fails or 401s** (RISK-005, RISK-007): the server session may already have ended
+      (401) or the network may be down. Control: logout is best effort, and its error is ignored, not sent to
+      the `AuthError` handler. The cache is cleared and the single redirect happens whatever the result (SR-030
+      AC 8). If logout failed, the server session still ends on its own idle expiry, no later than the server
+      deadline. Tested.
+  - `qc.clear()` with mounted observers must not start a second session check or a second redirect (SR-030
+    AC 8). The cache is cleared and the navigation made in the same handler, and the test counts `me`
+    requests.
+- **SOUP:** no new item. SOUP-028 (TanStack Query) is relied on for `QueryClient.clear()` removing every cached
+  query. TASK-222 checks whether SOUP-028's functional requirements need that line (it is close to "caching
+  and invalidation").
+- **SR coverage (§5.2.3):** server-only re-arming traces to SR-030 AC 8 and AC 4; the session end at the timeout
+  to SR-030 AC 1, AC 2 and AC 5 (logout invalidates the token); the cache clear to SR-030 AC 1 and AC 2. No SR
+  is changed here. See P-20 and P-21.
+
+| Change | Software items | §7.4.1 contribution | §7.4.2 controls affected | §7.4.3 verification (planned, TASK-222) |
+|---|---|---|---|---|
+| Client deadline re-armed only from `me` and extend responses; activity listeners removed (PRB-087, PRB-025) | SI-FE-AUTH `U-FEA-IdleTimer`, `U-FEA-IdleWarning` | Removes "client runs later than the server". New: cause 19 | RISK-005 (client-session row corrected), RISK-004 (introduced-risk line) | Vitest with fake timers: mouse, key, scroll and touch events leave the deadline and the timers unchanged; a new `me` or extend response re-arms; warning at reported − 2 min; TS-001 TC-001.5 and TC-001.11 updated |
+| `handleExpired` logs out (best effort), clears the cache, redirects once (PRB-089) | SI-FE-AUTH (`SessionActivityProvider`), SI-FE-APICLIENT | Removes "Back after timeout shows cached PHI or a live session". New: cause 20 | RISK-005 (new row), RISK-001 (new row) | Vitest: at expiry `logout` called once, cache empty, one redirect, no extra `me` request; logout 401 or network error still clears and redirects; Back after expiry renders no clinical data. System level: the session cookie is refused after a client timeout (TS-001 new case) |
+
+**Residual scores:** unchanged (RISK-005 3 × 1 → acceptable; RISK-001 2 × 2 → acceptable; RISK-004 3 × 2 →
+alarp). Both defects predate CR-006, and no approved residual counted on the client cache or on activity
+re-arming. The server's idle and absolute expiry stay the basis. RISK-005 1.10, RISK-001 1.6 and RISK-004 1.7
+are `in_review` with the approval record cleared.
+
+**Findings for the human (D-33):**
+
+- **P-20. SR-026 AC 8 is moot.** It requires the inactivity tracking to re-arm "at most once per second of
+  continuous user activity". With no activity tracking, the criterion is met vacuously (zero re-arms), and its
+  second clause holds trivially. Recommendation: the Product Owner retires AC 8 or rewords it, for example "user
+  input events cause no session-timer work". SR-026 is approved, so either change needs re-approval. TS-018's
+  pending AC 8 row (TASK-222) follows the decision. Until then, TASK-222 traces AC 8 through a test that input
+  events do no timer work.
+- **P-21. SR-030 AC 1 and AC 2, meaning of "inactivity".** AC 4 still fits as written: the warning comes
+  2 minutes before the timeout the client enforces, which is never later than the server's. AC 1 and AC 2 say
+  "after 15 (30) minutes of inactivity" without defining it. D-32 and D-33 read it as "no request by the user
+  (excluding background polls) and no Extend". The client may warn earlier when requests did not refresh `me`.
+  Recommendation: the Product Owner adds that definition to AC 1 and AC 2, or records it in the SR's
+  rationale. SR-030 is approved, so this needs re-approval. Not blocking: TASK-222 can be built and verified
+  against today's wording.
+
+### Change analysis for the warning dialog's own redirect (§7.4, D-34, 2026-11-14)
+
+- **Same hazard as PRB-089, by another route; no new hazard.** The dialog's two redirects (countdown at 0,
+  extend 401) bypass `handleExpired`. After either, the server session may still be open (the countdown
+  case) or the cache still holds PHI (both cases), and Back re-renders it.
+  - RISK-001: PHI shown to the person at the workstation.
+  - RISK-005: a live session taken over.
+  - The D-33 control rows in RISK-001 and RISK-005 now name the dialog route. Their verification adds a Back
+    test after each dialog route.
+- **The change itself.** The session end has one owner (`handleExpired`), guarded by `sessionEnded`, so the
+  deadline timer and the dialog's tick cannot both end the session. That keeps one redirect and no repeated
+  session check (SR-030 AC 8). A missed guard would cause a second logout call or a second redirect
+  (availability only). This is covered by cause 20's control and the redirect-count assertion.
+- **Class B unchanged.** The highest severity is still 3 (RISK-005). No SOUP or SR change. Residuals unchanged
+  (RISK-001 2 × 2, RISK-005 3 × 1, acceptable). RISK-001 1.7 and RISK-005 1.11 stay `in_review`.
 
 ## Plan
 
@@ -947,7 +1079,7 @@ ADR-0022, the changed ADD and SOUP records, and the findings P-1 to P-9.
 | 8 | [TASK-143](../design-outputs/tasks/TASK-143-unify-frontend-api-client-upload-and-problem-types.md) Upload through `request()`; `ProblemError` from the schema | 019 | SR-030 AC 8; SR-031; SR-027 AC 3 | 005 | S | — (parallel; frontend) | updated |
 | 9 | [TASK-144](../design-outputs/tasks/TASK-144-shared-useme-hook-session-ttl-reconciliation-module-cache-invalidation.md) One `me` query; client deadline from the server-reported expiry (additive API field) | 016 | SR-030 AC 8, AC 4 | 005 | M | — (parallel) | updated |
 | 10 | [TASK-221](../design-outputs/tasks/TASK-221-module-gating-refresh-for-every-affected-user.md) Module gating refresh within 60 s for every affected user | 015 | SR-015 AC 5 | 004 | S | 144 | new (split from 144) |
-| 11 | [TASK-222](../design-outputs/tasks/TASK-222-debounced-inactivity-tracking.md) Activity tracking re-arms at most once per second | 025 | SR-026 AC 8; SR-030 AC 1, AC 2 | 005 | XS | 144 | new |
+| 11 | [TASK-222](../design-outputs/tasks/TASK-222-debounced-inactivity-tracking.md) Session deadline only from server responses; the client timeout ends the session, the warning dialog included (D-33, D-34; was: activity re-arms at most once per second) | 025, 087, 089, 090 | SR-030 AC 1, AC 2, AC 4, AC 8; SR-026 AC 8 (P-20) | 005, 001 | S | 144, 221 | reworked (1.1); PRB-090 added by D-34 |
 | 12 | [TASK-145](../design-outputs/tasks/TASK-145-route-based-code-splitting.md) Route-level splitting, chunk-failure boundary, budget check | 020 | SR-026 AC 7; SR-027 AC 3; SR-020 | — (relates RISK-007) | S | 144 | updated |
 | 13 | [TASK-146](../design-outputs/tasks/TASK-146-frontend-unit-test-gaps-session-attachment-csrf.md) Unit tests: session provider, `AttachmentItem`, `csrf.ts` | 017 | NFR-006; SR-030 AC 1–5, 8; SR-015 AC 3–5; SR-031 AC 3 | — (evidence for 005, 004) | S | 143, 144, 221, 222 | updated |
 | — | **Checkpoint C** | | | | | 8–13 | |
@@ -1111,3 +1243,5 @@ TASK-141 (RISK-009: the erasure-site log-capture test is in TS-004, not TS-006).
 - 1.10 (2026-11-14) — Human decision D-30 ("Arreglarlos ahora", TASK-141 QA LOW 1 and LOW 3): PRB-083 (misleading erasure e-mail) and PRB-084 (duplicate retention audit row) created, `minor`, linked `resolves`; TASK-228 added (order 7b, Checkpoint B); §7.4 change analysis (class B unchanged, causes 14 to 16, residuals unchanged); cause 6 "harmless" corrected; RISK-008 1.5 and RISK-006 1.7 back in `in_review`; findings P-16 and P-17 for the human. Stays `in_progress`.
 - 1.11 (2026-11-14) — Human decision D-31 ("Aprobar y construir"): P-16 and P-17 accepted as recommended, PRB-083 and PRB-084 confirmed `minor`; TASK-228 plan row updated to `approved` (QA round 1). Stays `in_progress`.
 - 1.12 (2026-11-14) — Human decision D-32 ("Opción (a)", TASK-221 QA round 1 HIGH 1 and MEDIUM 2): `GET /me/modules` checks the session without extending it, and the poll is about 50 s. §7.4 change analysis (no new hazard, class B unchanged, causes 17 and 18, residuals unchanged). RISK-005 1.9 and RISK-004 1.6 are back in `in_review`. Findings P-18 (`handleExpired` gap, PRB proposed and not created) and P-19 (TASK-221 links) for the human. Stays `in_progress`.
+- 1.13 (2026-11-14) — Human decisions D-33 (PRB-087 "Server responses only"; P-18 "Major, in CR-006"): PRB-087 and the new PRB-089 (`major`) added to the scope with `resolves` links, both fixed in TASK-222 (reworked to 1.1; the debounce is superseded and the activity listeners are removed; cause 10 superseded). §7.4 change analysis (no new hazard, class B unchanged, causes 19 and 20, residuals unchanged). P-18's "server session has already ended" corrected. RISK-005 1.10, RISK-001 1.6 and RISK-004 1.7 are back in `in_review`. Findings P-20 (SR-026 AC 8 moot) and P-21 (SR-030 "inactivity") for the human. Stays `in_progress`.
+- 1.14 (2026-11-14) — Human decision D-34 ("Into CR-006, in 222", TASK-222 QA round 1 HIGH 1): PRB-090 (`major`, the warning dialog's own redirect) added to the scope with a `resolves` link and fixed in TASK-222 (the plan row names it). §7.4 note: the PRB-089 hazard by another route; no new hazard; class B unchanged; residuals unchanged. RISK-001 1.7 and RISK-005 1.11 name the dialog route. Stays `in_progress`.

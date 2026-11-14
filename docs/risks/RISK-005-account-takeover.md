@@ -2,8 +2,8 @@
 id: RISK-005
 type: risk
 title: Account takeover leading to disclosure or falsified clinical records
-status: in_review
-version: "1.9"
+status: approved
+version: "1.11"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-11-14"
@@ -15,6 +15,10 @@ probability_initial: 2
 severity_residual: 3
 probability_residual: 1
 acceptability: acceptable
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-11-14"
+approved_digest: 0a6cddbcd0f1b91e4dfbd66745eef67ee1f7c25c9ba97ad6ad98d3dbe86f97b1
+approval_note: self-approved
 links:
   - target: SOUP-012
     relation: relates_to
@@ -75,7 +79,8 @@ occur); the score is severity × P2, the probability that the hazardous situatio
 | No default or placeholder credential for the database, the mail relay or the keys; start-up refused otherwise (CR-004, PRB-007) | Design | SR-041 AC 2 to AC 4; TASK-197, TASK-203 | TS-015 TC-015.2..4; started stack: the stack was generated from the empty template and started only with generated secrets |
 | The session token is no longer stored in the audit trail (logout event), and no audit field can hold a secret (CR-004, PRB-005) | Design | SR-023 AC 9; TASK-192 | TS-009 TC-009.12 |
 | No credential or secret in operational or proxy logs: route templates in the backend error log; allow-listed proxy log format with no request line, query string or header; activation locations' error log at `crit` and `Referrer-Policy: no-referrer`; no access log in the frontend container; task arguments redacted at `--loglevel=debug` (CR-004, PRB-068) | Design | SR-043 AC 4, SR-033; TASK-206, TASK-207 (every case variant of the activation paths matched with `~*`; secrets of `infra/.env` added to the started-stack check) | TS-017 TC-017.4 |
-| The client's inactivity deadline and countdown follow the session expiry reported by the server (remaining time taken relative to the response, not the client clock); one source for the session query; an expired or invalid session gives one redirect to sign-in; the upload goes through the shared request helper, so a 401 there ends the session like any other request; activity tracking re-arms at most once per second (CR-006, PRB-016, PRB-019, PRB-025). Server enforcement of SR-030 AC 1 to AC 3 is unchanged, except that `GET /me/modules` checks the session without extending it (next row, CR-006 D-32) | Design | SR-030 AC 8, AC 4; SR-026 AC 8; TASK-143, TASK-144, TASK-222 (unit tests: TASK-146) | none yet (planned: Vitest with fake timers, upload 401 branch, unit tests of `SessionActivityProvider` and `api/csrf.ts` for PRB-017, generated-types drift check; TS-001 at system level) |
+| The client's inactivity deadline and countdown follow the session expiry reported by the server (remaining time taken relative to the response, not the client clock); one source for the session query; an expired or invalid session gives one redirect to sign-in; the upload goes through the shared request helper, so a 401 there ends the session like any other request; the deadline is re-armed only by a `me` or extend response, never by mouse, keyboard or scroll activity, which has no listener (CR-006, PRB-016, PRB-019, PRB-025; D-33, PRB-087). Server enforcement of SR-030 AC 1 to AC 3 is unchanged, except that `GET /me/modules` checks the session without extending it (next row, CR-006 D-32) | Design | SR-030 AC 8, AC 4; SR-026 AC 8; TASK-143, TASK-144, TASK-222 (unit tests: TASK-146) | TASK-222 part: TS-001 TC-001.13, `frontend/src/auth/useIdleTimer.test.ts` ("activity events do not move the deadline", "no listeners registered for activity events", "a new deadline re-arms both timers", "schedules nothing until a deadline is known", "treats a deadline already in the past as expired") and "reading without requests is warned at 13 min and signed out at 15 min" (`SessionActivityProvider.test.tsx`); passed 2026-11-14, TASK-222 QA round 2. Still planned: Vitest fake-timer and upload-401 coverage, `api/csrf.ts` unit tests (PRB-017, TASK-146), generated-types drift check; TS-001 system level (TASK-226) |
+| The client timeout ends the session: when the client deadline passes, `handleExpired` clears the query cache, logs out on the server (best effort; a failure is ignored and still redirects) and redirects once, so neither going Back nor a session the server still holds gives the next person access. The warning dialog does not redirect on its own: at the end of its countdown, and on an extend answered 401, it calls the same `handleExpired`, which ends the session once (`sessionEnded` guard) (CR-006 D-33, PRB-089; D-34, PRB-090) | Design | SR-030 AC 1, AC 2, AC 5, AC 8; TASK-222 | TS-001 TC-001.13, `frontend/src/auth/SessionActivityProvider.test.tsx` (12 tests incl. "timeout logs out, clears the cache and redirects once", "redirects without waiting for logout to answer", "clock jump with the warning open: one logout, an empty cache and one redirect", "the dialog's tick and the expiry timer firing in one pass log out once", "extend 401 then Back shows no clinical data", "Back after a timeout shows no clinical data") and `IdleWarningDialog.test.tsx` ("extend 401 reports the ended session through onExpired", "the countdown reaching zero reports the ended session through onExpired once"); passed 2026-11-14, TASK-222 QA round 2. TC-001.14 (session cookie refused after a client timeout, system level) pending (TASK-226) |
 | Background polls do not extend the session: `GET /me/modules`, polled about every 50 s by `useMyModules`, resolves the session through its own non-sliding dependency (`SessionService.resolve(..., slide=False)` behind a `get_current_user` variant that keeps the absolute-lifetime, ended-session and active-account checks); every other route keeps the sliding check, so idle expiry counts only user-driven requests (CR-006 D-32, TASK-221 QA HIGH 1) | Design | SR-030 AC 1, AC 2; TASK-221 | TS-001 TC-001.12, `backend/tests/auth/test_session_no_slide.py` (10 tests, incl. `test_polling_my_modules_does_not_extend_the_session`, `test_other_routes_still_slide_the_session`, `test_my_modules_with_an_ended_session_is_401`, `test_my_modules_for_an_inactive_account_is_401`, `test_resolve_without_slide_enforces_absolute_expiry`); passed 2026-11-14, TASK-221 QA round 2 |
 
 ## Residual risk
@@ -115,6 +120,17 @@ the server is again the authority for SR-030 AC 1 and AC 2. The non-sliding chec
 earlier, never keep it longer. **Expected residual: 3 × 1 → acceptable, unchanged.** The pre-existing gap that
 the client timeout neither logs out nor clears the cache is raised to the human as CR-006 P-18.
 
+**Change analysis (CR-006 D-33, 2026-11-14).** The client deadline is now set only from `me` and extend
+responses (PRB-087). Each of those is itself a sliding request, so the client deadline is never later than
+the server's. The warning therefore always appears at least 2 minutes before the server would end the
+session (SR-030 AC 4). The client deadline is earlier than the server's when the user made other requests
+after the last `me` response. Without PRB-089's fix, going Back after the client redirect would then give
+the next person a live session, and any request they made would slide it further. With the fix, the client
+timeout logs out and clears the cache, so the earlier of the two deadlines applies. The server's own idle
+and absolute expiry stay the backstop when the logout cannot reach it. Both fixes land together in TASK-222.
+**Expected residual: 3 × 1 → acceptable, unchanged.** Both defects predate CR-006, and the residual rests on
+the server expiry, which is unchanged.
+
 **Decided by:** pending — the owner's acceptance is the approval of this record.
 
 ## Risks introduced by controls
@@ -127,10 +143,16 @@ on one login, RISK-007; TASK-205). The start-up refusal of placeholder secrets i
 availability effect by design, with a message naming the setting.
 
 CR-006 (2026-11-13): the debounce lets the client deadline run up to 1 s late (SR-026 AC 8); the
-server enforces the real expiry.
+server enforces the real expiry. *Superseded by D-33 (2026-11-14): no activity tracking remains.*
 
 CR-006 D-32 (2026-11-14): a route wrongly given the non-sliding check would end a working user's session
 early (availability, RISK-007), never extend one. Only `GET /me/modules` uses it, and the test pins both sides.
+
+CR-006 D-33 (2026-11-14): a user who works through requests that do not refresh `me` gets the warning
+although the server would keep the session, and is signed out (now also on the server) if they ignore it.
+That is an availability effect (RISK-004, RISK-007), recovered by Extend or a sign-in. A logout that fails at
+the timeout leaves the session to the server's own idle expiry. The cache is cleared and the redirect happens
+anyway.
 
 ## Version history
 
@@ -144,3 +166,6 @@ early (availability, RISK-007), never extend one. Only `GET /me/modules` uses it
 - 1.8 (2026-11-13) — CR-006 Plan gate (D-22): the client-session row names TASK-143, TASK-144 and TASK-222, with TASK-146 for its unit tests. Scores unchanged. Content change, so the approval record is cleared and the record returns to review.
 - 1.9 (2026-11-14) — CR-006 D-32 (TASK-221 QA round 1 HIGH 1), §7.4 change analysis (Software Architect role). One control row added (background polls do not extend the session: non-sliding check on `GET /me/modules`; verification planned in TASK-221). The client-session row's "Server enforcement … unchanged" names that exception. Scores unchanged (3 × 1 → acceptable). Content change, so the approval record (approved 2026-11-13) is cleared and the record returns to review.
 - 1.9 (2026-11-14, same version, still `in_review`) — Verification cell of the background-poll row filled with the TASK-221 tests (TS-001 TC-001.12) after QA round 2 approved them.
+- 1.10 (2026-11-14) — CR-006 D-33 (PRB-087 "Server responses only"; PRB-089 `major`), §7.4 change analysis (Software Architect role). The client-session row now says the deadline is re-armed only by `me` and extend responses, with no activity listener. New row: the client timeout ends the session (logout, cache cleared, one redirect; TASK-222, verification planned). The debounce line is superseded, and one introduced-risk line is added. Scores unchanged (3 × 1 → acceptable). Content change; the record stays `in_review` with no approval record.
+- 1.11 (2026-11-14) — CR-006 D-34 (PRB-090, `major`): the "client timeout ends the session" row names the warning dialog route (countdown at 0, extend 401) through `handleExpired`, and the planned verification covers it. Same hazard as PRB-089; scores unchanged (3 × 1 → acceptable). Stays `in_review`.
+- 1.11 (2026-11-14, same version, still `in_review`) — Verification cells of the client-session and "client timeout ends the session" rows filled with the TASK-222 tests (TS-001 TC-001.13) after QA round 2 approved them.

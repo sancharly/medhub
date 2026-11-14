@@ -1,5 +1,4 @@
 import { useEffect, useState, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
 import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
@@ -15,6 +14,8 @@ interface IdleWarningDialogProps {
   expiresAt: number;
   onExtended: (newDeadline: number) => void;
   onLogout: () => void;
+  /** The session has ended (the countdown reached zero, or extend answered 401). */
+  onExpired: () => void;
 }
 
 function formatCountdown(ms: number): string {
@@ -29,8 +30,8 @@ export function IdleWarningDialog({
   expiresAt,
   onExtended,
   onLogout,
+  onExpired,
 }: IdleWarningDialogProps) {
-  const navigate = useNavigate();
   const [remaining, setRemaining] = useState(expiresAt - Date.now());
   const [extending, setExtending] = useState(false);
 
@@ -42,12 +43,12 @@ export function IdleWarningDialog({
       setRemaining(rem);
       if (rem <= 0) {
         clearInterval(interval);
-        navigate("/login?timeout=1");
+        onExpired();
       }
     }, 500);
 
     return () => clearInterval(interval);
-  }, [open, expiresAt, navigate]);
+  }, [open, expiresAt, onExpired]);
 
   const handleExtend = useCallback(async () => {
     setExtending(true);
@@ -57,12 +58,12 @@ export function IdleWarningDialog({
       onExtended(Date.now() + result.expiresInSeconds * 1000);
     } catch (err) {
       if (err instanceof AuthError) {
-        navigate("/login?timeout=1");
+        onExpired();
       }
     } finally {
       setExtending(false);
     }
-  }, [navigate, onExtended]);
+  }, [onExpired, onExtended]);
 
   return (
     <Dialog open={open} aria-labelledby="idle-dialog-title">
