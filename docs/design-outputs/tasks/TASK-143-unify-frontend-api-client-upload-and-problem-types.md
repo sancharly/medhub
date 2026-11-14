@@ -2,11 +2,11 @@
 id: "TASK-143"
 type: task
 title: "Attachment upload through the shared request helper; ProblemError derived from the schema"
-status: draft
-version: "1.1"
+status: approved
+version: "1.3"
 author: "Carlos Santiago Liceras"
 created: "2026-07-07"
-updated: "2026-11-13"
+updated: "2026-11-14"
 links:
   - target: "SR-030"
     relation: implements
@@ -43,8 +43,8 @@ tags: ["phase:review-2026-07", "cr:CR-006", "frontend", "control:design"]
 
 ## Objective
 
-- SR-030 AC 8 and the RISK-005 control: a 401 during an upload ends the session like any other request
-  (`AuthError`, one redirect). `uploadAttachment` (`api/client.ts:136-160`) has its own `fetch` without the
+- SR-030 AC 8 and the RISK-005 control: a 401 during an upload raises `AuthError` like any other request
+  (the single redirect on a mutation's `AuthError` is TASK-144). `uploadAttachment` (`api/client.ts:136-160`) has its own `fetch` without the
   401 branch.
 - SR-031 / SR-027 AC 3: upload failures (the 150 MiB refusal of TASK-135 included) produce the same
   `ApiError` with the server's problem `detail` as JSON endpoints.
@@ -72,16 +72,83 @@ tags: ["phase:review-2026-07", "cr:CR-006", "frontend", "control:design"]
 
 ## Acceptance criteria
 
-- [ ] One fetch and problem-parsing path; a 401 during upload raises `AuthError`.
-- [ ] `ProblemError` derived from the generated schema, outside generated files; regeneration leaves no diff.
+- [x] One fetch and problem-parsing path; a 401 during upload raises `AuthError`.
+- [x] `ProblemError` derived from the generated schema, outside generated files; regeneration leaves no diff.
 
 ## Definition of Done
 
-- [ ] `npm run lint`, `npm run typecheck`, `npm test -- --run` green
-- [ ] TS-011, ADD-023 consistent; `traceability-check` no error for this record
+- [x] `npm run lint`, `npm run typecheck`, `npm test -- --run` green
+- [x] TS-011, ADD-023 consistent; `traceability-check` no error for this record
+
+## QA review — round 1 (2026-11-14): CHANGES REQUESTED
+
+Verification run by QA: `npm run typecheck`, `npm run lint`, `npm test -- --run` (32 files, 322 passed), `npm run build`
+green; `npm run generate:types` leaves `openapi.ts` unchanged; traceability script 0 errors, 27 warnings (87 records).
+Mutants killed: JSON content type on a `FormData` body, CSRF header dropped for `FormData`, 401 branch skipped for
+`FormData` (one upload test fails each); schema losing `instance` fails `npm run typecheck`. Trace negative control:
+removing CR-006 `resolves` PRB-019 gives E9.
+
+- **R1-1 [HIGH] Upload 401 now shows a less clear message than before (SR-027 AC 3 regression).**
+  `frontend/src/core/clinical/AttachmentUpload.tsx:28-31` shows `problem.detail` only for `ApiError`; `AuthError`
+  (`api/client.ts:25`) does not extend `ApiError`. Checked with a temporary test that was then removed: at HEAD a 401
+  problem during upload shows "Authentication is required."; with this change it shows "The file could not be
+  uploaded.", and nothing redirects (no global mutation handler; `RequireAuth` only watches `["me"]`). Fix: in
+  `AttachmentUpload` treat `AuthError` like `ApiError` for the message (for example `mutation.error instanceof ApiError
+  || mutation.error instanceof AuthError`, or a "your session has ended, sign in again" text), and add an
+  `AttachmentUpload.test.tsx` case for a 401 problem.
+- **R1-2 [MEDIUM] SR-030 AC 8 is claimed beyond what this task delivers.** The objective, ADD-023
+  (`ADD-023-frontend-api-client.md:39`, "ends the session once"), TC-011.7 and the PRB-019 Resolution say a 401 during
+  upload ends the session. The task raises `AuthError`; the single redirect does not exist for any mutation yet. Fix:
+  narrow the wording in ADD-023 and TC-011.7 to "raises `AuthError` (redirect: TASK-144)", and add to TASK-144 an
+  explicit step and test that an `AuthError` from a mutation (the upload included) redirects once.
+- **R1-3 [LOW] The type-level test does not catch loss of `detail` or `errors`.** Deleting `detail` or `errors` from
+  `ProblemDetail` in `api/generated/openapi.ts` still type-checks (`problem.test-d.ts` picks only `type`, `title`,
+  `status`, `instance`). Fix: add a `Pick<Schema, "detail" | "errors">` assertion, or narrow the TS-011/TASK wording to
+  the four fields actually checked.
+- **R1-4 [LOW] Records.** The plan said "`types.ts` regenerated, not edited"; `generate:types` writes only
+  `openapi.ts` (`package.json:13`, CI `openapi-lint` diffs only `openapi.ts`), so `types.ts` was edited by hand. That is
+  correct, but record it in 1.2 as a deviation. "the five importers" should read six (`client.ts`, `client.test.ts`,
+  `ErrorToastProvider.tsx`, `context.ts`, `problemToMessage.ts`, `problemToMessage.test.ts`) plus `index.ts`. PRB-085's
+  tag `found-in:TASK-143-sanity-run` disagrees with its body ("QA reproduced it at commit `b2e7a1c` (TASK-141
+  review)"). Make the two agree.
+
+Not blocking (pre-existing): the OpenAPI `ProblemDetail.errors.items` is hand-written as `{"type": "object"}`
+(`backend/app/api/openapi.py:78`), while the backend always emits `{field, rule, message}` (required strings;
+`backend/app/api/errors.py:22-25,55,189-193`). The schema is the defect and needs its own PRB (minor; contract only).
+Once it is fixed, the `errors` override in `api/problem.ts` can go. The `types.ts` header ("Re-generate with: npm run
+generate:types") and the CLAUDE.md rule "never hand-edit either generated file" both treat a hand-maintained file as
+generated.
+
+## QA review — round 2 (2026-11-14): APPROVED
+
+QA re-ran `npm run typecheck`, `npm run lint`, `npm test -- --run` (32 files, 323 passed) and `npm run build`; all green.
+`generate:types` leaves `openapi.ts` unchanged. Traceability script over TASK-143, TASK-144, TS-011, ADD-023, PRB-019,
+PRB-085, PRB-086 and CR-006: 0 errors, 29 warnings (93 records). R1-1 negative control: with `|| instanceof AuthError`
+removed, the 401 test in `AttachmentUpload.test.tsx` fails. R1-3: deleting `detail` or `errors` from `ProblemDetail`
+fails typecheck. Files restored byte-identical. R1-2 and R1-4 are closed in the records; PRB-086 is well formed (open,
+minor). Carried LOWs, not blocking:
+
+- PRB-019 Resolution still says "322 passed" (now 323), and its first bullet reads as one run-on clause ("`AttachmentUpload`
+  shows its detail and a problem+json refusal ... gives"). Split the sentence and update the count when PRB-019 is next edited.
+- `problem.test-d.ts:11`: the comment says "ProblemError exposes all of them", but the assignment checks the reverse
+  (every `ProblemError` key is a schema key). Fix the comment, or add `[] as (keyof SchemaFields)[]` assigned to
+  `(keyof ProblemError)[]`.
 
 ## Version history
 
 - 1.1 (2026-11-13) — CR-006 Plan stage (Software Architect). Re-based on SR-030 AC 8 (401 on upload ends the
   session; RISK-005 control) and SR-027 AC 3; `mitigates` RISK-005 added; `ProblemError` moved out of the
   generated-alias file.
+- 1.2 (2026-11-14) — Implemented (Software Developer), handed to QA (`draft → in_review`). Deviation: `ProblemError` also overrides `errors`
+  (`Array<{ field?, rule?, message?}>`), because the schema types its items as `Record<string, never>` and
+  `problemToMessage` / its tests read `field` and `message`. `types.ts` no longer defines `ProblemError` (deviation from "`types.ts` regenerated, not edited": `generate:types` writes only `openapi.ts`, so the hand-maintained alias file was edited by hand to delete the override);
+  the six other importers (`client.ts`, `client.test.ts`, `ErrorToastProvider.tsx`, `context.ts`, `problemToMessage.ts`, `problemToMessage.test.ts`) and `api/index.ts` now import it from `api/problem.ts`. Type-level test is
+  `api/problem.test-d.ts` (run by `npm run typecheck`). `generate:types` round trip: no diff.
+- 1.2 (2026-11-14) — QA review round 1: CHANGES REQUESTED (`in_review → draft`); findings R1-1 to R1-4 above.
+- 1.3 (2026-11-14) — QA round 1 fixed, handed back (`draft → in_review`). R1-1: `AttachmentUpload.tsx` shows the problem `detail`
+  for `AuthError` as well as `ApiError` (test `shows the server's detail when the session has ended (401)`; negative control: reverting
+  the fix fails it). R1-2: wording narrowed here, in ADD-023, TS-011 TC-011.7 and PRB-019 (raises `AuthError`; redirect: TASK-144), and a
+  step plus test added to TASK-144. R1-3: `problem.test-d.ts` also covers `detail` and `errors`; deleting each of `detail`, `errors`,
+  `instance` from `ProblemDetail` in `openapi.ts` fails typecheck, and the restored file is byte-identical (`cmp`). R1-4: this history
+  corrected; PRB-085 tag fixed. The untyped `errors` items are raised as PRB-086 (not fixed here).
+- 1.3 (2026-11-14) — QA review round 2: APPROVED (`in_review → approved`, status only).

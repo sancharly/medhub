@@ -5,7 +5,6 @@ import type {
   MeResponse,
   ChangePasswordRequest,
   ExtendSessionResponse,
-  ProblemError,
   PatientSummary,
   ClinicalEntry,
   CreateClinicalEntryRequest,
@@ -19,8 +18,7 @@ import type {
   InstalledModule,
   ActivationTokenStatus,
 } from "./generated/types";
-
-export type { ProblemError };
+import type { ProblemError } from "./problem";
 
 const MUTATING_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
 
@@ -46,8 +44,10 @@ export class ApiClient {
     path: string,
     body?: unknown
   ): Promise<T> {
+    const isForm = body instanceof FormData;
     const headers: HeadersInit = {};
-    if (body !== undefined) {
+    // A FormData body gets its multipart Content-Type (with boundary) from the browser.
+    if (body !== undefined && !isForm) {
       (headers as Record<string, string>)["Content-Type"] = "application/json";
     }
 
@@ -59,7 +59,7 @@ export class ApiClient {
       method,
       credentials: "include",
       headers: finalHeaders,
-      body: body !== undefined ? JSON.stringify(body) : undefined,
+      body: body === undefined ? undefined : isForm ? body : JSON.stringify(body),
     });
 
     if (!response.ok) {
@@ -133,30 +133,10 @@ export class ApiClient {
     return this.request<ClinicalEntry>("POST", `/patients/${patientId}/clinical-entries`, data);
   }
 
-  async uploadAttachment(entryId: string, file: File): Promise<Attachment> {
+  uploadAttachment(entryId: string, file: File): Promise<Attachment> {
     const formData = new FormData();
     formData.append("file", file);
-    const headers = withCsrf({});
-    const response = await fetch(`${this.baseUrl}/clinical-entries/${entryId}/attachments`, {
-      method: "POST",
-      credentials: "include",
-      headers,
-      body: formData,
-    });
-    if (!response.ok) {
-      const contentType = response.headers.get("content-type") ?? "";
-      if (contentType.includes("application/problem+json")) {
-        const problem: ProblemError = await response.json();
-        throw new ApiError(problem);
-      }
-      throw new ApiError({
-        type: "/errors/unknown",
-        title: response.statusText || "Unknown error",
-        status: response.status,
-
-      });
-    }
-    return response.json() as Promise<Attachment>;
+    return this.request<Attachment>("POST", `/clinical-entries/${entryId}/attachments`, formData);
   }
 
   listAttachments(entryId: string): Promise<Attachment[]> {

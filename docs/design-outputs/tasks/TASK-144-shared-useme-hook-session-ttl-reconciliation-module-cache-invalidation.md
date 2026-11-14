@@ -3,10 +3,10 @@ id: "TASK-144"
 type: task
 title: "One session query, client deadline from the server-reported session expiry"
 status: draft
-version: "1.1"
+version: "1.2"
 author: "Carlos Santiago Liceras"
 created: "2026-07-07"
-updated: "2026-11-13"
+updated: "2026-11-14"
 links:
   - target: "SR-030"
     relation: implements
@@ -67,6 +67,9 @@ is unchanged.
 - **Frontend:** `useMe()` = `useQuery({ queryKey: queryKeys.me, queryFn, retry: false, staleTime })`; on a
   401 the shared `AuthError` path clears the cache and redirects once (`/login?timeout=1`), with no refetch
   loop. `queryKeys.ts` holds the key. Every reader uses `useMe()`; a test fails if `["me"]` appears elsewhere.
+- A mutation's `AuthError` (the attachment upload, `uploadAttachment` through `request()`, included; TASK-143
+  only raises it) goes through the same single path: cache cleared and one redirect to `/login?timeout=1`, with
+  no per-component handling and no second redirect for concurrent failures.
 - `SessionActivityProvider`: deadline = time the `me` / extend response was received + the reported seconds;
   re-derived on each `me` refetch and after extend; the role table is removed (no client constant).
 
@@ -78,6 +81,8 @@ is unchanged.
   render and response.
 - `expired session gives one redirect and no repeated me requests` (SR-030 AC 8): MSW 401 counter = 1.
 - `only useMe reads the me query key` (static, SR-030 AC 8).
+- `a mutation's AuthError redirects once` (SR-030 AC 8; RISK-005): an upload (`AttachmentUpload`) answered 401
+  twice in a row gives one redirect to sign-in and clears the `me` cache.
 - Backend: `test_me_reports_remaining_session_seconds` for clinical and administrative roles (SR-030 AC 1, AC 2,
   AC 3 near the absolute limit).
 - TS-001 (1.4 → 1.5, approval cleared): TC-001.10 client deadline from server expiry.
@@ -98,3 +103,4 @@ is unchanged.
 - 1.1 (2026-11-13) — CR-006 Plan stage (Software Architect). Re-based on SR-030 AC 8 and AC 4; the module-list
   invalidation (PRB-015, SR-015 AC 5) moved to TASK-221, and `relates_to` SR-015 dropped; the server expiry is
   a new additive field (A-5 did not hold); `mitigates` RISK-005 added.
+- 1.2 (2026-11-14) — TASK-143 QA round 1 (R1-2): explicit step and test that a mutation's `AuthError` (the upload included) redirects once; TASK-143 only raises `AuthError`.

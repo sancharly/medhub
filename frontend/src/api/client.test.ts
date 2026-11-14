@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach } from "vitest";
 import { http, HttpResponse } from "msw";
 import { server } from "../tests/setup";
 import { ApiClient, ApiError, AuthError } from "./client";
-import type { ProblemError } from "./client";
+import type { ProblemError } from "./problem";
 
 const BASE = "http://localhost/api/v1";
 
@@ -134,5 +134,92 @@ describe("ApiClient error handling", () => {
 
     const err = await makeClient().me().catch((e) => e);
     expect(err).toBeInstanceOf(AuthError);
+  });
+});
+
+describe("ApiClient uploadAttachment", () => {
+  const URL = `${BASE}/clinical-entries/e1/attachments`;
+  const file = () => new File(["hello"], "note.txt", { type: "text/plain" });
+  const attachment = {
+    id: "a1",
+    clinicalEntryId: "e1",
+    filename: "note.txt",
+    contentType: "text/plain",
+    sizeBytes: 5,
+    createdAt: "2026-01-01T00:00:00Z",
+  };
+
+  beforeEach(() => {
+    Object.defineProperty(document, "cookie", {
+      writable: true,
+      value: "medhub_csrf=test-csrf-value",
+    });
+  });
+
+  it("sends FormData through request with the CSRF header", async () => {
+    let captured: Request | undefined;
+    let form: FormData | undefined;
+    server.use(
+      http.post(URL, async ({ request }) => {
+        captured = request.clone();
+        form = await request.formData();
+        return HttpResponse.json(attachment, { status: 201 });
+      })
+    );
+
+    const result = await makeClient().uploadAttachment("e1", file());
+
+    expect(result).toEqual(attachment);
+    expect(captured!.headers.get("X-CSRF-Token")).toBe("test-csrf-value");
+    // No hand-set JSON content type: the browser sets the multipart boundary.
+    expect(captured!.headers.get("content-type")).toMatch(/^multipart\/form-data; boundary=/);
+    expect((form!.get("file") as File).name).toBe("note.txt");
+  });
+
+  it("raises AuthError on a 401 unauthenticated problem", async () => {
+    server.use(
+      http.post(URL, () =>
+        HttpResponse.json(
+          { type: "/errors/unauthenticated", title: "Unauthenticated", status: 401 },
+          { status: 401, headers: { "Content-Type": "application/problem+json" } }
+        )
+      )
+    );
+
+    const err = await makeClient().uploadAttachment("e1", file()).catch((e) => e);
+    expect(err).toBeInstanceOf(AuthError);
+  });
+
+  it.each([
+    [413, "/errors/payload-too-large", "The file is larger than 150 MiB."],
+    [400, "/errors/validation-error", "The file type is not allowed."],
+  ])("surfaces the server detail of a problem+json %i", async (status, type, detail) => {
+    server.use(
+      http.post(URL, () =>
+        HttpResponse.json(
+          { type, title: "Refused", status, detail },
+          { status, headers: { "Content-Type": "application/problem+json" } }
+        )
+      )
+    );
+
+    const err = await makeClient().uploadAttachment("e1", file()).catch((e) => e);
+    expect(err).toBeInstanceOf(ApiError);
+    expect(err).not.toBeInstanceOf(AuthError);
+    expect((err as ApiError).problem.detail).toBe(detail);
+    expect((err as ApiError).problem.status).toBe(status);
+  });
+
+  it("raises a generic ApiError for a non-problem 500", async () => {
+    server.use(
+      http.post(URL, () => new HttpResponse("boom", { status: 500, statusText: "Server Error" }))
+    );
+
+    const err = await makeClient().uploadAttachment("e1", file()).catch((e) => e);
+    expect(err).toBeInstanceOf(ApiError);
+    expect((err as ApiError).problem).toMatchObject({
+      type: "/errors/unknown",
+      status: 500,
+    });
   });
 });

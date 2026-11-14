@@ -47,6 +47,28 @@ describe("AttachmentUpload", () => {
     expect(alert).toHaveTextContent("The file name is longer than 255 bytes.");
   });
 
+  it("shows the server's detail when the session has ended (401)", async () => {
+    server.use(
+      http.post(
+        `${BASE}/clinical-entries/e1/attachments`,
+        () =>
+          HttpResponse.json(
+            {
+              type: "/errors/unauthenticated",
+              title: "Unauthenticated",
+              status: 401,
+              detail: "Authentication is required.",
+            },
+            { status: 401, headers: { "Content-Type": "application/problem+json" } }
+          )
+      )
+    );
+    renderUpload();
+    const user = userEvent.setup();
+    await user.upload(screen.getByLabelText("Upload file"), new File(["x"], "a.pdf"));
+    expect(await screen.findByRole("alert")).toHaveTextContent("Authentication is required.");
+  });
+
   it("shows a generic message when the failure carries no problem document", async () => {
     server.use(
       http.post(`${BASE}/clinical-entries/e1/attachments`, () => new HttpResponse(null, { status: 500 }))

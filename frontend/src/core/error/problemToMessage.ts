@@ -1,4 +1,4 @@
-import type { ProblemError } from "../../api/generated/types";
+import type { ProblemError } from "../../api/problem";
 
 export interface MappedError {
   summary: string;
