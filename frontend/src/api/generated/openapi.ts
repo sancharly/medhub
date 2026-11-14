@@ -1495,6 +1495,13 @@ export interface operations {
                     "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
+            /** @description The retrieval-code e-mail could not be queued; the erasure was rolled back and nothing changed. Retry after the Retry-After interval. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
         };
     };
     resend_activation_api_v1_accounts__account_id__resend_activation_post: {

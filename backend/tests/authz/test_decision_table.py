@@ -439,7 +439,9 @@ def test_delete_by_role_and_relation(role: UserType, relation: str, expected: st
     repo.get_by_id.return_value = target
     svc = _erasure_service(repo)
 
-    _assert_outcome(lambda: svc.delete(actor, target.id), expected)
+    # The erasure enqueues its code e-mail inside the call (SR-024 AC 6): no broker here.
+    with patch("app.workers.email_tasks.send_erasure_code_email.delay"):
+        _assert_outcome(lambda: svc.delete(actor, target.id), expected)
 
     assert (target.status == AccountStatus.DELETED) is (expected is None)
 

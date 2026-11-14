@@ -553,6 +553,9 @@
               }
             }
           },
+          "503": {
+            "description": "The retrieval-code e-mail could not be queued; the erasure was rolled back and nothing changed. Retry after the Retry-After interval."
+          },
           "422": {
             "description": "Validation Error",
             "content": {

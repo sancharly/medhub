@@ -74,7 +74,18 @@ def reactivate_account(
     svc.reactivate(actor, account_id)
 
 
-@router.delete("/{account_id}", response_model=DeletionResponse)
+@router.delete(
+    "/{account_id}",
+    response_model=DeletionResponse,
+    responses={
+        503: {
+            "description": (
+                "The retrieval-code e-mail could not be queued; the erasure was rolled back and "
+                "nothing changed. Retry after the Retry-After interval."
+            )
+        }
+    },
+)
 def delete_account(
     db: DbSession,
     account_id: uuid.UUID,
