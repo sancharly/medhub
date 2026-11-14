@@ -2,11 +2,11 @@
 id: "TASK-224"
 type: task
 title: "Remove the request-id promise from the JSON logger documentation"
-status: draft
-version: "1.0"
+status: approved
+version: "1.1"
 author: "Carlos Santiago Liceras"
 created: "2026-11-13"
-updated: "2026-11-13"
+updated: "2026-11-14"
 links:
   - target: "SR-043"
     relation: implements
@@ -49,12 +49,14 @@ matches what it emits, which is what SR-043 (log content) relies on. No RISK-006
 
 ## Acceptance criteria
 
-- [ ] No code or design text promises a request-id field; log output unchanged.
+- [x] No code or design text promises a request-id field; log output unchanged.
 
 ## Definition of Done
 
-- [ ] `ruff`, backend suite green; `traceability-check` no error for this record
+- [x] `ruff`, backend suite green; `traceability-check` no error for this record
 
 ## Version history
 
 - 1.0 (2026-11-13) — Created at the CR-006 Plan stage (Software Architect) for PRB-032 (D-7).
+- 1.1 (2026-11-14) — Implemented (Software Developer): `core/logging.py` docstring lists the emitted fields; the request-id wording in TASK-002 removed (1.1); PRB-032 resolved. Handed to QA (`in_review`).
+- 1.1 (2026-11-14, QA) — Round 1 APPROVED: docstring matches `_JsonFormatter.format` (level, message, logger, extra when present, exc_info when attached; `stack_info` is not emitted); no request-id promise left in `backend/app`, `infra/` or `docs/` outside the PRB/CR/TASK records that describe its removal and ADD-005:108 ("planned" marker, TASK-225); `uv run pytest -q` 1708 passed/10 skipped; ruff, mypy clean; trace 0 errors. TASK-002 re-approved. Status `approved`.
