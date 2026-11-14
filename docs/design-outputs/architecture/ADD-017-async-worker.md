@@ -2,11 +2,15 @@
 id: ADD-017
 type: architecture-doc
 title: Async Worker (SI-WORKER)
-status: in_review
+status: approved
 version: "1.6"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-11-14"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-11-14"
+approved_digest: 0af20e3a619b3d25caff4bf2ee85a6aae59498ef1fc71a2316832bc83f481723
+approval_note: self-approved
 links:
   - target: SR-024
     relation: implements

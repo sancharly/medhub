@@ -2,11 +2,15 @@
 id: ADD-008
 type: architecture-doc
 title: Identity & Account Lifecycle (SI-IDENTITY)
-status: in_review
+status: approved
 version: "1.4"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-11-14"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-11-14"
+approved_digest: eb73f7f57fa75bdeefa685c926cd32683cd576ca6dd8e88f96c2d597e7d3eab4
+approval_note: self-approved
 links:
   - target: SR-003
     relation: implements

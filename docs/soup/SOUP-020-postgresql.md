@@ -2,7 +2,7 @@
 id: SOUP-020
 type: soup
 title: PostgreSQL server
-status: in_review
+status: approved
 version: "1.4"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
@@ -10,6 +10,10 @@ updated: "2026-11-14"
 manufacturer: PostgreSQL Global Development Group
 soup_version: "16.15"
 anomaly_review: "2026-10-22"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-11-14"
+approved_digest: 905c2764f5bd92778c78ca763c243d80da5e9573b35e6f3620961b493f9f6d76
+approval_note: self-approved
 links: []
 tags:
   - soup

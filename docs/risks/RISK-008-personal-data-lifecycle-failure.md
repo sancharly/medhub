@@ -2,7 +2,7 @@
 id: RISK-008
 type: risk
 title: Personal data retained, copied or erased contrary to its lawful basis
-status: in_review
+status: approved
 version: "1.6"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
@@ -15,6 +15,10 @@ probability_initial: 3
 severity_residual: 2
 probability_residual: 2
 acceptability: acceptable
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-11-14"
+approved_digest: 24844653dd88a55861a0eb6139edaab7e4e3a2154445d082c130df28b9f589d0
+approval_note: self-approved
 links:
   - target: SOUP-014
     relation: relates_to
