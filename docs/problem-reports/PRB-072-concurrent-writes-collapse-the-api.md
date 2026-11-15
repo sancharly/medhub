@@ -3,10 +3,10 @@ id: "PRB-072"
 type: problem-report
 title: "Twenty parallel writes on a healthy stack answer 502 and the API worker is killed"
 status: resolved
-version: "1.2"
+version: "1.4"
 author: "Carlos Santiago Liceras"
 created: "2026-11-07"
-updated: "2026-11-13"
+updated: "2026-11-15"
 criticality: major
 links:
   - target: "PRB-009"
@@ -69,6 +69,8 @@ Verification: `backend/scripts/load_test.py` against a started stack, 20 concurr
 TC-018.1 to TC-018.4 in TS-018 and `backend/tests/core/test_pool_settings.py`. The final run through the reverse
 proxy with the approved values is TASK-226.
 
+**TASK-226 verification (2026-11-15):** the failure is gone. On the branch head, through the reverse proxy, 20 clients on one worker ran 300 s with 0 × 5xx, 0 transport errors (the captured backend log was empty, 0 bytes, so no `WORKER TIMEOUT` or `QueuePool limit` line could be counted; the verdict rests on 0 × 5xx and 0 transport errors) (before, on `8028685`: 210 transport errors and 10 worker kills in 456 requests). TS-018 TC-018.3.
+
 ## Source
 
 TASK-206 QA review, "Pre-existing issues"; human decision 2026-11-07 (CR-004 D-18).
@@ -78,3 +80,5 @@ TASK-206 QA review, "Pre-existing issues"; human decision 2026-11-07 (CR-004 D-1
 - 1.0 (2026-11-07) — Created from the TASK-206 QA review. `open`, `major`.
 - 1.1 (2026-11-13) — Root cause established, resolved by TASK-136 (CR-006 D-26). `resolved`, `major`.
 - 1.2 (2026-11-13) — TASK-136 round 2: Resolution wording corrected (the invariant bounds threads, not requests; residual limit raised as PRB-081). Stays `resolved`.
+- 1.3 (2026-11-15) — TASK-226: final load run recorded; the 8-ok / 20-fail pattern no longer reproduces. Stays `resolved`.
+- 1.4 (2026-11-15) — TASK-226 round 2 (QA L-4): the log counts qualified. Stays `resolved`.

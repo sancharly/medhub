@@ -3,10 +3,10 @@ id: RISK-008
 type: risk
 title: Personal data retained, copied or erased contrary to its lawful basis
 status: in_review
-version: "1.7"
+version: "1.8"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-11-14"
+updated: "2026-11-15"
 hazard: "PHI or PII living outside the controlled lifecycle: retained past its basis, copied into logs, or erased while still clinically or legally needed."
 cause: Worker logs write email addresses as structured fields, a retention sweep fails silently, or an erasure drops clinical data instead of anonymizing it → personal data exists in an uncontrolled copy, or required data is gone → the obligation in SR-024 and the GDPR requirement cannot be met.
 harm: Privacy harm to the patient and a regulatory breach; in the erase-too-much direction, loss of clinical history.
@@ -58,7 +58,7 @@ occur); the score is severity × P2, the probability that the hazardous situatio
 |---|---|---|---|
 | Erasure and retention implemented as auditable, retriable jobs | Design | SR-024, TASK-036, TASK-141 | TR-001, TS-004 |
 | Clinical data anonymized and re-keyed rather than dropped | Design | SR-024, TASK-116 | TR-001, TS-004 |
-| PII scrubbing for worker and notification logs | Protective | TASK-138 | none yet |
+| PII scrubbing for worker and notification logs | Protective | TASK-138 | TS-017 TC-017.1 to TC-017.3 (the same tests as the row below); passed 2026-11-15 on the branch head, TASK-226 regression |
 | Encryption at rest so residual copies are unreadable without keys | Protective | SR-022 | TR-001, TS-008 |
 | Identifiers instead of personal data at every log call; one redaction filter on every handler of the API, worker and scheduler; log-capture tests of both worker paths and of an arbitrary structured field (CR-004) | Design | SR-043; TASK-138 | TS-017 TC-017.1..3, TC-017.5, TC-017.6; started stack: `infra/log-secrets-check.sh` found no password, token, retrieval code or `infra/.env` secret in six service logs |
 | Retrieval of anonymized data limited per originating client address, atomically, so a retrieval code cannot be guessed by many attempts from one address (CR-004, PRB-029) | Protective | SR-042 AC 4, AC 5; TASK-185, TASK-186 | TS-016 TC-016.4, TC-016.5 |
@@ -89,7 +89,7 @@ controls bring causes of their own: a retry must not erase too much (idempotent,
 and failing the request must roll back the whole erasure rather than commit it with a lost code.
 **Expected residual: 2 × 2 → acceptable, unchanged.** Not lowered: PRB-074 (accepted known anomaly,
 CR-004 D-18, D-21) and TASK-116 remain. Re-scored from the evidence at the CR-006 verification
-checkpoint.
+checkpoint (TASK-226, 2026-11-15): TS-004 TC-004.4 to TC-004.7 and TS-017 TC-017.7 to TC-017.9 passed on the branch head (backend 1743 passed, 10 skipped; the real-PostgreSQL cases of TC-004.6 and TC-004.7 included), so the sweep isolation, the rolled-back erasure and the commit-gated e-mail hold as controls; **2 × 2 → acceptable, unchanged**.
 
 **Decided by:** pending — the owner's acceptance is the approval of this record.
 
@@ -126,3 +126,4 @@ erasure that did not commit, whose code matches no dataset. Probability judged u
 - 1.5 (2026-11-14) — CR-006 D-30, §7.4 change analysis (Software Architect role): control row added for the commit-gated erasure e-mail (PRB-083, TASK-228) with planned verification; the "harmless" converse case corrected; "Risks introduced by controls" extended with the false-drop and unreachable-database causes. Scores unchanged (2 × 2 → acceptable). Content change, so the approval record is cleared and the record returns to review.
 - 1.6 (2026-11-14) — TASK-228 verification: planned verification of the commit-gated erasure e-mail row replaced by the tests that ran. Scores unchanged (2 × 2 → acceptable). Content change, so the approval record is cleared and the record returns to review.
 - 1.7 (2026-11-14) — TASK-225 (Document Writer): the Verify column of the two TASK-141 rows (sweep isolation and retries; erasure rolled back when the e-mail cannot be queued) replaced "none yet (planned …)" by the tests that ran, read from the test files and from TS-004 and TS-017. Scores unchanged (2 × 2 → acceptable). Content change on an approved record, so the 1.6 approval record is cleared and the record returns to review.
+- 1.8 (2026-11-15) — TASK-226 (CR-006 verification): the log-scrubbing row ("none yet") names TS-017 TC-017.1 to TC-017.3; the executed tests of the CR-006 rows dated; re-scored from that evidence, 2 × 2 → acceptable, unchanged. Content change, so the record stays `in_review` for the owner's acceptance.

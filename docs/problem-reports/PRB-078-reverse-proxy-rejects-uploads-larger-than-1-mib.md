@@ -3,10 +3,10 @@ id: "PRB-078"
 type: problem-report
 title: "Reverse proxy rejects uploads larger than 1 MiB"
 status: resolved
-version: "1.1"
+version: "1.2"
 author: "Carlos Santiago Liceras"
 created: "2026-11-13"
-updated: "2026-11-13"
+updated: "2026-11-15"
 criticality: major
 links: []
 tags: ["deployment", "attachments", "hazard:availability", "found-in:cr-006-plan"]
@@ -89,9 +89,12 @@ Not verified: an upload through the project's own started stack (reverse proxy, 
 and object store together); the running stack was left untouched. That is TASK-226 (100 MiB through the
 started stack).
 
+**TASK-226 verification (2026-11-15), started stack with the reverse proxy:** a 100 MiB upload through nginx succeeds (201 in 7.5 s) and so does a 150 MiB upload; a 151 MiB upload is refused with the API's `application/problem+json` validation error (400, "The attachment exceeds the maximum size."). TS-007 TC-007.16. The "not verified" item above is closed.
+
 ## Version history
 
 - 1.0 (2026-11-13) — Created from CR-006 Plan-stage finding P-4, at the human's Plan-gate decision. Resolved by
   CR-006 (TASK-135).
 - 1.1 (2026-11-13) — TASK-135: `client_max_body_size 151m` on `/api/`; reproduced and verified against
   real nginx in the working tree (see Resolution). `resolved`; `closed` after the CR closes.
+- 1.2 (2026-11-15) — TASK-226: started-stack verification recorded. Stays `resolved`.

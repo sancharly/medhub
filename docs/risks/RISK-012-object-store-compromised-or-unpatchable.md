@@ -2,11 +2,11 @@
 id: RISK-012
 type: risk
 title: Object store compromised from the internal network or left unpatchable
-status: approved
-version: "1.3"
+status: in_review
+version: "1.5"
 author: Carlos Santiago Liceras
 created: "2026-10-22"
-updated: "2026-11-13"
+updated: "2026-11-15"
 hazard: Clinical attachments (including DICOM studies) in the object store can be read, replaced, planted or made unreadable without the object store's secret key, or the object store stops receiving security fixes (as first raised in 1.0, for MinIO, which would never receive one).
 cause: The object-store component carries a vulnerability with no deployed fix, or the deployment exposes the store beyond its intended clients (as first raised in 1.0, MinIO RELEASE.2025-09-07T16-13-09Z, unmaintained, with CVE-2026-41145, CVE-2026-40344, CVE-2026-113466 and CVE-2026-34204 exposed to every container on the `medhub` network, SOUP-022, PRB-042, PRB-043; replaced by SeaweedFS, SOUP-036, under CR-002) → an actor with a foothold that reaches the store writes to it or takes it over → attachments are disclosed, substituted, stored without encryption or made permanently unreadable, and a substituted object is served unless the stored checksum is checked on download.
 harm: Wrong or delayed diagnosis or treatment from a substituted or planted attachment or DICOM study (harms of RISK-002 and RISK-003); privacy harm from disclosure of attachments (RISK-001, RISK-011); delayed care from lost or unreadable attachments (RISK-007).
@@ -15,10 +15,6 @@ probability_initial: 2
 severity_residual: 4
 probability_residual: 1
 acceptability: acceptable
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-11-13"
-approved_digest: 3053a3bb97765737add5ba8c54018b0e8a7d5c093e06e0c90440ba2bb299c103
-approval_note: self-approved
 links:
   - target: SOUP-036
     relation: relates_to
@@ -132,7 +128,7 @@ binaries", option (c) or (d) only) was not adopted under option (b) and is remov
 | Refuse to start with an unset, empty or default credential, or a secret key shorter than 16 characters | Protective | SR-040 AC 2; TASK-174 (commit `8c46bcc`) | TS-014 TC-014.1..3: unit tests; started stack, each weak case (including a shell override with the defaults) gives preflight exit 1 and the store stays `Created`; good keys exit 0. QA round 2 rerun |
 | Set default bucket encryption (SSE-S3) at initialisation, so any write is encrypted at rest; fail closed if it cannot be set | Protective | SR-022 AC 4, SR-040 AC 4; TASK-175 (commit `684ee7b`), re-run on SeaweedFS by TASK-176 | TS-008 TC-008.6 and TS-014 TC-014.4: `get_bucket_encryption` → `AES256`; a plain `put_object` is reported `AES256`; a plaintext marker is not found in `/data`; an unreachable store keeps `backend` `Created`. QA reruns in TASK-175 and TASK-176 |
 | Check the stored SHA-256 checksum on every download; refuse (502) and audit a mismatch | Protective | SR-013 AC 5; TASK-173 (commit `0e01b2a`) | TS-007 TC-007.6..8: substituted object refused with 502 and a committed FAILURE audit row (real PostgreSQL); unmodified object served; DICOM route covered. Mutation: comparison removed → 4 tests fail (QA rerun). Also exercised through the API in the TASK-178 rehearsal |
-| Two-pass download keeps the checksum check (CR-006 D-6): the first pass hashes the object in chunks without keeping it; the streaming pass is a conditional read bound to the ETag or version seen in the first pass, refused on change with the SR-013 AC 5 response and a FAILURE audit row, and it hashes as it sends and aborts on mismatch, so the bytes served are the bytes verified (CR-006, PRB-008) | Protective | SR-013 AC 5, AC 6; TASK-217 (its step 1 confirms the SeaweedFS conditional read on the pinned image, SOUP-036 behaviour 14; supported in the published 4.51 source, CR-006 D-15) | none yet (planned: TS-007, TC-007.6 to TC-007.8 unchanged; new case: object replaced between the two passes gives 502, a FAILURE audit row and no content) |
+| Two-pass download keeps the checksum check (CR-006 D-6): the first pass hashes the object in chunks without keeping it; the streaming pass is a conditional read bound to the ETag or version seen in the first pass, refused on change with the SR-013 AC 5 response and a FAILURE audit row, and it hashes as it sends and aborts on mismatch, so the bytes served are the bytes verified (CR-006, PRB-008) | Protective | SR-013 AC 5, AC 6; TASK-217 (its step 1 confirms the SeaweedFS conditional read on the pinned image, SOUP-036 behaviour 14; supported in the published 4.51 source, CR-006 D-15) | TS-007 TC-007.13 (`backend/tests/attachments/test_attachment_download.py`: replaced object gives 502, one FAILURE row and no content; second-pass mismatch aborts, 18 tamper boundaries plus 5 controls at ASGI and real-uvicorn level), TC-007.6 to TC-007.8 unchanged; passed 2026-11-15 on the branch head (TASK-226, backend 1743 passed). **The binding of the second read to the first** is shown by two tests: `test_download_reads_object_twice_second_conditional` (the second read carries the first read's ETag) and, on the real store, `tests/integration/test_object_store_conditional_read.py::test_replaced_object_is_refused_with_object_changed` against SeaweedFS 4.51 of the started stack (4 passed; the store refuses a stale `If-Match`). **Separately**, TC-007.16 on the started stack through nginx: the stored object of a 100 MiB attachment overwritten with other bytes of the same length answers 502 `attachment-integrity-failure`, no content, an ATTACHMENT_ACCESS FAILURE audit row. That is the first-pass checksum path (the object was replaced before the download, so no second read was issued; `test_download_mismatch_in_first_pass_gives_502_without_second_read`), not evidence of the binding |
 | Restrict the object store to an internal network that only the backend and the initialiser join | Design | SR-040 AC 3; TASK-177 (commit `d4cdba0`) | TS-014 TC-014.6: network `object-store` `internal: true`, members `backend` and `object-store`; from reverse-proxy, frontend, postgres, redis and celery-worker the store name does not resolve and its IP times out on 8333, **18333**, 9333, 8888 and 8080 (QA probe); smoke test 27/27 with positive controls and mutations M1..M3 |
 | Verify encryption end to end against the real object store on every pull request (PRB-036) | Protective | SR-022 AC 5; TASK-179 (commit `aa2fd61`) | TS-008 TC-008.8, CI job `object-store-integration`: job steps run unchanged by QA, 4 passed; the no-default-bucket test fails when `ServerSideEncryption` is removed. Hosted-runner run pending (TASK-182) |
 | Migrate existing objects and key material by a procedure rehearsed against a backup | Protective | SR-022, SR-013 AC 5; TASK-178 (commit `db0b480`) | TS-008 TC-008.7: unit tests with mutations; rehearsal on restored copies: 3 copied, 3 of 3 API downloads match their checksum, 0 plaintext-marker hits, source volume tree hash identical, legacy MinIO only on a read-only copy (QA round 2) |
@@ -195,7 +191,7 @@ binds the second read to the first and hashes during it. **Expected residual: 4 
 acceptable, unchanged, only if that binding is implemented and verified**; without it, path 4
 re-opens and the record is 4 × 2 → alarp (CR-006 R-1; the binding was decided by the human in
 CR-006 D-10, with SeaweedFS support confirmed in SOUP-036 at the Plan stage). Re-scored from the evidence at the CR-006
-verification checkpoint.
+verification checkpoint (TASK-226, 2026-11-15). **The condition is met:** the second read is bound to the first by `If-Match` on the ETag seen in pass 1 (shown by `test_download_reads_object_twice_second_conditional`, where the second read carries the first read's ETag, and by the real-store test `test_replaced_object_is_refused_with_object_changed`, where SeaweedFS 4.51 refuses a stale `If-Match`; the started-stack 502 is the first-pass checksum path and is not part of this argument), the streaming pass hashes as it sends and aborts on mismatch (TC-007.13), and the refusal leaves a FAILURE audit row. Path 4 stays closed, so **4 × 1 → acceptable, unchanged**, and not 4 × 2.
 
 **Decided by:** pending — the owner's acceptance is the approval of this record.
 
@@ -291,3 +287,5 @@ Not needed: the residual 4 × 1 is `acceptable` under `risk_matrix`. The ALARP s
   from TASK-135) and records that the conditional read is supported in the published SeaweedFS 4.51 source,
   with the run on the pinned image as TASK-217 step 1. Scores and the R-1 condition unchanged. Content change,
   so the approval record is cleared and the record returns to review.
+- 1.4 (2026-11-15) — TASK-226 (CR-006 verification): the two-pass download row ("none yet (planned …)") replaced by the executed tests and the real-store run; the R-1 condition (second read bound to the first) shown met; re-scored, 4 × 1 → acceptable, unchanged. Content change on an approved record, so the approval record is cleared and the record returns to review for the owner's acceptance.
+- 1.5 (2026-11-15) — TASK-226 round 2 (QA M-2): the evidence for the second read bound to the first is `test_download_reads_object_twice_second_conditional` and `test_replaced_object_is_refused_with_object_changed`; the started-stack 502 is named as the first-pass checksum path. Scores unchanged (4 × 1 → acceptable). Stays `in_review`.

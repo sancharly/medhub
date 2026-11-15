@@ -3,10 +3,10 @@ id: "TS-019"
 type: test-specification
 title: "DICOM image opening and rendering verification"
 status: approved
-version: "1.0"
+version: "1.1"
 author: "Carlos Santiago Liceras"
 created: "2026-11-13"
-updated: "2026-11-13"
+updated: "2026-11-15"
 links:
   - target: "SR-017"
     relation: verifies
@@ -43,6 +43,7 @@ are built in the test with pydicom (explicit VR little endian, an `OB` PixelData
 | TC-019.2 | SR-017 AC 6 | same file: `test_declared_decoded_size_over_bound_refused_with_small_stored_bytes`, `test_declared_decoded_size_counts_frames_samples_and_bytes`, `test_header_without_declared_size_is_refused` | A small stored object (under 1 KiB) whose header declares 32768 x 32769 x 8 bits (1 GiB + 32768), and one that exceeds the bound only through `NumberOfFrames` x 2 bytes, is refused with a 400 problem whose error rule is `dicom_decoded_size_exceeded`; a header with `Rows` = 0 is refused with rule `dicom_decode_failed` (no guess); `pixel_array` is never touched in any of them | Status 400, problem media type, `errors[0].rule` as stated, `pixel_array` not called. Negative control: remove `_check_declared_decoded_size` and the first two fail |
 | TC-019.3 | SR-017 AC 6 | same file: `test_truncated_pixel_stream_gives_error_and_no_image` | When the decode raises (stubbed: the amount of pixel data is shorter than expected) the response is a 400 problem with rule `dicom_decode_failed`; the body holds no image bytes and the media type is not `application/dicom` | Status 400, problem media type, `errors[0].rule == "dicom_decode_failed"`, no frame bytes in the body |
 | TC-019.4 | SR-017 AC 6; SR-026 AC 3 | same file: `test_reference_study_at_bounds_not_refused` | A 150 MiB (157286400 bytes) stored object whose header declares exactly 1 GiB (8192 x 8192 x 8 frames x 2 bytes) passes both checks: the store is read, `pixel_array` is called once (stub) and the frame is returned with status 200 | Status 200, body is the stubbed frame, `pixel_array` called once, `get_object` called. Context, not verified: the 10-second budget of SR-026 AC 3 for a real decode (NumPy absent; PRB-048) |
+| TC-019.5 | SR-017 AC 6; SR-026 AC 3 | System level: upload a real DICOM study on a started stack and open a frame through the viewer route (`GET /studies/{attachment_id}?frame=0`) | A rendered frame is returned within 10 s | **Not executed (2026-11-15, TASK-226): not possible.** On the started stack `dicom_viewer` is not installed and `importlib.metadata.entry_points(group="medhub.modules")` is empty, so the router is not mounted (PRB-048); NumPy is not installed, so `pixel_array` cannot decode (PRB-046). Only pydicom 3.0.2 is present. No real render exists; TC-019.1 to TC-019.4 (stubbed decode) passed the same day (31 tests in `backend/modules/dicom_viewer/tests`) |
 
 ## Acceptance criteria (class B unit level)
 
@@ -63,3 +64,5 @@ See TASK-218 "Implementation record (Software Developer, 2026-11-13)".
 
 - 1.0 (2026-11-13): TASK-218. Created for SR-017 AC 6 (TC-019.1 to TC-019.4). `in_review`.
 - 1.0 (2026-11-13): QA review of TASK-218 (round 2): `approved` (status only; content unchanged).
+- 1.1 (2026-11-15) — TASK-226 (CR-006 verification): TC-019.5 added (real render on a started stack), recorded as not executable (PRB-048, PRB-046); TC-019.1 to TC-019.4 re-run green. Content change on an approved record, so the approval record is cleared: `in_review`.
+- 1.1 (2026-11-15) — QA review of TASK-226 (round 2): `approved` (status only; content unchanged).

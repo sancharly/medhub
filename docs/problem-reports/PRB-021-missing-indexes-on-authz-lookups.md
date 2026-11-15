@@ -2,11 +2,11 @@
 id: "PRB-021"
 type: problem-report
 title: "Authorization lookups have no supporting indexes"
-status: open
-version: "1.1"
+status: resolved
+version: "1.2"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
-updated: "2026-11-13"
+updated: "2026-11-15"
 criticality: major
 links: []
 tags: ["performance", "hazard:availability"]
@@ -36,7 +36,7 @@ CR-006 (2026-11-13). The four indexes were added by migration 0011 (TASK-219, QA
 
 ## Resolution
 
-Resolved by CR-006 through TASK-219 (migration 0011, done) and TASK-220 (migration 0012, draft). **Stays `open`** until TASK-220 is QA-approved and the CR-006 verification (TASK-226) records the query-plan checks.
+Resolved by CR-006 through TASK-219 (migration 0011, four indexes, QA-approved) and TASK-220 (migration 0012, the two lookups of D-29, QA-approved). **Verified 2026-11-15 by TASK-226** on the branch head: TS-018 TC-018.5 (`test_migration_0011_indexes.py`) and TC-018.8 (`test_migration_0012_indexes.py`) passed in the backend suite (1743 passed): upgrade and downgrade on an empty and on a populated database (10 000 rows per table), the query plan of each lookup of SR-026 AC 6 uses its index, and the negative control without the indexes scans. On a started stack with an empty database, migrations 0011 and 0012 applied cleanly (1.7 s and 1.6 s wall time including the process start). The status is `resolved`; closing follows the CR.
 
 ## Source
 
@@ -46,3 +46,4 @@ Resolved by CR-006 through TASK-219 (migration 0011, done) and TASK-220 (migrati
 
 - 1.0 (2026-09-17) — Created from the audit findings. `open`.
 - 1.1 (2026-11-13) — CR-006 D-29 (TASK-219 QA finding 1): Observed corrected (only `clinical_entry.patient_id` of the four is read by a current query, none by the authorization decision itself); the two unindexed lookups the code issues added; Investigation added; Resolution points at TASK-219 and TASK-220 (migration 0012). Stays `open`.
+- 1.2 (2026-11-15) — TASK-226: TASK-220 is QA-approved and the query-plan checks are recorded; `open` → `resolved` (the CR-006 `resolves` link exists).

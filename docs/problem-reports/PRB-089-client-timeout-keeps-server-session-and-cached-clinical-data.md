@@ -3,10 +3,10 @@ id: "PRB-089"
 type: problem-report
 title: "Client inactivity timeout neither ends the server session nor clears the cached clinical data"
 status: resolved
-version: "1.1"
+version: "1.2"
 author: "Carlos Santiago Liceras"
 created: "2026-11-14"
-updated: "2026-11-14"
+updated: "2026-11-15"
 criticality: major
 links: []
 tags: ["session", "frontend", "privacy", "found-in:TASK-221-qa"]
@@ -59,3 +59,5 @@ Fixed in CR-006 by TASK-222 in `frontend/src/auth/SessionActivityProvider.tsx` (
 Tests (TS-001 TC-001.13): `timeout logs out, clears the cache and redirects once`, `timeout still clears and redirects when logout fails` (401 and network error), `redirects without waiting for logout to answer`, `Back after a timeout shows no clinical data`. The system-level check that the server refuses the session cookie after a client timeout is TS-001 TC-001.14, pending (needs a started stack). The dialog's own redirect paths are PRB-090.
 
 Verified 2026-11-14 in the working tree: `npm test -- --run` (35 files, 361 tests), `npm run typecheck`, `npm run lint`, `npm run build` clean; the six negative controls of TASK-222 each fail at least one test (TS-001 TC-001.13). Not yet confirmed through a shipped release, so the status is `resolved`, not `closed`.
+
+**TASK-226 verification (2026-11-15), started stack, script level:** after the `POST /auth/logout` that a client timeout performs, `GET /me` and `GET /me/modules` with the old session cookie answer 401. TS-001 TC-001.14. The browser half (idle past the deadline, then Back) is covered by the unit tests of TC-001.13, not by a browser run. Stays `resolved`.

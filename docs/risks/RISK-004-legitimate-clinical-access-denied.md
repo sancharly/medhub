@@ -2,11 +2,11 @@
 id: RISK-004
 type: risk
 title: Legitimate clinical access wrongly denied or delayed
-status: approved
-version: "1.7"
+status: in_review
+version: "1.8"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-11-14"
+updated: "2026-11-15"
 hazard: A clinician with a legitimate care relationship cannot reach the patient's clinical data when needed.
 cause: An over-restrictive or mis-scoped consent evaluation (a declined appointment revoking a grant from another source, a per-source union computed wrongly, a module guard denying an enabled module) → the API denies the request → the clinician proceeds without the available history.
 harm: Care based on incomplete information, or delayed care while access is sorted out; recoverable in most workflows.
@@ -15,10 +15,6 @@ probability_initial: 3
 severity_residual: 3
 probability_residual: 2
 acceptability: alarp
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-11-14"
-approved_digest: 52935e44fb0a49440efb1a1137c95f2c3ae29595b6820b01f9148708734a11d2
-approval_note: self-approved
 links: []
 tags:
   - hazard:denial-of-care
@@ -63,8 +59,8 @@ occur); the score is severity × P2, the probability that the hazardous situatio
 | Denials are audited with the reason, so a wrong denial is diagnosable | Protective | SR-023 | TS-009 |
 | Patient-facing consent UI shows exactly who has access | Information for safety | SR-008 | TR-001, TS-002 |
 | Decision-table characterisation tests, written before the authorization checks are moved into `AuthorizationService` and unchanged after it, so no legitimate access is newly denied (CR-004) | Protective | SR-005, SR-023 AC 7; TASK-187, TASK-188, TASK-189 | TS-002 TC-002.7, TS-003 TC-003.6 (characterisation tables written before each move, same cases after it) |
-| A module enablement change reaches every affected user's UI within 60 seconds or the next navigation (poll about every 50 s with a stale time no larger, so the bound holds with the round trip and one retry; refetch on focus; the poll does not extend the server session, CR-006 D-32); a failed refetch keeps the last known value rather than hiding an enabled module; the server guard stays the authority (CR-006 D-4, PRB-015) | Design | SR-015 AC 5, AC 3; TASK-221 | none yet (planned: Vitest refetch and failed-refetch cases; TS-005 at system level) |
-| `groups_of` rewritten without the per-membership query only after a characterisation test of its results, unchanged after the rewrite, so no enabled module is newly denied (CR-006, PRB-024) | Protective | SR-026 AC 6, SR-014 AC 4; TASK-220 | none yet (planned: characterisation and query-count tests, TS-005) |
+| A module enablement change reaches every affected user's UI within 60 seconds or the next navigation (poll about every 50 s with a stale time no larger, so the bound holds with the round trip and one retry; refetch on focus; the poll does not extend the server session, CR-006 D-32); a failed refetch keeps the last known value rather than hiding an enabled module; the server guard stays the authority (CR-006 D-4, PRB-015) | Design | SR-015 AC 5, AC 3; TASK-221 | TS-005 TC-005.5 (`frontend/src/modules/useMyModules.test.tsx`: disappears and appears within 60 s, refetch on remount, failed refetch keeps the last known modules, slow server and network) and TS-001 TC-001.12 (`backend/tests/auth/test_session_no_slide.py`: the poll does not extend the session); passed 2026-11-15 on the branch head in the TASK-226 regression (frontend 412 tests in 41 files, backend 1743 passed). Not run at system level in a browser: the UI half is verified at unit level with fake timers, the server half by the backend tests (D-9 accepts unit evidence) |
+| `groups_of` rewritten without the per-membership query only after a characterisation test of its results, unchanged after the rewrite, so no enabled module is newly denied (CR-006, PRB-024) | Protective | SR-026 AC 6, SR-014 AC 4; TASK-220 | TS-005 TC-005.4 (`backend/tests/groups/test_groups_of.py`, real PostgreSQL: `test_groups_of_characterisation`, `test_groups_of_query_count_constant`, `test_module_gate_query_count_constant`); passed 2026-11-15 on the branch head in the TASK-226 regression (backend 1743 passed, 10 skipped, coverage 95.15 %) |
 
 ## Residual risk
 
@@ -87,7 +83,7 @@ does not see it until a reload, which delays access. CR-006 adds the refresh con
 AC 5). The `groups_of` rewrite (PRB-024) could deny an enabled module if it returns too few
 groups; the characterisation control holds that. **Expected residual: 3 × 2 → alarp, unchanged**;
 the ALARP justification below still holds. Re-scored from the evidence at the CR-006 verification
-checkpoint.
+checkpoint (TASK-226, 2026-11-15): both new controls hold in the executed tests, no test for an enabled module newly denied failed, and the controls reduce probability only; **3 × 2 → alarp, unchanged**. The ALARP justification below still holds.
 
 **Decided by:** pending — the owner's acceptance is the approval of this record.
 
@@ -124,3 +120,4 @@ recover it, and the scores do not change.
 - 1.5 (2026-11-13) — CR-006 Plan gate (D-22): the module-refresh row names TASK-221 (split from TASK-144) and the `groups_of` row names TASK-220. Scores unchanged. Content change, so the approval record is cleared and the record returns to review.
 - 1.6 (2026-11-14) — CR-006 D-32 (TASK-221 QA round 1 HIGH 1, MEDIUM 2): the module-refresh row and "Risks introduced by controls" name the ~50 s poll (stale time no larger) and the non-sliding session check. Scores unchanged (3 × 2 → alarp). Content change, so the approval record (approved 2026-11-13) is cleared and the record returns to review.
 - 1.7 (2026-11-14) — CR-006 D-33: one "Risks introduced by controls" line for the server-driven client deadline and the logout at the client timeout (availability: an earlier warning, a sign-in). Control rows and scores unchanged (3 × 2 → alarp). Content change; the record stays `in_review` with no approval record.
+- 1.8 (2026-11-15) — TASK-226 (CR-006 verification): the two CR-006 control rows ("none yet (planned …)") replaced by the executed tests and dates; re-scored from that evidence, 3 × 2 → alarp, unchanged. Content change on an approved record, so the approval record is cleared and the record returns to review for the owner's acceptance.

@@ -3,10 +3,10 @@ id: "PRB-009"
 type: problem-report
 title: "Async dependencies and handlers perform sync IO on the event loop"
 status: resolved
-version: "1.1"
+version: "1.2"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
-updated: "2026-11-13"
+updated: "2026-11-15"
 criticality: major
 links: []
 tags: ["performance", "hazard:availability"]
@@ -43,6 +43,8 @@ The pool and thread values were approved by the human on 2026-11-13 (CR-006 D-24
 (`docker-compose.yml`, `.env.example`). CR-006 carries the `resolves` link. TASK-226 repeats the 20-client
 measurement through the reverse proxy with the deployed values at the end of the CR.
 
+**TASK-226 verification (2026-11-15):** the 20-client run through the reverse proxy with the deployed values (20 / 20 / 20 / 10), 300 s, one worker: 29 601 requests, 0 × 5xx, 0 transport errors, 0 worker kills, p95 at most 1.05 s for every operation (TS-018 TC-018.3).
+
 ## Source
 
 `docs/reports/CODE-REVIEW-2026-07.md` finding B.
@@ -51,3 +53,4 @@ measurement through the reverse proxy with the deployed values at the end of the
 
 - 1.0 (2026-09-17) — Created.
 - 1.1 (2026-11-13) — Resolved by TASK-136 (CR-006): Resolution recorded, pool values approved (D-24). `resolved`, `major`.
+- 1.2 (2026-11-15) — TASK-226: final load run recorded. Stays `resolved`.

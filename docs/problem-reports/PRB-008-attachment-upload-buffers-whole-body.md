@@ -3,10 +3,10 @@ id: "PRB-008"
 type: problem-report
 title: "Attachment upload and download buffer the whole object in memory"
 status: resolved
-version: "1.3"
+version: "1.5"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
-updated: "2026-11-13"
+updated: "2026-11-15"
 criticality: major
 links: []
 tags: ["performance", "hazard:availability"]
@@ -57,6 +57,8 @@ download through the started stack (TASK-226 load test).
 Both halves are implemented and verified; QA approved TASK-135 and TASK-217 (2026-11-13), so the report is
 `resolved` (CR-006 `resolves` PRB-008) and becomes `closed` when CR-006 closes.
 
+**TASK-226 verification (2026-11-15), started stack through the reverse proxy to the real object store:** a 100 MiB and a 150 MiB upload are accepted (201 in 7.5 s and 8.5 s) and download with the same SHA-256 (2.5 s and 2.8 s, two reads); a 151 MiB upload is refused with an `application/problem+json` response; a replaced object answers 502 with a FAILURE audit row and no content (the first-pass checksum path: the object was replaced before the download, so no second read was made); the real-store conditional-read tests passed (4), among them `test_replaced_object_is_refused_with_object_changed`, which shows the store refusing the second read's stale `If-Match`. TS-007 TC-007.16. The "not verified" items above are closed.
+
 ## Source
 
 `docs/reports/CODE-REVIEW-2026-07.md` finding A.
@@ -69,3 +71,5 @@ Both halves are implemented and verified; QA approved TASK-135 and TASK-217 (202
 - 1.2 (2026-11-13) — TASK-217: download half implemented and verified in the working tree; `## Resolution`
   covers both halves. Still `investigating` until QA approves TASK-135 and TASK-217.
 - 1.3 (2026-11-13) — QA review of TASK-217 (round 3): both halves approved; `investigating → resolved`.
+- 1.4 (2026-11-15) — TASK-226: started-stack verification recorded (TS-007 TC-007.16). Stays `resolved`.
+- 1.5 (2026-11-15) — TASK-226 round 2 (QA M-2): attribution of the replaced-object 502 corrected. Stays `resolved`.

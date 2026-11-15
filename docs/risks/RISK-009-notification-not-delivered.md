@@ -2,11 +2,11 @@
 id: RISK-009
 type: risk
 title: Appointment or activation notification not delivered
-status: approved
-version: "1.6"
+status: in_review
+version: "1.7"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-11-13"
+updated: "2026-11-15"
 hazard: A patient never learns about an appointment, or cannot activate their account, because a notification was not delivered.
 cause: A dead broker, a swallowed enqueue exception, an email provider rejection, or an expired activation token with no resend → no notification reaches the patient → they miss the appointment or cannot access their data. The e-mailed activation link does not reach the activation page (PRB-070). The API process dispatches tasks to the wrong broker, so no e-mail is sent (PRB-071).
 harm: Missed or delayed care; frustration and extra administrative work. No direct physical harm.
@@ -15,10 +15,6 @@ probability_initial: 3
 severity_residual: 2
 probability_residual: 2
 acceptability: acceptable
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-11-13"
-approved_digest: da4c9b8643ff9a4f097018b7c27069192865c72bbbb87e6def39903fd42a6141
-approval_note: self-approved
 links:
   - target: SOUP-014
     relation: relates_to
@@ -63,7 +59,7 @@ occur); the score is severity × P2, the probability that the hazardous situatio
 | Measure | Type | Implemented by | Verified by |
 |---|---|---|---|
 | Dual-channel notification: in-app plus email | Design | SR-035 | TR-001, TS-006 |
-| Celery retries with backoff, and enqueue failures logged rather than swallowed | Protective | TASK-141; enqueue logging at all three sites by TASK-207 (CR-004) | Logging: TS-017 TC-017.6, TS-003 TC-003.7 (session-kill and appointment sites); the erasure site's log-capture test and the e-mail task retries: none yet (CR-006 keeps activation and appointment best effort, D-5; the remaining test is planned in TS-004 by TASK-141) |
+| Celery retries with backoff, and enqueue failures logged rather than swallowed | Protective | TASK-141; enqueue logging at all three sites by TASK-207 (CR-004) | Logging: TS-017 TC-017.6, TS-003 TC-003.7 (session-kill and appointment sites); the erasure site's log-capture test: TS-017 TC-017.7 `backend/tests/identity/test_erasure.py::test_erasure_enqueue_failure_logs_warning_without_personal_data` (TASK-141); the e-mail task's retry budget after the commit check: TS-004 TC-004.6 `test_smtp_retry_budget_unchanged_after_commit_checks` (TASK-228); all passed 2026-11-15 on the branch head in the TASK-226 regression (backend 1743 passed, 10 skipped). CR-006 keeps activation and appointment best effort (D-5) |
 | Administrator-initiated resend of activation | Protective | SR-033 | TR-001, TS-003 |
 | Activation link built in the route's form (`/activation/<token>`) and tied to the SPA route by a test (CR-004, PRB-070) | Design | SR-033; TASK-206 | TS-003 TC-003.3 |
 | The API process sets the configured Celery app as the process default at start-up, so every `.delay()` goes to the Redis broker; a test starts the lifespan and checks the broker from a worker thread (CR-004, PRB-071) | Design | SR-033, SR-034 AC 2; TASK-206 | TS-003 TC-003.3 |
@@ -82,7 +78,7 @@ notifications stay best effort, because the in-app channel (SR-035 AC 3) and the
 resend (SR-033) cover a lost e-mail; only the erasure request fails when its code e-mail cannot be
 queued, which is a RISK-008 control (that record). No control of this record is weakened.
 **Expected residual: 2 × 2 → acceptable, unchanged.** Re-scored from the evidence at the CR-006
-verification checkpoint.
+verification checkpoint (TASK-226, 2026-11-15): the three enqueue sites log a WARNING and the retry budget is unchanged in the executed tests, delivery stays best effort and the in-app channel is untouched; **2 × 2 → acceptable, unchanged**.
 
 **Decided by:** pending — the owner's acceptance is the approval of this record.
 
@@ -100,3 +96,4 @@ effect recorded in RISK-007 and RISK-008.
 - 1.4 (2026-11-08) — CR-004 Checkpoint F (TASK-202): started-stack activation e-mail flow recorded; residual proposed from the evidence, 2 × 2 → acceptable, unchanged. Still `in_review`.
 - 1.5 (2026-11-13) — CR-006 Risk stage, §7.4 change analysis (Software Architect role): the retries-and-logging row records the TASK-207 logging and its tests and what remains unverified; the D-5 policy recorded (best effort kept for activation and appointment). Scores unchanged (2 × 2 → acceptable). Content change, so the approval record (approved 2026-11-10 in chat) is cleared and the record returns to review.
 - 1.6 (2026-11-13) — CR-006 Plan gate (D-23): the retries-and-logging row plans the erasure-site log-capture test in TS-004 (TASK-141), not TS-006. Scores unchanged. Content change, so the approval record is cleared and the record returns to review.
+- 1.7 (2026-11-15) — TASK-226 (CR-006 verification): the retries-and-logging row ("none yet") replaced by the executed tests (TS-017 TC-017.7, TS-004 TC-004.6) and their date; re-scored from that evidence, 2 × 2 → acceptable, unchanged. Content change on an approved record, so the approval record is cleared and the record returns to review for the owner's acceptance.

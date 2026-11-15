@@ -3,10 +3,10 @@ id: CR-006
 type: change-request
 title: Close the open reliability and performance defects from the 2026-07 review and audit
 status: in_progress
-version: "1.15"
+version: "1.17"
 author: Carlos Santiago Liceras
 created: "2026-11-13"
-updated: "2026-11-14"
+updated: "2026-11-15"
 branch: fix/review-2026-07-reliability
 risk_impact: affects_controls
 links:
@@ -1121,7 +1121,7 @@ each other; 143 shares none with 144 (`client.ts` only).
 | SR-015 | AC 5 → 221; AC 3, AC 4 (unit level) → 146 |
 | SR-017 | AC 6 → 218 |
 | SR-024 | AC 5 → 141, 228 (lock); AC 6 → 141, 228 (commit-gated e-mail); AC 3 → 228 (one audit row); AC 1 to AC 4 (unchanged, regression) → 141 |
-| SR-026 | AC 1, AC 2 → 136, 226; AC 3 → 218, 226; AC 5 → 136, 135, 217, 226; AC 6 → 219, 220; AC 7 → 145; AC 8 → 222 |
+| SR-026 | AC 1, AC 2 → 136, 226; AC 3 → not verified in CR-006 (bounds only, TASK-218); deferred to PRB-048 and PRB-046 (D-20); AC 5 → 136, 135, 217, 226; AC 6 → 219, 220; AC 7 → 145; AC 8 → 222 |
 | SR-027 | AC 3 → 143, 145; AC 5 (fixed, PRB-031) → 226 regression |
 | SR-030 | AC 8 → 144, 143; AC 4 → 144; AC 1, AC 2 → 222; AC 1 to AC 5 (unit level) → 146 |
 | SR-012 | AC 5 → 227 |
@@ -1246,3 +1246,5 @@ TASK-141 (RISK-009: the erasure-site log-capture test is in TS-004, not TS-006).
 - 1.13 (2026-11-14) — Human decisions D-33 (PRB-087 "Server responses only"; P-18 "Major, in CR-006"): PRB-087 and the new PRB-089 (`major`) added to the scope with `resolves` links, both fixed in TASK-222 (reworked to 1.1; the debounce is superseded and the activity listeners are removed; cause 10 superseded). §7.4 change analysis (no new hazard, class B unchanged, causes 19 and 20, residuals unchanged). P-18's "server session has already ended" corrected. RISK-005 1.10, RISK-001 1.6 and RISK-004 1.7 are back in `in_review`. Findings P-20 (SR-026 AC 8 moot) and P-21 (SR-030 "inactivity") for the human. Stays `in_progress`.
 - 1.14 (2026-11-14) — Human decision D-34 ("Into CR-006, in 222", TASK-222 QA round 1 HIGH 1): PRB-090 (`major`, the warning dialog's own redirect) added to the scope with a `resolves` link and fixed in TASK-222 (the plan row names it). §7.4 note: the PRB-089 hazard by another route; no new hazard; class B unchanged; residuals unchanged. RISK-001 1.7 and RISK-005 1.11 name the dialog route. Stays `in_progress`.
 - 1.15 (2026-11-14) — TASK-225 (Document Writer): the PRB-080 scope row and the change analysis state 30 `Depends(get_db)` sites in 14 files (verified at commit `03b1400`; 31 in 15 files was the D-27 count); the TASK-225 plan row names its added scope (ADD-014 1.1, interfaces, DEPLOY.md, QA record fixes); ADR-0021 and ADR-0022 noted as Accepted. No decision, SR or scope change. Stays `in_progress`.
+- 1.16 (2026-11-15) — TASK-226 (Software Developer): end-to-end verification recorded on the branch head `0130394` (regression, 20-client load test through the proxy with the approved pools, started-stack checks, migrations 0011 and 0012). Records updated: TS-001 1.11, TS-007 1.12, TS-018 1.8, TS-019 1.1 (`in_review`); RISK-003 1.5, 004 1.8, 005 1.12, 007 1.18, 008 1.8, 009 1.7, 012 1.4 re-scored from the evidence, no score changed, all `in_review` for the owner's acceptance; PRB-021 `resolved`; PRB-031 rejection evidence; PRB-008, 009, 072, 078, 089 verification lines. Step 4 (hosted CI) is pending: it needs a push. Stays `in_progress`.
+- 1.17 (2026-11-15) — TASK-226 round 2 (QA M-1): the SR-026 coverage row no longer claims AC 3 (first DICOM image within 10 s) for TASK-218 and TASK-226. TASK-218 verifies the bounds with the decode stubbed; the real render and its 10 s budget stay with PRB-048 and PRB-046 (D-20). The deferral is for the human to confirm. No decision, SR or scope change. Stays `in_progress`.
