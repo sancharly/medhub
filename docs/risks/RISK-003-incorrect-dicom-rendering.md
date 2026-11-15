@@ -2,11 +2,11 @@
 id: RISK-003
 type: risk
 title: DICOM image rendered incorrectly or the wrong study displayed
-status: approved
-version: "1.3"
+status: in_review
+version: "1.4"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-11-13"
+updated: "2026-11-14"
 hazard: An imaging study displayed with wrong pixel data, wrong window/level, wrong orientation or laterality, or belonging to another study.
 cause: A defect in DICOM parsing, frame selection, transfer-syntax handling or viewport state (or a browser-specific rendering quirk) → the viewer shows an image that does not faithfully represent the acquired data → the clinician interprets it as the patient's image.
 harm: Missed or wrong diagnosis leading to wrong or delayed treatment.
@@ -15,10 +15,6 @@ probability_initial: 3
 severity_residual: 4
 probability_residual: 2
 acceptability: alarp
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-11-13"
-approved_digest: 6c238c8f490275ba5ce3ca6fddeda5f29412e4f28020cd19126ce3125217ec3a
-approval_note: self-approved
 links:
   - target: SOUP-015
     relation: relates_to
@@ -64,7 +60,7 @@ occur); the score is severity × P2, the probability that the hazardous situatio
 | Explicit, tested viewer controls for window/level, zoom, pan and series navigation | Design | SR-018 | none yet |
 | Verification against reference images per supported browser each release | Protective | SR-019, TASK-111 | TS-012 |
 | Metadata (patient, study, series) displayed alongside the image so a mismatch is visible | Information for safety | SR-017 | none yet |
-| Stored-size and declared-decoded-size bounds checked before any pixel data is decoded (150 MiB stored, 1 GiB decoded, CR-006 D-2); a decode that fails part-way returns an RFC 7807 error and no image, so a malformed or truncated object fails loudly and is never shown partly (CR-006, PRB-006). Corrected in 1.2: the 1.1 row named SR-031, TASK-135, TS-008 and TS-011, but no bound was implemented | Protective | SR-017 AC 6; TASK-218 | none yet (planned: TS-010 or a new TS, over-bound and truncated objects give no image; a 150 MiB reference study renders) |
+| Stored-size and declared-decoded-size bounds checked before any pixel data is decoded (150 MiB stored, 1 GiB decoded, CR-006 D-2); a decode that fails part-way returns an RFC 7807 error and no image, so a malformed or truncated object fails loudly and is never shown partly (CR-006, PRB-006). Corrected in 1.2: the 1.1 row named SR-031, TASK-135, TS-008 and TS-011, but no bound was implemented | Protective | SR-017 AC 6; TASK-218 | TS-019 TC-019.1 to TC-019.4 (`backend/modules/dicom_viewer/tests/test_size_bounds.py`; decode stubbed, PRB-048): over-bound stored size and declared decoded size are refused before the read or decode, a truncated pixel stream gives an error and no image, an object exactly at both bounds is not refused. A real render of a 150 MiB reference study is not yet shown |
 
 ## Residual risk
 
@@ -98,3 +94,4 @@ decoded with an error naming the limit (RISK-007); the design record puts a typi
 - 1.1 (2026-10-21) — Approved (self-approved).
 - 1.2 (2026-11-13) — CR-006 Risk stage, §7.4 change analysis (Software Architect role). The size and decompression row is corrected and re-based on SR-017 AC 6 (it named SR-031, TASK-135, TS-008 and TS-011, but no bound existed, PRB-006); planned verification named; expected residual stated; "Risks introduced by controls" extended. Scores unchanged (4 × 2 → alarp). Content change, so the approval record is cleared and the record returns to review.
 - 1.3 (2026-11-13) — CR-006 Plan gate (D-22): the size-bounds row names its task, TASK-218. Scores unchanged. Content change, so the approval record is cleared and the record returns to review.
+- 1.4 (2026-11-14) — TASK-225 (Document Writer): the Verify column of the size-bounds row names TS-019 TC-019.1 to TC-019.4 (TASK-218) instead of "none yet (planned …)". The tests stub `pixel_array` because NumPy is not installed (PRB-048), so they show the bounds, their order and the error path, not a real render; the 150 MiB reference study is not rendered. Scores unchanged. Content change on an approved record, so the 1.3 approval record is cleared and the record returns to review.

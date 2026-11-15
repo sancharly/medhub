@@ -3,10 +3,10 @@ id: "PRB-032"
 type: problem-report
 title: "JSON log formatter drops the request-id field it promises"
 status: resolved
-version: "1.1"
+version: "1.2"
 author: "Carlos Santiago Liceras"
 created: "2026-09-17"
-updated: "2026-11-14"
+updated: "2026-11-15"
 criticality: minor
 links: []
 tags: ["correctness"]
@@ -16,7 +16,7 @@ tags: ["correctness"]
 
 ## Observed
 
-`app/core/logging.py` documents a `request-id` field that the formatter never emits.
+The 2026-07 review reported that the JSON log formatter promises a `request-id` field that it never emits. The formatter never emitted one, but `app/core/logging.py` did not document one either (checked at TASK-224): the only text that promised the field was the logging bullet of TASK-002. The defect is a promise in a record, not a missing field in the code.
 
 ## Impact
 

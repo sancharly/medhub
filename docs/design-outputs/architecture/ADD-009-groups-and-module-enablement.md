@@ -2,15 +2,11 @@
 id: ADD-009
 type: architecture-doc
 title: Groups & Module Enablement (SI-GROUPS)
-status: approved
-version: "1.1"
+status: in_review
+version: "1.2"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-11-13"
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-11-13"
-approved_digest: 09cdca88d34bdb6de6f9a45c5e038ba40d85a350925da6a56557f2c2b55a569f
-approval_note: self-approved
+updated: "2026-11-15"
 links:
   - target: SR-014
     relation: implements
@@ -35,7 +31,7 @@ Group CRUD, auto/manual membership, per-group module enablement
 ## Software units (IEC 62304 §5.4.1)
 
 - `U-GRP-Crud` — group create/list (SR-014).
-- `U-GRP-Membership` — auto-by-type + manual add/remove (SR-014.2/3). **CR-006 (planned; TASK-220):**
+- `U-GRP-Membership` — auto-by-type + manual add/remove (SR-014.2/3). **CR-006 (TASK-220, implemented):**
   `groups_of` reads a user's groups with one joined query, a constant number of queries for any number
   of memberships (SR-026 AC 6); its result set is fixed by a characterisation test written before the
   rewrite (RISK-004).
@@ -72,3 +68,4 @@ Participates in RISK-004 (see `docs/risks/`); the control measures are carried b
 ## Version history
 
 - 1.1 (2026-11-13) — CR-006 Plan stage (Software Architect role): constant-query `groups_of` (SR-026 AC 6) marked "CR-006 (planned)"; `implements` SR-026 added. Content change, so the 1.0 approval record is cleared and the record returns to review.
+- 1.2 (2026-11-15) — TASK-225 (QA round 1, MEDIUM 3): the "CR-006 (planned; TASK-220)" marker of `U-GRP-Membership` is removed; `groups_of` is implemented as described (one joined query, `GroupRepository.groups_for_account`). Wording only. Content change on an approved record, so the 1.1 approval record is cleared and the record returns to review.

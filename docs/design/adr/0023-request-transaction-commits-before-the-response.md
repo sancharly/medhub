@@ -112,3 +112,7 @@ Option 1.
 - Risks: RISK-007, RISK-006, RISK-001; RISK-012 and RISK-002 considered, unchanged
 - SOUP: SOUP-002 (FastAPI 0.138), SOUP-003 (Starlette), SOUP-008 (SQLAlchemy)
 - Related: ADR-0016, ADR-0021, ADR-0022; ADD-016, ADD-005, ADD-012, ADD-013; TASK-227; CR-006 D-27
+
+## Amendment notes
+
+- 2026-11-14 (TASK-225, Document Writer): the Context, the Decision and the Consequences ("31 sites change in one commit") count "31 `Depends(get_db)` sites in 15 files". Counted again at the parent of commit `03b1400` (`git grep "Depends(get_db" -- backend/app`): 30 sites in 14 files, all of which use `DbSession` after TASK-227. The decision is unchanged. Needs the human's acknowledgement, as for the amendment notes of ADR-0020.

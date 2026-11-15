@@ -2,15 +2,11 @@
 id: ADD-005
 type: architecture-doc
 title: API Layer / Routers (SI-API)
-status: approved
-version: "1.4"
+status: in_review
+version: "1.5"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-11-13"
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-11-13"
-approved_digest: 544ff447a8984e65dfeae1089fbe3e95f2a9b29e99187dba68bc855bcad1f09f
-approval_note: self-approved
+updated: "2026-11-14"
 links:
   - target: SR-001
     relation: implements
@@ -90,14 +86,14 @@ HTTP endpoints, request/response DTOs, validation, error formatting, AuthZ depen
   template, never the raw path (section 12; SR-043 AC 4).
 - The API process installs the shared log redaction filter (SR-043 AC 2) and binds the configured
   Celery app as the process default in its lifespan (`_bind_celery_app()`, see ADD-017).
-- **CR-006 (planned, ADR-0022; TASK-136):** `U-API-Deps` and every router that makes a blocking call
+- **CR-006 (ADR-0022; TASK-136, implemented):** `U-API-Deps` and every router that makes a blocking call
   are plain `def`, so FastAPI runs them in the worker-thread pool; a handler that must stay `async`
   (the attachment upload) calls its service through `run_in_threadpool`. A static test keeps any
   `async def` in `app/api` from calling a blocking client. The lifespan applies
   `API_THREADPOOL_SIZE` to AnyIO's default limiter and refuses to start when it exceeds
   `DB_POOL_SIZE + DB_MAX_OVERFLOW` (ADD-016) (SR-026 AC 5).
-- **CR-006 (planned, ADR-0021; TASK-135):** the attachment upload route has a byte-counting body
-  guard that refuses an over-limit body after the maximum plus one chunk (SR-013 AC 6), with the
+- **CR-006 (ADR-0021; TASK-135, implemented):** the attachment upload route has a byte-counting body
+  guard (`AttachmentBodyLimitMiddleware`) that refuses an over-limit body after the maximum plus one chunk (SR-013 AC 6), with the
   existing problem type, so the OpenAPI document is unchanged.
 - **CR-006 (TASK-227, ADR-0023):** every router and `U-API-Deps` provider gets its database session
   through the one alias `DbSession` (`Depends(get_db, scope="function")`, ADD-016). The commit or
@@ -105,7 +101,7 @@ HTTP endpoints, request/response DTOs, validation, error formatting, AuthZ depen
   problem response (SR-012 AC 5, SR-023 AC 10). A route that declared plain `Depends(get_db)` would get
   a second session in the same request; a route-walking test refuses that. No path, status code or
   schema changes: the OpenAPI document is unchanged.
-- **CR-006 (planned; TASK-224):** the JSON logger documents only the fields it emits (no request id, D-7).
+- **CR-006 (TASK-224, implemented):** the JSON logger documents only the fields it emits (level, message, logger, extra, exc_info; no request id, D-7).
 
 Class B requires decomposition down to software units, not per-unit detailed design
 (§5.4.2–5.4.4 are class C). Each unit above is independently unit-testable and is the granularity
@@ -141,3 +137,4 @@ Participates in RISK-001, RISK-005, RISK-007 (see `docs/risks/`); the control me
 - 1.2 (2026-11-08) — TASK-201 (CR-004): unit text replaced with the unit as built (`U-API-ClientAddress`, `U-API-RateLimit`, `U-API-Security`); router actions and `requires_admin_projection` added to `U-API-Routers`; the 503 and 400 problems added to `U-API-ErrorHandler`. Arc42 sections 05, 06, 08 and 12 updated. Content change, so the 1.1 approval record is cleared and the record returns to review.
 - 1.3 (2026-11-13) — CR-006 Plan stage (Software Architect role): planned units for blocking IO off the event loop and pool sizing (ADR-0022), the upload body guard (ADR-0021) and the logger field list (D-7), marked "CR-006 (planned)". Content change, so the 1.2 approval record is cleared and the record returns to review; the implementing tasks confirm the text when they land.
 - 1.4 (2026-11-13) — TASK-227 (CR-006, ADR-0023): `U-API-Routers` and `U-API-Deps` use the `DbSession` alias (scope `function`). Content change, so the 1.3 approval record is cleared and the record returns to review.
+- 1.5 (2026-11-14) — TASK-225 (Document Writer): the "CR-006 (planned)" markers for blocking IO off the event loop (TASK-136), the upload body guard (TASK-135) and the logger field list (TASK-224) are removed: the units are implemented as described (the guard is `AttachmentBodyLimitMiddleware`, `backend/app/core/body_limit.py`). Wording only. Content change on an approved record, so the 1.4 approval record is cleared and the record returns to review.

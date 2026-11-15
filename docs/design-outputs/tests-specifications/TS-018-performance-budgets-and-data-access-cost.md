@@ -3,7 +3,7 @@ id: TS-018
 type: test-specification
 title: Performance budgets and data-access cost verification
 status: approved
-version: "1.6"
+version: "1.7"
 author: Carlos Santiago Liceras
 created: "2026-11-13"
 updated: "2026-11-14"
@@ -89,8 +89,10 @@ pre-TASK-136 build and the working tree, and the two infra tests, green since th
 - 1.3 (2026-11-14): TASK-220. Added TC-018.7 (`groups_of` constant query count) and TC-018.8 (migration 0012 indexes) for SR-026 AC 6; the AC 6 row is removed from the pending table. Content change, so the approval record is removed. `in_review`.
 - 1.3 (2026-11-14, round 2): TC-018.7 adds the module-gating case; TC-018.8 explains why `account` may be scanned. Still `in_review`.
 - 1.3 (2026-11-14): QA review of TASK-220 (round 2): `approved` (status only; content unchanged).
-- 1.4 (2026-11-14): TASK-222. Added TC-018.9 (no activity listener, no timer work, SR-026 AC 8); the AC 8 row is removed from the pending table. Content change, so the status `approved` no longer applies: `in_review`, no approval record on the file.
+- 1.4 (2026-11-14): TASK-222. Added TC-018.9 (no activity listener, no timer work, SR-026 AC 8); the AC 8 row is removed from the pending table. Content change, so the 1.3 approval record was removed and the status returned to `in_review`; the human approved 1.4 afterwards (corrected in 1.7).
 - 1.5 (2026-11-14): TASK-145. Added TC-018.10 (initial JavaScript within 165 kB gzip, lazy route chunks, SR-026 AC 7); the AC 7 row is removed from the pending table. The task text named TC-018.8, which TASK-220 had already used. Content change, so the approval record is removed. `in_review`.
 - 1.5 (2026-11-14): QA review of TASK-145 (round 1): `approved` (status only; content unchanged).
 - 1.6 (2026-11-14): TASK-145 QA round 1 fixes. TC-018.10: lazy-group check (a page made eager is merged into the entry chunk and no longer a chunk of its own), real-build negative control, manifest removed after the check. Content change, so the approval record is removed. `in_review`.
 - 1.6 (2026-11-14): QA review of TASK-145 (round 2): `approved` (status only; content unchanged).
+- 1.7 (2026-11-14): TASK-225 correction of the 1.4 line. It said "no approval record on the file", which was true when written but is not the history: the 1.3 approval record was removed by the TASK-222 change and the human approved 1.4 afterwards (the 1.5 line removes that approval record in turn). Wording of the history only. Content change on an approved record, so the 1.6 approval record is removed. `in_review`.
+- 1.7 (2026-11-15): QA review of TASK-225 (round 2): `approved` (status only; content unchanged).

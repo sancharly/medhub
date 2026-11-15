@@ -2,18 +2,14 @@
 id: SOUP-028
 type: soup
 title: TanStack Query (@tanstack/react-query)
-status: approved
-version: "1.3"
+status: in_review
+version: "1.4"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
 updated: "2026-11-14"
 manufacturer: Tanner Linsley / TanStack
 soup_version: 5.101.0
 anomaly_review: "2026-10-22"
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-11-14"
-approved_digest: fabd9d19edbbc8957c247be17dfffbd2876211fc836e8e82301a3524529c86be
-approval_note: self-approved
 links: []
 tags:
   - soup
@@ -122,4 +118,5 @@ accountable. Hazard-relevant anomalies go to `risk-management`; defects affectin
   found for 5.101.0; not among the malicious `@tanstack/*` versions of CVE-2026-45321. Record 1.0 →
   1.1, approval record removed for re-approval.
 - 1.2 (2026-11-14) — TASK-221: functional requirements list the behaviours the module-refresh control relies on. Content change, so the 1.1 approval record is removed. `in_review`.
-- 1.3 (2026-11-14) — TASK-222: functional requirements name `QueryClient.clear()` and the observer behaviour the session-end control relies on. Content change, still `in_review`.
+- 1.3 (2026-11-14) — TASK-222: functional requirements name `QueryClient.clear()` and the observer behaviour the session-end control relies on. Content change; the human approved 1.3 afterwards (corrected in 1.4).
+- 1.4 (2026-11-14) — TASK-225 correction of the 1.3 line. It said "still `in_review`" and named no approval; the human did approve 1.3 afterwards (approval record dated 2026-11-14). Wording of the history only; no change to the functional requirements. Content change on an approved record, so the 1.3 approval record is removed. `in_review`.

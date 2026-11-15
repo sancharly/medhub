@@ -2,14 +2,11 @@
 id: SOUP-024
 type: soup
 title: nginx
-status: approved
-version: "1.5"
+status: in_review
+version: "1.6"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
-updated: "2026-11-10"
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-11-10"
-approval_note: approved by the human in chat at the close of CR-004
+updated: "2026-11-14"
 manufacturer: F5, Inc. / nginx authors
 soup_version: 1.31.8
 anomaly_review: "2026-10-22"
@@ -24,7 +21,7 @@ tags:
 
 ## Functional and performance requirements
 
-TLS termination, HSTS and security headers at the reverse proxy (SR-001, SR-031), and static serving of the frontend bundle. For SR-043 AC 4 MedHub also relies on: the `map` directive on `$uri` and regex `location` blocks, both matched without case (`~*`: the app's routes are case-insensitive, TASK-207) and `log_format ... escape=json` with an allow-list of variables, so the access log holds no request line, query string or header; `access_log off` in a `server` block; a per-location `error_log ... crit`, below which nginx writes no per-request upstream error (`connect() failed`, `upstream timed out`, ...); and `add_header ... always` in a location replacing the server-level headers (so they are repeated). Tested by `infra/tests/test_proxy_access_log.py` and `infra/log-secrets-check.sh` (TS-017 TC-017.4). MedHub relies on the image running as its unprivileged `nginx` user (UID 101) on port 8080 in the `frontend` service, with the pid file under `/tmp` and the cache directory owned by that user (SR-041 AC 1, TASK-198). The reverse proxy keeps the image's default root master and ports 80/443.
+TLS termination, HSTS and security headers at the reverse proxy (SR-001, SR-031), and static serving of the frontend bundle. For SR-043 AC 4 MedHub also relies on: the `map` directive on `$uri` and regex `location` blocks, both matched without case (`~*`: the app's routes are case-insensitive, TASK-207) and `log_format ... escape=json` with an allow-list of variables, so the access log holds no request line, query string or header; `access_log off` in a `server` block; a per-location `error_log ... crit`, below which nginx writes no per-request upstream error (`connect() failed`, `upstream timed out`, ...); and `add_header ... always` in a location replacing the server-level headers (so they are repeated). For SR-013 AC 1 and AC 6 it also relies on `client_max_body_size 151m` in `location /api/` (a body above it is refused by nginx before the API sees it) and on `error_page 413 =400 @upload_too_large` with an `internal` named location answering `return 400` with a problem+json body, without `proxy_intercept_errors` (tested by `infra/tests/test_proxy_body_limit.py`; TASK-135). Tested by `infra/tests/test_proxy_access_log.py` and `infra/log-secrets-check.sh` (TS-017 TC-017.4). MedHub relies on the image running as its unprivileged `nginx` user (UID 101) on port 8080 in the `frontend` service, with the pid file under `/tmp` and the cache directory owned by that user (SR-041 AC 1, TASK-198). The reverse proxy keeps the image's default root master and ports 80/443.
 
 ## Required hardware and software environment
 
@@ -95,3 +92,4 @@ accountable. Hazard-relevant anomalies go to `risk-management`; defects affectin
 - 2026-11-01 — Version 1.3 (TASK-198, CR-004): `frontend/Dockerfile` runs this image as `USER nginx` on 8080 (`user` directive removed and `pid /tmp/nginx.pid` set in `/etc/nginx/nginx.conf`, `/var/cache/nginx` chowned); no version change, no new SOUP item. Reliance recorded above; anomaly review unchanged. Approval record cleared for re-approval.
 - 2026-11-07 — Version 1.4 (TASK-206, CR-004): logging directives relied on (`map`, `log_format ... escape=json`, per-location `error_log`, `access_log off`). Behaviour confirmed on a started stack (1.31.8): an upstream timeout on a non-activation location is written at `error`; none is written for the activation locations. No version change. Approval record cleared; `in_review`.
 - 2026-11-07 — Version 1.5 (TASK-207): the case-insensitive regex prefix `~*` is relied on in the `map` on `$uri` and in the two activation `location` blocks, so every case variant of the activation paths is redacted and takes the activation locations. Confirmed on a started stack (1.31.8). No version change. `in_review`.
+- 2026-11-14 — Version 1.6 (TASK-225, TASK-135): reliance text corrected. The record said nothing about the request body limit; the reverse proxy sets `client_max_body_size 151m` in `location /api/` (150 MiB attachment maximum plus multipart framing; `infra/tests/test_proxy_body_limit.py`) and maps its own 413 to a 400 problem through `error_page 413 =400 @upload_too_large` and an `internal` named location that repeats the security headers (`add_header ... always`). `proxy_intercept_errors` stays off, so upstream responses are untouched. No version change, no new SOUP item; anomaly review unchanged. Approval record cleared; `in_review`.

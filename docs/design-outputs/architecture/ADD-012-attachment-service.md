@@ -2,15 +2,11 @@
 id: ADD-012
 type: architecture-doc
 title: Attachment Service (SI-ATTACH)
-status: approved
-version: "1.8"
+status: in_review
+version: "1.9"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-11-13"
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-11-13"
-approved_digest: 3d42056e4b2b38fe7c5515fa4b7211e2e8f353eaeb7b02e8207109deb21b3cfc
-approval_note: self-approved
+updated: "2026-11-14"
 links:
   - target: SR-013
     relation: implements
@@ -59,7 +55,7 @@ Upload/fetch attachment binaries via object storage, authorized
   outcome FAILURE, and answers HTTP 502 (TASK-173). The `Content-Disposition` value it sends is bounded
   for any stored name (`filename*` at most 255 bytes of the name, the ASCII fallback at most 150 characters,
   extension kept; about 1 KB) and bidi control characters are mapped to `_` (TASK-206, PRB-069).
-- **CR-006 (planned, ADR-0021).** `U-ATT-Upload` (TASK-135): the maximum is 150 MiB (D-2); content is
+- **CR-006 (ADR-0021, implemented).** `U-ATT-Upload` (TASK-135): the maximum is 150 MiB (D-2); content is
   read from Starlette's spooled file in 64 KiB chunks, counted and hashed incrementally, refused once
   the count passes the maximum (the API guard refuses the body after the maximum plus one chunk);
   DICOM validation reads the header from the file; the object is sent with one `PutObject` whose body
@@ -121,3 +117,4 @@ Participates in RISK-002, RISK-007, RISK-011 (see `docs/risks/`); the control me
 - 1.6 (2026-11-08) — TASK-201: `U-ATT-Upload` notes the open dot-segment defect (PRB-073). No other change.
 - 1.7 (2026-11-13) — CR-006 Plan stage (Software Architect role): bounded upload and bound two-pass download (ADR-0021) marked "CR-006 (planned)"; links to SOUP-036 (conditional read), SOUP-003 (spooled upload file) and RISK-012 added. Content change, so the 1.6 approval record is cleared and the record returns to review.
 - 1.8 (2026-11-13) — TASK-227 (CR-006, ADR-0023): `U-ATT-Fetch` commits its audit rows before the body and follows the generator rule (plain values, own-transaction FAILURE row). Content change, so the 1.7 approval record is cleared and the record returns to review.
+- 1.9 (2026-11-14) — TASK-225 (Document Writer): the "CR-006 (planned, ADR-0021)" marker is removed; `U-ATT-Upload` (TASK-135) and `U-ATT-Fetch` (TASK-217) are implemented as described. Wording only. Content change on an approved record, so the 1.8 approval record is cleared and the record returns to review.

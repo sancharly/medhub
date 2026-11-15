@@ -113,3 +113,79 @@ MIG -> WK : exit 0
 
 - The store cannot tell which key an object was written under: the key belongs to the volume. Changing `OBJECT_STORE_SSE_KEY` in place makes stored attachments unreadable, so the key is changed only by a copy: stop the stack and back up read-only, restore the backup into a copy, start a new store on a new volume under the new key with uploads blocked, start the source store on the copy, copy through the S3 API with checksum comparison (`backend/scripts/migrate_object_store.py`), verify, then retire the source and open the stack (`OBJECT_STORE_VOLUME` names the new volume). The source is read only throughout.
 - Error/exception: a mismatch stops the copy; the rollback paths are in `infra/DEPLOY.md`, "Separating the object-store SSE key".
+
+## 6.12 Attachment download: two reads, bound by the ETag (SR-013 AC 5, AC 6; ADR-0021, ADR-0023)
+
+```plantuml
+@startuml
+skinparam linetype ortho
+participant "Browser" as BR #lightgray
+participant "attachments router" as RT
+participant "AttachmentService" as SVC
+participant "AuditService / DbSession" as AUD
+participant "Object store" as OBJ #lightgray
+BR -> RT : GET /attachments/{id}
+RT -> SVC : open_stream(actor, id)
+SVC -> OBJ : GetObject (pass 1)
+OBJ --> SVC : 64 KiB chunks, hashed and dropped, ETag kept
+SVC -> SVC : compare SHA-256 with the stored checksum
+SVC -> OBJ : GetObject(IfMatch = ETag) (pass 2, opened)
+SVC -> AUD : ATTACHMENT_ACCESS and AUTHZ_ALLOWED rows
+RT -> AUD : commit (function-scope dependency closes)
+RT --> BR : response starts, pass 2 streamed and hashed
+@enduml
+```
+
+- Pass 1 keeps nothing in memory. A checksum mismatch is refused before any byte is sent: 502 `attachment-integrity-failure` with a FAILURE audit row on its own transaction (ADR-0016). Pass 2 is opened before the response starts; a changed object makes it fail with 412, answered as the same 502.
+- The SUCCESS `ATTACHMENT_ACCESS` row and the allowed authorization row are committed before the first byte (ADR-0023). If that commit fails no content is served and the client gets a 5xx. The response generator runs after the session is closed and uses plain values captured earlier, so a download holds no database connection during the transfer.
+- A mismatch found at the end of pass 2 records a FAILURE row and aborts the connection without completing the chunked body, so the client never sees a complete response.
+- Two object-store reads per download are a known cost (section 11).
+
+## 6.13 Attachment upload and its size refusal (SR-013 AC 1, AC 6; ADR-0021)
+
+- The proxy accepts bodies up to 151 MiB on `/api/`; above that it answers 413 itself, mapped to the API's 400 `validation-error`. In the API, `AttachmentBodyLimitMiddleware` refuses an oversize `Content-Length` before the form is parsed and counts bytes as they arrive, so a body whose headers lie is stopped after the maximum plus one chunk.
+- The handler reads Starlette's spooled file in 64 KiB chunks, counting and hashing, and refuses at the first chunk that passes 150 MiB. A name over 255 UTF-8 bytes is refused with 400 before anything is written. The object goes to the store with one `PutObject`; the metadata row is committed before the 201 is sent. If that commit fails after the object was written, an unreferenced encrypted object remains and no record points to it (ADR-0023).
+
+## 6.14 Erasure refused when its e-mail cannot be queued; e-mail sent only after commit (SR-024 AC 3, AC 6; PRB-013, PRB-083)
+
+```plantuml
+@startuml
+skinparam linetype ortho
+participant "Admin client" as CL
+participant "delete_account / U-ID-Erasure" as ER
+participant "Redis (Celery broker, sessions)" as BRK #lightgray
+participant "PostgreSQL" as DB #lightgray
+participant "celery-worker" as WK
+CL -> ER : DELETE /accounts/{id}
+ER -> DB : anonymize, add the dataset row (open transaction)
+ER -> BRK : send_erasure_code_email.delay(dataset id)
+alt broker unreachable
+  ER -> DB : rollback (sessions untouched)
+  ER --> CL : 503 erasure-notification-unavailable, Retry-After 30
+else queued
+  ER -> BRK : invalidate_all(account sessions)
+  ER -> DB : audit rows ACCOUNT_DELETED, DATA_ANONYMIZED
+  ER -> DB : commit (before the response)
+  ER --> CL : 200 DeletionResponse
+  WK -> DB : is the dataset row visible?
+  WK -> WK : if not, re-check (2 s doubling to 60 s, up to 14 re-checks after the first check)
+  WK -> WK : send the e-mail (3 SMTP retries)
+end
+@enduml
+```
+
+- The task is queued before anything outside the database changes, so an unreachable broker rolls the erasure back with the sessions still valid (`backend/app/identity/erasure.py`: `.delay`, then `invalidate_all`, then the audit rows). The worker sends the code only when the `anonymized_dataset` row is visible, with 15 checks in all (the first and 14 re-checks over about 10 minutes); if the erasure never committed it drops the code (WARNING, no address and no code in the log). If the visibility check itself cannot be made, the e-mail is sent after the last re-check with a WARNING, so a committed erasure never loses its code.
+- **Commit failure after the sessions were revoked:** `invalidate_all` is a Redis write and is not undone by the rollback. If the commit then fails, the client receives a 5xx, the account is unchanged, but its sessions are already revoked and the user must sign in again; the e-mail task finds no dataset row and drops the code.
+- Error/exception: the 503 problem names neither the address nor the code; the client may retry after 30 s.
+
+## 6.15 Retention sweep (SR-024 AC 4 to AC 6; PRB-012, PRB-084)
+
+- `celery-beat` runs the sweep on `RETENTION_SWEEP_CRON`. One short session lists at most 100 due dataset ids. Each dataset is then handled in its own session and transaction: its row is locked (`SELECT ... FOR UPDATE`) with the deadline re-checked in the same statement, deleted, audited (`ANONYMIZED_DATASET_ERASED`) and committed; the session is closed on every path.
+- A dataset that fails is rolled back and counted, and the sweep continues. If any failed, the task retries itself up to 3 times (backoff from 300 s, doubling); after that it logs the number of datasets left and stops. Logs hold dataset ids, exception class and counts only. Two overlapping sweeps erase a dataset once and write one audit row.
+
+## 6.16 Client session timers and the end of a session (SR-030 AC 1, AC 2, AC 4, AC 8; SR-015 AC 5)
+
+- `useMe` reads `GET /me`; the response carries `sessionExpiresInSeconds`, and an extend carries `expiresInSeconds`. The idle timer's deadline is the time of that response plus the seconds; only those responses re-arm it. User input is not tracked, because the server slides the session on requests only.
+- `useMyModules` polls `GET /me/modules` every 50 s while the tab is visible. That route validates the session without sliding it, so the poll cannot keep an idle session alive.
+- Three paths go through `handleExpired` (`frontend/src/auth/SessionActivityProvider.tsx`): the client deadline, the warning countdown reaching zero, and an extend answered 401. It logs out on the server without waiting, redirects once to `/login?timeout=1`, and the first caller wins. The `AuthError` handler (a 401 on any mutation) sets the same ended flag and redirects to `/login?timeout=1` without a server logout, because the server already answered 401. Log out awaits the server logout and goes to `/login`. On every path the query cache is cleared when the signed-in tree unmounts, so Back shows no cached clinical data. A wrong current password on `POST /auth/password` is a 400, not a 401, so it does not end the session.
+- Error/exception: a failed refetch of the module list keeps the last list; a failed lazy route chunk shows Retry and then reload inside the shell.

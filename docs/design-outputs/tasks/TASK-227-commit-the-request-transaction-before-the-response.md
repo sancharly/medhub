@@ -3,10 +3,10 @@ id: "TASK-227"
 type: task
 title: "Commit the request transaction before the response is sent"
 status: approved
-version: "1.1"
+version: "1.2"
 author: "Carlos Santiago Liceras"
 created: "2026-11-13"
-updated: "2026-11-13"
+updated: "2026-11-14"
 links:
   - target: "SR-012"
     relation: implements
@@ -51,7 +51,7 @@ tags: ["cr:CR-006", "transaction", "audit", "control:design"]
   SI-API (ADD-005: every router and `api/deps.py` that depends on `get_db`), SI-ATTACH (ADD-012:
   `AttachmentService.open_stream`), SI-AUDIT (ADD-013, `audit/deps.py`, `AuditRepository.add_independent`).
 - **PRB:** PRB-080 (resolved by this task). PRB-081 relates only (out of scope, D-27).
-- **CR:** CR-006 D-27. **Decision:** [ADR-0023](../../design/adr/0023-request-transaction-commits-before-the-response.md) (Proposed).
+- **CR:** CR-006 D-27. **Decision:** [ADR-0023](../../design/adr/0023-request-transaction-commits-before-the-response.md) (Accepted, CR-006 D-28).
 - **Order:** after TASK-136 (approved), **before TASK-141**. See "Ordering".
 - **Branch:** `fix/review-2026-07-reliability`.
 - **Size:** M. Files: `backend/app/db/repositories/session.py`, `backend/app/api/deps.py`,
@@ -277,3 +277,5 @@ Verification run: backend `uv run pytest -q --cov=app` 1653 passed, 10 skipped, 
 - 1.0 (2026-11-13) — Created at the CR-006 Plan stage (D-27).
 - 1.1 (2026-11-13) — Build stage (Software Developer): implementation record, `draft → in_review`. QA review round 1:
   APPROVED (5 LOW, see "QA review round 1"); checkboxes ticked; `in_review → approved`. PRB-080 set `resolved`.
+- 1.2 (2026-11-14) — TASK-225 (QA finding 5 of round 1): the header names ADR-0023 as Accepted (CR-006 D-28), not "Proposed". Wording only. Content change on an approved record, so the 1.1 approval record is cleared and the record returns to review.
+- 1.2 (2026-11-15) — QA review (TASK-225 round 2): `approved` (status only; the 1.2 change against the previous approved version is wording only).

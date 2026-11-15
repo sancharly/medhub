@@ -12,17 +12,17 @@ This section defines the interfaces between software items, as required by the s
 | SI-AUTHZ      | `AuthorizationService`    | SI-API, SI-CLINICAL, SI-ATTACH, SI-APPT, SI-MOD-DICOM-BE, SI-MODHOST | `authorize(actor, action, resource) -> Decision` (raises on deny); `decide(...) -> Decision` (allow plus basis, audited); `appointment_scope(actor)`; `effective_access(doctor_id, patient_id) -> bool` (union of grants, SR-036). Actions include the account, activation, module, consent and roster actions of section 8.2 |
 | SI-AUTHZ      | `ConsentService`          | SI-APPT, SI-API (consent endpoints)                                  | `grant(patient_id, doctor_id, source)`, `revoke(grant_id|source)`, `list_grants(patient_id)` (SR-008, SR-036)                                  |
 | SI-AUTHZ      | `ModuleAccessGuard`       | SI-MODHOST, SI-API                                                   | `is_module_enabled(account_id, module_key) -> bool` (SR-015)                                                                                   |
-| SI-AUTH       | `SessionService`          | SI-API, SI-IDENTITY (lifecycle), SI-WORKER                           | `create_session(account)`, `resolve(session_id, slide=True) -> Session?`, `invalidate(session_id)`, `invalidate_all(account_id)` (SR-030, SR-034)          |
+| SI-AUTH       | `SessionService`          | SI-API, SI-IDENTITY (lifecycle), SI-WORKER                           | `create_session(account)`, `resolve(session_id, slide=True) -> Session?` (`slide=False` validates without extending, used by `GET /me/modules`), `remaining_seconds(session) -> int` (relative seconds before the session ends; feeds `sessionExpiresInSeconds` and `expiresInSeconds`), `invalidate(session_id)`, `invalidate_all(account_id)` (SR-030, SR-034)          |
 | SI-AUTH       | `PasswordService`         | SI-IDENTITY, SI-API                                                  | `validate_policy(account, password)`, `hash(password)`, `verify(hash, password)` (SR-025, SR-002)                                              |
 | SI-AUDIT      | `AuditService`            | all security-relevant items                                          | `record(actor, action, target_type, target_id, outcome, ip)` append-only; `ip=None` uses the request's originating address; raises `AuditFieldError` for a value outside the closed shapes of section 8.4 (SR-023)                                                              |
 | SI-CLINICAL   | `ClinicalDataService`     | SI-API, SI-MOD-DICOM-BE (via PlatformServices)                       | `list_entries(patient_id)`, `create_entry(...)` — all calls pre-authorized (SR-012, SR-006)                                                    |
-| SI-ATTACH     | `AttachmentService`       | SI-API, SI-MOD-DICOM-BE, SI-CLINICAL                                 | `store(entry_id, file) -> Attachment`, `open(attachment_id) -> stream` (authorized) (SR-013)                                                   |
+| SI-ATTACH     | `AttachmentService`       | SI-API, SI-MOD-DICOM-BE, SI-CLINICAL                                 | `store(entry_id, file) -> Attachment` (chunked, refuses over `attachment_max_bytes`), `open_stream(...)` (router path: checksum pass, then a second read bound by `If-Match`; section 6.12), `open(actor, attachment_id, max_bytes=None) -> (bytes, content_type, filename)` (module path; with `max_bytes` refuses from the stored size before reading) (SR-013, SR-017 AC 6)                                                   |
 | SI-IDENTITY   | `AccountService`          | SI-API, SI-AUTH                                                      | `create(creator, data)`, `activate(token, password)`, `deactivate/reactivate/delete(account_id)`, `erase(account_id)` (SR-032/033/034/024)     |
 | SI-GROUPS     | `GroupService`            | SI-API, SI-AUTHZ                                                     | `create_group`, `membership(...)`, `set_module_enabled(group_id, module_key, bool)`, `groups_of(account_id)` (SR-014, SR-015)                  |
 | SI-APPT       | `AppointmentService`      | SI-API                                                               | `create(...)`, `confirm(id, patient)`, `decline(id, patient)`, `list_for(actor)` (SR-010, SR-035)                                              |
 | SI-PERSIST    | repositories              | all data items                                                       | typed repository methods, parameterized queries (SR-031.1)                                                                                     |
 | SI-WORKER     | task interface            | SI-IDENTITY, SI-APPT, SI-AUTH                                        | `send_activation_email(...)`, `send_appointment_notification(...)`, `propagate_session_kill(account_id)` (SR-033/035/034)                      |
-| SI-MODHOST    | `PlatformServices` facade | all modules (SI-MOD-DICOM-BE, future)                                | bundles `authorization`, `clinical`, `attachments`, `audit` — the **only** way a module touches PHI (SR-016.3)                                 |
+| SI-MODHOST    | `PlatformServices` facade | all modules (SI-MOD-DICOM-BE, future)                                | bundles `authorization`, `clinical`, `attachments`, `audit` — the **only** way a module touches PHI (SR-016.3). `attachments.open(actor, id, max_bytes=...)` is the call the DICOM module uses for the stored-size bound                                 |
 | SI-MODHOST    | `RouterRegistry`          | all modules                                                          | `mount(module_key, APIRouter)` under `/api/v1/modules/{key}` (SR-016)                                                                          |
 
 ### Module contract (provider: SI-MODHOST; implementer: each module)
@@ -39,6 +39,8 @@ class ModuleManifest:
 Invariants (verified in module integration tests):
 
 - A module **must not** import another item's internals or access `SI-PERSIST` directly for core entities.
+- A module imports from the platform only the names on the allow-list kept in `backend/tests/modules/test_module_boundary.py` (`ALLOWED_PLATFORM_NAMES`), by name and by defining module: `app.modules.contract` (`AuditOutcome`, `PlatformServices`, `RouterRegistry`), `app.api.deps` (`get_current_user`, `get_platform_services`), `app.api.errors` (`AuthorizationError`, `ProblemDetail`, `ValidationProblem`), `app.audit.actions` (`AuditAction`) and `app.modules.module_settings`. A new name needs a design decision (ADD-014); any other `app` import, `from app import x`, `import app...` or string constant naming `app` is refused. The static check does not see a non-literal dynamic import (stated limit).
+- A module reads a platform setting only through `app.modules.module_settings` (`U-MH-ModuleSettings`): one accessor per setting, today `dicom_max_stored_bytes()` and `dicom_max_decoded_bytes()`. It never imports `app.core.config` (SR-016 AC 3).
 - All PHI access goes through `PlatformServices`, so SR-005 authorization and SR-023 audit always apply (SR-016.3).
 
 ### Operational interfaces (CR-004)
@@ -67,6 +69,17 @@ Complete list and generation commands: `infra/DEPLOY.md`, "Secret settings", and
 | `SESSION_SIGNING_KEY` | removed | Sessions are opaque tokens (PRB-018); a leftover value is ignored |
 | `SMTP_PASSWORD` | changed | Required only when `SMTP_USER` is set |
 
+### Settings added by CR-006
+
+| Setting | Code default | Deployed (Compose) | Note |
+|---------|--------------|--------------------|------|
+| `API_THREADPOOL_SIZE` | 15 | 20 | AnyIO thread limit and Redis pool size; must not exceed `DB_POOL_SIZE + DB_MAX_OVERFLOW` (start-up refuses otherwise) |
+| `DB_POOL_SIZE` | 5 | 20 | SQLAlchemy pool |
+| `DB_MAX_OVERFLOW` | 10 | 20 | Extra connections |
+| `DB_POOL_TIMEOUT` | 30 | 10 | Seconds to wait for a connection |
+| `ATTACHMENT_MAX_BYTES` | 157286400 | 157286400 | 150 MiB; the proxy allows 151m |
+| `DICOM_MAX_STORED_BYTES`, `DICOM_MAX_DECODED_BYTES` | 157286400, 1073741824 | same | Read by the DICOM module through `module_settings` |
+
 ### Problem responses added by CR-004
 
 | Status | Problem type | When | Notes |
@@ -75,6 +88,20 @@ Complete list and generation commands: `infra/DEPLOY.md`, "Secret settings", and
 | `400` | `validation-error`, rule `filename_max_bytes` | Attachment upload with a file name over 255 UTF-8 bytes | Never truncated; nothing written. A name with dot segments still answers 500 (PRB-073, open) |
 | `502` | `attachment-integrity-failure` | Attachment content does not match the stored SHA-256 | Existing; audited as FAILURE |
 
+### API contract changes of CR-006
+
+Checked against `backend/openapi/openapi.json` (regenerated; `frontend/src/api/generated/openapi.ts` follows from it).
+
+| Endpoint | Change | Contract |
+|----------|--------|----------|
+| `GET /api/v1/me` | New required field | `MeResponse.sessionExpiresInSeconds` (integer): seconds left in the session when the response is sent; the client adds it to the time it received the response |
+| `POST /api/v1/auth/session/extend` | New required field | `SessionExtendResponse.expiresInSeconds` (integer) beside `expiresAt` |
+| `POST /api/v1/auth/password` | Status change | A wrong current password answers `400` `validation-error` with `errors[]` entry `field: currentPassword`, `rule: CURRENT_PASSWORD_INCORRECT`; it was `401`. The documented responses are 204, 400, 401, 403, 422. A mismatch of the new password and its confirmation is also 400 |
+| `GET /api/v1/me/modules` | Behaviour only | The session is validated but not extended; every other authenticated route still slides it. Response unchanged |
+| `DELETE /api/v1/accounts/{id}` | New response | `503` `erasure-notification-unavailable` with `Retry-After: 30`: the retrieval-code e-mail could not be queued, the erasure was rolled back and nothing changed. Additive (documented in the OpenAPI `responses`) |
+
+Everything else is unchanged: the attachment routes keep their signatures (the upload still takes `UploadFile`), so CR-006 did not alter the OpenAPI document for them. A `2xx` now means the change is committed (section 8.6).
+
 The successful login response always carries `evictedSession` (boolean, camelCase); it is `true` when the login evicted the oldest session (SR-030 AC 7).
 
 ## 12.2 Internal frontend interfaces
@@ -82,7 +109,10 @@ The successful login response always carries `evictedSession` (boolean, camelCas
 | Provider item   | Interface         | Consumers                       | Contract                                                                                               |
 |-----------------|-------------------|---------------------------------|--------------------------------------------------------------------------------------------------------|
 | SI-FE-APICLIENT | typed `ApiClient` | SI-FE-AUTH, SI-FE-CORE, modules | hand-written methods; request/response types generated from OpenAPI; attaches session cookie + CSRF (SR-031.3) |
-| SI-FE-MODREG    | `ModuleRegistry`  | SI-FE-SHELL, modules            | `register(FrontendModule)`; shell renders nav only if `moduleKey ∈ GET /me/modules` (SR-015, SR-016.2) |
+| SI-FE-MODREG    | `ModuleRegistry`  | SI-FE-SHELL, modules            | `register(FrontendModule)`; shell renders nav only if `moduleKey ∈ GET /me/modules` (SR-015, SR-016.2). **Not built** in `frontend/src`: [PRB-091](../problem-reports/PRB-091-approved-design-names-frontend-module-units-that-do-not-exist.md) |
+| SI-FE-AUTH      | `useMe()`         | SI-FE-SHELL, SI-FE-AUTH, SI-FE-CORE | the only reader of `GET /me` (query key `queryKeys.me`, no retries); exposes `sessionExpiresInSeconds` to the idle timer (SR-030 AC 8) |
+| SI-FE-MODREG    | `useMyModules()`  | SI-FE-CORE (`AttachmentItem`, the DICOM viewer link) | the only reader of `GET /me/modules`; polls every 50 s while the tab is visible, refetches on focus and mount, keeps the last list on error; admin module and membership mutations invalidate it (SR-015 AC 5) |
+| SI-FE-APICLIENT | `ProblemError` type | SI-FE-AUTH, SI-FE-CORE | derived from the generated `ProblemDetail` schema in `frontend/src/api/problem.ts`; uploads use the shared `request()` |
 | SI-FE-SHELL     | `ShellServices`   | SI-FE-CORE, modules             | navigation, confirmation dialog, error toast, layout slots (SR-027)                                    |
 | SI-FE-SHELL     | `routeRoles` (`frontend/src/core/nav/routeRoles.ts`) and `RequireRole` | SI-FE-SHELL (`navConfig.ts`, `App.tsx`) | role table per route path, the only source for both the navigation and the route guard (SR-005, SR-009; defence in depth) |
 

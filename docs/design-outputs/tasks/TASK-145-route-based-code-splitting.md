@@ -3,7 +3,7 @@ id: "TASK-145"
 type: task
 title: "Route-level code splitting with a chunk-failure fallback and an initial-payload budget check"
 status: approved
-version: "1.3"
+version: "1.4"
 author: "Carlos Santiago Liceras"
 created: "2026-07-07"
 updated: "2026-11-14"
@@ -145,9 +145,10 @@ Carried findings (not blocking):
 ## QA round 1 fixes (2026-11-14, software-developer)
 
 - MEDIUM 1: `check-bundle-budget.mjs` now holds `LAZY_GROUPS` and fails unless each is a dynamic-entry chunk
-  outside the initial set and none of its source modules is inside an initial chunk. Rollup keeps a tiny
-  re-export chunk for an eagerly imported page, so the manifest alone does not show it; `vite.config.ts` has a
-  `chunk-modules` plugin that writes `.vite/chunk-modules.json` (modules per chunk) beside the manifest. Real-build
+  outside the initial set and none of its source modules is inside an initial chunk. An eagerly imported page
+  is merged into the entry chunk and loses its own manifest entry, so the manifest branch of the check fails the
+  build on its own; `vite.config.ts` has a `chunk-modules` plugin that writes `.vite/chunk-modules.json`
+  (modules per chunk) beside the manifest, as defence in depth. Real-build
   negative control: `a lazy page imported eagerly fails the check` (160.4 kB, under budget, still fails).
 - MEDIUM 2: after a failed retry `RouteChunkBoundary` shows "The application may have been updated. Reload the
   page." with a Reload button (`window.location.reload()`); test mocks `reload`.
@@ -195,3 +196,5 @@ Carried findings (not blocking):
 - 1.2 (2026-11-14) — QA review round 1 (QA Engineer): `approved`; carried findings recorded above.
 - 1.3 (2026-11-14) — QA round 1 findings fixed (Software Developer); record back to `in_review`.
 - 1.3 (2026-11-14) — QA review round 2 (QA Engineer): `approved`; carried LOW findings recorded above.
+- 1.4 (2026-11-14) — TASK-225 (QA round 2 LOW): the round 1 fixes note no longer says that the manifest alone does not show an eagerly imported page: in both negative controls the manifest has no entry for the lazy group, so the manifest branch fails the build on its own and the module list is defence in depth. Wording only. Content change on an approved record, so the 1.3 approval record is cleared: `in_review`.
+- 1.4 (2026-11-15) — QA review (TASK-225 round 2): `approved` (status only; the 1.4 change against the previous approved version is wording only).

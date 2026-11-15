@@ -2,15 +2,11 @@
 id: ADD-015
 type: architecture-doc
 title: DICOM Module (backend) (SI-MOD-DICOM-BE)
-status: approved
-version: "1.1"
+status: in_review
+version: "1.2"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-11-13"
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-11-13"
-approved_digest: ab874956ddd2051c1b4a9d34f71f0bc7ef5d6cedea30ae10e858c05f866136c7
-approval_note: self-approved
+updated: "2026-11-14"
 links:
   - target: SR-016
     relation: implements
@@ -39,7 +35,7 @@ Authorized DICOM byte/frame endpoints behind the module contract
 ## Software units (IEC 62304 §5.4.1)
 
 - `U-DICOMBE-Studies` — authorized DICOM byte/frame endpoint via platform services (SR-016, SR-017).
-  **CR-006 (planned, D-2; TASK-218):** before any pixel data is decoded, the unit refuses an object over
+  **CR-006 (D-2; TASK-218, implemented):** before any pixel data is decoded, the unit refuses an object over
   150 MiB stored (checked from the attachment record through `open(..., max_bytes=)`, ADD-012, before
   the store is read) or whose header-declared decoded size (rows × columns × frames × samples ×
   bytes per sample, read with `stop_before_pixels`, SOUP-015) exceeds 1 GiB, with an RFC 7807 problem;
@@ -77,3 +73,4 @@ Participates in RISK-003, RISK-007 (see `docs/risks/`); the control measures are
 ## Version history
 
 - 1.1 (2026-11-13) — CR-006 Plan stage (Software Architect role): stored and decoded size bounds before decode (SR-017 AC 6) marked "CR-006 (planned)"; `implements` SR-026 added. Content change, so the 1.0 approval record is cleared and the record returns to review.
+- 1.2 (2026-11-14) — TASK-225 (Document Writer): the "CR-006 (planned, D-2; TASK-218)" marker is removed; the stored and decoded size bounds are implemented as described (TS-019). Wording only. Content change on an approved record, so the 1.1 approval record is cleared and the record returns to review.

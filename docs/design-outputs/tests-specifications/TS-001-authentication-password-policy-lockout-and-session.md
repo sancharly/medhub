@@ -3,7 +3,7 @@ id: TS-001
 type: test-specification
 title: Authentication, password policy, lockout and session verification
 status: approved
-version: "1.9"
+version: "1.10"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-11-14"
@@ -65,7 +65,7 @@ Exact SOUP versions: the `soup` records in [`../../soup/`](../../soup/).
 
 ## Notes
 
-The client side of SR-030 is verified by the unit tests of TC-001.5, TC-001.11 and TC-001.13 (PRB-017 closed by TASK-146: `SessionActivityProvider.test.tsx` already holds the cases of the provider, so TASK-146 added none to this file). Coverage of `auth/SessionActivityProvider.tsx` in the TASK-146 run: statements 100 %, lines 100 %, branches 94.73 %. System level stays TC-001.14.
+The client side of SR-030 is verified by the unit tests of TC-001.5, TC-001.11 and TC-001.13 (PRB-017 resolved by TASK-146: `SessionActivityProvider.test.tsx` already holds the cases of the provider, so TASK-146 added none to this file). Coverage of `auth/SessionActivityProvider.tsx` in the TASK-146 run: statements 100 %, lines 100 %, branches 94.73 %. System level stays TC-001.14.
 
 ## Version history
 
@@ -86,3 +86,5 @@ The client side of SR-030 is verified by the unit tests of TC-001.5, TC-001.11 a
 - 1.8 (2026-11-14) — QA review of TASK-222 (round 2): `approved` (status only; content unchanged).
 - 1.9 (2026-11-14) — TASK-146 (CR-006 D-9; PRB-017): Notes no longer say that `SessionActivityProvider` has no unit tests; client-session unit acceptance criterion added (every case already exists in TC-001.5, TC-001.11, TC-001.13). Content change, so the approval of 1.8 is cleared: `in_review`.
 - 1.9 (2026-11-14) — QA review of TASK-146 (round 1): `approved` (status only; content unchanged).
+- 1.10 (2026-11-14) — TASK-225 (QA of TASK-146): the Notes call PRB-017 "resolved", not "closed" (its status is `resolved`). Wording only. Content change on an approved record, so the 1.9 approval record is cleared: `in_review`.
+- 1.10 (2026-11-15) — QA review of TASK-225 (round 2): `approved` (status only; content unchanged).

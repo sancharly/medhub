@@ -2,8 +2,8 @@
 id: RISK-008
 type: risk
 title: Personal data retained, copied or erased contrary to its lawful basis
-status: approved
-version: "1.6"
+status: in_review
+version: "1.7"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-11-14"
@@ -15,10 +15,6 @@ probability_initial: 3
 severity_residual: 2
 probability_residual: 2
 acceptability: acceptable
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-11-14"
-approved_digest: 24844653dd88a55861a0eb6139edaab7e4e3a2154445d082c130df28b9f589d0
-approval_note: self-approved
 links:
   - target: SOUP-014
     relation: relates_to
@@ -67,8 +63,8 @@ occur); the score is severity × P2, the probability that the hazardous situatio
 | Identifiers instead of personal data at every log call; one redaction filter on every handler of the API, worker and scheduler; log-capture tests of both worker paths and of an arbitrary structured field (CR-004) | Design | SR-043; TASK-138 | TS-017 TC-017.1..3, TC-017.5, TC-017.6; started stack: `infra/log-secrets-check.sh` found no password, token, retrieval code or `infra/.env` secret in six service logs |
 | Retrieval of anonymized data limited per originating client address, atomically, so a retrieval code cannot be guessed by many attempts from one address (CR-004, PRB-029) | Protective | SR-042 AC 4, AC 5; TASK-185, TASK-186 | TS-016 TC-016.4, TC-016.5 |
 | The retention sweep is scheduled and runs in the deployed stack: the Celery worker and beat run as their own commands (CR-004, PRB-061) | Design | TASK-191 | Started stack (TASK-191 QA and TASK-202): the worker answers `inspect ping`, beat logs `beat: Starting`, the retention sweep is in the beat schedule (smoke test, sections 11 and 12, 78 passed, 0 failed). The sweep itself was not triggered by TASK-202 |
-| The retention sweep isolates a failure to its dataset, releases every session it opens and retries a transient failure at most 3 times; a retry is idempotent per dataset and deletes only datasets past their deadline; the failed count is logged without personal data (CR-006, PRB-012) | Protective | SR-024 AC 5, SR-043; TASK-141 (at Plan stage) | none yet (planned: TS-004, a dataset that fails once then succeeds is erased by the retry, later datasets are still erased, a dataset before its deadline survives every retry; TS-017 for the log line) |
-| An erasure whose retrieval-code e-mail cannot be queued fails with a retryable error and is rolled back as a whole (the enqueue is inside the request's transaction), so an erasure never completes with a lost retrieval code (CR-006 D-5, PRB-013) | Protective | SR-024 AC 6 (added by CR-006 D-11), AC 1; TASK-141 (at Plan stage) | none yet (planned: TS-004, broker unreachable gives a retryable error, no dataset is created and the account is unchanged) |
+| The retention sweep isolates a failure to its dataset, releases every session it opens and retries a transient failure at most 3 times; a retry is idempotent per dataset and deletes only datasets past their deadline; the failed count is logged without personal data (CR-006, PRB-012) | Protective | SR-024 AC 5, SR-043; TASK-141 (at Plan stage) | TS-004 TC-004.5 (`backend/tests/workers/test_retention_tasks.py`): `test_sweep_failing_dataset_closes_every_session`, `test_sweep_retries_at_most_three_times_then_logs_count`, `test_sweep_dataset_failing_once_then_succeeding_is_erased`, `test_sweep_never_deletes_before_deadline_across_retries`; TS-004 TC-004.7 (`backend/tests/workers/test_retention_lock.py`, real PostgreSQL): `test_second_sweep_waits_and_writes_no_audit_row`, `test_second_sweep_erases_after_the_first_rolls_back`, `test_locked_select_rechecks_the_deadline`; TS-017 TC-017.8 (failed-count log line) |
+| An erasure whose retrieval-code e-mail cannot be queued fails with a retryable error and is rolled back as a whole (the enqueue is inside the request's transaction), so an erasure never completes with a lost retrieval code (CR-006 D-5, PRB-013) | Protective | SR-024 AC 6 (added by CR-006 D-11), AC 1; TASK-141 (at Plan stage) | TS-004 TC-004.4: `backend/tests/api/test_erasure_rollback.py::test_erasure_enqueue_failure_rolls_back_and_returns_503` (control `test_erasure_with_a_working_broker_commits_before_the_response`) and `backend/tests/identity/test_erasure.py::test_erasure_enqueue_failure_raises_retryable_problem_and_keeps_sessions`; TS-017 TC-017.7 `test_erasure_enqueue_failure_logs_warning_without_personal_data` |
 | The retrieval-code e-mail ("your account has been erased") is sent only once the erasure is committed: the worker sends it only when the erasure's `anonymized_dataset` row is visible, re-checks for about 10 minutes, drops it on a positive "never committed" and sends it when the check cannot be made (CR-006 D-30, PRB-083) | Design | SR-024 AC 6; TASK-228 | TS-004 TC-004.6: `test_sends_when_the_dataset_is_committed`, `test_rechecks_until_the_dataset_is_committed`, `test_drops_the_e_mail_when_the_erasure_never_commits`, `test_sends_when_the_commit_cannot_be_confirmed`, `test_smtp_retry_budget_unchanged_after_commit_checks`, `test_gate_does_not_see_an_uncommitted_erasure` (real PostgreSQL); TS-017 TC-017.9 `test_erasure_e_mail_drop_and_unconfirmed_logs_hold_no_personal_data` (TASK-228) |
 
 ## Residual risk
@@ -129,3 +125,4 @@ erasure that did not commit, whose code matches no dataset. Probability judged u
 - 1.4 (2026-11-13) — CR-006 Risk stage, §7.4 change analysis (Software Architect role). Two control rows added (retention sweep isolation and retries, SR-024 AC 5; erasure rolled back when its code e-mail cannot be queued, D-5), with planned verification and TASKs left to the Plan stage; expected residual stated; "Risks introduced by controls" extended. Scores unchanged (2 × 2 → acceptable). Content change, so the approval record is cleared and the record returns to review. At the Risk gate the D-5 row was re-based on SR-024 AC 6 (CR-006 D-11).
 - 1.5 (2026-11-14) — CR-006 D-30, §7.4 change analysis (Software Architect role): control row added for the commit-gated erasure e-mail (PRB-083, TASK-228) with planned verification; the "harmless" converse case corrected; "Risks introduced by controls" extended with the false-drop and unreachable-database causes. Scores unchanged (2 × 2 → acceptable). Content change, so the approval record is cleared and the record returns to review.
 - 1.6 (2026-11-14) — TASK-228 verification: planned verification of the commit-gated erasure e-mail row replaced by the tests that ran. Scores unchanged (2 × 2 → acceptable). Content change, so the approval record is cleared and the record returns to review.
+- 1.7 (2026-11-14) — TASK-225 (Document Writer): the Verify column of the two TASK-141 rows (sweep isolation and retries; erasure rolled back when the e-mail cannot be queued) replaced "none yet (planned …)" by the tests that ran, read from the test files and from TS-004 and TS-017. Scores unchanged (2 × 2 → acceptable). Content change on an approved record, so the 1.6 approval record is cleared and the record returns to review.

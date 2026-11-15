@@ -3,7 +3,7 @@ id: CR-006
 type: change-request
 title: Close the open reliability and performance defects from the 2026-07 review and audit
 status: in_progress
-version: "1.14"
+version: "1.15"
 author: Carlos Santiago Liceras
 created: "2026-11-13"
 updated: "2026-11-14"
@@ -235,7 +235,7 @@ the architect. Line numbers are those found on 2026-11-13.
 | PRB-030 Module boundary test denies only two import substrings | minor | Still open: `backend/tests/modules/test_module_boundary.py:9-12` lists `app.db` and `app.core.object_storage` only | SR-016 AC 3 (a module obtains data only through the platform's authorized interfaces) | New at Plan stage |
 | PRB-031 Destructive dialog focuses Confirm instead of Cancel | minor | **Already fixed**: `core/confirm/ConfirmDialog.tsx:46,51` focus Cancel when `destructive`, and `ConfirmDialog.test.tsx:120` asserts it (fixed by the phase-6 audit remediations, commit 24240f8). See Q-1 | **SR-027 AC 5 (new)**; SR-027 AC 2; SR-034 AC 6 | None: PRB-031 to be `rejected` (D-1) |
 | PRB-032 JSON logger drops the request-id field | minor | Still open: `core/logging.py` has no request-id field and no `request_id` exists anywhere in `backend/app` | None exists; see Q-7 (emit it, or drop the promise from the docstring) | New at Plan stage |
-| PRB-080 Request database transaction commits after the response is sent (added by D-27) | major | Open: `db/repositories/session.py:34-45` commits in a `yield` dependency of default scope `"request"`, which FastAPI 0.138 tears down after `await response(...)` (`fastapi/routing.py:131-137`); 31 `Depends(get_db)` sites in 15 files | **SR-012 AC 5 (new)**, **SR-023 AC 10 (new)**; SR-008 AC 4, SR-013 AC 5 (restored); RISK-007, RISK-006, RISK-001 | TASK-227 |
+| PRB-080 Request database transaction commits after the response is sent (added by D-27) | major | Open: `db/repositories/session.py:34-45` commits in a `yield` dependency of default scope `"request"`, which FastAPI 0.138 tears down after `await response(...)` (`fastapi/routing.py:131-137`); 30 `Depends(get_db)` sites in 14 files (counted again at commit `03b1400`, TASK-225) | **SR-012 AC 5 (new)**, **SR-023 AC 10 (new)**; SR-008 AC 4, SR-013 AC 5 (restored); RISK-007, RISK-006, RISK-001 | TASK-227 |
 | PRB-078 Reverse proxy rejects uploads larger than 1 MiB (added at the Plan gate, D-18) | major | Open: `infra/reverse-proxy/nginx.conf` sets no `client_max_body_size`, so nginx's 1 MiB default refuses larger bodies before the backend | SR-013 AC 1, AC 6; RISK-007 | TASK-135 |
 | PRB-083 Erasure e-mail is sent for an erasure that did not commit (added by D-30) | minor | Open since TASK-141: `identity/erasure.py:128` enqueues before `invalidate_all`, the audit rows and the commit; `workers/email_tasks.py:142-173` sends without reading the database | SR-024 AC 6; RISK-008 | TASK-228 |
 | PRB-084 Concurrent retention sweeps write a duplicate audit row (added by D-30) | minor | Open (predates TASK-141): `workers/retention_tasks.py:67-81` reads the dataset without a lock; the second sweep's 0-row delete still records `ANONYMIZED_DATASET_ERASED` | SR-024 AC 3, AC 5; RISK-006 | TASK-228 |
@@ -741,8 +741,8 @@ finding R-3; the D-5 control has no acceptance criterion of its own (R-2).
 
 ### Change analysis for PRB-080 (§7.4, D-27, 2026-11-13)
 
-Software Architect role. Code read: `backend/app/db/repositories/session.py:34-45`; the 31
-`Depends(get_db)` sites; `api/routers/attachments.py` and `AttachmentService.open_stream`
+Software Architect role. Code read: `backend/app/db/repositories/session.py:34-45`; the 30
+`Depends(get_db)` sites in 14 files (31 in 15 files was the count at D-27); `api/routers/attachments.py` and `AttachmentService.open_stream`
 (`attachments/service.py:144-226`); `audit/service.py` and `AuditRepository.add_independent`; FastAPI
 0.138 `routing.py:120-137`, `dependencies/utils.py:318-329, 664-672`, `dependencies/models.py:63-71`.
 
@@ -1085,7 +1085,7 @@ ADR-0022, the changed ADD and SOUP records, and the findings P-1 to P-9.
 | — | **Checkpoint C** | | | | | 8–13 | |
 | P1 | [TASK-223](../design-outputs/tasks/TASK-223-module-boundary-test-with-an-allow-list.md) Module boundary allow-list | 030 | SR-016 AC 3 | — (relates RISK-001) | XS | 218 | new |
 | P2 | [TASK-224](../design-outputs/tasks/TASK-224-drop-the-request-id-promise-from-the-logger.md) Logger docstring: no request-id promise | 032 | SR-043 | — (relates RISK-006) | XS | — (parallel) | new |
-| 14 | [TASK-225](../design-outputs/tasks/TASK-225-arc42-and-design-records-for-cr-006.md) arc42 sections, ADR index, DEPLOY.md (Document Writer) | — | SR-013, 017, 026, 030 | — | M (docs) | all above | new |
+| 14 | [TASK-225](../design-outputs/tasks/TASK-225-arc42-and-design-records-for-cr-006.md) arc42 sections 04 to 08, 10 to 12 (incl. interfaces: session expiry, password 400, erasure 503, module settings), ADR index, `infra/DEPLOY.md` (pool settings, migration lock windows), ADD-005/012/014/015/016 wording, ADD-014 1.1 (`U-MH-ModuleSettings`), record fixes left by QA (Document Writer) | — | SR-013, 016, 017, 026, 030 | — | M (docs) | all above | new |
 | 15 | [TASK-226](../design-outputs/tasks/TASK-226-verify-cr-006-end-to-end.md) Verify end to end: suites, load test with approved pools, records, re-scoring, traceability (**Checkpoint D**) | all | SR-026 AC 1–8; SR-027 AC 5 | 007 (relates all seven) | S | all above | new |
 
 PRB-022 and PRB-031 are `rejected` (D-1) and have no task; PRB-022's regression test is in TASK-219,
@@ -1139,7 +1139,7 @@ each other; 143 shares none with 144 (`client.ts` only).
 (ADD-008 1.2, ADD-017 1.4), SR-026 (ADD-005 1.3, ADD-009 1.1, ADD-012, ADD-015, ADD-016 1.3, ADD-018
 1.3, ADD-019 1.1, ADD-026), SR-027 (ADD-018), SR-030 (ADD-006 1.4, ADD-019, ADD-023 1.2). Decisions:
 ADR-0021 (bounded attachment IO, bound two-pass download) and ADR-0022 (blocking IO off the event
-loop, matched pools), both "Proposed".
+loop, matched pools), both "Proposed" at the Plan stage (Accepted 2026-11-13).
 
 **SOUP** (none added, no version change):
 
@@ -1153,7 +1153,7 @@ loop, matched pools), both "Proposed".
 | SOUP-009 Alembic 1.18.4, SOUP-014 Celery 5.6.3, SOUP-017 python-multipart 0.0.32, SOUP-024 nginx, SOUP-025 React 18.3.1, SOUP-027 React Router 7.18.0, SOUP-028 TanStack Query 5.101.0 | relied on as recorded (migrations, `self.retry`, multipart parsing, `client_max_body_size`, `React.lazy`/`Suspense`, refetch options); no version or record change expected |
 
 **arc42 sections for the Document Writer (TASK-225):** 04, 05, 06, 07, 08, 10, 11, 12, the ADR index
-(`docs/design/adr/README.md`) and `infra/DEPLOY.md`. Not edited at the Plan stage.
+(`docs/design/adr/README.md`) and `infra/DEPLOY.md`. Not edited at the Plan stage; written by TASK-225 after TASK-223.
 
 **RISK rows to update with the TASK ids (human or Risk-stage edit; the RISK records are not changed
 here):** RISK-003 DICOM-bounds row → TASK-218. RISK-004 module-refresh row: TASK-144 → TASK-221;
@@ -1245,3 +1245,4 @@ TASK-141 (RISK-009: the erasure-site log-capture test is in TS-004, not TS-006).
 - 1.12 (2026-11-14) — Human decision D-32 ("Opción (a)", TASK-221 QA round 1 HIGH 1 and MEDIUM 2): `GET /me/modules` checks the session without extending it, and the poll is about 50 s. §7.4 change analysis (no new hazard, class B unchanged, causes 17 and 18, residuals unchanged). RISK-005 1.9 and RISK-004 1.6 are back in `in_review`. Findings P-18 (`handleExpired` gap, PRB proposed and not created) and P-19 (TASK-221 links) for the human. Stays `in_progress`.
 - 1.13 (2026-11-14) — Human decisions D-33 (PRB-087 "Server responses only"; P-18 "Major, in CR-006"): PRB-087 and the new PRB-089 (`major`) added to the scope with `resolves` links, both fixed in TASK-222 (reworked to 1.1; the debounce is superseded and the activity listeners are removed; cause 10 superseded). §7.4 change analysis (no new hazard, class B unchanged, causes 19 and 20, residuals unchanged). P-18's "server session has already ended" corrected. RISK-005 1.10, RISK-001 1.6 and RISK-004 1.7 are back in `in_review`. Findings P-20 (SR-026 AC 8 moot) and P-21 (SR-030 "inactivity") for the human. Stays `in_progress`.
 - 1.14 (2026-11-14) — Human decision D-34 ("Into CR-006, in 222", TASK-222 QA round 1 HIGH 1): PRB-090 (`major`, the warning dialog's own redirect) added to the scope with a `resolves` link and fixed in TASK-222 (the plan row names it). §7.4 note: the PRB-089 hazard by another route; no new hazard; class B unchanged; residuals unchanged. RISK-001 1.7 and RISK-005 1.11 name the dialog route. Stays `in_progress`.
+- 1.15 (2026-11-14) — TASK-225 (Document Writer): the PRB-080 scope row and the change analysis state 30 `Depends(get_db)` sites in 14 files (verified at commit `03b1400`; 31 in 15 files was the D-27 count); the TASK-225 plan row names its added scope (ADD-014 1.1, interfaces, DEPLOY.md, QA record fixes); ADR-0021 and ADR-0022 noted as Accepted. No decision, SR or scope change. Stays `in_progress`.
