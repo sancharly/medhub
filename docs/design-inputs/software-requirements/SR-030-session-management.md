@@ -2,15 +2,11 @@
 id: SR-030
 type: software-requirement
 title: Session management
-status: approved
-version: "1.4"
+status: in_review
+version: "1.5"
 author: Carlos Santiago Liceras
 created: "2026-07-07"
-updated: "2026-11-13"
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-11-13"
-approved_digest: c610d5522706d3b0e78abd85b3b6db5b92ae2072f959869630c7b9cc4e5609cb
-approval_note: self-approved
+updated: "2026-11-16"
 links:
   - target: RR-003
     relation: satisfies
@@ -33,8 +29,8 @@ An authenticated but unattended session is an open door to PHI. This requirement
 
 ## Acceptance Criteria
 
-1. Sessions for users in clinical roles (doctor, patient) expire after **15 minutes** of inactivity.
-2. Sessions for users in administrative roles (administrative personnel, system administrator) expire after **30 minutes** of inactivity.
+1. Sessions for users in clinical roles (doctor, patient) expire after **15 minutes** of inactivity. Inactivity is a period in which the user makes no request to the server and does not extend the session (AC 4). The check of the user's enabled modules, which the web application makes in the background (SR-015 AC 5), does not count as a request; mouse, keyboard, touch or scroll input that sends no request does not count either. The server ends the session 15 minutes after the last request that counts. The web application ends it at the deadline the server last reported (AC 8): never later than the server, and earlier when requests after the last report moved the server's deadline.
+2. Sessions for users in administrative roles (administrative personnel, system administrator) expire after **30 minutes** of inactivity. Inactivity has the meaning of AC 1: no request by the user, the background module check and input without a request excluded, and no extension of the session (AC 4). The server ends the session 30 minutes after the last request that counts; the web application ends it at the deadline the server last reported (AC 8), never later than the server.
 3. Regardless of activity, all sessions have an absolute maximum lifetime of **8 hours**. After 8 hours the user is required to re-authenticate.
 4. Users are warned with a visible countdown **2 minutes** before an inactivity timeout fires, with the option to extend the session.
 5. On explicit logout, the server-side session token is immediately invalidated and cannot be reused.
@@ -75,3 +71,4 @@ IEC 62443-3-3 SR 1.5 (SL 2) requires the system to lock or terminate sessions af
 - 1.3 (2026-10-21) — Tagged `control:design` (type of the risk control it implements,
   medical-records 0.3.2). Traceability only: the content is unchanged, so the existing approval stands.
 - 1.4 (2026-11-13) — Content change, so the approval is cleared and the record returns to review (CR-006, GitHub sancharly/medhub#28). Added AC 8 (client deadline from the server-reported expiry; a single redirect on an expired session). Reason: the client seeded a hard-coded 15-minute expiry and re-requested the session from nine places with differing retry settings (PRB-016; RISK-005).
+- 1.5 (2026-11-16) — Content change, so the approval is cleared and the record returns to review (CR-006 D-37, human decision on P-21). AC 1 and AC 2 define "inactivity" as built in TASK-222 (CR-006 D-32, D-33): no request by the user, the background module check (`GET /me/modules`, which does not extend the session) and input that sends no request excluded, and no Extend. They also state that the web application ends the session at the server-reported deadline, so it may end it earlier than the server but never later.

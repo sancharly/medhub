@@ -3,7 +3,7 @@ id: CR-006
 type: change-request
 title: Close the open reliability and performance defects from the 2026-07 review and audit
 status: in_progress
-version: "1.18"
+version: "1.19"
 author: Carlos Santiago Liceras
 created: "2026-11-13"
 updated: "2026-11-16"
@@ -592,6 +592,40 @@ agent. The records stay `in_review` until the human's MedTrace approval.
   verified in CR-006. TASK-218 verifies the bounds only, with the decode stubbed. The real render and its
   10 s budget are deferred to PRB-048 and PRB-046 (D-20; TC-018.11, TC-019.5). The deferral does not block
   closing CR-006.
+- **D-36 (human decision 2026-11-16, P-20, "Reword AC 8", Carlos Santiago Liceras, at the close-out of CR-006):**
+  SR-026 AC 8 is reworded, not retired. New wording (SR-026 1.7): "User input events in the web application
+  (mouse, keyboard, touch, scroll) cause no session-timer work: they neither re-arm nor extend the inactivity
+  deadline or the warning of SR-030 AC 1, AC 2 and AC 4." TS-018 TC-018.9 (TS-018 1.10) traces it to the
+  TASK-222 tests in `frontend/src/auth/useIdleTimer.test.ts`: `no listeners registered for activity events` and
+  `activity events do not move the deadline`. No code or test change. SR-026 1.7 and TS-018 1.10 are
+  `in_review` with the approval cleared.
+- **D-37 (human decision 2026-11-16, P-21, "Into AC 1 and AC 2", Carlos Santiago Liceras, at the close-out of
+  CR-006):** the definition of inactivity used by D-32 and D-33 goes into SR-030 AC 1 and AC 2 (SR-030 1.5):
+  no request by the user, with the background module check (`GET /me/modules`, which does not extend the session)
+  and input that sends no request excluded, and no Extend. The wording matches the built behaviour: the server
+  slides the session on every authenticated request except `GET /me/modules` (`api/routers/me.py`,
+  `get_current_user_no_slide`), and the web application re-arms its deadline only from the `me` and extend
+  responses (`auth/SessionActivityProvider.tsx`, `auth/useIdleTimer.ts`), so it ends the session at the
+  server-reported deadline, never later than the server and earlier when later requests moved the server's
+  deadline. TS-001 TC-001.11 to TC-001.14 already test this behaviour and use no conflicting wording, so TS-001
+  is not changed. SR-030 1.5 is `in_review` with the approval cleared.
+- **D-38 (human decision 2026-11-16, PRB-088, "Defect, fix later", Carlos Santiago Liceras):** SR-023 AC 1 is
+  read as covering the re-authentication on `POST /auth/password`, so PRB-088 is a defect against SR-023. It
+  stays `open` (`minor`), outside CR-006, for a later CR. Recorded in PRB-088 1.1 (`relates_to` SR-023). SR-023
+  is not changed. The attempt limit PRB-088 also describes is not covered by SR-029 (login only); the later CR
+  decides whether to add it.
+- **D-39 (human decision 2026-11-16, PRB-085 and PRB-086, "Leave open for a later CR", Carlos Santiago
+  Liceras):** PRB-085 (test-order failure of the erasure rollback test) and PRB-086 (untyped OpenAPI
+  ProblemDetail errors) stay `open` as known anomalies for a later CR, as do PRB-079 and PRB-081 (linked
+  `relates_to`, outside the scope since D-27). No record change.
+  **Close-out (2026-11-16).** Every `resolves` PRB is `resolved` (PRB-006, 008, 009, 012, 013, 015, 016, 017,
+  019, 020, 021, 024, 025, 030, 032, 072, 078, 080, 083, 084, 087, 089, 090) or `rejected` (PRB-022, 031).
+  Every task in the plan (TASK-135, 136, 141, 143 to 146, 207, 217 to 228) is `approved`. P-20 and P-21 are
+  resolved (D-36, D-37). CR-006 is ready to close; the human closes it in MedTrace after the branch is merged. Known anomalies left open, none `critical`: PRB-046 (minor),
+  PRB-048 (major), PRB-057 (major), PRB-074 (major), PRB-079 (minor), PRB-081 (minor), PRB-085 (minor),
+  PRB-086 (minor), PRB-088 (minor), and PRB-091, PRB-092, PRB-093 (minor), which CR-007 resolves on its own
+  branch. SR-026 AC 3 stays unverified (D-35). Open approvals for the human in MedTrace: SR-026 1.7, SR-030 1.5,
+  TS-018 1.10.
 
 ## Change analysis (Risk stage, §7.4, 2026-11-13)
 
@@ -991,14 +1025,14 @@ are `in_review` with the approval record cleared.
   second clause holds trivially. Recommendation: the Product Owner retires AC 8 or rewords it, for example "user
   input events cause no session-timer work". SR-026 is approved, so either change needs re-approval. TS-018's
   pending AC 8 row (TASK-222) follows the decision. Until then, TASK-222 traces AC 8 through a test that input
-  events do no timer work.
+  events do no timer work. *Resolved by D-36 (AC 8 reworded).*
 - **P-21. SR-030 AC 1 and AC 2, meaning of "inactivity".** AC 4 still fits as written: the warning comes
   2 minutes before the timeout the client enforces, which is never later than the server's. AC 1 and AC 2 say
   "after 15 (30) minutes of inactivity" without defining it. D-32 and D-33 read it as "no request by the user
   (excluding background polls) and no Extend". The client may warn earlier when requests did not refresh `me`.
   Recommendation: the Product Owner adds that definition to AC 1 and AC 2, or records it in the SR's
   rationale. SR-030 is approved, so this needs re-approval. Not blocking: TASK-222 can be built and verified
-  against today's wording.
+  against today's wording. *Resolved by D-37 (definition added to AC 1 and AC 2).*
 
 ### Change analysis for the warning dialog's own redirect (§7.4, D-34, 2026-11-14)
 
@@ -1084,7 +1118,7 @@ ADR-0022, the changed ADD and SOUP records, and the findings P-1 to P-9.
 | 8 | [TASK-143](../design-outputs/tasks/TASK-143-unify-frontend-api-client-upload-and-problem-types.md) Upload through `request()`; `ProblemError` from the schema | 019 | SR-030 AC 8; SR-031; SR-027 AC 3 | 005 | S | — (parallel; frontend) | updated |
 | 9 | [TASK-144](../design-outputs/tasks/TASK-144-shared-useme-hook-session-ttl-reconciliation-module-cache-invalidation.md) One `me` query; client deadline from the server-reported expiry (additive API field) | 016 | SR-030 AC 8, AC 4 | 005 | M | — (parallel) | updated |
 | 10 | [TASK-221](../design-outputs/tasks/TASK-221-module-gating-refresh-for-every-affected-user.md) Module gating refresh within 60 s for every affected user | 015 | SR-015 AC 5 | 004 | S | 144 | new (split from 144) |
-| 11 | [TASK-222](../design-outputs/tasks/TASK-222-debounced-inactivity-tracking.md) Session deadline only from server responses; the client timeout ends the session, the warning dialog included (D-33, D-34; was: activity re-arms at most once per second) | 025, 087, 089, 090 | SR-030 AC 1, AC 2, AC 4, AC 8; SR-026 AC 8 (P-20) | 005, 001 | S | 144, 221 | reworked (1.1); PRB-090 added by D-34 |
+| 11 | [TASK-222](../design-outputs/tasks/TASK-222-debounced-inactivity-tracking.md) Session deadline only from server responses; the client timeout ends the session, the warning dialog included (D-33, D-34; was: activity re-arms at most once per second) | 025, 087, 089, 090 | SR-030 AC 1, AC 2, AC 4, AC 8; SR-026 AC 8 (reworded by D-36) | 005, 001 | S | 144, 221 | reworked (1.1); PRB-090 added by D-34 |
 | 12 | [TASK-145](../design-outputs/tasks/TASK-145-route-based-code-splitting.md) Route-level splitting, chunk-failure boundary, budget check | 020 | SR-026 AC 7; SR-027 AC 3; SR-020 | — (relates RISK-007) | S | 144 | updated |
 | 13 | [TASK-146](../design-outputs/tasks/TASK-146-frontend-unit-test-gaps-session-attachment-csrf.md) Unit tests: session provider, `AttachmentItem`, `csrf.ts` | 017 | NFR-006; SR-030 AC 1–5, 8; SR-015 AC 3–5; SR-031 AC 3 | — (evidence for 005, 004) | S | 143, 144, 221, 222 | updated |
 | — | **Checkpoint C** | | | | | 8–13 | |
@@ -1254,3 +1288,4 @@ TASK-141 (RISK-009: the erasure-site log-capture test is in TS-004, not TS-006).
 - 1.16 (2026-11-15) — TASK-226 (Software Developer): end-to-end verification recorded on the branch head `0130394` (regression, 20-client load test through the proxy with the approved pools, started-stack checks, migrations 0011 and 0012). Records updated: TS-001 1.11, TS-007 1.12, TS-018 1.8, TS-019 1.1 (`in_review`); RISK-003 1.5, 004 1.8, 005 1.12, 007 1.18, 008 1.8, 009 1.7, 012 1.4 re-scored from the evidence, no score changed, all `in_review` for the owner's acceptance; PRB-021 `resolved`; PRB-031 rejection evidence; PRB-008, 009, 072, 078, 089 verification lines. Step 4 (hosted CI) is pending: it needs a push. Stays `in_progress`.
 - 1.17 (2026-11-15) — TASK-226 round 2 (QA M-1): the SR-026 coverage row no longer claims AC 3 (first DICOM image within 10 s) for TASK-218 and TASK-226. TASK-218 verifies the bounds with the decode stubbed; the real render and its 10 s budget stay with PRB-048 and PRB-046 (D-20). The deferral is for the human to confirm. No decision, SR or scope change. Stays `in_progress`.
 - 1.18 (2026-11-16) — D-35: the human confirmed the SR-026 AC 3 deferral to PRB-048 and PRB-046, so the coverage row cites it. No SR or scope change. Stays `in_progress`.
+- 1.19 (2026-11-16) — Close-out. Human decisions D-36 (P-20: SR-026 AC 8 reworded, SR-026 1.7; TS-018 TC-018.9 follows, 1.10), D-37 (P-21: inactivity defined in SR-030 AC 1 and AC 2, SR-030 1.5; TS-001 unchanged), D-38 (PRB-088 is a defect against SR-023 AC 1, stays `open` outside CR-006, PRB-088 1.1) and D-39 (PRB-085, PRB-086, PRB-079, PRB-081 stay open). P-20 and P-21 resolved. Every `resolves` PRB is `resolved` or `rejected` and every task is `approved`, so CR-006 is ready to close; it stays `in_progress` until the human closes it in MedTrace after the branch is merged. Residual known anomalies: PRB-046, 048, 057, 074, 079, 081, 085, 086, 088, and PRB-091 to 093 (CR-007). SR-026 1.7, SR-030 1.5 and TS-018 1.10 await approval in MedTrace.
