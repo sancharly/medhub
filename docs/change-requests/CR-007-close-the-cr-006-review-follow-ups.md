@@ -2,7 +2,7 @@
 id: CR-007
 type: change-request
 title: Close the CR-006 review follow-ups (frontend module design, budget check, upload scratch space)
-status: in_progress
+status: closed
 version: "1.3"
 author: Carlos Santiago Liceras
 created: "2026-11-16"
