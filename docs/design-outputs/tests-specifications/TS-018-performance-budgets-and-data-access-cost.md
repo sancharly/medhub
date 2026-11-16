@@ -2,11 +2,15 @@
 id: TS-018
 type: test-specification
 title: Performance budgets and data-access cost verification
-status: in_review
+status: approved
 version: "1.11"
 author: Carlos Santiago Liceras
 created: "2026-11-13"
 updated: "2026-11-16"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-11-16"
+approved_digest: c1ef59b26a042986667025429e534fbabe5c9ec6bf45f806b839edfc911261de
+approval_note: self-approved
 links:
   - target: SR-026
     relation: verifies
