@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import { http, HttpResponse } from "msw";
 import { server } from "../tests/setup";
 import { ApiClient, ApiError, AuthError } from "./client";
@@ -157,23 +157,29 @@ describe("ApiClient uploadAttachment", () => {
   });
 
   it("sends FormData through request with the CSRF header", async () => {
-    let captured: Request | undefined;
-    let form: FormData | undefined;
-    server.use(
-      http.post(URL, async ({ request }) => {
-        captured = request.clone();
-        form = await request.formData();
-        return HttpResponse.json(attachment, { status: 201 });
-      })
-    );
+    // Inspect what reaches fetch rather than the serialized body: under jsdom,
+    // Node's fetch cannot serialize jsdom's FormData (it hangs on Node 20 and
+    // fails on Node 24), while a browser sets the multipart boundary itself.
+    const fetchSpy = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValue(HttpResponse.json(attachment, { status: 201 }));
+    try {
+      const result = await makeClient().uploadAttachment("e1", file());
 
-    const result = await makeClient().uploadAttachment("e1", file());
-
-    expect(result).toEqual(attachment);
-    expect(captured!.headers.get("X-CSRF-Token")).toBe("test-csrf-value");
-    // No hand-set JSON content type: the browser sets the multipart boundary.
-    expect(captured!.headers.get("content-type")).toMatch(/^multipart\/form-data; boundary=/);
-    expect((form!.get("file") as File).name).toBe("note.txt");
+      expect(result).toEqual(attachment);
+      expect(fetchSpy).toHaveBeenCalledTimes(1);
+      const [url, init] = fetchSpy.mock.calls[0];
+      expect(String(url)).toBe("/api/v1/clinical-entries/e1/attachments");
+      expect(init?.method).toBe("POST");
+      const headers = new Headers(init?.headers);
+      expect(headers.get("X-CSRF-Token")).toBe("test-csrf-value");
+      // No hand-set content type: the browser adds multipart/form-data with its boundary.
+      expect(headers.get("content-type")).toBeNull();
+      expect(init?.body).toBeInstanceOf(FormData);
+      expect(((init?.body as FormData).get("file") as File).name).toBe("note.txt");
+    } finally {
+      fetchSpy.mockRestore();
+    }
   });
 
   it("raises AuthError on a 401 unauthenticated problem", async () => {

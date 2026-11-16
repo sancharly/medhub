@@ -172,5 +172,9 @@ def test_locked_select_rechecks_the_deadline(factory) -> None:
         )
         s.add_all([future, due])
         s.flush()
-        assert s.execute(rt._locked_due_dataset(future.id, now)).scalar_one_or_none() is None  # noqa: SLF001
-        assert s.execute(rt._locked_due_dataset(due.id, now)).scalar_one_or_none() is due  # noqa: SLF001
+        assert (
+            s.execute(rt._locked_due_dataset(future.id, now)).scalar_one_or_none() is None
+        )  # noqa: SLF001
+        assert (
+            s.execute(rt._locked_due_dataset(due.id, now)).scalar_one_or_none() is due
+        )  # noqa: SLF001
