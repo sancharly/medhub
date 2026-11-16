@@ -2,23 +2,19 @@
 id: RISK-007
 type: risk
 title: Clinical information unavailable when needed
-status: approved
-version: "1.19"
+status: in_review
+version: "1.20"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-11-16"
 hazard: The application, its database, its object storage or its workers unavailable, or attachments unreadable.
-cause: Single-host outage, database or object-store failure, exhausted connection pool from a session leak, a missing storage SDK (PRB-002), or an encryption key rotation that makes old rows unreadable → the clinician cannot open the record → they proceed without it or wait.
+cause: Single-host outage, database or object-store failure, exhausted connection pool from a session leak, a missing storage SDK (PRB-002), an encryption key rotation that makes old rows unreadable, or upload scratch space full under concurrent large uploads (PRB-092) → the clinician cannot open the record → they proceed without it or wait.
 harm: Delayed care; decisions made without available history. No direct physical harm from the software itself.
 severity_initial: 3
 probability_initial: 2
 severity_residual: 3
 probability_residual: 2
 acceptability: alarp
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-11-16"
-approved_digest: 651aedb1683736b5940079de0a20638a84098032aa5d1737eaec6ac78fda6b77
-approval_note: self-approved
 links:
   - target: SOUP-020
     relation: relates_to
@@ -43,7 +39,7 @@ The application, its database, its object storage or its workers unavailable, or
 
 ## Sequence of events
 
-Single-host outage, database or object-store failure, exhausted connection pool from a session leak, a missing storage SDK (PRB-002), or an encryption key rotation that makes old rows unreadable → the clinician cannot open the record → they proceed without it or wait.
+Single-host outage, database or object-store failure, exhausted connection pool from a session leak, a missing storage SDK (PRB-002), an encryption key rotation that makes old rows unreadable, or upload scratch space full under concurrent large uploads (PRB-092) → the clinician cannot open the record → they proceed without it or wait.
 
 A stored file name that cannot be represented in an HTTP header makes the attachment undownloadable (PRB-063): the download answered 500 for any character outside Latin-1.
 
@@ -52,6 +48,15 @@ MinIO. Two object-store causes are explicit: an attachment whose stored bytes fa
 check is refused rather than served (SR-013 AC 5), and a lost or changed `AT_REST_ENCRYPTION_KEY`
 makes every stored object unreadable, because the store derives its only SSE key from it (SOUP-036
 F-4).
+
+An upload can fail when a temporary directory is full (PRB-092). The reverse proxy buffers the request body
+in its client-body temporary directory and Starlette spools a file part above 1 MiB to a temporary file in the
+API container (ADR-0021), so several concurrent maximum-size (150 MiB) uploads on a small disk exhaust the
+space (about 300 MiB per upload where both directories share a disk). When the API container's directory is
+full the upload answers 503 `upload-storage-unavailable` with `Retry-After: 30` and one ERROR log line, and
+nothing is stored (TASK-232); before TASK-232 it answered a plain, unlogged 400. When the proxy's directory
+is full nginx answers its own 500 and logs at `crit`. Other requests that need the directory may fail while
+it is full.
 
 ## Hazardous situation
 
@@ -97,6 +102,8 @@ occur); the score is severity × P2, the probability that the hazardous situatio
 | Dispatch does not wait on a result store (`task_ignore_result`): a Celery `.delay()` with Redis unreachable ends within 5 s instead of about 20 s inside the request's open transaction (CR-004, TASK-206 QA finding 1) | Design | TASK-207 | TS-003 TC-003.7 |
 | Retrieval rate limit per originating client address, so one caller cannot block retrieval for all (CR-004, PRB-029) | Design | SR-042 AC 4, AC 5; TASK-186 (keys on the originating address that TASK-185 provides; without it every caller would share the proxy's bucket) | TS-016 TC-016.4, TC-016.5; a missing peer is refused without touching any `rate:*` key |
 | A write is acknowledged only after it is committed: the request transaction ends before the response is sent, so an immediate read finds the write and a failed commit is a 5xx the user sees, not a lost acknowledged write; a streamed download no longer holds a connection during the transfer (CR-006 D-27, PRB-080, ADR-0023) | Design | SR-012 AC 5; TASK-227 | TS-007 TC-007.14 (`backend/tests/db/test_request_commit_order.py`: success only after commit, a failed commit is a 5xx) and TC-007.15 (`test_download_audit_order.py`: audit rows committed before the first body chunk); passed 2026-11-15 on the branch head (TASK-226). The 20-client run (TC-018.3, which writes and reads back under load) showed no 5xx and no pool wait |
+| Spool failure on upload detected, logged at ERROR (HTTP method, route template, errno; no path, file name or clinical data) and answered 503 `application/problem+json` `upload-storage-unavailable` with `Retry-After: 30`; nothing stored; a malformed body stays 400 (CR-007 D-7, PRB-092, ADR-0021) | Protective | SR-013 AC 1, SR-027 AC 3; TASK-232 | TS-007 TC-007.17 (`backend/tests/api/test_attachments_router.py::TestUploadScratchSpaceFailure`, 4 tests, fail on `4eeef74`); TS-011 TC-011.7 (the upload form shows the 503 detail) |
+| Deployment guide names both temporary directories (the API container's `/tmp` unless `TMPDIR` is set, the proxy's nginx client-body directory), sizes them at about 300 MiB free per concurrent maximum-size upload where they share a disk, tells the operator to monitor the free space and states the failure behaviour (CR-007 D-1, D-7, D-8, PRB-092) | Information | SR-013 AC 1; TASK-231 | Review of `infra/DEPLOY.md` (TASK-231 QA); no automated test: information for safety |
 
 ## Residual risk
 
@@ -127,6 +134,22 @@ migration blocks writes to four tables while it runs (ask first, tested on a pop
 a lazy route chunk that fails to load leaves a route blank (error boundary with retry). **Expected
 residual: 3 × 2 → alarp, unchanged**, set by the single-host decision (ADR-0010) and PRB-057, both
 outside CR-006. Re-scored from the evidence at the CR-006 verification checkpoint (TASK-226, 2026-11-15): every CR-006 control row above now cites an executed test; the 20-client run through the proxy had 0 × 5xx, p95 at most 1.05 s and no worker kill, so PRB-072's failure (8 clients pass, 16 and 20 fail) is gone and PRB-072 is resolved by TASK-136 (CR-006 D-1, D-26); the 150 MiB download takes 2.83 s with two reads. The residual is still set by the single-host decision (ADR-0010), PRB-057 (no backup procedure) and PRB-081 (about threads + connections concurrent requests, beyond that 500s), none touched by CR-006; **3 × 2 → alarp, unchanged**, and not 3 × 1.
+
+**Change analysis (CR-007, 2026-11-16, PRB-092).** The temporary directories in which an uploaded file is held
+(the proxy's client-body directory and, above 1 MiB, Starlette's spool in the API container, ADR-0021) are
+neither limited nor checked, so concurrent maximum-size uploads can fill them. Before TASK-232 a full API
+directory made FastAPI answer a plain 400 "There was an error parsing the body" that the API did not log, so
+the operator could not tell it from a bad request. CR-007 adds no capacity control (D-1): the cause is
+accepted as a residual. It adds two measures: the protective one (TASK-232, D-7) makes the failure logged,
+visible to the user as a 503 with a retry instruction, and leaves nothing stored; the information one
+(TASK-231, `infra/DEPLOY.md`) names both directories, the sizing (about 300 MiB per concurrent maximum-size
+upload where they share a disk) and the free space to monitor. A full proxy directory is still nginx's own
+500 with a `crit` log line. The harm stays a delayed upload that the user can repeat: no stored record is
+changed or lost. **Residual: 3 × 2 → alarp, unchanged.** The protective measure does not lower the
+probability that the space runs out; it makes the failure detectable and recoverable, which supports the
+ALARP argument but is not scored as a reduction. The cause needs several concurrent maximum-size uploads
+on a host with little temporary space; ADR-0010 and PRB-057 still set the residual. The TC-018.3 load test
+uploads 1 MiB files and does not exercise this cause. Acceptance is the human's, in MedTrace.
 
 **Decided by:** pending — the owner's acceptance is the approval of this record.
 
@@ -224,3 +247,4 @@ CR-006 (2026-11-13), availability effects introduced by its controls:
 - 1.17 (2026-11-14) — TASK-225 (Document Writer): the Verify column of the DICOM-bounds row names TS-019 TC-019.1 to TC-019.4 (TASK-218) instead of "none yet (planned: TS-010 or a new TS)"; the decode is stubbed (PRB-048). Scores unchanged. Stays `in_review`.
 - 1.18 (2026-11-15) — TASK-226 (CR-006 verification): every remaining "none yet" row of the CR-006 controls replaced by the executed tests, the load-test result and the migration timings, all dated 2026-11-15; re-scored from that evidence, 3 × 2 → alarp, unchanged. Content change, so the record stays `in_review` for the owner's acceptance.
 - 1.19 (2026-11-15) — TASK-226 round 2 (QA M-2, L-1): the stack 502 named as the first-pass checksum path; AC 7 evidence is the production image build, 160.44 kB. Scores unchanged (3 × 2 → alarp). Stays `in_review`.
+- 1.20 (2026-11-16) — CR-007 TASK-231 (PRB-092): upload scratch space added as a cause, with a protective control row (TASK-232: logged 503, nothing stored) and an information row (`infra/DEPLOY.md`: both directories, about 300 MiB per concurrent maximum-size upload, monitor free space), and a residual paragraph; no capacity control (D-1). Round 2 restates the failure behaviour (round 1 wrongly said "a loud 5xx"; it was an unlogged 400 before TASK-232). Scores unchanged (3 × 2 → alarp). Content change, so the approval record is cleared and the record returns to review.

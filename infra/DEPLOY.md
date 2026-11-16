@@ -231,8 +231,25 @@ open).
 `/api/` (`infra/reverse-proxy/nginx.conf`): the 150 MiB attachment maximum
 (`ATTACHMENT_MAX_BYTES=157286400`) plus the multipart framing. Do not raise `ATTACHMENT_MAX_BYTES`
 above 150 MiB without raising that value, and the other way round. A larger body is refused by nginx and
-answered as the API's own 400 `validation-error`. The API container spools an uploaded file above 1 MiB
-to a temporary file, so concurrent large uploads need free disk space there.
+answered as the API's own 400 `validation-error`.
+
+An upload body is written to disk in two containers before it is stored: the reverse proxy (nginx) buffers
+the request body in its client-body temporary directory (`/var/cache/nginx/client_temp` in the
+`nginx:alpine` image used here; `nginx.conf` does not change it), and the API container spools an uploaded
+file above 1 MiB to a temporary file in its own temporary directory (`/tmp` unless `TMPDIR` is set). Both
+copies exist until the request ends. Provide about 300 MiB free for each maximum-size upload the site
+expects at the same time where the two directories share a disk (the usual Docker data root on one host),
+or about 150 MiB in each otherwise. Neither the application nor Compose limits the number of concurrent
+uploads, mounts a volume for either directory or checks the free space, so monitor it.
+
+When the API container's directory is full, the upload answers HTTP 503 `application/problem+json`
+(`upload-storage-unavailable`) with `Retry-After: 30`, the upload form shows that the server could not
+receive the file, nothing is stored in the object store or the database, and the user can retry. The API
+writes one ERROR log line with the HTTP method, the route template and the errno (for example `ENOSPC`),
+and no path, file name or clinical data; the 503 also shows in the proxy access log. A malformed body is
+still a 400. When the proxy's directory is full, nginx answers its own 500 before the API sees the request
+and logs at `crit` in the proxy error log. Other requests that need either directory may fail while it is
+full (RISK-007, PRB-092).
 
 ### 4. Verify the stack
 
