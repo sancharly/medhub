@@ -103,12 +103,15 @@ describe("route-level role guards (TASK-142, PRB-014)", () => {
       meAs(role);
       visit(concrete(path));
       const allowed = EXPECTED[path].includes(role);
+      // Pages are lazy route chunks (TASK-145): the first visit to each imports its module,
+      // which can take longer than the 1 s default on a loaded CI runner.
+      const lazyLoad = { timeout: 5000 };
       if (allowed) {
-        await waitFor(() => expect(mounted).toHaveBeenCalledWith(path));
+        await waitFor(() => expect(mounted).toHaveBeenCalledWith(path), lazyLoad);
         expect(window.location.pathname).toBe(concrete(path));
       } else {
-        await waitFor(() => expect(window.location.pathname).toBe("/profile"));
-        await screen.findByText("page:/profile");
+        await waitFor(() => expect(window.location.pathname).toBe("/profile"), lazyLoad);
+        await screen.findByText("page:/profile", {}, lazyLoad);
         expect(mounted).not.toHaveBeenCalledWith(path);
       }
     });
