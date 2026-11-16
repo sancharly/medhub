@@ -2,6 +2,10 @@
 
 from __future__ import annotations
 
+import errno
+import logging
+import os
+import tempfile
 import uuid
 from datetime import UTC, datetime
 from unittest.mock import MagicMock
@@ -319,3 +323,131 @@ class TestFileNameBound:
         assert resp.status_code == 200
         assert resp.content == b"PAYLOAD"
         assert len(resp.headers["content-disposition"].encode("ascii")) <= 1024
+
+
+class TestUploadScratchSpaceFailure:
+    """TASK-232 (PRB-092, CR-007 D-7): a spool failure is a logged, retryable 503."""
+
+    URL = "/api/v1/clinical-entries/{entry_id}/attachments"
+    FILE_NAME = "jane.doe@example.com-scan.dcm"
+
+    def _setup(self, client):
+        _auth_as(client, _make_account(UserType.DOCTOR))
+        svc = MagicMock(spec=AttachmentService)
+        svc.store.return_value = _make_attachment()
+        client.app.dependency_overrides[_get_attachment_service] = lambda: svc
+        return svc
+
+    def _fail_spool(self, monkeypatch):
+        def rollover(self):
+            raise OSError(errno.ENOSPC, os.strerror(errno.ENOSPC))
+
+        monkeypatch.setattr(tempfile.SpooledTemporaryFile, "rollover", rollover)
+
+    def _upload(self, client, entry_id):
+        return client.post(
+            self.URL.format(entry_id=entry_id),
+            files={"file": (self.FILE_NAME, b"x" * (2 * 1024 * 1024), "application/dicom")},
+            headers={"X-CSRF-Token": "tok"},
+            cookies={"medhub_csrf": "tok"},
+        )
+
+    def test_spool_failure_answers_503_problem_and_stores_nothing(self, client, monkeypatch):
+        svc = self._setup(client)
+        self._fail_spool(monkeypatch)
+        try:
+            resp = self._upload(client, uuid.uuid4())
+        finally:
+            client.app.dependency_overrides = {}
+        assert resp.status_code == 503
+        assert resp.headers["content-type"].startswith("application/problem+json")
+        body = resp.json()
+        assert body["type"].endswith("/errors/upload-storage-unavailable")
+        assert body["status"] == 503
+        assert body["title"] == "Service Unavailable"
+        assert body["detail"] == (
+            "The server could not receive the file because its temporary storage is "
+            "unavailable. Nothing was saved; please try again later."
+        )
+        assert resp.headers["retry-after"] == "30"
+        svc.store.assert_not_called()
+
+    def test_spool_failure_is_logged_at_error_without_the_path_or_file_name(
+        self, client, monkeypatch, caplog
+    ):
+        self._setup(client)
+        self._fail_spool(monkeypatch)
+        entry_id = uuid.uuid4()
+        try:
+            with caplog.at_level(logging.DEBUG):
+                self._upload(client, entry_id)
+        finally:
+            client.app.dependency_overrides = {}
+        records = [
+            r
+            for r in caplog.records
+            if r.name == "app.api.routers.attachments" and r.levelno == logging.ERROR
+        ]
+        assert len(records) == 1
+        record = records[0]
+        text = record.getMessage()
+        assert "ENOSPC" in text
+        assert "/clinical-entries/{entry_id}/attachments" in text
+        assert str(entry_id) not in text
+        assert self.FILE_NAME not in text
+        assert record.exc_info is not None
+        assert isinstance(record.exc_info[1], OSError)
+
+    @pytest.mark.parametrize(
+        ("content_type", "body"),
+        [
+            (
+                "multipart/form-data; boundary=BND",
+                b'--BND\r\nContent-Disposition: form-data; name="file"; filename="a.pdf"\r\n'
+                + b"X-Pad: "
+                + b"a" * 8192
+                + b"\r\n\r\ndata\r\n--BND--\r\n",
+            ),
+            ("multipart/form-data", b"--BND\r\n\r\ndata\r\n--BND--\r\n"),
+        ],
+        ids=["8kb-part-header", "no-boundary"],
+    )
+    def test_malformed_multipart_still_answers_400(self, client, caplog, content_type, body):
+        svc = self._setup(client)
+        try:
+            with caplog.at_level(logging.DEBUG):
+                resp = client.post(
+                    self.URL.format(entry_id=uuid.uuid4()),
+                    content=body,
+                    headers={
+                        "Content-Type": content_type,
+                        "X-CSRF-Token": "tok",
+                    },
+                    cookies={"medhub_csrf": "tok"},
+                )
+        finally:
+            client.app.dependency_overrides = {}
+        assert resp.status_code == 400
+        assert resp.headers["content-type"].startswith("application/json")
+        assert "retry-after" not in resp.headers
+        assert not [
+            r
+            for r in caplog.records
+            if r.name == "app.api.routers.attachments" and r.levelno >= logging.ERROR
+        ]
+        svc.store.assert_not_called()
+
+    def test_other_os_errors_in_the_handler_still_reach_the_500_handler(self, client):
+        svc = self._setup(client)
+        svc.store.side_effect = OSError(errno.EIO, "boom")
+        try:
+            resp = client.post(
+                self.URL.format(entry_id=uuid.uuid4()),
+                files={"file": ("a.pdf", b"data", "application/pdf")},
+                headers={"X-CSRF-Token": "tok"},
+                cookies={"medhub_csrf": "tok"},
+            )
+        finally:
+            client.app.dependency_overrides = {}
+        assert resp.status_code == 500
+        assert resp.json()["type"].endswith("/errors/internal-error")

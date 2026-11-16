@@ -160,6 +160,25 @@ class ErasureNotificationUnavailableProblem(ProblemError):
         super().__init__(detail)
 
 
+class UploadStorageUnavailableProblem(ProblemError):
+    """The upload body could not be spooled to the API container's scratch space (PRB-092).
+
+    Retryable: the scratch space frees as concurrent uploads end. Nothing was stored.
+    """
+
+    status = 503
+    title = "Service Unavailable"
+    type_slug = "upload-storage-unavailable"
+    headers = {"Retry-After": "30"}
+
+    def __init__(
+        self,
+        detail: str = "The server could not receive the file because its temporary storage is "
+        "unavailable. Nothing was saved; please try again later.",
+    ) -> None:
+        super().__init__(detail)
+
+
 def _problem_response(
     problem: dict[str, Any], status: int, headers: dict[str, str] | None = None
 ) -> JSONResponse:

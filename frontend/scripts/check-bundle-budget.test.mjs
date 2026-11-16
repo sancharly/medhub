@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync, existsSync } from "node:fs";
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync, existsSync, readdirSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -197,4 +197,34 @@ export default {
     expect(r.ok).toBe(false);
     expect(r.message).toMatch(/not a lazy chunk of its own.*src\/core\/patients\/index\.ts/);
   }, 120_000);
+});
+
+// PRB-093 (CR-007 D-1): run on its own after `npm run build`, which removes the manifest, the check
+// gives a verdict (message and exit 1) instead of an uncaught ENOENT stack trace. Never a pass.
+describe("budget check without a manifest (TC-018.10, PRB-093)", () => {
+  const run = (dir, ...extra) =>
+    spawnSync(process.execPath, [script, dir, ...extra], { encoding: "utf8" });
+
+  it("a missing manifest gives a clear message and exit 1", () => {
+    const dir = tmp("nomanifest-");
+    const r = run(dir);
+    expect(r.status).toBe(1);
+    expect(r.stderr).toContain("manifest.json");
+    expect(r.stderr).toContain("npm run build");
+    for (const out of [r.stdout, r.stderr]) {
+      expect(out).not.toContain("within the budget");
+      expect(out).not.toContain("ENOENT");
+      expect(out).not.toContain("    at ");
+    }
+  });
+
+  it("a missing manifest with --clean removes nothing", () => {
+    const dir = tmp("nomanifest-clean-");
+    mkdirSync(join(dir, "assets"));
+    writeFileSync(join(dir, "assets", "a.js"), "x");
+    const r = run(dir, "--clean");
+    expect(r.status).toBe(1);
+    expect(existsSync(join(dir, "assets", "a.js"))).toBe(true);
+    expect(readdirSync(dir)).toEqual(["assets"]);
+  });
 });
