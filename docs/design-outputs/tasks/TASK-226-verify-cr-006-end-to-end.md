@@ -3,10 +3,10 @@ id: "TASK-226"
 type: task
 title: "Verify CR-006 end to end"
 status: approved
-version: "1.2"
+version: "1.3"
 author: "Carlos Santiago Liceras"
 created: "2026-11-13"
-updated: "2026-11-15"
+updated: "2026-11-16"
 links:
   - target: "SR-026"
     relation: implements
@@ -172,14 +172,32 @@ on `8028685`; 20 pass now.
 
 ### Step 4 — hosted CI
 
-**Pending.** It needs a push, which is the human's decision. Not run.
+**PASS** (recorded by QA, 2026-11-16, after the human's push). Branch head
+`331e2724a66366eeff2ec6eda92cb6e0d6e9c161`, PR #40:
+
+| Run | Event | Head | Result |
+|---|---|---|---|
+| 43896524793 | push | `331e272` | success, 8 of 8 jobs |
+| 43897144750 | pull_request | `331e272` | success, 8 of 8 jobs |
+| 43824313319 | push | `ef3510f` | success |
+| 43824318806 | pull_request | `ef3510f` | success |
+| 43823245736 / 43823253427 | push / pull_request | `09bcc69` | failure: Backend Quality, Frontend Tests (OpenAPI Lint skipped) |
+
+The eight jobs on `331e272`, both runs: Backend Quality, Backend Tests, Docker Build, Frontend Quality,
+Frontend Tests, Image Pin Check, Object Store Integration, OpenAPI Lint (`gh pr checks 40`: all pass).
+
+The first push, at `09bcc69`, failed two jobs: Backend Quality (Black reformat of
+`backend/tests/workers/test_retention_lock.py`) and Frontend Tests (the upload FormData test in
+`frontend/src/api/client.test.ts`, which read the multipart body in an MSW handler and fails under CI's Node 24).
+Commit `ef3510f` fixed both and touches only those two test files (`git show --stat ef3510f`: 2 files, 30+/20-);
+no product code changed, so the step 1 to 3 evidence still applies. `331e272` changes CR-006 only (D-35).
 
 ### Step 5 — records
 
 Updated (all `in_review`, approval record removed where the record was approved, version bumped, history line
-added): TS-001 1.11, TS-007 1.12, TS-018 1.8, TS-019 1.1; RISK-003 1.5, RISK-004 1.8, RISK-005 1.12,
-RISK-007 1.18, RISK-008 1.8, RISK-009 1.7, RISK-012 1.4; PRB-021 (`resolved`, 1.2), PRB-031 (rejection
-evidence), PRB-008, 009, 072, 078, 089 (verification lines); CR-006 1.16; this task 1.1. TS-004, 005, 010, 011, 012,
+added): TS-001 1.11, TS-007 1.12, TS-018 1.9, TS-019 1.1; RISK-003 1.5, RISK-004 1.8, RISK-005 1.12,
+RISK-007 1.19, RISK-008 1.8, RISK-009 1.7, RISK-012 1.5; PRB-021 (`resolved`, 1.2), PRB-031 (rejection
+evidence), PRB-008, 009, 072, 078, 089 (verification lines); CR-006 1.17 (1.18 adds D-35); this task 1.2 (round-2 versions). TS-004, 005, 010, 011, 012,
 017 are unchanged: their cases are automated and passed in the regression above, and they carry no system-level
 case for this task. SR content untouched; SR-026 AC 7 holds the approved 165 kB (production image build 160.44 kB; host run 160.06 kB).
 
@@ -201,12 +219,11 @@ RISK re-scores (all from the evidence above; no score changed):
 
 ### Open points for QA and the human
 
-- **For the human to confirm: SR-026 AC 3 (first DICOM image within 10 s) is deferred.** CR-006 verifies the DICOM bounds only (TASK-218); the real render and its 10 s budget stay with PRB-048 and PRB-046 (D-20), which now say so. If D-20 is not accepted as covering AC 3, a new decision is needed before CR-006 closes.
+- **Resolved (2026-11-16): SR-026 AC 3 (first DICOM image within 10 s) is deferred.** CR-006 verifies the DICOM bounds only (TASK-218); the real render and its 10 s budget stay with PRB-048 and PRB-046 (D-20), which now say so, and AC 3 cannot be verified until they are resolved. The human confirmed the deferral as decision D-35 in CR-006 1.18 (commit `331e272`).
 - PRB-093 (standalone `check:budget` fails after a build, `minor`, outside CR-006) was raised.
 - Step-3 evidence is kept in `v226/`: `ev-replaced-object.txt`, `ev-real-store.txt`, `ev-migrations.txt`, `ev-dicom-probe.txt`, `ev-teardown.txt` (transcribed from the session output; the stack is gone).
 - PRB-021 is `resolved`, not `closed`, like the other CR-006 problem reports; `closed` follows the CR.
-- AC 3 of SR-026 (DICOM first image within 10 s) cannot be verified until PRB-048 and PRB-046 are resolved.
-- Step 4 (hosted CI) is pending a push.
+- Step 4 (hosted CI): resolved 2026-11-16, green on `331e272` (see Step 4).
 - The load run is the final one for the approved pools; PRB-081 (more than threads + connections concurrent
   requests give 500) was not exercised, as decided in D-27.
 
@@ -217,6 +234,7 @@ RISK re-scores (all from the evidence above; no score changed):
 - 1.1 (2026-11-15) — QA review round 1: CHANGES REQUESTED, `in_review` to `draft` (findings in "QA review round 1").
 - 1.2 (2026-11-15) — Round 2 (Software Developer): QA round 1 findings M-1, M-2, L-1 to L-4 fixed in the records (CR-006 1.17, PRB-046 and PRB-048 notes, RISK-012 1.5, RISK-007 1.19, PRB-008 1.5, PRB-072 1.4, TS-018 1.9, PRB-093 raised, evidence files). `draft → in_review`.
 - 1.2 (2026-11-15) — QA review round 2: APPROVED, `in_review` to `approved`; the three acceptance criteria ticked. Step 4 (hosted CI) stays open, pending the human's go-ahead to push (see "QA review round 2").
+- 1.3 (2026-11-16) — QA, hosted part: step 4 recorded and checked, runs 43896524793 (push) and 43897144750 (pull_request) on head `331e272`, 8 of 8 jobs green; the `09bcc69` failures were fixed by the test-only commit `ef3510f`. SR-026 AC 3 open point marked resolved by D-35 (CR-006 1.18). Carried LOW R2-3 fixed (Step 5 versions, duplicate AC 3 item). Re-approved: status stays `approved`.
 
 ## QA review round 1 (qa-engineer, 2026-11-15) — CHANGES REQUESTED
 
@@ -343,3 +361,13 @@ hosted run is recorded here and checked by QA, as in TASK-216.
 - No change under `backend/`, `frontend/`, `infra/` or `docs/design-inputs/`, so the round-1 runs still apply
   (backend 1743 passed, 10 skipped; frontend 412 passed).
 - `docker compose ls`: only `infra` (running 8).
+
+## QA review, hosted part (qa-engineer, 2026-11-16) — APPROVED
+
+Step 4 checked with `gh run list --branch fix/review-2026-07-reliability` and `gh pr checks 40`: runs 43896524793
+(push) and 43897144750 (pull_request) on `331e2724a66366eeff2ec6eda92cb6e0d6e9c161` concluded `success`, each with
+the 8 jobs passing. The earlier head `ef3510f` is green too (43824313319, 43824318806). The `09bcc69` runs failed
+Backend Quality and Frontend Tests (`gh run view 43823245736`); `ef3510f` changes only
+`backend/tests/workers/test_retention_lock.py` and `frontend/src/api/client.test.ts`, so no product code changed
+after the local evidence. The open item of round 2 is closed. R2-3 fixed in this pass; R2-1 and R2-2 stay carried
+(TS-018, RISK-007).
