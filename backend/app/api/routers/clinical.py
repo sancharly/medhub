@@ -5,7 +5,6 @@ from __future__ import annotations
 import uuid
 
 from fastapi import APIRouter, Depends, status
-from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user
 from app.api.errors import AuthorizationError
@@ -23,17 +22,17 @@ from app.db.repositories.account_repo import AccountRepository
 from app.db.repositories.audit_repo import AuditRepository
 from app.db.repositories.clinical_repo import ClinicalRepository
 from app.db.repositories.consent_repo import ConsentRepository
-from app.db.repositories.session import get_db
+from app.db.repositories.session import DbSession
 
 router = APIRouter(prefix="/patients", tags=["clinical"])
 roster_router = APIRouter(prefix="/clinical-entries", tags=["clinical"])
 
 
-def _get_account_repo(db: Session = Depends(get_db)) -> AccountRepository:
+def _get_account_repo(db: DbSession) -> AccountRepository:
     return AccountRepository(db)
 
 
-def _get_clinical_service(db: Session = Depends(get_db)) -> ClinicalDataService:
+def _get_clinical_service(db: DbSession) -> ClinicalDataService:
     audit_svc = AuditService(AuditRepository(db))
     consent_repo = ConsentRepository(db)
     consent_svc = ConsentService(consent_repo, audit_svc)
@@ -47,7 +46,7 @@ def _get_clinical_service(db: Session = Depends(get_db)) -> ClinicalDataService:
     )
 
 
-def _get_authz_service(db: Session = Depends(get_db)) -> AuthorizationService:
+def _get_authz_service(db: DbSession) -> AuthorizationService:
     audit_svc = AuditService(AuditRepository(db))
     return AuthorizationService(ConsentService(ConsentRepository(db), audit_svc), audit_svc)
 

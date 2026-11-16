@@ -3,16 +3,20 @@ id: ADD-026
 type: architecture-doc
 title: Deployment configuration, secrets and runtime users (SI-DEPLOY)
 status: approved
-version: "1.5"
+version: "1.7"
 author: Carlos Santiago Liceras
 created: "2026-10-31"
-updated: "2026-11-13"
+updated: "2026-11-16"
 safety_class: B
 approved_by: Carlos Santiago Liceras
-approved_on: "2026-11-13"
-approved_digest: 021ba752dfff09d0f0ce946236ff8c6e3e6a2c4d0f4ef98e186670ba4380fdcd
+approved_on: "2026-11-16"
+approved_digest: f853eee7fb8ed48cc141e340a2dfa4954c7b15832aebd7dda17de1af6d1ce83c
 approval_note: self-approved
 links:
+  - target: SR-026
+    relation: implements
+  - target: SR-013
+    relation: implements
   - target: SR-041
     relation: implements
   - target: SR-042
@@ -107,13 +111,19 @@ concerns were spread over ADR-0010 and the deployment guide with no design recor
   or header variable). The two locations that carry the activation token in the path log errors at `crit` only,
   and the activation page sends `Referrer-Policy: no-referrer`. The frontend container logs no access and only
   `crit` errors. No backend access log option is set in the image or in Compose (SR-043 AC 4, SR-033; TASK-206).
+- **CR-006 (implemented).** `U-DEP-ProxyLogging`'s `nginx.conf` also sets `client_max_body_size` on `/api/` to the
+  attachment maximum plus the multipart allowance (151m), so an upload above nginx's 1 MiB default reaches the
+  application, which enforces the exact limit (SR-013 AC 1, AC 6; TASK-135, ADR-0021); an `infra/tests` check
+  keeps it at least the maximum. `U-DEP-Compose`: `API_THREADPOOL_SIZE`, `DB_POOL_SIZE`, `DB_MAX_OVERFLOW`,
+  `DB_POOL_TIMEOUT` for the backend, deployed as 20, 20, 20 and 10 s (code defaults 15, 5, 10, 30 s), as
+  approved by the human from the load test (SR-026 AC 5; TASK-136, ADR-0022, CR-006 D-14, D-24, D-25); one Gunicorn worker as today.
 
 Class B requires decomposition down to software units only.
 
 ## Requirements implemented
 
 Software requirements: SR-041 (all AC), SR-042 AC 3, SR-023 AC 8 (deployment side), SR-022 AC 3
-and SR-041 AC 5 (key settings).
+and SR-041 AC 5 (key settings); CR-006 adds SR-013 AC 1, AC 6 (proxy body limit) and SR-026 AC 5 (pool settings).
 
 ## Interfaces
 
@@ -158,3 +168,5 @@ names the setting; a missing grant makes a statement fail until the next `db-mig
 - 1.3 (2026-11-08) — TASK-201 (CR-004): `U-DEP-Compose` text replaced with the unit as built (`db-migrate` steps, `celery-worker` and `celery-beat`, entrypoint, SSE key and volume, ports); `U-DEP-SecretRule` checks listed; narrative pointer and open decisions updated. `in_review`.
 - 1.4 (2026-11-08) — TASK-201 round 2: the unused-settings note corrected (`db-migrate` uses the field keyring; only `celery-beat` holds unused field keys). `in_review`.
 - 1.5 (2026-11-12) — TASK-214 (CR-005, PRB-041): `U-DEP-RuntimeUsers` names `--no-control-socket` in the backend `CMD`. Content change, so the approval record is cleared and the record returns to review. `in_review`.
+- 1.6 (2026-11-13) — CR-006 Plan stage (Software Architect role): proxy body limit and pool settings marked "CR-006 (planned)"; `implements` SR-013 and SR-026 added. Content change, so the 1.5 approval record is cleared and the record returns to review.
+- 1.7 (2026-11-15) — TASK-225 (QA round 1, MEDIUM 3): the "CR-006 (planned)" marker is removed; the proxy body limit (TASK-135) and the pool settings (TASK-136) are implemented as described. The pool values are stated: code defaults 15, 5, 10, 30 s; deployed (Compose) `API_THREADPOOL_SIZE` 20, `DB_POOL_SIZE` 20, `DB_MAX_OVERFLOW` 20, `DB_POOL_TIMEOUT` 10 s (CR-006 D-24, D-25). Content change on an approved record, so the 1.6 approval record is cleared and the record returns to review.

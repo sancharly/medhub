@@ -13,15 +13,6 @@ export type MeResponse = components["schemas"]["MeResponse"];
 export type MeSummary = components["schemas"]["MeSummary"];
 export type ChangePasswordRequest = components["schemas"]["PasswordChangeRequest"];
 export type ExtendSessionResponse = components["schemas"]["SessionExtendResponse"];
-// Override: detail is optional (synthetic errors omit it), errors have known shape
-export type ProblemError = {
-  type: string;
-  title: string;
-  status: number;
-  detail?: string;
-  instance?: string;
-  errors?: Array<{ field?: string; rule?: string; message?: string }>;
-};
 export type ClinicalEntry = components["schemas"]["ClinicalEntryResponse"];
 export type CreateClinicalEntryRequest = components["schemas"]["ClinicalEntryCreate"];
 export type Attachment = components["schemas"]["AttachmentResponse"];

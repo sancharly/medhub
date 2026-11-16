@@ -5,11 +5,11 @@ Deny-by-default: only health and openapi endpoints are unauthenticated.
 
 from __future__ import annotations
 
+import functools
 from collections.abc import Callable
 
 import redis as redis_lib
 from fastapi import Depends, Request
-from sqlalchemy.orm import Session
 
 from app.api.errors import UnauthenticatedError
 from app.auth.session import Session as UserSession
@@ -17,16 +17,29 @@ from app.auth.session import SessionService
 from app.core.config import get_settings
 from app.db.models.account import Account
 from app.db.repositories.account_repo import AccountRepository
-from app.db.repositories.session import get_db
+from app.db.repositories.session import DbSession
 
 # ---------------------------------------------------------------------------
 # Redis client dependency
 # ---------------------------------------------------------------------------
 
 
+@functools.lru_cache(maxsize=1)
+def _redis_client() -> redis_lib.Redis:
+    """One client, one bounded connection pool for the process (ADR-0022).
+
+    A client per request opened a pool per request. The pool holds at most as many connections as
+    the API has threads, so a request never finds the pool empty.
+    """
+    settings = get_settings()
+    return redis_lib.Redis.from_url(
+        settings.redis_url, decode_responses=False, max_connections=settings.api_threadpool_size
+    )
+
+
 def get_redis() -> redis_lib.Redis:
-    """Return a Redis client from the configured URL."""
-    return redis_lib.Redis.from_url(get_settings().redis_url, decode_responses=False)
+    """Return the process-wide Redis client."""
+    return _redis_client()
 
 
 def get_session_service(r: redis_lib.Redis = Depends(get_redis)) -> SessionService:
@@ -40,7 +53,19 @@ def get_session_service(r: redis_lib.Redis = Depends(get_redis)) -> SessionServi
 _SESSION_COOKIE = "medhub_session"
 
 
-async def get_session(
+def _resolve_session(request: Request, svc: SessionService, *, slide: bool) -> UserSession:
+    session_id = request.cookies.get(_SESSION_COOKIE)
+    if not session_id:
+        raise UnauthenticatedError("No session cookie present.")
+
+    session = svc.resolve(session_id, slide=slide)
+    if session is None:
+        raise UnauthenticatedError("Session expired or invalid.")
+
+    return session
+
+
+def get_session(
     request: Request,
     svc: SessionService = Depends(get_session_service),
 ) -> UserSession:
@@ -51,15 +76,19 @@ async def get_session(
     state-changing request outside the reviewed exempt paths (SR-031); ``require_csrf``
     on the routes is a second check of the same token, not the control.
     """
-    session_id = request.cookies.get(_SESSION_COOKIE)
-    if not session_id:
-        raise UnauthenticatedError("No session cookie present.")
+    return _resolve_session(request, svc, slide=True)
 
-    session = svc.resolve(session_id)
-    if session is None:
-        raise UnauthenticatedError("Session expired or invalid.")
 
-    return session
+def get_session_no_slide(
+    request: Request,
+    svc: SessionService = Depends(get_session_service),
+) -> UserSession:
+    """Like ``get_session`` but does not extend the session (TASK-221, SR-030 AC 1, AC 2).
+
+    For routes the client calls on a timer rather than on user activity. An expired or invalid
+    session still raises UnauthenticatedError (401). Use it only on ``GET /me/modules``.
+    """
+    return _resolve_session(request, svc, slide=False)
 
 
 # ---------------------------------------------------------------------------
@@ -67,14 +96,7 @@ async def get_session(
 # ---------------------------------------------------------------------------
 
 
-async def get_current_user(
-    session: UserSession = Depends(get_session),
-    db: Session = Depends(get_db),
-) -> Account:
-    """Load the Account for the current session.
-
-    Defense-in-depth: re-checks that the account is still active.
-    """
+def _active_account(db: DbSession, session: UserSession) -> Account:
     from app.db.models.account import AccountStatus  # noqa: PLC0415
 
     repo = AccountRepository(db)
@@ -82,6 +104,25 @@ async def get_current_user(
     if account is None or account.status != AccountStatus.ACTIVE:
         raise UnauthenticatedError("Account is not active.")
     return account
+
+
+def get_current_user(
+    db: DbSession,
+    session: UserSession = Depends(get_session),
+) -> Account:
+    """Load the Account for the current session.
+
+    Defense-in-depth: re-checks that the account is still active.
+    """
+    return _active_account(db, session)
+
+
+def get_current_user_no_slide(
+    db: DbSession,
+    session: UserSession = Depends(get_session_no_slide),
+) -> Account:
+    """``get_current_user`` over the non-sliding session check (``GET /me/modules`` only)."""
+    return _active_account(db, session)
 
 
 # ---------------------------------------------------------------------------
@@ -95,7 +136,7 @@ async def get_current_user(
 
 
 def get_platform_services(
-    db: Session = Depends(get_db),
+    db: DbSession,
 ) -> object:
     """Yield a request-scoped PlatformServices wired from FastAPI DI."""
     from app.attachments.service import AttachmentService  # noqa: PLC0415
@@ -135,9 +176,9 @@ def get_platform_services(
 def require_module_enabled(module_key: str) -> Callable[..., object]:
     """Return a FastAPI dependency that raises AuthorizationError if module not enabled."""
 
-    async def _dependency(
+    def _dependency(
+        db: DbSession,
         actor: Account = Depends(get_current_user),
-        db: Session = Depends(get_db),
     ) -> None:
         from app.api.errors import AuthorizationError  # noqa: PLC0415
         from app.audit.service import AuditService  # noqa: PLC0415

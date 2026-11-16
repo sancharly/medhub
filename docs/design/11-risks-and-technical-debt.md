@@ -36,11 +36,11 @@ Open at the time of CR-004 (the records are authoritative; this table says what 
 
 | Record | Limit on the design | Note |
 |--------|--------------------|------|
-| [PRB-013](../problem-reports/PRB-013-silent-enqueue-failure.md) (major) | A failed enqueue is logged at two call sites (WARNING with ids) but no task is retried or recorded as lost | Stays open (CR-004 D-18) |
+| [PRB-013](../problem-reports/PRB-013-silent-enqueue-failure.md) (major) | A failed enqueue is logged at two call sites (WARNING with ids) but no task is retried or recorded as lost | Stays open (CR-004 D-18). Resolved in CR-006 (TASK-141): an erasure whose retrieval-code e-mail cannot be queued rolls back with a 503 (section 6.14); the two logged call sites stay best effort |
 | [PRB-057](../problem-reports/PRB-057-no-backup-and-restore-procedure.md) (major) | No backup and restore procedure for `postgres_data` or `object_store_data`. It still bounds key loss: a lost `AT_REST_ENCRYPTION_KEY`, retired key or `OBJECT_STORE_SSE_KEY` cannot be recovered, and the damaged-row procedure in `infra/DEPLOY.md` depends on a backup the operator makes alone | The statement that backups are documented (ADR-0010) was untrue; see its note |
 | [PRB-060](../problem-reports/PRB-060-allowed-authz-audit-row-rolled-back-when-request-fails.md) (minor) | An allowed authorization decision leaves no audit row when the request then fails | Human accepted for now; fix together with PRB-058 |
 | [PRB-058](../problem-reports/PRB-058-independent-audit-write-lost-on-pool-exhaustion.md) (minor) | An independent audit write can be lost when the connection pool is exhausted | |
-| [PRB-072](../problem-reports/PRB-072-concurrent-writes-collapse-the-api.md) (major) | About twenty parallel writes on a healthy stack answer 502 and kill the worker; the root cause is not established. Bounds the "normal load" assumption of section 10 | Outside CR-004 (D-18); related to PRB-009 |
+| [PRB-072](../problem-reports/PRB-072-concurrent-writes-collapse-the-api.md) (major) | Resolved in CR-006 (TASK-136, ADR-0022): blocking IO moved to threads and the pools sized together; 20 concurrent clients now give no 5xx and no worker kill. What remains is PRB-081 below | Outside CR-004 (D-18); related to PRB-009 |
 | [PRB-073](../problem-reports/PRB-073-attachment-name-with-dot-segments-answers-500.md) (minor) | An attachment name with dot segments answers 500; containment relies on the object store's refusal because the display name and the storage key are one value | Outside CR-004 |
 | [PRB-074](../problem-reports/PRB-074-credentials-and-email-in-celery-task-arguments.md) (major) | Activation tokens, retrieval codes and an erased user's e-mail address sit in Redis as plaintext task arguments | Outside CR-004; no requirement covers credentials at rest in the broker |
 | [PRB-075](../problem-reports/PRB-075-backend-fails-to-start-when-an-enabled-module-disappears.md) (major) | The backend does not start when a module with group enablement rows is uninstalled or its manifest is rejected (registry delete hits a foreign key) | See the residual on module discovery below |
@@ -52,8 +52,22 @@ Residuals for the release's residual-anomaly evaluation (human decisions; the re
 - **Unused settings in two services:** `celery-beat` receives object-store and field-key settings it does not use, and `db-migrate` receives object-store settings it does not use (it does use the field keyring: migration 0010 and `reencrypt --verify-key-ids`), because the start-up rule checks them. Accept or plan narrowing (open decision).
 - **Module discovery and registry sync can stop the start (PRB-075):** a rejected manifest only logs a WARNING and the module is skipped, but the registry sync then deletes the row of every module no longer discovered (rejected or uninstalled). The delete fails on a foreign key (`fk_group_module_enablement_module_id`, no `ON DELETE`) whenever any group has an enablement row for the module, enabled or not; the lifespan logs `Module registry sync failed at startup` and re-raises, so the backend does not start. Remedy today: fix the manifest or reinstall the previous module version (`infra/DEPLOY.md`, step 4). Decision needed: how a removed or rejected module is retired, and whether a rejected manifest should log at ERROR naming the entry point.
 
+## Residuals and debt added or bounded by CR-006
+
+| Item | Limit on the design | Record |
+|------|---------------------|--------|
+| Requests beyond threads + connections per worker | A connection belongs to the request, so one worker serves about threads + connections requests (about 60 deployed); beyond that a request waits `DB_POOL_TIMEOUT` (10 s) and answers 500. The start-up invariant avoids the PRB-072 worker kill, not every pool-wait failure | PRB-081 (minor, open); ADR-0022 |
+| NumPy is not installed | The DICOM frame decode cannot succeed in any environment, so a real render is not shown; the size bounds, their order and the error path are verified with a stubbed `pixel_array` (TS-019). Bounds RISK-003 evidence | PRB-048 (major, open) |
+| Two object-store reads per download | Pass 1 hashes the object, pass 2 streams it bound by the ETag; the store is read twice for every download. Chosen so that no unverified byte is served (SR-013 AC 5) without a local temporary file | ADR-0021; RISK-012 |
+| Upload scratch space | Starlette spools a file part above 1 MiB to a temporary file in the API container; several concurrent 150 MiB uploads need that much free disk there. Neither `backend/app` nor Compose limits concurrent uploads or checks the free space | [PRB-092](../problem-reports/PRB-092-upload-scratch-space-in-the-api-container-is-unchecked.md) (minor, open); ADR-0021 |
+| Pass-2 storage stream not closed when the download never starts | The storage response is released only when its last reference goes; transient storage-connection use, no data or audit effect | PRB-082 (minor, open) |
+| Index builds block writes | Migrations 0011 and 0012 use plain `CREATE INDEX`; writes to the table wait while it builds (section 7). Acceptable on a single host with a maintenance window; not for a database that cannot pause writes | migrations 0011, 0012 |
+| A failed current-password check is neither audited nor attempt-limited | `POST /auth/password` answers 400 for a wrong current password; the attempt leaves no audit row and is not counted by the lockout | PRB-088 (minor, open) |
+| Untyped `ProblemDetail.errors` items | The generated schema leaves `errors` items untyped, so the client types them by hand in `ProblemError` | PRB-086 (minor, open) |
+
 ## Closed technical debt
 
 | Item | Closed by | Note |
 |------|-----------|------|
 | Object store: MinIO community edition unmaintained, with unfixed advisories, floating tags and a console | CR-002 (ADR-0015, SeaweedFS 4.51 by digest) | The replacement's own debt is the monthly advisory cadence above. Hosts that held attachments in MinIO migrate once (`infra/DEPLOY.md`) |
+| Blocking calls in `async def` handlers and dependencies (PRB-009); retention sweep session leak (PRB-012); request transaction committed after the response (PRB-080) | CR-006 (TASK-136, TASK-141, TASK-227; ADR-0022, ADR-0023) | See sections 4, 6.14, 6.15 and 7 |

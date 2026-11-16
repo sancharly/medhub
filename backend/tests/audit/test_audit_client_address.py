@@ -14,7 +14,6 @@ from unittest.mock import MagicMock
 
 import fakeredis
 import pytest
-from fastapi import Depends
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine, delete, select
 from sqlalchemy.orm import Session, sessionmaker
@@ -35,7 +34,7 @@ from app.db.models.audit import AuditLog
 from app.db.models.base import Base
 from app.db.models.consent import ConsentGrant
 from app.db.repositories.audit_repo import AuditRepository
-from app.db.repositories.session import get_db
+from app.db.repositories.session import DbSession
 from app.main import create_app
 from postgres_image import POSTGRES_IMAGE
 
@@ -122,7 +121,7 @@ def _denied_request(app_, factory, peer: str, headers: dict[str, str]) -> uuid.U
         checksum=hashlib.sha256(b"x").hexdigest(),
     )
 
-    def _dep(db: Session = Depends(get_db)) -> AttachmentService:
+    def _dep(db: DbSession) -> AttachmentService:
         audit = AuditService(AuditRepository(db))
         repo = MagicMock()
         repo.get.return_value = attachment

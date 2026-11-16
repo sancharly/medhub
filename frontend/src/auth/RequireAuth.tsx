@@ -1,19 +1,15 @@
 import { useEffect } from "react";
 import { useNavigate, useLocation, Outlet } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
 import Alert from "@mui/material/Alert";
 import Button from "@mui/material/Button";
-import { apiClient } from "../api";
 import { AuthError } from "../api/client";
+import { useMe } from "./useMe";
 
 export function RequireAuth() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const { data, error, isLoading, refetch } = useQuery({
-    queryKey: ["me"],
-    queryFn: () => apiClient.me(),
-  });
+  const { data, error, isLoading, refetch } = useMe();
 
   useEffect(() => {
     if (error instanceof AuthError) {

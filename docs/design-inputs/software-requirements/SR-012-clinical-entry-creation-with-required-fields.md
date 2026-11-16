@@ -1,18 +1,25 @@
 ---
-id: "SR-012"
+id: SR-012
 type: software-requirement
-title: "Clinical entry creation with required fields"
+title: Clinical entry creation with required fields
 status: approved
-version: "1.2"
-author: "Carlos Santiago Liceras"
+version: "1.3"
+author: Carlos Santiago Liceras
 created: "2026-07-07"
-updated: "2026-10-21"
+updated: "2026-11-13"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-11-13"
+approved_digest: 598bb89ac3aa3fbfb2490c9b2a953b7b32cbb93192dd1ffa7e0e252953131da5
+approval_note: self-approved
 links:
-  - target: "RISK-002"
+  - target: RISK-002
     relation: mitigates
-  - target: "UN-008"
+  - target: RISK-007
+    relation: mitigates
+  - target: UN-008
     relation: derives_from
-tags: ["control:design"]
+tags:
+  - control:design
 ---
 
 ## Summary
@@ -29,6 +36,7 @@ This requirement implements clinical-entry recording. A doctor creates an entry 
 2. The entry records date/time, patient, authoring doctor, and a description; the system rejects an entry missing any of these.
 3. The authoring doctor is set from the authenticated user and cannot be spoofed by the client.
 4. A saved entry is retrievable as part of the patient's clinical history by authorized users.
+5. The success response to a request that saves a clinical entry or an attachment of one is sent only after the change is committed, so a read issued after that response returns it. When the commit fails, the client receives a 5xx error response (RFC 7807) and no success status. (CR-006 D-27, PRB-080.)
 
 ## Origin Requirement
 
@@ -49,6 +57,7 @@ Accurate, well-attributed clinical entries are the core clinical asset and the b
 
 - Validate required fields; derive authoring doctor from the session; confirm patient association.
 - Retrieval gated by authorization (SR-005, SR-006, SR-007); attachments handled by SR-013.
+- A save is acknowledged only after it is committed (AC 5), so a lost write is reported, not hidden (RISK-007; ADR-0023).
 
 ## Version history
 
@@ -56,3 +65,4 @@ Accurate, well-attributed clinical entries are the core clinical asset and the b
   unchanged, so the existing approval stands.
 - 1.2 (2026-10-21) — Tagged `control:design` (type of the risk control it implements,
   medical-records 0.3.2). Traceability only: the content is unchanged, so the existing approval stands.
+- 1.3 (2026-11-13) — Content change, so the record returns to review (CR-006 D-27, PRB-080; Software Architect role at the human's direction). Added AC 5 (a success response only after the commit; a failed commit is a 5xx, not a success) and the `mitigates` link to RISK-007 (an acknowledged write that is lost leaves clinical information unavailable). Reason: FastAPI ran the request commit after the response was sent, and no criterion stated the order.

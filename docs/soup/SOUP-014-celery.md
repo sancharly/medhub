@@ -3,16 +3,17 @@ id: SOUP-014
 type: soup
 title: Celery
 status: approved
-version: "1.5"
+version: "1.7"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
-updated: "2026-11-10"
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-11-10"
-approval_note: approved by the human in chat at the close of CR-004
+updated: "2026-11-14"
 manufacturer: Celery project
 soup_version: 5.6.3
 anomaly_review: "2026-10-22"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-11-14"
+approved_digest: 5aa0219a5fc78e33c850eac18532f7d666fc4944724845271493a90cf044c1e3
+approval_note: self-approved
 links: []
 tags:
   - soup
@@ -47,6 +48,22 @@ logs):
   replaces `args`/`kwargs` fields and email-shaped values (also in `exc` and `traceback`) before a record
   is emitted.
 - `task_ignore_result=True` (TASK-207): with it Celery neither writes a per-task result nor subscribes to the result store at call time. Without it `RedisBackend.on_task_call` retries the result store 20 times at 1 s when Redis is unreachable and `.delay()` blocks the request for about 20 s (19.88 s measured, 0.93 s with the setting); `retry=False` does not help. MedHub relies on it, and on no code reading a task result (`backend/tests/workers/test_celery_results.py`).
+- Enqueue failure and manual retry (TASK-141, SR-024 AC 5 and AC 6): (1) `.delay()` raises (kombu
+  `OperationalError`) when the Redis broker is unreachable, after publish retries of about 0.7 s measured with
+  `task_ignore_result=True`, and does not queue silently; the erasure turns that exception into a rolled-back 503
+  (`backend/tests/workers/test_celery_results.py::test_enqueue_with_unreachable_redis_raises`). (2) For a
+  bound task, `self.request.retries` counts the retries made and `max_retries` bounds them;
+  `raise self.retry(countdown=...)` re-queues the task, and under `Task.apply()` runs it again in-process,
+  so the retention sweep makes one run and at most three retries
+  (`backend/tests/workers/test_retention_tasks.py`). MedHub stops calling `retry` itself once
+  `request.retries` reaches `max_retries`, so it does not depend on what `retry` raises after the limit.
+- Retry with a countdown and changed keyword arguments (TASK-228, SR-024 AC 6): `raise self.retry(countdown=n,
+  kwargs={..., "commit_checks": k})` re-queues the task with an ETA of `n` seconds and the new keyword
+  arguments (the positional arguments are kept); `request.retries` counts every retry, whatever its reason;
+  the ETA (at most 60 s, 14 re-checks) stays far inside the Redis transport `visibility_timeout` (1 h) with
+  `task_acks_late=True`, so the unacknowledged message is not redelivered meanwhile; `max_retries` (17) bounds
+  the sum; `retry` without `exc` carries no exception text into the retry record. Under `Task.apply()` the
+  retry runs in-process (`backend/tests/workers/test_erasure_code_email_gate.py`, TS-004 TC-004.6).
 
 ## Required hardware and software environment
 
@@ -99,3 +116,5 @@ accountable. Hazard-relevant anomalies go to `risk-management`; defects affectin
 - 2026-11-07 — Version 1.3 (TASK-206): relied-on behavior corrected: `--loglevel` is passed by the `setup_logging` signal and applied by MedHub (it was documented as ignored); debug task-header records redacted. No version change of Celery. Approval record cleared; `in_review`.
 - 2026-11-07 — Version 1.4 (TASK-206, PRB-071): relied-on behavior added (`set_default()` is process-global, the current app is thread-local). No version change of Celery. `in_review`.
 - 2026-11-07 — Version 1.5 (TASK-207): relied-on behavior added (`task_ignore_result`, dispatch does not wait on the result store). No version change of Celery. `in_review`.
+- 2026-11-14 — Version 1.6 (TASK-141, CR-006): relied-on behavior added (`.delay()` raises on an unreachable broker; `request.retries`, `max_retries` and `self.retry(countdown=)` for the retention sweep). No version change of Celery; anomaly review (2026-10-22) unchanged and within 365 days. Approval record cleared; `in_review`.
+- 2026-11-14 — Version 1.7 (TASK-228, CR-006 D-30): relied-on behavior added (`self.retry(countdown=, kwargs=)` with an ETA under the Redis `visibility_timeout`; `request.retries` counts all retries). No version change of Celery; anomaly review (2026-10-22) unchanged and within 365 days. Approval record cleared; `in_review`.

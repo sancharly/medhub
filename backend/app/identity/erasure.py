@@ -16,7 +16,12 @@ from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
-from app.api.errors import AuthorizationError, NotFoundError, UnauthenticatedError
+from app.api.errors import (
+    AuthorizationError,
+    ErasureNotificationUnavailableProblem,
+    NotFoundError,
+    UnauthenticatedError,
+)
 from app.audit.actions import AuditAction
 from app.audit.service import AuditService
 from app.auth.password import PasswordService
@@ -112,6 +117,25 @@ class ErasureService:
         )
         self._dataset_repo.add(dataset)
 
+        # Enqueue the retrieval-code e-mail BEFORE anything outside the database changes (SR-024
+        # AC 6, D-5, D-11): if it cannot be queued the erasure fails as a whole, the request's
+        # transaction rolls back and the sessions stay valid. The raw code is passed to the task
+        # and discarded after sending, never persisted. The task sends it only once the dataset row
+        # is visible, i.e. this transaction committed (PRB-083): if the commit then fails the row
+        # never appears and the task drops the code instead of e-mailing an erasure that did not
+        # happen.
+        try:
+            from app.workers.email_tasks import send_erasure_code_email  # noqa: PLC0415
+
+            send_erasure_code_email.delay(original_email, raw_code, str(dataset.id))
+        except Exception as exc:
+            # No exc_info and no exception text: they can carry the broker URL or the address.
+            logger.warning(
+                "Failed to enqueue erasure code email for dataset %s; erasure rolled back",
+                dataset.id,
+            )
+            raise ErasureNotificationUnavailableProblem() from exc
+
         # Kill all sessions synchronously
         self._session_svc.invalidate_all(account_id)
 
@@ -131,15 +155,6 @@ class ErasureService:
             outcome=AuditOutcome.SUCCESS,
             ip=None,
         )
-
-        # Enqueue email with retrieval code (best-effort; not blocking)
-        # The raw code is passed to the task and discarded after sending — never persisted.
-        try:
-            from app.workers.email_tasks import send_erasure_code_email  # noqa: PLC0415
-
-            send_erasure_code_email.delay(original_email, raw_code)
-        except Exception:
-            logger.warning("Failed to enqueue erasure code email for dataset %s", dataset.id)
 
         return ErasureResult(dataset_id=dataset.id, retrieval_code=raw_code)
 

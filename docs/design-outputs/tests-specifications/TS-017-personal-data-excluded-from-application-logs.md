@@ -3,16 +3,18 @@ id: "TS-017"
 type: test-specification
 title: "Personal data excluded from application logs verification"
 status: approved
-version: "1.3"
+version: "1.5"
 author: "Carlos Santiago Liceras"
 created: "2026-11-06"
-updated: "2026-11-07"
+updated: "2026-11-14"
 links:
   - target: "SR-043"
     relation: verifies
   - target: "SR-033"
     relation: verifies
   - target: "SR-023"
+    relation: verifies
+  - target: "SR-024"
     relation: verifies
 tags: ["level:unit", "level:integration", "class:B", "cr:CR-004"]
 ---
@@ -21,7 +23,7 @@ tags: ["level:unit", "level:integration", "class:B", "cr:CR-004"]
 
 ## Scope
 
-Software requirements covered: SR-043 AC 1, AC 2, AC 3 (TASK-138) and AC 4 (TASK-206), SR-033 (the activation link and token, TASK-206), SR-023 (the enqueue-failure warning, TC-017.6, TASK-207). Software items under test: SI-API
+Software requirements covered: SR-043 AC 1, AC 2, AC 3 (TASK-138) and AC 4 (TASK-206), SR-033 (the activation link and token, TASK-206), SR-023 (the enqueue-failure warning, TC-017.6, TASK-207), SR-024 AC 5 and AC 6 (the sweep's failed count and the erasure enqueue warning, TC-017.7, TC-017.8, TASK-141; the commit-gate WARNINGs, TC-017.9, TASK-228). Software items under test: SI-API
 logging `U-API-Logging` (`backend/app/core/logging.py`, ADD-005) and SI-WORKER logging
 (`backend/app/workers/email_tasks.py`, `backend/app/workers/celery_app.py`, ADD-017). Levels: unit
 (TC-017.1, TC-017.2, TC-017.5) and integration (TC-017.2 handler wiring, TC-017.3 over Celery's own task
@@ -46,6 +48,9 @@ records are emitted.
 | TC-017.4 | SR-043 AC 4; SR-033 | `infra/log-secrets-check.sh` (started stack, destructive, by hand: a known activation token on the API path, the page path and the e-mail query form, one unhandled exception with `postgres` stopped, one upstream error with `backend` stopped and an activation page Referer, on the lower-case and on a case-variant activation path, the activation `POST` with a rejected and an accepted body, a sign-in with authenticated and CSRF-protected requests, an erasure and a retrieval; `grep -F` of the activation, session and CSRF tokens, the passwords, the retrieval code and the secrets read from `infra/.env` (database passwords, object-store secret key, at-rest key, object-store SSE key; never printed; the object-store access key and the `object-store` service stay out because the store logs that key itself at start-up) over the logs of backend, celery-worker, celery-beat, reverse-proxy, frontend, db-migrate); `infra/tests/test_proxy_access_log.py` (every `access_log` uses the allow-list `medhub_redacted` format, no `$request`, `$request_uri`, `$args`, `$query_string`, `$arg_*` or header variable, both activation paths redacted, every case variant of the activation paths matched (`test_activation_matching_ignores_case`: `~*` in the map and in both locations), both activation locations at `error_log crit`, `Referrer-Policy: no-referrer` with the three server headers repeated, frontend `access_log off`, no backend access log option); `backend/tests/api/test_error_logging.py` (`test_unhandled_exception_logs_route_template_not_token`, `test_unhandled_exception_on_unmatched_path_logs_placeholder`, `test_unhandled_exception_log_keeps_method_and_traceback`, and `test_real_app_500_logs_the_router_template`: through `create_app()` the record names `/activation/{token}`, the router prefix without `/api/v1`, and not the token); the non-destructive token check in `infra/smoke-test.sh` (the four case variants `/ACTIVATION/`, `/Activation/`, `/API/V1/ACTIVATION/`, `/api/v1/Activation/`; the page variants answer `Referrer-Policy: no-referrer`) | No value of the activation token, the session token, the CSRF token or the password is in any service log; the 500 record names the route template (`/activation/{token}` on the real app); the proxy log holds no request line, query string or header; every case variant is redacted and takes the activation locations | `log-secrets-check.sh` exits 0 with every check passed and 0 matches per value; the unit and infra tests pass |
 | TC-017.5 | SR-043 AC 2, AC 4 | `backend/tests/workers/test_celery_logging_level.py`: `test_receiver_with_loglevel_debug_sets_the_root_level`, `test_receiver_accepts_a_level_name`, `test_receiver_without_loglevel_defaults_to_info`, `test_debug_record_is_emitted_redacted`, `test_debug_task_message_does_not_carry_the_task_arguments`; started stack: worker with `--loglevel=debug` (Compose override) | `--loglevel` sets the worker's and beat's root level; a DEBUG record is redacted; Celery's `TaskPool: Apply` record no longer carries `argsrepr` or `kwargsrepr` | The tests pass; the worker log at debug holds 40 DEBUG records and 0 occurrences of the activation token or the address |
 | TC-017.6 | SR-043 AC 1; SR-023 | `backend/tests/identity/test_lifecycle.py::test_deactivate_logs_a_warning_when_enqueue_fails`, `backend/tests/appointments/test_notify.py::test_create_logs_a_warning_when_enqueue_fails` | A failed enqueue at the session-kill and the appointment-notification call sites writes one WARNING naming only the account or appointment id (no `exc_info`, so a broker URL in the exception stays out; no address or name), and the request still succeeds | Both tests pass; putting `pass` back at either site fails its test |
+| TC-017.7 | SR-043 AC 1; SR-024 AC 6 | `backend/tests/identity/test_erasure.py::test_erasure_enqueue_failure_logs_warning_without_personal_data` | A failed enqueue of the erasure retrieval-code e-mail writes one WARNING naming only the dataset id (no `exc_info`; no address, retrieval code or broker URL, though the raised exception carries them), and the request then fails with the 503 problem | The test passes; adding `exc_info=True` or the exception text fails it |
+| TC-017.8 | SR-043; SR-024 AC 5 | `backend/tests/workers/test_retention_tasks.py::test_sweep_retries_at_most_three_times_then_logs_count` | After the third retry the sweep logs one ERROR holding the number of datasets not erased (an integer) and no dataset id or content; the per-dataset ERROR holds the dataset id and the exception class, not its text | The test passes; logging a dataset id in the final record fails it |
+| TC-017.9 | SR-043; SR-024 AC 6 | `backend/tests/workers/test_erasure_code_email_gate.py::test_erasure_e_mail_drop_and_unconfirmed_logs_hold_no_personal_data` | With a known address and retrieval code, the WARNING of the drop path (erasure never committed) and of the unconfirmed path (the check cannot be made, exception text carrying the address) each name only the dataset id; they hold neither the address, the code nor the exception text, and have no `exc_info`; the re-check retries are made without `exc` | The test passes; passing `exc=` to the re-check retry, or logging the exception, fails it |
 
 ## Acceptance criteria (class B unit level)
 
@@ -74,3 +79,7 @@ See TASK-207 "Implementation notes and verification results" (2026-11-07): backe
 - 1.2 (2026-11-07): QA review of TASK-206: `approved` (status only; content unchanged).
 - 1.3 (2026-11-07): TASK-207 (TASK-206 QA findings 2, 3, 6). TC-017.4 adds the case variants, the widened `log-secrets-check.sh` and the real form of the 500 record; TC-017.6 (enqueue failure logged with the id only) added; `verifies` SR-023 added. Approval cleared, `in_review`.
 - 1.3 (2026-11-08): QA review of TASK-207 and TASK-206 re-approval: `approved` (status only; content unchanged).
+- 1.4 (2026-11-14): TASK-141 (CR-006). TC-017.7 (erasure enqueue-failure WARNING without personal data) and TC-017.8 (retention sweep failed-count log) added; `verifies` SR-024 added. Approval cleared, `in_review`.
+- 1.4 (2026-11-14): QA review of TASK-141 (round 1): `approved` (status only; content unchanged).
+- 1.5 (2026-11-14): TASK-228 (CR-006 D-30). TC-017.9 (drop and unconfirmed WARNINGs of the commit-gated erasure e-mail without personal data) added; TC-017.3 still passes with three SMTP retries (`test_erasure_code_email_failure_logs_no_address`, task now takes the dataset id). Approval cleared, `in_review`.
+- 1.5 (2026-11-14): QA review of TASK-228 (round 1): `approved` (status only; content unchanged).

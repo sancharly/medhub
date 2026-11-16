@@ -3,7 +3,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import DateTime, ForeignKey
+from sqlalchemy import DateTime, ForeignKey, Index
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.models.base import Base, TimestampMixin, UUIDMixin
@@ -12,6 +12,7 @@ from app.db.types import EncryptedString
 
 class ClinicalEntry(UUIDMixin, TimestampMixin, Base):
     __tablename__ = "clinical_entry"
+    __table_args__ = (Index("ix_clinical_entry_patient_id", "patient_id"),)
 
     patient_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("account.id", name="fk_clinical_entry_patient_id"), nullable=False

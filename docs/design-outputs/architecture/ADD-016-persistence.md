@@ -3,14 +3,17 @@ id: ADD-016
 type: architecture-doc
 title: Persistence (SI-PERSIST)
 status: approved
-version: "1.2"
+version: "1.5"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-11-10"
+updated: "2026-11-16"
 approved_by: Carlos Santiago Liceras
-approved_on: "2026-11-10"
-approval_note: approved by the human in chat at the close of CR-004
+approved_on: "2026-11-16"
+approved_digest: 127300f720968c6d8fa9b27da654bc72fef1a4a4f9a9d488c46ea0fea0799636
+approval_note: self-approved
 links:
+  - target: SR-026
+    relation: implements
   - target: SR-003
     relation: implements
   - target: SR-004
@@ -59,6 +62,14 @@ SQLAlchemy models, repositories, Alembic migrations, encryption-at-rest config
 
 - `U-PER-Models` — SQLAlchemy ORM models (FHIR-aligned, SR-021).
 - `U-PER-Repos` — repositories with parameterized queries (SR-031.1).
+  **CR-006 (TASK-227, ADR-0023):** the request transaction ends before the response is sent. `get_db`
+  keeps its body (commit on return, rollback on exception, close) and is declared only through the
+  alias `DbSession = Annotated[Session, Depends(get_db, scope="function")]`, so FastAPI tears it down
+  when the endpoint has returned and the response is serialised, before it is sent. A commit failure is
+  a 5xx problem response, never the prepared success status (SR-012 AC 5, SR-023 AC 10). A test walks
+  the dependants of every route and fails on any `get_db` with another scope or on a route that
+  resolves two `get_db` cache keys (two sessions). `AuditRepository.add_independent` binds its own
+  session to the bind of the request session, which is available after the close (ADR-0016).
 - `U-PER-Crypto` — field encryption (`EncryptedString`): AES-256-GCM envelope
   `mh1:<key-id>:<base64url(nonce || ciphertext)>` with the prefix as associated data. A keyring
   holds the current key (`AT_REST_ENCRYPTION_KEY`, id `AT_REST_ENCRYPTION_KEY_ID`) and optional
@@ -76,6 +87,16 @@ SQLAlchemy models, repositories, Alembic migrations, encryption-at-rest config
   migration run, revoking `UPDATE`, `DELETE`, `TRUNCATE` on `audit_log` (SR-023 AC 8,
   [ADR-0017](../../design/adr/0017-database-roles-and-append-only-audit-log.md)); refuses an
   existing runtime role that is a superuser, a member of another role or an owner of objects.
+- **CR-006 (implemented).** `U-PER-Migrations`: migration 0011 (TASK-219) adds indexes on
+  `appointment.scheduled_at`, `consent_grant.appointment_id`, `clinical_entry.patient_id` and
+  `attachment.patient_id`; migration 0012 (TASK-220, D-29) adds `ix_attachment_clinical_entry_id` and
+  `ix_consent_grant_doctor_id_active` (`consent_grant(doctor_id, active)`), so the authorization
+  lookups do not scan (SR-026 AC 6). Both use plain `CREATE INDEX` (not `CONCURRENTLY`): writes to the
+  table wait while its index builds (section 07 of the arc42 deployment view lists the lock windows).
+  `U-PER-Repos` (TASK-220): `groups_for_account` returns a user's groups in one joined query. Engine
+  (TASK-136, ADR-0022): `DB_POOL_SIZE`, `DB_MAX_OVERFLOW`, `DB_POOL_TIMEOUT` settings, sized with the
+  API thread pool; code defaults 5, 10, 30 s, deployed 20, 20, 10 s (SR-026 AC 5; approved by the
+  human, D-14, D-24, D-25).
 
 Class B requires decomposition down to software units, not per-unit detailed design
 (§5.4.2–5.4.4 are class C). Each unit above is independently unit-testable and is the granularity
@@ -83,7 +104,7 @@ at which unit verification records (TS) are written.
 
 ## Requirements implemented
 
-Software requirements: SR-003, SR-004, SR-021, SR-022, SR-031; CR-004 adds SR-023 (AC 8).
+Software requirements: SR-003, SR-004, SR-021, SR-022, SR-031; CR-004 adds SR-023 (AC 8); CR-006 adds SR-026 (AC 5, AC 6).
 Non-functional requirements constraining this item: —.
 
 ## Interfaces
@@ -109,3 +130,6 @@ Participates in RISK-002, RISK-007, RISK-011 (see `docs/risks/`); the control me
 
 - 1.1 (2026-10-31) — CR-004 Plan stage (Software Architect role): unit changes for the planned design added (marked "CR-004"), links added. Content change, so the approval record is cleared and the record returns to review. The implementing tasks confirm the unit text when they land.
 - 1.2 (2026-11-08) — TASK-201 (CR-004): unit text replaced with the unit as built; `U-PER-Crypto` names the keyring, `decrypt_legacy` and `app.db.reencrypt`; `U-PER-Roles` notes the unsafe-role refusal. Arc42 sections 05, 06 and 08 hold the narrative. Content change, so the 1.1 approval record is cleared and the record returns to review.
+- 1.3 (2026-11-13) — CR-006 Plan stage (Software Architect role): migration 0011 indexes, the joined group lookup and the pool settings (ADR-0022) marked "CR-006 (planned)"; `implements` SR-026 added. Content change, so the 1.2 approval record is cleared and the record returns to review.
+- 1.4 (2026-11-13) — TASK-227 (CR-006, ADR-0023): `U-PER-Repos` states that the request transaction ends before the response (`DbSession`, scope `function`). Content change, so the 1.3 approval record is cleared and the record returns to review.
+- 1.5 (2026-11-14) — TASK-225 (Document Writer; TASK-219 QA finding 5): the "CR-006 (planned)" marker is removed. Migration 0011 (four indexes, TASK-219) is confirmed as implemented and migration 0012 (`ix_attachment_clinical_entry_id`, `ix_consent_grant_doctor_id_active`, TASK-220, D-29) is added; both use plain `CREATE INDEX` and block writes to the table while building. `groups_for_account` and the pool settings are confirmed as implemented, with the deployed values. Content change on an approved record, so the 1.4 approval record is cleared and the record returns to review.

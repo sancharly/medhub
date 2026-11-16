@@ -3,16 +3,17 @@ id: SOUP-013
 type: soup
 title: redis-py
 status: approved
-version: "1.3"
+version: "1.4"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
-updated: "2026-11-10"
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-11-10"
-approval_note: approved by the human in chat at the close of CR-004
+updated: "2026-11-13"
 manufacturer: Redis Ltd.
 soup_version: 8.0.0
 anomaly_review: "2026-10-22"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-11-13"
+approved_digest: 7c7488026787aaaa0076ad873ed1b71accf3d484c4d3a0295fb8ed53603a33a2
+approval_note: self-approved
 links: []
 tags:
   - soup
@@ -44,6 +45,15 @@ must send as documented and return the server's reply for unchanged):
   PRB-064): sent as `SET key value EX seconds XX`, and returning a falsy value (`None`) when the key
   does not exist, in which case the client must not have created it.
 - `GET`, `DEL`, `ZRANGE`, `ZREM` for session resolve, invalidate and revoke-all.
+- One process-wide client per API process (`app/api/deps.py`, ADR-0022, TASK-136), created with
+  `Redis.from_url(..., max_connections=API_THREADPOOL_SIZE)`. Relied on: the client is safe to
+  share between threads, each command or pipeline takes a connection from the pool and returns it,
+  the pool opens at most `max_connections` connections, and asking for one more raises
+  `redis.exceptions.MaxConnectionsError` ("Too many connections", a `ConnectionError`) instead of
+  opening it. Because each request thread uses at most one connection at a time and the thread
+  limit equals `max_connections`, that error is not reached in normal operation. Verified by
+  `test_redis_pool_is_bounded_by_the_thread_limit` (`tests/core/test_pool_settings.py`) and the
+  SR-026 AC 5 load test (TS-018).
 
 ## Required hardware and software environment
 
@@ -94,3 +104,4 @@ accountable. Hazard-relevant anomalies go to `risk-management`; defects affectin
 - 2026-10-22 — 8.0.0 (unchanged). First anomaly-list review (TASK-154, CR-001 AC-11/AC-12): none found for 8.0.0; 8.0.1/8.1.0 bug fixes reviewed, none on MedHub's paths; nothing hazard-relevant. Record 1.0 → 1.1; approval record removed for re-review.
 - 2026-11-02 — 8.0.0 (unchanged). Version 1.2: relied-on requirements extended with `INCR`, `MULTI`/`EXEC`, `EXPIRE … NX` (retrieval rate limiter, carried from the TASK-186 QA review) and `WATCH`/`MULTI`/`EXEC` with `WatchError` (atomic session cap, TASK-199, PRB-023). No version change, no new anomaly review. Approval record cleared for re-approval.
 - 2026-11-06 — 8.0.0 (unchanged). Version 1.3: relied-on requirements extended with `set(..., ex=..., xx=True)` returning `None` when the key is absent (conditional session refresh, TASK-205, PRB-064) and `EXISTS` read before `MULTI` (live-member count, PRB-065); corrected that `ZRANGE … WITHSCORES` is an immediate-mode read after `WATCH`, not one of the commands in the transaction (TASK-199 QA finding 4); `SETEX` no longer used. No version change, no new anomaly review. Record stays `in_review`.
+- 2026-11-13 — 8.0.0 (unchanged). Version 1.4: relied-on behaviour added for the shared, bounded connection pool (`max_connections` equal to `API_THREADPOOL_SIZE`, `MaxConnectionsError` beyond it; SR-026 AC 5, ADR-0022; CR-006 TASK-136, D-24). No version change, no new anomaly review. Approval record removed for re-review.

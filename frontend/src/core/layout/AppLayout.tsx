@@ -1,9 +1,13 @@
+import { Suspense } from "react";
+import { useLocation } from "react-router-dom";
 import Box from "@mui/material/Box";
+import CircularProgress from "@mui/material/CircularProgress";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import { ModeToggle } from "../theme/ModeToggle";
 import { SignOutButton } from "./SignOutButton";
+import { RouteChunkBoundary } from "../error/RouteChunkBoundary";
 
 export interface AppLayoutProps {
   navigation: React.ReactNode;
@@ -13,6 +17,8 @@ export interface AppLayoutProps {
 const NAV_WIDTH = 240;
 
 export function AppLayout({ navigation, children }: AppLayoutProps) {
+  const { pathname } = useLocation();
+
   return (
     <Box sx={{ display: "flex", minHeight: "100vh", overflow: "hidden" }}>
       <AppBar
@@ -51,7 +57,17 @@ export function AppLayout({ navigation, children }: AppLayoutProps) {
           maxWidth: "100%",
         }}
       >
-        {children}
+        <RouteChunkBoundary resetKey={pathname}>
+          <Suspense
+            fallback={
+              <Box sx={{ display: "flex", justifyContent: "center", p: 3 }}>
+                <CircularProgress aria-label="Loading page" />
+              </Box>
+            }
+          >
+            {children}
+          </Suspense>
+        </RouteChunkBoundary>
       </Box>
     </Box>
   );

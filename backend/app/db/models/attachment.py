@@ -2,7 +2,7 @@
 
 import uuid
 
-from sqlalchemy import BigInteger, ForeignKey
+from sqlalchemy import BigInteger, ForeignKey, Index
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -11,6 +11,10 @@ from app.db.models.base import Base, TimestampMixin, UUIDMixin
 
 class Attachment(UUIDMixin, TimestampMixin, Base):
     __tablename__ = "attachment"
+    __table_args__ = (
+        Index("ix_attachment_patient_id", "patient_id"),
+        Index("ix_attachment_clinical_entry_id", "clinical_entry_id"),
+    )
 
     clinical_entry_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("clinical_entry.id", name="fk_attachment_clinical_entry_id"), nullable=False

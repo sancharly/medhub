@@ -958,6 +958,8 @@ export interface components {
              * @default false
              */
             mustChangePassword: boolean;
+            /** Sessionexpiresinseconds */
+            sessionExpiresInSeconds: number;
         };
         /** MeSummary */
         MeSummary: {
@@ -1020,6 +1022,8 @@ export interface components {
              * Format: date-time
              */
             expiresAt: string;
+            /** Expiresinseconds */
+            expiresInSeconds: number;
         };
         /** SetModuleEnabledRequest */
         SetModuleEnabledRequest: {
@@ -1494,6 +1498,13 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
                 };
+            };
+            /** @description The retrieval-code e-mail could not be queued; the erasure was rolled back and nothing changed. Retry after the Retry-After interval. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

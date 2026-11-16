@@ -7,6 +7,7 @@ endpoint and credentials from the same ``OBJECT_STORE_*`` variables as the appli
 uses them without printing them.
 """
 
+import io
 import os
 import uuid
 from collections.abc import Iterator
@@ -63,7 +64,7 @@ def key(raw_client, bucket) -> Iterator[str]:
 
 def test_put_object_stores_aes256_and_returns_the_original_bytes(raw_client, bucket, key):
     data = os.urandom(2048)
-    ObjectStorageClient().put_object(key, data, "application/octet-stream")
+    ObjectStorageClient().put_object(key, io.BytesIO(data), len(data), "application/octet-stream")
 
     head = raw_client.head_object(Bucket=bucket, Key=key)
     assert head["ServerSideEncryption"] == "AES256"
@@ -99,7 +100,9 @@ def test_put_object_requests_encryption_on_a_bucket_without_a_default(raw_client
 
         monkeypatch.setenv("OBJECT_STORE_BUCKET", bucket)
         get_settings.cache_clear()
-        ObjectStorageClient().put_object(key, b"x" * 100, "application/octet-stream")
+        ObjectStorageClient().put_object(
+            key, io.BytesIO(b"x" * 100), 100, "application/octet-stream"
+        )
 
         assert raw_client.head_object(Bucket=bucket, Key=key)["ServerSideEncryption"] == "AES256"
     finally:

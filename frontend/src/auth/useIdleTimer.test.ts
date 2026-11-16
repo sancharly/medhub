@@ -2,6 +2,8 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import { useIdleTimer } from "./useIdleTimer";
 
+const minutes = (m: number) => m * 60 * 1000;
+
 describe("useIdleTimer", () => {
   beforeEach(() => {
     vi.useFakeTimers();
@@ -9,109 +11,118 @@ describe("useIdleTimer", () => {
 
   afterEach(() => {
     vi.useRealTimers();
+    vi.restoreAllMocks();
   });
 
-  it("fires onWarn after timeout - warningLead minutes", () => {
+  function setup(deadlineMinutes?: number) {
     const onWarn = vi.fn();
     const onExpired = vi.fn();
-
-    renderHook(() =>
-      useIdleTimer({
-        timeoutMinutes: 15,
-        warningLeadMinutes: 2,
-        onWarn,
-        onExpired,
-      })
+    const hook = renderHook(
+      ({ deadline }: { deadline?: number }) =>
+        useIdleTimer({
+          warningLeadMinutes: 2,
+          onWarn,
+          onExpired,
+          deadlineOverride: deadline,
+        }),
+      {
+        initialProps: {
+          deadline:
+            deadlineMinutes === undefined ? undefined : Date.now() + minutes(deadlineMinutes),
+        },
+      }
     );
+    return { onWarn, onExpired, ...hook };
+  }
 
-    act(() => {
-      vi.advanceTimersByTime(13 * 60 * 1000);
-    });
+  it("clinical role: warn fires at 13 min and expire at 15 min", () => {
+    const { onWarn, onExpired } = setup(15);
 
+    act(() => vi.advanceTimersByTime(minutes(13) - 1));
+    expect(onWarn).not.toHaveBeenCalled();
+    act(() => vi.advanceTimersByTime(1));
     expect(onWarn).toHaveBeenCalledTimes(1);
     expect(onExpired).not.toHaveBeenCalled();
-  });
 
-  it("fires onExpired after full timeout minutes", () => {
-    const onWarn = vi.fn();
-    const onExpired = vi.fn();
-
-    renderHook(() =>
-      useIdleTimer({
-        timeoutMinutes: 15,
-        warningLeadMinutes: 2,
-        onWarn,
-        onExpired,
-      })
-    );
-
-    act(() => {
-      vi.advanceTimersByTime(15 * 60 * 1000);
-    });
-
+    act(() => vi.advanceTimersByTime(minutes(2)));
     expect(onExpired).toHaveBeenCalledTimes(1);
   });
 
   it("admin role: warn at 28 minutes (30 - 2)", () => {
-    const onWarn = vi.fn();
-    const onExpired = vi.fn();
+    const { onWarn, onExpired } = setup(30);
 
-    renderHook(() =>
-      useIdleTimer({
-        timeoutMinutes: 30,
-        warningLeadMinutes: 2,
-        onWarn,
-        onExpired,
-      })
-    );
-
-    act(() => {
-      vi.advanceTimersByTime(28 * 60 * 1000);
-    });
+    act(() => vi.advanceTimersByTime(minutes(28)));
 
     expect(onWarn).toHaveBeenCalledTimes(1);
     expect(onExpired).not.toHaveBeenCalled();
   });
 
-  it("activity before warn resets deadline", () => {
-    const onWarn = vi.fn();
-    const onExpired = vi.fn();
+  it("activity events do not move the deadline", () => {
+    const { onWarn, onExpired } = setup(15);
 
-    renderHook(() =>
-      useIdleTimer({
-        timeoutMinutes: 15,
-        warningLeadMinutes: 2,
-        onWarn,
-        onExpired,
-      })
-    );
-
+    act(() => vi.advanceTimersByTime(minutes(10)));
     act(() => {
-      vi.advanceTimersByTime(12 * 60 * 1000);
+      window.dispatchEvent(new MouseEvent("mousemove"));
       window.dispatchEvent(new KeyboardEvent("keydown", { key: "a" }));
-      vi.advanceTimersByTime(5 * 60 * 1000);
+      window.dispatchEvent(new MouseEvent("click"));
+      window.dispatchEvent(new Event("touchstart"));
+      window.dispatchEvent(new Event("scroll"));
     });
 
-    expect(onWarn).not.toHaveBeenCalled();
+    // 13 min after the deadline was set, not 23 min.
+    act(() => vi.advanceTimersByTime(minutes(3)));
+    expect(onWarn).toHaveBeenCalledTimes(1);
+    expect(onExpired).not.toHaveBeenCalled();
+    act(() => vi.advanceTimersByTime(minutes(2)));
+    expect(onExpired).toHaveBeenCalledTimes(1);
   });
 
-  it("clinical role: warn fires at 13 min and expire at 15 min", () => {
+  it("no listeners registered for activity events", () => {
+    const add = vi.spyOn(window, "addEventListener");
+    setup(15);
+
+    const events = ["mousemove", "keydown", "click", "touchstart", "scroll"];
+    expect(add.mock.calls.filter(([type]) => events.includes(type))).toEqual([]);
+  });
+
+  it("a new deadline re-arms both timers", () => {
+    const { onWarn, onExpired, rerender } = setup(15);
+
+    act(() => vi.advanceTimersByTime(minutes(10)));
+    rerender({ deadline: Date.now() + minutes(15) });
+
+    act(() => vi.advanceTimersByTime(minutes(3)));
+    expect(onWarn).not.toHaveBeenCalled();
+    act(() => vi.advanceTimersByTime(minutes(10)));
+    expect(onWarn).toHaveBeenCalledTimes(1);
+    expect(onExpired).not.toHaveBeenCalled();
+    act(() => vi.advanceTimersByTime(minutes(2)));
+    expect(onExpired).toHaveBeenCalledTimes(1);
+  });
+
+  it("schedules nothing until a deadline is known", () => {
+    const { onWarn, onExpired } = setup(undefined);
+
+    act(() => vi.advanceTimersByTime(minutes(60)));
+
+    expect(onWarn).not.toHaveBeenCalled();
+    expect(onExpired).not.toHaveBeenCalled();
+  });
+
+  it("treats a deadline already in the past as expired", () => {
     const onWarn = vi.fn();
     const onExpired = vi.fn();
 
     renderHook(() =>
       useIdleTimer({
-        timeoutMinutes: 15,
         warningLeadMinutes: 2,
         onWarn,
         onExpired,
+        deadlineOverride: Date.now() - 1,
       })
     );
 
-    act(() => vi.advanceTimersByTime(13 * 60 * 1000));
-    expect(onWarn).toHaveBeenCalledTimes(1);
-
-    act(() => vi.advanceTimersByTime(2 * 60 * 1000));
     expect(onExpired).toHaveBeenCalledTimes(1);
+    expect(onWarn).not.toHaveBeenCalled();
   });
 });

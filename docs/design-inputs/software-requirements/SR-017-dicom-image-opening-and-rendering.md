@@ -1,22 +1,30 @@
 ---
-id: "SR-017"
+id: SR-017
 type: software-requirement
-title: "DICOM image opening and rendering"
+title: DICOM image opening and rendering
 status: approved
-version: "1.3"
-author: "Carlos Santiago Liceras"
+version: "1.6"
+author: Carlos Santiago Liceras
 created: "2026-07-07"
-updated: "2026-10-21"
+updated: "2026-11-13"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-11-13"
+approved_digest: 7a9a87ce45ca89563767fd4716ca57a52cf4a6a22d99b42d7c1d33547e5b8e00
+approval_note: self-approved
 links:
-  - target: "RR-009"
+  - target: RR-009
     relation: satisfies
-  - target: "RISK-003"
+  - target: RISK-003
     relation: mitigates
-  - target: "UN-011"
+  - target: RISK-007
+    relation: mitigates
+  - target: UN-011
     relation: derives_from
-  - target: "NFR-005"
+  - target: NFR-005
     relation: derives_from
-tags: ["control:design", "control:information"]
+tags:
+  - control:design
+  - control:information
 ---
 
 ## Summary
@@ -34,6 +42,7 @@ This requirement implements the core of the DICOM viewer. The module reads DICOM
 3. For a multi-slice (volumetric) series, the slices are loaded and ordered correctly.
 4. The image is rendered with correct pixel scaling and a sensible default window/level derived from the DICOM data.
 5. Only a user with the DICOM viewer enabled (SR-015) and authorized to the source data (SR-005) can open the image.
+6. The DICOM module refuses, before decoding any pixel data, an object whose stored size exceeds the configured maximum stored size or whose declared decoded size (rows x columns x frames x samples per pixel x bytes per sample) exceeds the configured maximum decoded size, with an RFC 7807 error. A decode that fails part-way returns an error and no image. The maxima are 150 MiB stored and 1 GiB decoded (CR-006 D-2); the attachment upload maximum of SR-013 is raised to match.
 
 ## Origin Requirement
 
@@ -64,3 +73,6 @@ Correct rendering of medical images is safety-critical; as a viewing function it
   unchanged, so the existing approval stands.
 - 1.3 (2026-10-21) — Tagged `control:design`, `control:information` (type of the risk control it implements,
   medical-records 0.3.2). Traceability only: the content is unchanged, so the existing approval stands.
+- 1.4 (2026-11-13) — Content change, so the approval is cleared and the record returns to review (CR-006, GitHub sancharly/medhub#28). Added AC 6 (size and decoded-size bound before decoding; a failed decode never renders). Reason: the frame endpoint decoded any object without a bound, so a crafted or very large study could exhaust the API process, and a partial decode must fail loudly (PRB-006; RISK-007, RISK-003).
+- 1.5 (2026-11-13) — AC 6 values set by decision D-2 of CR-006: 150 MiB stored, 1 GiB decoded. Stays `in_review`.
+- 1.6 (2026-11-13) — Traceability change at the CR-006 Risk gate R-3: added the `mitigates` link to RISK-007. Returned to review for the human's re-approval; AC text unchanged.

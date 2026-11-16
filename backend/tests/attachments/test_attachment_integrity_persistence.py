@@ -27,9 +27,10 @@ from app.db.models.attachment import Attachment
 from app.db.models.audit import AuditLog, AuditOutcome
 from app.db.models.base import Base
 from app.db.repositories.audit_repo import AuditRepository
-from app.db.repositories.session import get_db
+from app.db.repositories.session import DbSession
 from app.main import create_app
 from postgres_image import POSTGRES_IMAGE
+from tests.attachments.fake_object_store import FakeObjectStore
 
 
 @pytest.fixture(scope="module")
@@ -62,6 +63,7 @@ def _download(
     *,
     storage_data=b"original",
     storage_error: Exception | None = None,
+    second_read_bytes: bytes | None = None,
     filename: str = "a.pdf",
 ):
     """Run GET /attachments/{id} on the real ``get_db`` against the runtime role."""
@@ -86,10 +88,9 @@ def _download(
     def _service(db: Session = None) -> AttachmentService:  # type: ignore[assignment]
         repo = MagicMock()
         repo.get.return_value = attachment
-        storage = MagicMock()
-        storage.get_object.return_value = storage_data
-        if storage_error is not None:
-            storage.get_object.side_effect = storage_error
+        storage = FakeObjectStore(
+            storage_data, error=storage_error, second_read_bytes=second_read_bytes
+        )
         return AttachmentService(
             repo,
             MagicMock(),
@@ -98,9 +99,7 @@ def _download(
             storage,
         )
 
-    from fastapi import Depends  # noqa: PLC0415
-
-    def _dep(db: Session = Depends(get_db)) -> AttachmentService:
+    def _dep(db: DbSession) -> AttachmentService:
         return _service(db)
 
     app = create_app()
@@ -139,6 +138,24 @@ def test_failure_audit_row_persists_after_502(pg_engine, runtime_engine, monkeyp
     assert rows[0].action == "ATTACHMENT_ACCESS"
     assert rows[0].actor_id == actor.id
     assert rows[0].ip == "testclient"  # SR-023 AC 6: client address on a FAILURE row
+
+
+def test_failure_audit_row_persists_when_pass_two_differs_after_streaming_started(
+    pg_engine, runtime_engine, monkeypatch
+) -> None:
+    """SR-013 AC 5 / SR-023 AC 2 (TC-007.13): the digest check at the end of pass 2 fails after
+    the response started; the FAILURE row is written from the stream, on its own transaction, and
+    is committed in a fresh session with the client address."""
+    resp, attachment, actor = _download(
+        pg_engine, runtime_engine, monkeypatch, second_read_bytes=b"tampered"
+    )
+    assert resp.content != b"tampered"  # the held-back last chunk was never sent
+    rows = _rows_and_clean(pg_engine, attachment)
+    failures = [r for r in rows if r.outcome == AuditOutcome.FAILURE]
+    assert len(failures) == 1
+    assert failures[0].action == "ATTACHMENT_ACCESS"
+    assert failures[0].actor_id == actor.id
+    assert failures[0].ip == "testclient"
 
 
 def test_failure_audit_row_persists_after_storage_error(

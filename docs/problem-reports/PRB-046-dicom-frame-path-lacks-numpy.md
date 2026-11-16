@@ -3,10 +3,10 @@ id: "PRB-046"
 type: problem-report
 title: "DICOM frame extraction cannot work in the production image: NumPy is not declared"
 status: open
-version: "1.0"
+version: "1.1"
 author: "Carlos Santiago Liceras"
 created: "2026-10-22"
-updated: "2026-10-22"
+updated: "2026-11-15"
 criticality: minor
 links: []
 tags: ["soup", "configuration-management", "dicom"]
@@ -75,3 +75,7 @@ bound on the same path):
 
 Raised by TASK-154, the first SOUP anomaly-list review (CR-001 AC-12, backend slice), on
 2026-10-22. The evidence is in SOUP-015's "Anomaly list review" section. Outside CR-001 (A-4).
+
+## Note (2026-11-15, CR-006 TASK-226)
+
+SR-026 AC 3 (the first rendered DICOM image within 10 s) is not verified by CR-006 and stays unverified until this problem report and PRB-048 are both resolved: on a started stack the viewer route is not mounted and the decode cannot run (TS-018 TC-018.11, TS-019 TC-019.5). CR-006 verifies the stored and decoded size bounds only (TASK-218, TS-019 TC-019.1 to TC-019.4); the deferral follows D-20 and is for the human to confirm.

@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import redis as redis_lib
 from fastapi import APIRouter, Depends, Request
-from sqlalchemy.orm import Session
 
 from app.api.deps import get_redis
 from app.api.errors import RateLimitedError
@@ -20,7 +19,7 @@ from app.db.repositories.anonymized_dataset_repo import AnonymizedDatasetReposit
 from app.db.repositories.audit_repo import AuditRepository
 from app.db.repositories.consent_repo import ConsentRepository
 from app.db.repositories.password_history_repo import PasswordHistoryRepository
-from app.db.repositories.session import get_db
+from app.db.repositories.session import DbSession
 from app.identity.erasure import ErasureService
 
 router = APIRouter(prefix="/anonymized-data", tags=["anonymized-data"])
@@ -47,7 +46,7 @@ def _check_rate_limit(address: str | None, r: redis_lib.Redis) -> None:
 
 
 def _get_erasure_service(
-    db: Session = Depends(get_db),
+    db: DbSession,
     r: redis_lib.Redis = Depends(get_redis),
 ) -> ErasureService:
     audit_svc = AuditService(AuditRepository(db))

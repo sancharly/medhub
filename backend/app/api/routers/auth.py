@@ -6,10 +6,10 @@ from datetime import UTC, datetime
 
 import redis as redis_lib
 from fastapi import APIRouter, Depends, Request, Response, status
-from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user, get_redis, get_session, get_session_service
 from app.api.errors import (
+    ProblemDetail,
     SessionCapContentionProblem,
     UnauthenticatedError,
     ValidationProblem,
@@ -36,13 +36,13 @@ from app.db.models.audit import AuditOutcome
 from app.db.repositories.account_repo import AccountRepository
 from app.db.repositories.audit_repo import AuditRepository
 from app.db.repositories.password_history_repo import PasswordHistoryRepository
-from app.db.repositories.session import get_db
+from app.db.repositories.session import DbSession
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
 def _get_login_service(
-    db: Session = Depends(get_db),
+    db: DbSession,
     r: redis_lib.Redis = Depends(get_redis),
 ) -> LoginService:
     audit_svc = AuditService(AuditRepository(db))
@@ -57,11 +57,11 @@ def _get_login_service(
     responses={503: {"description": "Session cap contention; retry after 1 second."}},
 )
 def login(
+    db: DbSession,
     body: LoginRequest,
     request: Request,
     response: Response,
     svc: LoginService = Depends(_get_login_service),
-    db: Session = Depends(get_db),
     r: redis_lib.Redis = Depends(get_redis),
 ) -> LoginResponse:
     """Authenticate; set session+CSRF cookies; return user summary."""
@@ -99,12 +99,12 @@ def login(
 
 
 @router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
-async def logout(
+def logout(
+    db: DbSession,
     response: Response,
     request: Request,
     session: UserSession = Depends(get_session),
     svc: SessionService = Depends(get_session_service),
-    db: Session = Depends(get_db),
     _csrf: None = Depends(require_csrf),
 ) -> None:
     """Invalidate session, clear cookie, audit LOGOUT."""
@@ -122,24 +122,26 @@ async def logout(
 
 
 @router.post("/session/extend", response_model=SessionExtendResponse)
-async def extend_session(
+def extend_session(
     session: UserSession = Depends(get_session),
     svc: SessionService = Depends(get_session_service),
     _csrf: None = Depends(require_csrf),
 ) -> SessionExtendResponse:
     """TTL was already slid by resolve() in get_session; return the new inactivity deadline."""
     new_expiry = svc.get_inactivity_expiry(session)
-    return SessionExtendResponse(expires_at=new_expiry)
+    return SessionExtendResponse(
+        expires_at=new_expiry, expires_in_seconds=svc.remaining_seconds(session)
+    )
 
 
 @router.post("/password", status_code=status.HTTP_204_NO_CONTENT)
 def change_password(
+    db: DbSession,
     body: PasswordChangeRequest,
     request: Request,
     actor: Account = Depends(get_current_user),
     session: UserSession = Depends(get_session),
     svc: SessionService = Depends(get_session_service),
-    db: Session = Depends(get_db),
     _csrf: None = Depends(require_csrf),
 ) -> None:
     """Verify current password, validate new, hash+persist, invalidate other sessions."""
@@ -151,7 +153,17 @@ def change_password(
 
     current_hash = actor.password_hash or ""
     if not password_svc.verify(current_hash, body.current_password):
-        raise UnauthenticatedError("Current password is incorrect.")
+        # Not a 401: that means "no valid session" and the client signs the user out on it.
+        raise ValidationProblem(
+            "Current password is incorrect.",
+            errors=[
+                ProblemDetail(
+                    field="currentPassword",
+                    rule="CURRENT_PASSWORD_INCORRECT",
+                    message="Current password is incorrect.",
+                )
+            ],
+        )
 
     try:
         password_svc.validate_policy(actor, body.new_password)

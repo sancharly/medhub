@@ -1,8 +1,9 @@
 """Structured JSON logging configuration.
 
-Emits logs to stdout as JSON objects. Never logs PHI or credentials (SR-043): a
-``RedactionFilter`` sits on every handler and replaces email-shaped values, personal-data fields
-and task arguments before a record is formatted.
+Emits logs to stdout as JSON objects with the fields ``level``, ``message``, ``logger``, ``extra``
+(custom record attributes, when present) and ``exc_info`` (when an exception is attached), and no
+others. Never logs PHI or credentials (SR-043): a ``RedactionFilter`` sits on every handler and
+replaces email-shaped values, personal-data fields and task arguments before a record is formatted.
 """
 
 import json

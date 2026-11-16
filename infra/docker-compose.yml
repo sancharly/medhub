@@ -90,6 +90,18 @@ services:
       SESSION_COOKIE_SECURE: ${SESSION_COOKIE_SECURE:-true}
       CORS_ORIGINS: "${CORS_ORIGINS:-}"
       TRUSTED_PROXIES: 10.77.77.2
+      # 150 MiB (SR-013 AC 6). The reverse proxy's client_max_body_size
+      # (infra/reverse-proxy/nginx.conf, 151m) is sized from the default: lower it freely, not above.
+      ATTACHMENT_MAX_BYTES: ${ATTACHMENT_MAX_BYTES:-157286400}
+      # DICOM viewer bounds before any pixel decode (SR-017 AC 6): 150 MiB stored, 1 GiB decoded.
+      DICOM_MAX_STORED_BYTES: ${DICOM_MAX_STORED_BYTES:-157286400}
+      DICOM_MAX_DECODED_BYTES: ${DICOM_MAX_DECODED_BYTES:-1073741824}
+      # API concurrency (ADR-0022, CR-006 D-24): 20 threads cover the 20 SR-026 AC 5 clients; 40 connections
+      # = 2x threads because a FAILURE audit row takes a second one (ADR-0016). Threads must stay <= pool + overflow.
+      API_THREADPOOL_SIZE: ${API_THREADPOOL_SIZE:-20}
+      DB_POOL_SIZE: ${DB_POOL_SIZE:-20}
+      DB_MAX_OVERFLOW: ${DB_MAX_OVERFLOW:-20}
+      DB_POOL_TIMEOUT: ${DB_POOL_TIMEOUT:-10}
     expose:
       - "8000"
     depends_on:

@@ -199,6 +199,41 @@ together, keeping the proxy address inside `subnet` and outside `ip_range`:
 `infra/tests/test_compose_trusted_proxy.py` checks that the three agree. A wrong value does not
 stop the start: every request then appears to come from the proxy.
 
+### Threads, connection pools and request limits
+
+The API runs its blocking calls (database, Redis, object store) in worker threads, so the thread limit
+and the database connection pool are sized together ([ADR-0022](../docs/design/adr/0022-blocking-io-off-the-event-loop-with-matched-pools.md)).
+Four settings, read by the `backend` service (`infra/docker-compose.yml`; `infra/.env` overrides the
+Compose default):
+
+| Setting | Code default | Deployed value (Compose and `.env.example`) | Meaning |
+|---|---|---|---|
+| `API_THREADPOOL_SIZE` | 15 | 20 | Threads the API worker runs blocking calls in; also the Redis pool size |
+| `DB_POOL_SIZE` | 5 | 20 | Pooled database connections |
+| `DB_MAX_OVERFLOW` | 10 | 20 | Extra connections opened above the pool under load |
+| `DB_POOL_TIMEOUT` | 30 (seconds) | 10 | How long a request waits for a connection before it fails with 500 |
+
+**Start-up invariant:** `API_THREADPOOL_SIZE` must not exceed `DB_POOL_SIZE + DB_MAX_OVERFLOW`. The
+backend refuses to start otherwise, with a message naming the settings (the surplus threads would queue
+for a connection until `DB_POOL_TIMEOUT` and then fail with 500). The threads, pool and timeout values
+must be at least 1 and the overflow at least 0. The code defaults (15 against 5 + 10) satisfy the
+invariant; the deployed values (20 against 20 + 20) were approved by the human from the load test of
+SR-026 AC 5 (CR-006 D-24, D-25).
+
+If you change a value: keep the invariant; check that PostgreSQL's `max_connections` (100 by default)
+covers `DB_POOL_SIZE + DB_MAX_OVERFLOW` of every API worker plus the Celery worker, beat and
+`db-migrate`; recreate `backend`. The invariant bounds threads, not requests: a connection belongs to
+the request, so one worker serves about threads + connections requests at the same time (about 60 with
+the deployed values), and a request beyond that waits `DB_POOL_TIMEOUT` and answers 500 (PRB-081,
+open).
+
+**Attachment size.** The reverse proxy accepts request bodies up to `client_max_body_size 151m` on
+`/api/` (`infra/reverse-proxy/nginx.conf`): the 150 MiB attachment maximum
+(`ATTACHMENT_MAX_BYTES=157286400`) plus the multipart framing. Do not raise `ATTACHMENT_MAX_BYTES`
+above 150 MiB without raising that value, and the other way round. A larger body is refused by nginx and
+answered as the API's own 400 `validation-error`. The API container spools an uploaded file above 1 MiB
+to a temporary file, so concurrent large uploads need free disk space there.
+
 ### 4. Verify the stack
 
 ```bash
@@ -330,6 +365,29 @@ A new setting for a service must be added to that service's `environment:` in
 `infra/docker-compose.yml`; a line in `infra/.env` alone does not reach it. The API container gets no
 SMTP credential (only the worker sends mail), and the beat container gets the secret settings only
 because the start-up rule checks them all.
+
+### Migrations 0011 and 0012: index builds block writes
+
+Migration 0011 (authorization lookup indexes) and migration 0012 (the two remaining lookups) create
+plain btree indexes with `CREATE INDEX`, **not** `CREATE INDEX CONCURRENTLY`. Each statement takes a
+`SHARE` lock on its table: writes (insert, update, delete) wait until the index is built, reads
+continue. Nothing else is locked, and each lock is released when its statement ends. The builds are fast
+at the current data size, but run them on an existing database only in a maintenance window and with the
+operator's go-ahead, with the application not taking writes (stop `backend` and `celery-worker`, or
+accept that requests wait).
+
+| Migration | Index | Table (column) | Locked against writes while building |
+|---|---|---|---|
+| 0011 | `ix_appointment_scheduled_at` | `appointment` (`scheduled_at`) | `appointment` |
+| 0011 | `ix_consent_grant_appointment_id` | `consent_grant` (`appointment_id`) | `consent_grant` |
+| 0011 | `ix_clinical_entry_patient_id` | `clinical_entry` (`patient_id`) | `clinical_entry` |
+| 0011 | `ix_attachment_patient_id` | `attachment` (`patient_id`) | `attachment` |
+| 0012 | `ix_attachment_clinical_entry_id` | `attachment` (`clinical_entry_id`) | `attachment` |
+| 0012 | `ix_consent_grant_doctor_id_active` | `consent_grant` (`doctor_id`, `active`) | `consent_grant` |
+
+So 0011 locks four tables one after another and 0012 locks `attachment` and `consent_grant`. A new
+database (empty tables) is not affected. `alembic downgrade` of either drops its indexes (a drop takes
+an exclusive lock for an instant). Run `db-migrate` as in section 6, with both flags.
 
 ### Upgrading an installation that connects as the owner
 

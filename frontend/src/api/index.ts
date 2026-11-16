@@ -1,5 +1,5 @@
 export { ApiClient, ApiError, AuthError } from "./client";
-export type { ProblemError } from "./client";
+export type { ProblemError } from "./problem";
 export { queryClient } from "./queryClient";
 export { QueryProvider } from "./QueryProvider";
 

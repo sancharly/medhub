@@ -1,14 +1,5 @@
-import type { UserType } from "../api/generated/types";
-
+// The inactivity timeout itself comes from the server (`sessionExpiresInSeconds`, SR-030 AC 8);
+// only the warning lead (SR-030 AC 4) is a client value.
 export const roleTimeouts = {
-  clinical: 15,
-  admin: 30,
   warningLeadMinutes: 2,
 } as const;
-
-export function getTimeoutMinutes(userType: UserType): number {
-  if (userType === "DOCTOR" || userType === "PATIENT") {
-    return roleTimeouts.clinical;
-  }
-  return roleTimeouts.admin;
-}

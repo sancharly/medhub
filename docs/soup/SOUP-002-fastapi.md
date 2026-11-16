@@ -3,16 +3,16 @@ id: SOUP-002
 type: soup
 title: FastAPI
 status: approved
-version: "1.1"
+version: "1.2"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
-updated: "2026-10-23"
+updated: "2026-11-13"
 manufacturer: Sebastián Ramírez (tiangolo)
 soup_version: 0.138.0
 anomaly_review: "2026-10-22"
 approved_by: Carlos Santiago Liceras
-approved_on: "2026-10-23"
-approved_digest: b006dbd5f4f38c16208a251a145f312a93b7853bcb0e53c9720b4703fa2b6c89
+approved_on: "2026-11-13"
+approved_digest: 3b1121df3a516bfccfaee624dabf07b4169a3548a4ee8c329f3ab0cbb276dabd
 approval_note: self-approved
 links: []
 tags:
@@ -26,6 +26,15 @@ tags:
 ## Functional and performance requirements
 
 HTTP routing, dependency injection used as the authorization enforcement point on every protected route (SR-005), request validation through Pydantic, and OpenAPI 3.1 generation.
+
+Relied-on behaviour (CR-006, TASK-227, ADR-0023): a dependency declared with
+`Depends(..., scope="function")` (`fastapi/params.py:749`) is torn down on the function exit stack,
+after the endpoint has returned and its response has been serialised and before the response is sent
+(`fastapi/routing.py`); an exception raised there reaches the exception handlers, so a failed commit
+is a 5xx response. The dependency cache key includes the scope (`fastapi/dependencies/models.py`), so
+mixing scopes for one dependency gives two instances in one request. MedHub declares `get_db` only
+through one `scope="function"` alias and a test enforces it. FastAPI 0.138 keeps included routers lazy:
+the scope test reads routes with `fastapi.routing.iter_route_contexts`.
 
 ## Required hardware and software environment
 
@@ -71,3 +80,4 @@ accountable. Hazard-relevant anomalies go to `risk-management`; defects affectin
 - 2026-10-21 — Record created at the locked/declared version when the SOUP list moved from
   ADD-004 to one `soup` record per component (medical-records 0.3.2).
 - 2026-10-22 — 0.138.0 (unchanged). First anomaly-list review (TASK-154, CR-001 AC-11/AC-12): none found for 0.138.0; nothing hazard-relevant. Record 1.0 → 1.1; approval record removed for re-review.
+- 2026-11-13 — 0.138.0 (unchanged). Relied-on behaviour added: `Depends(scope="function")` teardown before the response (TASK-227, CR-006). Record 1.1 → 1.2; approval record removed for re-review. The anomaly review of 2026-10-22 is unchanged.

@@ -3,13 +3,10 @@ id: RISK-001
 type: risk
 title: Clinical data disclosed to a user without authorization or consent
 status: approved
-version: "1.4"
+version: "1.7"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-11-10"
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-11-10"
-approval_note: approved by the human in chat at the close of CR-004
+updated: "2026-11-14"
 hazard: Protected health information reaching a person who has neither a role-based right nor the patient's consent to see it.
 cause: A defect or misconfiguration in the authorization or consent evaluation (a route missing the `AuthorizationService` dependency, a wrong consent union, an admin projection not applied) → the API returns clinical data or PII to the caller → the caller reads information about a patient who never granted access.
 harm: "Privacy harm: loss of confidentiality of health data, loss of trust, potential social or employment consequences for the patient; a reportable GDPR breach. No direct physical injury."
@@ -18,6 +15,10 @@ probability_initial: 4
 severity_residual: 2
 probability_residual: 2
 acceptability: acceptable
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-11-14"
+approved_digest: 3183f7fd3545b088fa049a663846e886be64dfc73d5a95bbd5073851843a9a47
+approval_note: self-approved
 links:
   - target: SOUP-002
     relation: relates_to
@@ -70,6 +71,8 @@ occur); the score is severity × P2, the probability that the hazardous situatio
 | CSRF exemptions as an exact path set with a route-inventory test (CR-004) | Design | SR-031 AC 3; TASK-139 | TS-011 TC-011.6, including the login-CSRF defence (a non-JSON login body is refused with 400 before `LoginService.login` runs; a cross-origin JSON post meets no CORS and gets 405 on the preflight) and the module-router assertion (TASK-202) |
 | Route-level role guard in the client, driven by the navigation's role table: defence in depth only, the server stays the control (CR-004 Q-4) | Protective | SR-005; TASK-142 | TS-002 TC-002.9 |
 | No known or placeholder credential in the deployment; no root process in an image MedHub builds; the application connects with a non-superuser runtime role (CR-004) | Design | SR-041 AC 1 to AC 4, SR-023 AC 8; TASK-197, TASK-203, TASK-198, TASK-190, TASK-191 | TS-015 TC-015.1..4; TS-009 TC-009.11 (started stack: the runtime role is refused `UPDATE audit_log`, smoke test) |
+| A consent revoke, or any write, is answered only after it is committed, so "revoked" is never reported for a grant that still exists; a failed commit is a 5xx, not a success (CR-006 D-27, PRB-080, ADR-0023) | Design | SR-008 AC 4, SR-012 AC 5; TASK-227 | none yet (planned: TS-002 new case, revoke whose commit fails gives 5xx and the grant is reported unchanged; TASK-227 test 1, response sent after the commit) |
+| No clinical data outlives the client session: at the client inactivity timeout the query cache is cleared before the redirect and the server session is logged out, so going Back at an unattended workstation cannot re-render the PHI the clinician last loaded or reach the API with their session. The warning dialog ends the session the same way (it calls `handleExpired` instead of redirecting on its own, at the end of its countdown and on an extend answered 401) (CR-006 D-33, PRB-089; D-34, PRB-090) | Design | SR-030 AC 1, AC 2, AC 5; TASK-222 | TS-001 TC-001.13 (and TC-001.11), `frontend/src/auth/SessionActivityProvider.test.tsx`: "Back after a timeout shows no clinical data", "extend 401 then Back shows no clinical data", "timeout logs out, clears the cache and redirects once", "timeout still clears and redirects when logout fails with a 401" / "... with a network error", "clock jump with the warning open: one logout, an empty cache and one redirect", "Log out now logs out once, clears the cache and does not ask the server again", "a mutation's AuthError redirects once and clears the cache (the upload included)"; passed 2026-11-14, TASK-222 QA round 2. TC-001.14 (system level) pending (TASK-226) |
 
 ## Residual risk
 
@@ -89,6 +92,14 @@ makes such a rule apply everywhere at once. Confirmed at verification (TASK-202)
 Scores are not changed now.
 
 **Verification and proposed residual (CR-004 Checkpoint F, TASK-202, 2026-11-08).** Checkpoint F evidence (TASK-202, 2026-11-08, HEAD 579aaaa plus TASK-202's small edits): backend 1547 passed, 6 skipped, coverage 94.51% (floor 85%); DICOM module 25 passed; frontend 315 passed; infra 110 passed; started stack (project `task202`, empty template, generated secrets): `infra/smoke-test.sh` 78 passed, 0 failed; `infra/log-secrets-check.sh` 38 passed, 0 failed. Every CR-004 control row above now has a test that ran: the decision tables (TC-002.7, TC-002.8, TC-003.6) and the static role check (TC-002.8), the exact CSRF set and route inventory (TC-011.6), the client guard (TC-002.9), the secret and non-root checks (TC-015.1..4) and the runtime-role refusal (TC-009.11). The open items that kept the actual probability above the residual (PRB-003, PRB-014, PRB-026, PRB-027) are all `resolved`. **Proposed residual: severity 2 × probability 2 → acceptable** (derived from `risk_matrix`; unchanged). Not 2 × 1: a policy rule that is itself wrong is still possible, and the single decision point applies it everywhere at once. PRB-075 and PRB-072 are availability problems (RISK-007), not disclosure. TASK-113's own security review (SR-031 AC 6) is still `draft`; this proposal does not rest on it.
+
+**Change analysis (CR-006 D-33, 2026-11-14).** PRB-089 (`major`) is a cause of this hazard that sits outside
+the authorization layer. After a client timeout, `RequireAuth` finds a successful `me` in the query cache,
+so going Back re-renders the clinical views the clinician last loaded. The person at the workstation sees
+that PHI until a refetch answers 401, or indefinitely if the refetch fails for another reason. While the
+server session is alive, they can also reach whatever it can (RISK-005). The new control clears the cache
+and logs out at the timeout. **Expected residual: 2 × 2 → acceptable, unchanged.** No residual ever rested on
+the client cache, and the defect predates CR-006.
 
 **Decided by:** pending — the owner's acceptance is the approval of this record.
 
@@ -118,3 +129,7 @@ because the server decides.
     does not change. Acceptance is the human's, through approval of this version.
 - 1.3 (2026-10-31) — CR-004 Risk stage, §7.4 change analysis (Software Architect role). Control rows added for the CR-004 controls with their planned verification; expected residual stated in "Residual risk"; "Risks introduced by controls" extended. Scores not changed: they are re-scored from the evidence at verification (TASK-202). Content change, so the approval record is cleared and the record returns to review.
 - 1.4 (2026-11-08) — CR-004 Checkpoint F (TASK-202): planned verification replaced by the tests that ran; residual proposed from the evidence, 2 × 2 → acceptable, unchanged. Content change, so `in_review` and the approval record cleared; the owner's acceptance is the approval of this version.
+- 1.5 (2026-11-13) — CR-006 D-27 (PRB-080), §7.4 change analysis (Software Architect role): control row added for the request commit before the response (TASK-227), so a revoke is never acknowledged before it takes effect or when its commit fails. Scores unchanged (2 × 2 → acceptable): the window was milliseconds and a lost revoke needed a commit failure. Content change, so the approval record is cleared and the record returns to review.
+- 1.6 (2026-11-14) — CR-006 D-33 (PRB-089), §7.4 change analysis (Software Architect role). Control row added: no clinical data outlives the client session (cache cleared and session logged out at the client timeout; TASK-222, verification planned). Scores unchanged (2 × 2 → acceptable). Content change, so the approval record (approved 2026-11-13) is cleared and the record returns to review.
+- 1.7 (2026-11-14) — CR-006 D-34 (PRB-090, `major`): the "no clinical data outlives the client session" row names the warning dialog route, and the planned verification covers it. Same hazard as PRB-089; scores unchanged (2 × 2 → acceptable). Stays `in_review`.
+- 1.7 (2026-11-14, same version, still `in_review`) — Verification cell of the "no clinical data outlives the client session" row filled with the TASK-222 tests (TS-001 TC-001.13) after QA round 2 approved them.

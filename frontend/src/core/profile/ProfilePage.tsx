@@ -1,16 +1,12 @@
-import { useQuery } from "@tanstack/react-query";
 import Typography from "@mui/material/Typography";
 import Alert from "@mui/material/Alert";
 import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
-import { apiClient } from "../../api";
 import { ProfileFields } from "./ProfileFields";
+import { useMe } from "../../auth/useMe";
 
 export function ProfilePage() {
-  const { data, isLoading, error } = useQuery({
-    queryKey: ["me"],
-    queryFn: () => apiClient.me(),
-  });
+  const { data, isLoading, error } = useMe();
 
   if (isLoading) {
     return (

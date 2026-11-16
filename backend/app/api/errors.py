@@ -141,6 +141,25 @@ class SessionCapContentionProblem(ProblemError):
         super().__init__(detail)
 
 
+class ErasureNotificationUnavailableProblem(ProblemError):
+    """The retrieval-code e-mail could not be queued: the erasure was rolled back (SR-024 AC 6).
+
+    The message names neither the address nor the code.
+    """
+
+    status = 503
+    title = "Service Unavailable"
+    type_slug = "erasure-notification-unavailable"
+    headers = {"Retry-After": "30"}
+
+    def __init__(
+        self,
+        detail: str = "The erasure could not be completed because the retrieval code could not "
+        "be sent. Nothing was changed; please try again.",
+    ) -> None:
+        super().__init__(detail)
+
+
 def _problem_response(
     problem: dict[str, Any], status: int, headers: dict[str, str] | None = None
 ) -> JSONResponse:

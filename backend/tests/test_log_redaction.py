@@ -252,7 +252,7 @@ def test_non_string_dict_keys_do_not_drop_the_record(stream) -> None:
 
 
 def test_failed_insert_with_personal_data_does_not_reach_the_log(
-    stream, monkeypatch: pytest.MonkeyPatch
+    stream, monkeypatch: pytest.MonkeyPatch, tmp_path
 ) -> None:
     """SR-043 AC 1 (finding 2): the application engine hides bound parameters, so the
     IntegrityError text logged by the 500 handler holds no name. The log call is reproduced from
@@ -262,7 +262,18 @@ def test_failed_insert_with_personal_data_does_not_reach_the_log(
 
     import app.db.repositories.session as session_module  # noqa: PLC0415
 
-    settings = type("S", (), {"database_url": "sqlite://"})()
+    # A file database: the engine now sizes a QueuePool (TASK-136), which an in-memory SQLite
+    # database does not use, and its connections would each be a separate empty database.
+    settings = type(
+        "S",
+        (),
+        {
+            "database_url": f"sqlite:///{tmp_path / 'log.db'}",
+            "db_pool_size": 1,
+            "db_max_overflow": 0,
+            "db_pool_timeout": 5,
+        },
+    )()
     monkeypatch.setattr(session_module, "get_settings", lambda: settings)
     engine = session_module.get_engine.__wrapped__()
     meta = sa.MetaData()

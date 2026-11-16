@@ -3,13 +3,14 @@ id: ADD-008
 type: architecture-doc
 title: Identity & Account Lifecycle (SI-IDENTITY)
 status: approved
-version: "1.1"
+version: "1.4"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-11-10"
+updated: "2026-11-14"
 approved_by: Carlos Santiago Liceras
-approved_on: "2026-11-10"
-approval_note: approved by the human in chat at the close of CR-004
+approved_on: "2026-11-14"
+approved_digest: eb73f7f57fa75bdeefa685c926cd32683cd576ca6dd8e88f96c2d597e7d3eab4
+approval_note: self-approved
 links:
   - target: SR-003
     relation: implements
@@ -47,6 +48,16 @@ Account CRUD, role-constrained creation, activation, deactivate/reactivate/delet
 - `U-ID-Activation` — single-use 72h token, password-set, activate, resend (SR-033). The e-mailed link is `/activation/<token>`, the SPA route; resend is a decision of `U-AUTHZ-Policy` (`activation:resend`). The token is hashed at rest and never logged (SR-043 AC 4).
 - `U-ID-Lifecycle` — deactivate/reactivate (session kill ≤30s), delete+confirm, email release (SR-034). Each action is a decision of `U-AUTHZ-Policy` (`account:deactivate`, `account:reactivate`, `account:delete`). A failed enqueue of the session-kill task logs a WARNING with the account id (PRB-013 stays open).
 - `U-ID-Erasure` — deletion as anonymization into a retained anonymized dataset; generates the user-held anonymization code, stores only its salted KDF hash, sets the 5-year retention deadline, and authorizes code-based retrieval (SR-024, ADR-0013).
+  **CR-006 (TASK-141, D-5, D-11):** the retrieval-code e-mail is enqueued before the sessions
+  are invalidated, inside the request's transaction; if it cannot be enqueued the erasure logs one WARNING
+  (dataset id only) and raises `ErasureNotificationUnavailableProblem` (503, `Retry-After`, type
+  `erasure-notification-unavailable`, `app/api/errors.py`; an additive response of `DELETE /accounts/{id}`, D-21), so the severance, the dataset and the audit rows are rolled
+  back and the account and its sessions stay as they were (SR-024 AC 6). Activation and appointment
+  enqueues stay best effort with the WARNING log (D-5).
+  **CR-006 (TASK-228, D-30):** the enqueue passes the dataset id (`.delay(email, code, str(dataset.id))`); the
+  task sends the e-mail only after reading the `anonymized_dataset` row with that id, which is visible to its
+  own session only once the erasure's transaction has committed, and drops the code if the row never appears
+  (ADD-017; SR-024 AC 6, PRB-083). The enqueue itself stays before `invalidate_all`, inside the transaction.
 
 Class B requires decomposition down to software units, not per-unit detailed design
 (§5.4.2–5.4.4 are class C). Each unit above is independently unit-testable and is the granularity
@@ -76,3 +87,6 @@ arc42 sections — [05 building blocks](../../design/05-building-blocks.md) for 
 
 Participates in RISK-002, RISK-008 (see `docs/risks/`); the control measures are carried by the SRs and TASKs listed there.
 - 1.1 (2026-11-08) — TASK-201 (CR-004): the lifecycle, activation and creation decisions now point to `U-AUTHZ-Policy` (ADD-007); activation link route and enqueue-failure note added. Content change, so the 1.0 approval record is cleared and the record returns to review.
+- 1.2 (2026-11-13) — CR-006 Plan stage (Software Architect role): `U-ID-Erasure` fails and rolls back when its code e-mail cannot be enqueued (SR-024 AC 6), marked "CR-006 (planned)". Content change, so the 1.1 approval record is cleared and the record returns to review.
+- 1.3 (2026-11-14) — TASK-141 (CR-006): the "planned" marker of `U-ID-Erasure` removed; the erasure enqueue, the 503 problem and its log are implemented (SR-024 AC 6). Approval record cleared; `in_review`.
+- 1.4 (2026-11-14) — TASK-228 (CR-006 D-30, PRB-083): `U-ID-Erasure` passes the dataset id to the e-mail task, which sends only for a committed erasure. Approval record cleared; `in_review`.

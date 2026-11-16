@@ -9,6 +9,7 @@ from fastapi import FastAPI
 from app.api.errors import register_error_handlers
 from app.api.health import router as health_router
 from app.api.router import api_router
+from app.core.body_limit import AttachmentBodyLimitMiddleware
 from app.core.client_address import ClientAddressMiddleware
 from app.core.logging import configure_logging
 from app.core.security_middleware import CsrfEnforcementMiddleware, SecurityHeadersMiddleware
@@ -45,11 +46,20 @@ async def _lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     _bind_celery_app()
 
     settings = get_settings()
+    # ADR-0022: the thread limit that runs the blocking handlers is a setting, checked against the
+    # database pool when the settings load (a violation stops start-up above).
+    import anyio.to_thread  # noqa: PLC0415
+
+    anyio.to_thread.current_default_thread_limiter().total_tokens = settings.api_threadpool_size
     logger.info(
         "MedHub API starting up",
         extra={
             "environment": settings.environment,
             "cors_origins": settings.cors_origins,
+            "api_threadpool_size": settings.api_threadpool_size,
+            "db_pool_size": settings.db_pool_size,
+            "db_max_overflow": settings.db_max_overflow,
+            "db_pool_timeout": settings.db_pool_timeout,
         },
     )
 
@@ -99,6 +109,9 @@ def create_app() -> FastAPI:
     app.include_router(api_router)
     app.include_router(health_router)
     register_error_handlers(app)
+
+    # Upload body bound (TASK-135): innermost, so its refusal still passes the security middleware
+    app.add_middleware(AttachmentBodyLimitMiddleware)
 
     # Security middleware (TASK-069)
     app.add_middleware(SecurityHeadersMiddleware)

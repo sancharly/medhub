@@ -103,12 +103,15 @@ describe("route-level role guards (TASK-142, PRB-014)", () => {
       meAs(role);
       visit(concrete(path));
       const allowed = EXPECTED[path].includes(role);
+      // Pages are lazy route chunks (TASK-145): the first visit to each imports its module,
+      // which can take longer than the 1 s default on a loaded CI runner.
+      const lazyLoad = { timeout: 5000 };
       if (allowed) {
-        await waitFor(() => expect(mounted).toHaveBeenCalledWith(path));
+        await waitFor(() => expect(mounted).toHaveBeenCalledWith(path), lazyLoad);
         expect(window.location.pathname).toBe(concrete(path));
       } else {
-        await waitFor(() => expect(window.location.pathname).toBe("/profile"));
-        await screen.findByText("page:/profile");
+        await waitFor(() => expect(window.location.pathname).toBe("/profile"), lazyLoad);
+        await screen.findByText("page:/profile", {}, lazyLoad);
         expect(mounted).not.toHaveBeenCalledWith(path);
       }
     });
@@ -184,8 +187,9 @@ describe("route-level role guards (TASK-142, PRB-014)", () => {
       { status: 500, headers: { "Content-Type": "application/problem+json" } }
     );
 
-  // PRB-067: a failing /me is retried a bounded number of times, not in a loop, then an alert shows (SR-027 AC 3).
-  it("requests /me a bounded number of times when it fails with 500 and shows an alert", async () => {
+  // PRB-067, TASK-144: a failing /me is requested once, not in a loop and not retried, then an alert
+  // with "Try again" shows (SR-027 AC 3, SR-030 AC 8).
+  it("requests /me once when it fails with 500 and shows an alert", async () => {
     let calls = 0;
     server.use(
       http.get(`${BASE}/me`, () => {
@@ -198,8 +202,7 @@ describe("route-level role guards (TASK-142, PRB-014)", () => {
     await act(async () => {
       await new Promise((r) => setTimeout(r, 500));
     });
-    // 1 request plus the 3 retries of the client-wide policy.
-    expect(calls).toBe(4);
+    expect(calls).toBe(1);
     expect(mounted).not.toHaveBeenCalled();
   });
 

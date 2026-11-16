@@ -3,13 +3,13 @@ id: ADD-014
 type: architecture-doc
 title: Module Host / Plugin Registry (SI-MODHOST)
 status: approved
-version: "1.0"
+version: "1.1"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-10-21"
+updated: "2026-11-16"
 approved_by: Carlos Santiago Liceras
-approved_on: "2026-10-21"
-approved_digest: 8a18ec8efc1eea7d17f72fe74187ce6e1e88e25935d30eb7662f750e1627b5e9
+approved_on: "2026-11-16"
+approved_digest: 9b37aefc013b1e72b23137f70f7cb35c59192844028ac50afaa370c3f7d0a148
 approval_note: self-approved
 links:
   - target: SR-016
@@ -35,6 +35,7 @@ Module discovery/registration, platform-service injection, router mounting
 - `U-MH-Discovery` — entry-point discovery & `ModuleManifest` validation (SR-016).
 - `U-MH-PlatformServices` — `PlatformServices` facade injected into modules (SR-016.3).
 - `U-MH-RouterMount` — mount module routers under `/api/v1/modules/{key}` (SR-016).
+- `U-MH-ModuleSettings` — `backend/app/modules/module_settings.py`: the platform settings a module may read, one accessor per setting (today the DICOM stored and decoded size bounds); a module never imports `app.core.config` (SR-016 AC 3). The module boundary is checked by a name-level allow-list (`ALLOWED_PLATFORM_NAMES` in `backend/tests/modules/test_module_boundary.py`): a module may import only the listed names from the listed platform modules (`app.modules.contract`, `app.api.deps`, `app.api.errors`, `app.audit.actions`, `app.modules.module_settings`). A new name needs a design decision recorded here.
 
 Class B requires decomposition down to software units, not per-unit detailed design
 (§5.4.2–5.4.4 are class C). Each unit above is independently unit-testable and is the granularity
@@ -63,3 +64,8 @@ arc42 sections — [05 building blocks](../../design/05-building-blocks.md) for 
 ## Risk relevance
 
 Participates in RISK-004 (see `docs/risks/`); the control measures are carried by the SRs and TASKs listed there.
+
+## Version history
+
+- 1.0 (2026-10-21) — Created and self-approved.
+- 1.1 (2026-11-14) — TASK-223 (CR-006, QA finding R2-3; Document Writer in TASK-225): unit `U-MH-ModuleSettings` (`backend/app/modules/module_settings.py`) named, and the name-level allow-list of `backend/tests/modules/test_module_boundary.py` recorded; the DICOM module no longer imports `app.core.config`. Content change on an approved record, so the 1.0 approval record is cleared and the record returns to review.

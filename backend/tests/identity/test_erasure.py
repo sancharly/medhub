@@ -18,6 +18,15 @@ from app.db.models.anonymized_dataset import AnonymizedDataset
 from app.identity.erasure import ErasureService
 
 
+@pytest.fixture(autouse=True)
+def _no_broker():
+    """No broker in unit tests: ``.delay`` is a no-op unless a test patches it itself."""
+    from unittest.mock import patch  # noqa: PLC0415
+
+    with patch("app.workers.email_tasks.send_erasure_code_email.delay"):
+        yield
+
+
 def _make_account(user_type: UserType = UserType.PATIENT) -> Account:
     return Account(
         id=uuid.uuid4(),
@@ -241,28 +250,80 @@ def test_erase_enqueues_email_with_pre_erasure_address() -> None:
     with patch("app.workers.email_tasks.send_erasure_code_email") as mock_task:
         result = svc.delete(actor, target.id)
         mock_task.delay.assert_called_once()
-        recipient, code = mock_task.delay.call_args.args
+        recipient, code, dataset_id = mock_task.delay.call_args.args
         assert recipient == "original@example.com"
         assert code == result.retrieval_code
+        # the task gates the e-mail on this dataset being committed (TASK-228, PRB-083)
+        assert dataset_id == str(svc._dataset_repo.add.call_args.args[0].id)  # noqa: SLF001
         # The PII was severed — account email is now anonymized
         assert "deleted.invalid" in target.email
 
 
-def test_erase_email_failure_does_not_raise() -> None:
-    """If enqueuing the email fails, the erasure still succeeds (best-effort)."""
+def _failing_delay():
+    """Patch the task so that ``.delay`` fails as an unreachable broker does."""
     from unittest.mock import patch  # noqa: PLC0415
+
+    return patch(
+        "app.workers.email_tasks.send_erasure_code_email.delay",
+        side_effect=ConnectionError(
+            "redis://user:secret@broker:6379 unreachable: owner@example.com"
+        ),
+    )
+
+
+def test_erasure_enqueue_failure_raises_retryable_problem_and_keeps_sessions() -> None:
+    """SR-024 AC 6 (TS-004 TC-004.4): the e-mail is enqueued before the sessions are killed, so
+    a failed enqueue raises a retryable 503 problem and leaves the sessions alone."""
+    from app.api.errors import ErasureNotificationUnavailableProblem  # noqa: PLC0415
 
     actor = _make_account(UserType.SYSADMIN)
     target = _make_account(UserType.PATIENT)
     svc = _build_svc(target)
+    r = svc._session_svc._redis  # noqa: SLF001
+    live = svc._session_svc.create_session(target).session  # noqa: SLF001
+    assert r.exists(f"session:{live.session_id}")
 
-    with patch(
-        "app.workers.email_tasks.send_erasure_code_email",
-        side_effect=Exception("Celery unavailable"),
+    with _failing_delay(), pytest.raises(ErasureNotificationUnavailableProblem) as caught:
+        svc.delete(actor, target.id)
+
+    assert caught.value.status == 503
+    assert caught.value.headers is not None and "Retry-After" in caught.value.headers
+    assert caught.value.type_slug == "erasure-notification-unavailable"
+    assert "example.com" not in caught.value.detail and "secret" not in caught.value.detail
+    assert r.exists(f"session:{live.session_id}"), "sessions must not be invalidated"
+    # The audit rows are written after the enqueue, so none was recorded.
+    assert svc._audit_svc.record.call_count == 0  # type: ignore[attr-defined]  # noqa: SLF001
+
+
+def test_erasure_enqueue_failure_logs_warning_without_personal_data(
+    caplog: pytest.LogCaptureFixture, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """SR-043 AC 1 (TC-017.7; the RISK-009 erasure-site log-capture test): one WARNING, with the
+    dataset id only: no address, no code, no broker URL, no traceback."""
+    import logging  # noqa: PLC0415
+
+    from app.api.errors import ErasureNotificationUnavailableProblem  # noqa: PLC0415
+
+    # An Alembic ``fileConfig`` in another test can leave existing loggers disabled.
+    monkeypatch.setattr(logging.getLogger("app.identity.erasure"), "disabled", False)
+    actor = _make_account(UserType.SYSADMIN)
+    target = _make_account(UserType.PATIENT)
+    target.email = "owner@example.com"
+    svc = _build_svc(target)
+
+    with (
+        caplog.at_level(logging.DEBUG),
+        _failing_delay(),
+        pytest.raises(ErasureNotificationUnavailableProblem),
     ):
-        # Should not raise
-        result = svc.delete(actor, target.id)
-        assert result.retrieval_code is not None
+        svc.delete(actor, target.id)
+
+    records = [r for r in caplog.records if r.name == "app.identity.erasure"]
+    assert len(records) == 1 and records[0].levelno == logging.WARNING
+    assert records[0].exc_info is None
+    text = records[0].getMessage() + str(records[0].__dict__)
+    for forbidden in ("owner@example.com", "secret", "broker", "redis://"):
+        assert forbidden not in text
 
 
 def test_retrieval_code_not_in_audit_log() -> None:

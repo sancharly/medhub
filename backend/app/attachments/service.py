@@ -5,6 +5,8 @@ from __future__ import annotations
 import hashlib
 import hmac
 import uuid
+from collections.abc import Iterator
+from typing import BinaryIO
 
 from app.api.errors import (
     AttachmentIntegrityError,
@@ -16,12 +18,14 @@ from app.audit.actions import AuditAction
 from app.audit.service import AuditService
 from app.authz.service import AuthorizationService, Resource
 from app.core.config import get_settings
+from app.core.object_storage import ObjectChangedError
 from app.db.models.attachment import Attachment
 from app.db.models.audit import AuditOutcome
 from app.db.repositories.attachment_repo import AttachmentRepository
 from app.db.repositories.clinical_repo import ClinicalRepository
 
 MAX_FILENAME_BYTES = 255
+_CHUNK_SIZE = 65536  # 64 KiB
 
 
 class AttachmentService:
@@ -45,9 +49,9 @@ class AttachmentService:
         entry_id: uuid.UUID,
         filename: str,
         content_type: str,
-        data: bytes,
+        file: BinaryIO,
     ) -> Attachment:
-        """Upload an attachment for a clinical entry."""
+        """Upload an attachment for a clinical entry, read from ``file`` in bounded chunks."""
         from app.db.models.account import Account  # noqa: PLC0415
 
         actor_acct: Account = actor  # type: ignore[assignment]
@@ -66,13 +70,18 @@ class AttachmentService:
             ),
         )
 
-        # Size validation
-        settings = get_settings()
-        max_bytes = getattr(settings, "attachment_max_bytes", 104857600)
-        if len(data) > max_bytes:
-            raise ValidationProblem(
-                f"Attachment size {len(data)} exceeds maximum {max_bytes} bytes."
-            )
+        # Size validation and checksum in one bounded pass (SR-013 AC 6): read in chunks, hash
+        # incrementally, refuse as soon as the count passes the maximum.
+        max_bytes = get_settings().attachment_max_bytes
+        digest = hashlib.sha256()
+        size = 0
+        while chunk := file.read(_CHUNK_SIZE):
+            size += len(chunk)
+            if size > max_bytes:
+                raise ValidationProblem(f"Attachment size exceeds maximum {max_bytes} bytes.")
+            digest.update(chunk)
+        file.seek(0)
+        checksum = digest.hexdigest()
 
         # File name bound (SR-013 AC 1, PRB-069): refused, never truncated, as the stored name is
         # part of the clinical record (SR-013 AC 2). 255 bytes is NAME_MAX and bounds the header.
@@ -94,14 +103,12 @@ class AttachmentService:
         if is_dicom:
             from app.attachments.dicom_validation import validate_dicom  # noqa: PLC0415
 
-            dicom_meta = validate_dicom(data)
+            dicom_meta = validate_dicom(file)
 
-        # Compute storage key and checksum
         storage_key = f"attachments/{entry.patient_id}/{uuid.uuid4()}/{filename}"
-        checksum = hashlib.sha256(data).hexdigest()
 
-        # Upload to object storage
-        self._storage.put_object(storage_key, data, content_type)  # type: ignore[attr-defined]
+        # Upload to object storage: one PutObject, the file as body
+        self._storage.put_object(storage_key, file, size, content_type)  # type: ignore[attr-defined]
 
         # Persist record
         attachment = Attachment(
@@ -109,7 +116,7 @@ class AttachmentService:
             patient_id=entry.patient_id,
             filename=filename,
             content_type=content_type,
-            size=len(data),
+            size=size,
             storage_key=storage_key,
             checksum=checksum,
             dicom_metadata=dicom_meta,
@@ -134,18 +141,105 @@ class AttachmentService:
         )
         return attachment
 
-    def open(self, actor: object, attachment_id: uuid.UUID) -> tuple[bytes, str, str]:
-        """Fetch attachment bytes. Returns (bytes, content_type, filename)."""
+    def open_stream(
+        self, actor: object, attachment_id: uuid.UUID
+    ) -> tuple[Iterator[bytes], str, str, int]:
+        """Two-pass bounded download: (chunks, content_type, filename, size).
+
+        Pass 1 hashes the object chunk by chunk, keeping nothing, and records its ETag. On a match,
+        pass 2 re-reads it with ``If-Match: <ETag>`` and serves the chunks, hashing again; an
+        object replaced between the passes (412) or a digest that differs at the end of pass 2 is
+        the SR-013 AC 5 failure path. Memory does not grow with the object (SR-013 AC 6,
+        ADR-0021, CR-006 D-10).
+        """
         from app.db.models.account import Account  # noqa: PLC0415
 
         actor_acct: Account = actor  # type: ignore[assignment]
+        attachment = self._authorized_attachment(actor_acct, attachment_id)
 
+        # ADR-0023: the response generator runs after the request session is committed and closed,
+        # so it must not touch an ORM instance. Plain values only from here on.
+        actor_id = actor_acct.id
+        att_id = attachment.id
+        storage_key = attachment.storage_key
+        checksum = attachment.checksum
+        size = attachment.size
+        content_type = attachment.content_type
+        filename = attachment.filename
+
+        def _refuse() -> AttachmentIntegrityError:
+            self._record_failure(actor_id, att_id)
+            return AttachmentIntegrityError(
+                f"Attachment {attachment_id} failed its integrity check and was not served."
+            )
+
+        try:
+            chunks, etag = self._storage.get_object_stream(storage_key)  # type: ignore[attr-defined]
+            digest = hashlib.sha256()
+            for chunk in chunks:
+                digest.update(chunk)
+        except Exception:
+            self._record_failure(actor_id, att_id)
+            raise
+        if not hmac.compare_digest(digest.hexdigest(), checksum):
+            raise _refuse()
+
+        try:
+            chunks, _ = self._storage.get_object_stream(  # type: ignore[attr-defined]
+                storage_key, if_match=etag
+            )
+        except ObjectChangedError:
+            raise _refuse() from None
+        except Exception:
+            self._record_failure(actor_id, att_id)
+            raise
+
+        self._audit_svc.record(
+            actor=actor_id,
+            action=AuditAction.ATTACHMENT_ACCESS,
+            target_type="attachment",
+            target_id=str(att_id),
+            outcome=AuditOutcome.SUCCESS,
+            ip=None,
+        )
+
+        def _verified() -> Iterator[bytes]:
+            # The last chunk is held back until the digest of the whole pass has matched, so a
+            # tampered pass 2 never completes the declared Content-Length: the client sees a short,
+            # aborted transfer, not a complete 200 (SR-013 AC 5, ADR-0021).
+            served = hashlib.sha256()
+            count = 0
+            held: bytes | None = None
+            try:
+                for chunk in chunks:
+                    if not chunk:
+                        continue
+                    count += len(chunk)
+                    if count > size:
+                        # More bytes than were stored: stop before anything further is sent
+                        # (the held chunk included), so Content-Length is never satisfied.
+                        raise _refuse()
+                    served.update(chunk)
+                    if held is not None:
+                        yield held
+                    held = chunk
+                if count != size or not hmac.compare_digest(served.hexdigest(), checksum):
+                    raise _refuse()
+                if held is not None:
+                    yield held
+            finally:
+                # Starlette does not close a sync iterator when the client disconnects.
+                chunks.close()
+
+        return _verified(), content_type, filename, size
+
+    def _authorized_attachment(self, actor: object, attachment_id: uuid.UUID) -> Attachment:
         attachment = self._attachment_repo.get(attachment_id)
         if attachment is None:
             raise NotFoundError(f"Attachment {attachment_id} not found.")
 
         self._authz_svc.authorize(
-            actor_acct,
+            actor,  # type: ignore[arg-type]
             "clinical:read",
             Resource(
                 resource_type="attachment",
@@ -153,6 +247,25 @@ class AttachmentService:
                 patient_id=attachment.patient_id,
             ),
         )
+        return attachment
+
+    def open(
+        self, actor: object, attachment_id: uuid.UUID, max_bytes: int | None = None
+    ) -> tuple[bytes, str, str]:
+        """Fetch attachment bytes. Returns (bytes, content_type, filename).
+
+        With ``max_bytes``, an attachment stored larger than that is refused before any read
+        (SR-017 AC 6: the module path holds the object in memory).
+        """
+        from app.db.models.account import Account  # noqa: PLC0415
+
+        actor_acct: Account = actor  # type: ignore[assignment]
+        attachment = self._authorized_attachment(actor_acct, attachment_id)
+
+        if max_bytes is not None and attachment.size > max_bytes:
+            raise ValidationProblem(
+                f"The attachment is larger than the maximum of {max_bytes} bytes for this use."
+            )
 
         try:
             data = self._storage.get_object(attachment.storage_key)  # type: ignore[attr-defined]
@@ -187,8 +300,12 @@ class AttachmentService:
         SR-023 AC 2 / ADR-0016: a FAILURE row is independent, so it survives the request's
         rollback. ``ip=None`` uses the request's client address (SR-023 AC 6).
         """
+        self._record_failure(actor.id, attachment_id)  # type: ignore[attr-defined]
+
+    def _record_failure(self, actor_id: uuid.UUID, attachment_id: uuid.UUID) -> None:
+        """The FAILURE row from plain values: callable after the request session is closed."""
         self._audit_svc.record(
-            actor=actor.id,  # type: ignore[attr-defined]
+            actor=actor_id,
             action=AuditAction.ATTACHMENT_ACCESS,
             target_type="attachment",
             target_id=str(attachment_id),

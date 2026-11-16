@@ -3,10 +3,10 @@ id: "TASK-002"
 type: task
 title: "Backend FastAPI app skeleton"
 status: approved
-version: "1.0"
+version: "1.1"
 author: "Carlos Santiago Liceras"
 created: "2026-07-07"
-updated: "2026-07-07"
+updated: "2026-11-14"
 links:
   - target: "SR-001"
     relation: implements
@@ -38,7 +38,7 @@ Stand up the FastAPI application factory that all backend items mount into: a si
   - `backend/app/main.py` — `create_app() -> FastAPI`: instantiates the app, sets `title`, `version`, `openapi_url="/api/v1/openapi.json"`, includes the v1 router, registers logging on startup. Export a module-level `app = create_app()` for the ASGI server.
   - `backend/app/api/router.py` — `api_router = APIRouter(prefix="/api/v1")` (empty include surface; later tasks `api_router.include_router(...)`).
   - `backend/app/api/health.py` — `GET /healthz` → `{"status": "ok"}` (200), defined on the root app, **outside** `/api/v1` so liveness checks bypass versioned routing.
-  - `backend/app/core/logging.py` — `configure_logging()`: structured JSON logs to stdout (12-factor; container-friendly for TASK-004) with a request-id field; no PHI, no credentials in log output.
+  - `backend/app/core/logging.py` — `configure_logging()`: structured JSON logs to stdout (12-factor; container-friendly for TASK-004); no PHI, no credentials in log output.
 - Libraries (exact stack): FastAPI, Pydantic v2. ASGI server (`gunicorn` + `uvicorn` worker) is containerized in TASK-004; this task targets `uvicorn` for local dev.
 - Config keys: none here (read via `Settings` once TASK-003 lands; until then use literals/defaults). Do not read raw `os.environ` in app code — leave that to TASK-003.
 - Error cases: none beyond FastAPI defaults; the RFC 7807 handler is a later task and must not be stubbed with a non-compliant format here.
@@ -78,3 +78,8 @@ Distilled from SR-001:
 - **Verdict:** PASS
 - Reviewed against code + tests + runtime smoke; see `docs/implementation-plan/AUDIT-LEDGER.md`.
 - Acceptance criteria verified met; boxes checked.
+
+## Version history
+
+- 1.1 (2026-11-14) — TASK-224 (CR-006, PRB-032, D-7): the request-id field named in the logging bullet is removed; the logger never emitted one. Approval record cleared; QA/human re-approve.
+- 1.1 (2026-11-14, QA) — Re-approved on QA approval of TASK-224: the only change is the removed request-id clause; nothing else in the record changed (there was no `approved_by`/`approved_digest` to clear). Status `approved`.

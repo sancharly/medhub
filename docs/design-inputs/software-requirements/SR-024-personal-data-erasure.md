@@ -1,24 +1,32 @@
 ---
-id: "SR-024"
+id: SR-024
 type: software-requirement
-title: "Personal data erasure"
+title: Personal data erasure
 status: approved
-version: "1.3"
-author: "Carlos Santiago Liceras"
+version: "1.5"
+author: Carlos Santiago Liceras
 created: "2026-07-07"
-updated: "2026-10-21"
+updated: "2026-11-13"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-11-13"
+approved_digest: 44897412bc474e7868b5a9b4096618171e61caddbe984e0bd23947fa26ad0e31
+approval_note: self-approved
 links:
-  - target: "RR-002"
+  - target: RR-002
     relation: satisfies
-  - target: "RR-005"
+  - target: RR-005
     relation: satisfies
-  - target: "RISK-002"
+  - target: RISK-002
     relation: mitigates
-  - target: "RISK-008"
+  - target: RISK-008
     relation: mitigates
-  - target: "NFR-004"
+  - target: RISK-007
+    relation: mitigates
+  - target: NFR-004
     relation: derives_from
-tags: ["control:design", "control:protective"]
+tags:
+  - control:design
+  - control:protective
 ---
 
 ## Summary
@@ -35,6 +43,8 @@ This requirement implements the GDPR right to erasure. On a lawful request, an a
 2. After completion, the subject's personal identifying data is no longer retrievable through the application.
 3. The erasure/anonymization action is recorded in the audit log with actor and timestamp.
 4. Records subject to mandatory clinical retention are handled per a documented retention policy rather than silently deleted.
+5. The scheduled retention sweep isolates a failure to the dataset on which it occurs, releases every database session it opens, and retries after a transient failure at most 3 times, so an expired dataset is erased by a later run or retry and is never skipped silently. The number of failed datasets is logged without personal data (SR-043).
+6. An erasure request whose verification or retrieval-code e-mail cannot be enqueued fails and is rolled back as a whole: no partial erasure is left behind and the request never reports success. The requester receives an error response and may retry.
 
 ## Origin Requirement
 
@@ -65,3 +75,5 @@ The right to erasure is a core GDPR data-subject right; the platform must be abl
   unchanged, so the existing approval stands.
 - 1.3 (2026-10-21) — Tagged `control:design`, `control:protective` (type of the risk control it implements,
   medical-records 0.3.2). Traceability only: the content is unchanged, so the existing approval stands.
+- 1.4 (2026-11-13) — Content change, so the approval is cleared and the record returns to review (CR-006, GitHub sancharly/medhub#28). Added AC 5 (retention sweep failure isolation, session release and retry). Reason: the sweep leaked a database session per failing dataset and never retried, so expired data stayed unerased after a transient error (PRB-012; RISK-007, RISK-008).
+- 1.5 (2026-11-13) — Content change, so the approval is cleared and the record returns to review (CR-006 Risk gate R-2, R-3). Added AC 6 (an erasure request whose e-mail cannot be enqueued fails as a whole, decision D-5; RISK-008) and the `mitigates` link to RISK-007 (R-3).

@@ -5,7 +5,6 @@ from __future__ import annotations
 import uuid
 
 from fastapi import APIRouter, Depends, status
-from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user, get_session_service
 from app.api.errors import NotFoundError, ValidationProblem
@@ -22,7 +21,7 @@ from app.db.repositories.anonymized_dataset_repo import AnonymizedDatasetReposit
 from app.db.repositories.audit_repo import AuditRepository
 from app.db.repositories.consent_repo import ConsentRepository
 from app.db.repositories.password_history_repo import PasswordHistoryRepository
-from app.db.repositories.session import get_db
+from app.db.repositories.session import DbSession
 from app.identity.erasure import ErasureService
 from app.identity.lifecycle import LifecycleService
 
@@ -30,7 +29,7 @@ router = APIRouter(prefix="/accounts", tags=["lifecycle"])
 
 
 def _get_lifecycle_service(
-    db: Session = Depends(get_db),
+    db: DbSession,
     session_svc: SessionService = Depends(get_session_service),
 ) -> LifecycleService:
     audit_svc = AuditService(AuditRepository(db))
@@ -39,7 +38,7 @@ def _get_lifecycle_service(
 
 
 def _get_erasure_service(
-    db: Session = Depends(get_db),
+    db: DbSession,
     session_svc: SessionService = Depends(get_session_service),
 ) -> ErasureService:
     audit_svc = AuditService(AuditRepository(db))
@@ -75,12 +74,23 @@ def reactivate_account(
     svc.reactivate(actor, account_id)
 
 
-@router.delete("/{account_id}", response_model=DeletionResponse)
+@router.delete(
+    "/{account_id}",
+    response_model=DeletionResponse,
+    responses={
+        503: {
+            "description": (
+                "The retrieval-code e-mail could not be queued; the erasure was rolled back and "
+                "nothing changed. Retry after the Retry-After interval."
+            )
+        }
+    },
+)
 def delete_account(
+    db: DbSession,
     account_id: uuid.UUID,
     body: DeleteConfirmationRequest,
     actor: Account = Depends(get_current_user),
-    db: Session = Depends(get_db),
     svc: ErasureService = Depends(_get_erasure_service),
     _csrf: None = Depends(require_csrf),
 ) -> DeletionResponse:

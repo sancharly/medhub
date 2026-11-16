@@ -6,10 +6,11 @@ import Box from "@mui/material/Box";
 import { apiClient } from "../../api";
 import { ConsentList } from "./ConsentList";
 import { GrantConsentForm } from "./GrantConsentForm";
+import { queryKeys } from "../../api/queryKeys";
 
 export function ConsentPage() {
   const { data, isLoading, error } = useQuery({
-    queryKey: ["me", "consents"],
+    queryKey: queryKeys.myConsents,
     queryFn: () => apiClient.listMyConsents(),
   });
 

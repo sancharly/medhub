@@ -5,6 +5,7 @@ import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
 import Switch from "@mui/material/Switch";
 import { apiClient } from "../../../api";
+import { queryKeys } from "../../../api/queryKeys";
 import type { InstalledModule } from "../../../api/generated/types";
 
 interface GroupModulesProps {
@@ -28,7 +29,10 @@ export function GroupModules({
       moduleKey: string;
       enabled: boolean;
     }) => apiClient.setGroupModuleEnabled(groupId, moduleKey, enabled),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["groups"] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["groups"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.myModules });
+    },
   });
 
   return (

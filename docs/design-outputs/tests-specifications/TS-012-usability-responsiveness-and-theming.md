@@ -3,14 +3,10 @@ id: TS-012
 type: test-specification
 title: Usability, responsiveness and theming verification
 status: approved
-version: "1.1"
+version: "1.3"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-10-30"
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-10-30"
-approved_digest: dce927e475547c60791e250dc9f7b1214e524b30d6357db96f2218c13518bf11
-approval_note: self-approved
+updated: "2026-11-14"
 links:
   - target: SR-019
     relation: verifies
@@ -54,6 +50,7 @@ Exact SOUP versions: the `soup` records in [`../../soup/`](../../soup/).
 | TC-012.3 | SR-037, SR-038 | `frontend/src/core/theme/theme.test.ts`, `frontend/src/core/theme/StatusPill.test.tsx` | Tokens resolve in both modes and meet the contrast targets | Contrast computed per token pair |
 | TC-012.4 | SR-039 | `frontend/src/core/theme/ModeToggle.test.tsx` | The mode toggle follows the system default and persists the choice | System, light and dark asserted |
 | TC-012.5 | SR-027 | `frontend/src/core/profile/ProfilePage.test.tsx`, `frontend/src/core/layout/SignOutButton.test.tsx` | Profile and sign-out behave consistently | Rendering and action asserted |
+| TC-012.6 | SR-027 AC 3 (TASK-145) | `frontend/src/core/error/RouteChunkBoundary.test.tsx`: `lazy route renders after its chunk loads`, `failed chunk shows the retry message, retry recovers`, `a retry that fails again offers a page reload` (the "application may have been updated" message and a Reload button calling `window.location.reload()`, mocked), `navigating to a failing route imports its chunk once`, `moving to another route clears the failure`, `an error thrown by the page itself is left to the app boundary`; `frontend/src/core/layout/AppLayout.test.tsx`: `shows an accessible progress indicator while a lazy page loads, shell intact`, `shows the retry message when a lazy page fails to load, shell intact`. Negative control: the retry without `reloadFailedChunks()` | A lazy route waits behind an accessible progress indicator and renders when its chunk arrives; a chunk that fails to import shows "This page could not be loaded." with a Retry that imports it again (the import runs a second time and the page renders); a failed retry offers a page reload (a deployment can remove the old chunks); a failing route met by navigation is imported once; leaving the route clears it; a page's own render error is not reported as a loading failure; the navigation and header stay on screen throughout | All listed tests pass; without the rebuild on retry the recovery test fails (page never loads) and the second test sees one import instead of two |
 
 ## Acceptance criteria (class B unit level, §5.5.3)
 
@@ -63,3 +60,11 @@ Exact SOUP versions: the `soup` records in [`../../soup/`](../../soup/).
 ## Notes
 
 SR-019 cross-browser support cannot be verified in jsdom; it needs the browser matrix run of TASK-111 and is reported as unverified in TR-001.
+
+## Version history
+
+- 1.1 (2026-10-30): approved.
+- 1.2 (2026-11-14): TASK-145. Added TC-012.6 (route chunk failure with a working retry, SR-027 AC 3). Content change, so the approval record is removed. `in_review`.
+- 1.2 (2026-11-14): QA review of TASK-145 (round 1): `approved` (status only; content unchanged).
+- 1.3 (2026-11-14): TASK-145 QA round 1 fixes. TC-012.6: a failed retry offers a reload; a failing route met by navigation is imported once. Content change, so the approval record is removed. `in_review`.
+- 1.3 (2026-11-14): QA review of TASK-145 (round 2): `approved` (status only; content unchanged).

@@ -6,6 +6,8 @@ import re
 import time
 from pathlib import Path
 
+import pytest
+
 BACKEND = Path(__file__).resolve().parents[2]
 SOURCE_DIRS = (BACKEND / "app", BACKEND / "modules")
 
@@ -53,3 +55,22 @@ def test_enqueue_with_unreachable_redis_fails_fast() -> None:
     except Exception:  # noqa: BLE001 - raising is as fast a failure as returning
         pass
     assert time.monotonic() - started < 5
+
+
+def test_enqueue_with_unreachable_redis_raises() -> None:
+    """TASK-141 (SOUP-014 relied-on): ``.delay()`` raises when the broker is unreachable, and does
+    not queue silently. The erasure (SR-024 AC 6) turns that exception into a rolled-back 503."""
+    from celery import Celery  # noqa: PLC0415
+
+    from app.workers.celery_app import celery_app  # noqa: PLC0415
+
+    url = "redis://127.0.0.1:1/0"
+    app = Celery("scratch", broker=url, backend=url)
+    app.conf.update(task_ignore_result=celery_app.conf.task_ignore_result)
+
+    @app.task
+    def noop() -> None:  # pragma: no cover - never runs
+        return None
+
+    with pytest.raises(Exception, match="."):
+        noop.delay()

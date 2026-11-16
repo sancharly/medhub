@@ -24,10 +24,15 @@ This folder records the significant architecture decisions for MedHub. One decis
 | [ADR-0018](0018-field-encryption-key-identifier-and-key-separation.md) | Field-encryption envelope with a key identifier, rehearsed rotation, separate object-store SSE key (refines ADR-0011, ADR-0015 D2) | Accepted |
 | [ADR-0019](0019-originating-client-address-trusted-proxy-rule.md) | Originating client address from one trusted-proxy rule in the application | Accepted |
 | [ADR-0020](0020-tool-and-test-image-pins-in-the-pin-check.md) | Build and CI tool pins and test-container images enforced by the existing pin check, against the shipped references (extends CR-001's check) | Accepted |
+| [ADR-0021](0021-bounded-attachment-io-and-bound-two-pass-download.md) | Attachment content in bounded 64 KiB chunks; the download is two reads, the second bound to the first by `If-Match` on the ETag | Accepted |
+| [ADR-0022](0022-blocking-io-off-the-event-loop-with-matched-pools.md) | Blocking IO in plain `def` handlers on the thread pool; thread limit and connection pools sized together with a start-up check | Accepted |
+| [ADR-0023](0023-request-transaction-commits-before-the-response.md) | The request transaction commits before the response is sent (`scope="function"` through one `DbSession` alias; refines ADR-0016 for streamed responses) | Accepted |
 
 ADR-0010 and ADR-0019 carry dated notes (2026-11-08, TASK-201) recording what CR-004 changed in the text they describe; their decisions are unchanged.
 
 ADR-0020 carries dated amendment notes (2026-11-12, TASK-212 QA): the test definition is `backend/postgres_image.py`, and the pin check reads its one-line or parenthesised assignment. The human acknowledged the amendment on 2026-11-12. A further dated note (2026-11-12, TASK-213 QA round 2) adds the `PostgresContainer` call rule and limits the guarantee to `PostgresContainer` call sites (the `DockerContainer` Redis call is not checked); the human acknowledged it on 2026-11-13.
+
+ADR-0021 to ADR-0023 were accepted on 2026-11-13 (CR-006 plan gate; ADR-0023 at D-28). ADR-0023 carries a dated note (2026-11-14, TASK-225) correcting its count of `Depends(get_db)` sites to 30 in 14 files.
 
 ## Trade-off summary
 

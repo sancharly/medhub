@@ -1,33 +1,36 @@
 ---
-id: "SR-023"
+id: SR-023
 type: software-requirement
-title: "Audit logging of security-relevant events"
+title: Audit logging of security-relevant events
 status: approved
-version: "1.4"
-author: "Carlos Santiago Liceras"
+version: "1.5"
+author: Carlos Santiago Liceras
 created: "2026-07-07"
-updated: "2026-10-31"
+updated: "2026-11-13"
 approved_by: Carlos Santiago Liceras
-approved_on: "2026-10-31"
-approval_note: self-approved at the ship-feature spec gate (sancharly/medhub#27)
+approved_on: "2026-11-13"
+approved_digest: f478cdd5f6fc988804365b19bb56dd5e46910bd18787f141871f65975952759e
+approval_note: self-approved
 links:
-  - target: "RR-004"
+  - target: RR-004
     relation: satisfies
-  - target: "RISK-001"
+  - target: RISK-001
     relation: mitigates
-  - target: "RISK-004"
+  - target: RISK-004
     relation: mitigates
-  - target: "RISK-005"
+  - target: RISK-005
     relation: mitigates
-  - target: "RISK-006"
+  - target: RISK-006
     relation: mitigates
-  - target: "NFR-004"
+  - target: NFR-004
     relation: derives_from
-  - target: "NFR-007"
+  - target: NFR-007
     relation: derives_from
-  - target: "NFR-005"
+  - target: NFR-005
     relation: derives_from
-tags: ["control:design", "control:protective"]
+tags:
+  - control:design
+  - control:protective
 ---
 
 ## Summary
@@ -49,6 +52,7 @@ This requirement implements auditability shared by GDPR, cybersecurity, and medi
 7. Every authorization decision, allowed or denied, on clinical data, personal data, modules or account-lifecycle operations (SR-005, SR-032, SR-034) produces an audit entry with actor, action, target, outcome, timestamp and source address. No allowed or denied access is decided without such an entry.
 8. The database role the application connects with cannot update or delete rows of the audit table: an `UPDATE` or `DELETE` on it issued with that role fails with a permission error.
 9. A value the application issued or received as a credential or secret (password, session token, activation or password-reset token, anonymized-data retrieval code, encryption or access key) is not stored in plaintext in any audit entry, whatever field name the caller passes it under.
+10. An audit entry with outcome SUCCESS for an event caused by an HTTP request, including an access to clinical data (AC 2) and an attachment download, is committed before the response is sent and before the first byte of any content; when it cannot be committed, no content is served and the client receives a 5xx error response. A FAILURE recorded after content has started (an aborted download, SR-013 AC 5) is an additional entry committed on its own transaction. (CR-006 D-27, PRB-080, ADR-0023.)
 
 ## Origin Requirement
 
@@ -70,6 +74,7 @@ Audit trails are required for GDPR accountability, security incident investigati
 - Centralize logging of the listed events; protect log integrity; exclude sensitive plaintext.
 - Events are produced by SR-002, SR-005/SR-006, SR-008, SR-014/SR-015.
 - AC 6 to AC 9 realize the RR-004 acceptance criteria (source address, no update or delete by the application role, no secret in any record) that AC 1 to AC 5 left implicit (PRB-005, PRB-010, PRB-026, PRB-027; RISK-006).
+- AC 10 orders the audit entry before the disclosure it records (PRB-080; RISK-006; ADR-0023).
 
 ## Version history
 
@@ -81,3 +86,4 @@ Audit trails are required for GDPR accountability, security incident investigati
 - 1.3 (2026-10-21) — Tagged `control:design`, `control:protective` (type of the risk control it implements,
   medical-records 0.3.2). Traceability only: the content is unchanged, so the existing approval stands.
 - 1.4 (2026-10-31) — Content change, so the record returns to review (CR-004, GitHub sancharly/medhub#27). Added AC 6 (originating client address, per SR-042), AC 7 (every authorization decision audited), AC 8 (append-only enforced by the database for the application role) and AC 9 (no secret value under any field name). Description updated to match. Reason: RR-004 requires the source address, append-only records and no secret in any record, and the review found them missing or enforced only by convention (PRB-005, PRB-010, PRB-026, PRB-027).
+- 1.5 (2026-11-13) — Content change, so the record returns to review and the approval record is cleared (CR-006 D-27, PRB-080; Software Architect role at the human's direction). Added AC 10: a SUCCESS audit entry is committed before the response and before any content; an aborted download adds a FAILURE entry. Reason: the request transaction, which holds the SUCCESS rows, committed after the response was sent, so content could be disclosed before its audit entry existed.

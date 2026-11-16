@@ -16,6 +16,7 @@ from app.db.models.account import Account, AccountStatus, UserType
 from app.db.models.attachment import Attachment
 from app.db.repositories.session import get_db
 from app.main import create_app
+from tests.attachments.fake_object_store import FakeObjectStore
 
 
 def _make_account(user_type: UserType = UserType.DOCTOR) -> Account:
@@ -119,7 +120,12 @@ class TestFetchAttachment:
         _auth_as(client, actor)
 
         mock_att_svc = MagicMock(spec=AttachmentService)
-        mock_att_svc.open.return_value = (b"PDF content", "application/pdf", "test.pdf")
+        mock_att_svc.open_stream.return_value = (
+            iter([b"PDF content"]),
+            "application/pdf",
+            "test.pdf",
+            11,
+        )
         client.app.dependency_overrides[_get_attachment_service] = lambda: mock_att_svc
 
         resp = client.get(f"/api/v1/attachments/{att_id}")
@@ -127,6 +133,7 @@ class TestFetchAttachment:
         client.app.dependency_overrides = {}
         assert resp.status_code == 200
         assert resp.content == b"PDF content"
+        assert resp.headers["content-length"] == "11"
 
     def test_fetch_requires_auth(self, client):
         resp = client.get(f"/api/v1/attachments/{uuid.uuid4()}")
@@ -149,8 +156,7 @@ class TestFetchSubstitutedAttachment:
 
         repo = MagicMock()
         repo.get.return_value = att
-        storage = MagicMock()
-        storage.get_object.return_value = b"planted bytes"
+        storage = FakeObjectStore(b"planted bytes")
         audit_repo = MagicMock()
         svc = AttachmentService(
             repo,
@@ -240,7 +246,7 @@ class TestFetchAttachmentFileNames:
         actor = _make_account(UserType.DOCTOR)
         _auth_as(client, actor)
         svc = MagicMock(spec=AttachmentService)
-        svc.open.return_value = (body, "text/plain", filename)
+        svc.open_stream.return_value = (iter([body]), "text/plain", filename, len(body))
         client.app.dependency_overrides[_get_attachment_service] = lambda: svc
         att_id = uuid.uuid4()
         try:

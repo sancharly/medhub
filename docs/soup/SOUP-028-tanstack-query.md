@@ -3,16 +3,16 @@ id: SOUP-028
 type: soup
 title: TanStack Query (@tanstack/react-query)
 status: approved
-version: "1.1"
+version: "1.4"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
-updated: "2026-10-23"
+updated: "2026-11-16"
 manufacturer: Tanner Linsley / TanStack
 soup_version: 5.101.0
 anomaly_review: "2026-10-22"
 approved_by: Carlos Santiago Liceras
-approved_on: "2026-10-23"
-approved_digest: 514664394ef5fa3b589e36872ccd4f5e26b22868f7a902a704dca6d258ff7c42
+approved_on: "2026-11-16"
+approved_digest: 020c35482113316974fd01657d56da2888836052ccdc0295b19e2b774f895837
 approval_note: self-approved
 links: []
 tags:
@@ -26,6 +26,10 @@ tags:
 ## Functional and performance requirements
 
 Server-state caching and invalidation; consent and module changes depend on correct invalidation (SR-008, SR-015).
+
+Relied-on behaviours of the RISK-004 module-refresh control (TASK-221, SR-015 AC 5): `refetchInterval` polling that pauses while the browser tab is hidden, refetch on window focus, refetch on every mount (`refetchOnMount: "always"`), and the last `data` kept when a refetch fails. `frontend/src/modules/useMyModules.test.tsx` (TS-005 TC-005.5) pins the interval refetch, the refetch on mount and the kept data at this version; the pause while the tab is hidden and the focus refetch are documented TanStack Query behaviour that no test here exercises.
+
+Relied-on behaviour of the RISK-001 session-end control (TASK-222, PRB-089): `QueryClient.clear()` removes every query and its data, so a route shown after Back finds no cached clinical data. A query observer still mounted at the time of the call recreates its query on the next render and refetches it; the session end therefore clears the cache as the redirect unmounts the signed-in tree. `frontend/src/auth/SessionActivityProvider.test.tsx` (TS-001 TC-001.13) pins the empty cache, the single `GET /me` and the Back case at this version.
 
 ## Required hardware and software environment
 
@@ -117,3 +121,6 @@ accountable. Hazard-relevant anomalies go to `risk-management`; defects affectin
 - 2026-10-22 — 5.101.0 (unchanged). First anomaly-list review (TASK-154, CR-001 AC-11, AC-12): none
   found for 5.101.0; not among the malicious `@tanstack/*` versions of CVE-2026-45321. Record 1.0 →
   1.1, approval record removed for re-approval.
+- 1.2 (2026-11-14) — TASK-221: functional requirements list the behaviours the module-refresh control relies on. Content change, so the 1.1 approval record is removed. `in_review`.
+- 1.3 (2026-11-14) — TASK-222: functional requirements name `QueryClient.clear()` and the observer behaviour the session-end control relies on. Content change; the human approved 1.3 afterwards (corrected in 1.4).
+- 1.4 (2026-11-14) — TASK-225 correction of the 1.3 line. It said "still `in_review`" and named no approval; the human did approve 1.3 afterwards (approval record dated 2026-11-14). Wording of the history only; no change to the functional requirements. Content change on an approved record, so the 1.3 approval record is removed. `in_review`.

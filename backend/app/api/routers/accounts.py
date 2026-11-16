@@ -6,7 +6,6 @@ import uuid
 
 import redis as redis_lib
 from fastapi import APIRouter, Depends, Query, Request, status
-from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user, get_redis
 from app.api.errors import AuthorizationError
@@ -28,14 +27,14 @@ from app.db.models.account import Account
 from app.db.repositories.account_repo import AccountRepository
 from app.db.repositories.audit_repo import AuditRepository
 from app.db.repositories.consent_repo import ConsentRepository
-from app.db.repositories.session import get_db
+from app.db.repositories.session import DbSession
 from app.identity.account_service import AccountCreate, AccountService
 from app.identity.activation import ActivationService
 
 router = APIRouter(prefix="/accounts", tags=["accounts"])
 
 
-def _get_account_service(db: Session = Depends(get_db)) -> AccountService:
+def _get_account_service(db: DbSession) -> AccountService:
     audit_svc = AuditService(AuditRepository(db))
     consent_svc = ConsentService(ConsentRepository(db), audit_svc)
     authz_svc = AuthorizationService(consent_svc, audit_svc)
@@ -61,10 +60,10 @@ def create_account(
 
 @router.get("", response_model=None)
 def list_accounts(
+    db: DbSession,
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
     actor: Account = Depends(get_current_user),
-    db: Session = Depends(get_db),
 ) -> AccountListResponse | AdminAccountListResponse:
     audit_svc = AuditService(AuditRepository(db))
     consent_svc = ConsentService(ConsentRepository(db), audit_svc)
@@ -112,9 +111,9 @@ def get_account(
 
 @router.post("/{account_id}/resend-activation", status_code=status.HTTP_202_ACCEPTED)
 def resend_activation(
+    db: DbSession,
     account_id: uuid.UUID,
     actor: Account = Depends(get_current_user),
-    db: Session = Depends(get_db),
 ) -> dict[str, str]:
     audit_svc = AuditService(AuditRepository(db))
     password_svc = PasswordService()
@@ -127,10 +126,10 @@ def resend_activation(
 
 @router.post("/{account_id}/unlock", status_code=status.HTTP_204_NO_CONTENT)
 def unlock_account(
+    db: DbSession,
     account_id: uuid.UUID,
     request: Request,
     actor: Account = Depends(get_current_user),
-    db: Session = Depends(get_db),
     r: redis_lib.Redis = Depends(get_redis),
 ) -> None:
     """SYSADMIN-only: clear lockout counters for an account."""

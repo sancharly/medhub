@@ -15,6 +15,7 @@ function renderDialog(props: {
   expiresAt: number;
   onExtended?: (d: number) => void;
   onLogout?: () => void;
+  onExpired?: () => void;
 }) {
   return render(
     <MuiThemeProvider theme={theme}>
@@ -29,6 +30,7 @@ function renderDialog(props: {
                 expiresAt={props.expiresAt}
                 onExtended={props.onExtended ?? vi.fn()}
                 onLogout={props.onLogout ?? vi.fn()}
+                onExpired={props.onExpired ?? vi.fn()}
               />
             }
           />
@@ -61,8 +63,10 @@ describe("IdleWarningDialog", () => {
 
     server.use(
       http.post(`${BASE}/auth/session/extend`, () =>
+        // expiresAt is a server-clock instant; the client must use the relative value (SR-030 AC 8)
         HttpResponse.json({
-          expiresAt: new Date(newExpiry).toISOString(),
+          expiresAt: new Date(newExpiry - 3 * 60 * 60 * 1000).toISOString(),
+          expiresInSeconds: 1800,
         })
       )
     );
@@ -77,7 +81,7 @@ describe("IdleWarningDialog", () => {
 
     await waitFor(() => expect(onExtended).toHaveBeenCalled());
     const arg = onExtended.mock.calls[0][0] as number;
-    expect(arg).toBeGreaterThan(Date.now());
+    expect(Math.abs(arg - newExpiry)).toBeLessThan(5000);
   });
 
   it("Log out now calls onLogout", async () => {
@@ -92,7 +96,7 @@ describe("IdleWarningDialog", () => {
     expect(onLogout).toHaveBeenCalled();
   });
 
-  it("extend 401 redirects to login", async () => {
+  it("extend 401 reports the ended session through onExpired", async () => {
     server.use(
       http.post(`${BASE}/auth/session/extend`, () =>
         HttpResponse.json(
@@ -102,15 +106,27 @@ describe("IdleWarningDialog", () => {
       )
     );
 
+    const onExpired = vi.fn();
     renderDialog({
       open: true,
       expiresAt: Date.now() + 2 * 60 * 1000,
+      onExpired,
     });
 
     await userEvent.click(screen.getByRole("button", { name: /stay signed in/i }));
 
-    await waitFor(() => {
-      expect(screen.getByText("Login Page")).toBeInTheDocument();
-    });
+    await waitFor(() => expect(onExpired).toHaveBeenCalledTimes(1));
+    // The dialog does not navigate itself: the owner ends the session (PRB-090).
+    expect(screen.queryByText("Login Page")).toBeNull();
+  });
+
+  it("the countdown reaching zero reports the ended session through onExpired once", async () => {
+    const onExpired = vi.fn();
+    renderDialog({ open: true, expiresAt: Date.now() + 1000, onExpired });
+
+    await vi.advanceTimersByTimeAsync(2000);
+
+    expect(onExpired).toHaveBeenCalledTimes(1);
+    expect(screen.queryByText("Login Page")).toBeNull();
   });
 });

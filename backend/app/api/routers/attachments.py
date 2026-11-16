@@ -3,11 +3,10 @@
 from __future__ import annotations
 
 import uuid
-from collections.abc import Iterator
 
 from fastapi import APIRouter, Depends, UploadFile, status
+from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import StreamingResponse
-from sqlalchemy.orm import Session
 
 from app.api.content_disposition import content_disposition
 from app.api.deps import get_current_user
@@ -20,12 +19,12 @@ from app.db.repositories.attachment_repo import AttachmentRepository
 from app.db.repositories.audit_repo import AuditRepository
 from app.db.repositories.clinical_repo import ClinicalRepository
 from app.db.repositories.consent_repo import ConsentRepository
-from app.db.repositories.session import get_db
+from app.db.repositories.session import DbSession
 
 router = APIRouter(tags=["attachments"])
 
 
-def _get_attachment_service(db: Session = Depends(get_db)) -> AttachmentService:
+def _get_attachment_service(db: DbSession) -> AttachmentService:
     from app.authz.consent import ConsentService  # noqa: PLC0415
     from app.core.object_storage import ObjectStorageClient  # noqa: PLC0415
 
@@ -59,8 +58,11 @@ async def upload_attachment(
     """
     filename = file.filename or "unknown"
     content_type = file.content_type or "application/octet-stream"
-    data = await file.read()
-    attachment = svc.store(actor, entry_id, filename, content_type, data)
+    # The spooled file (on disk beyond 1 MiB) is read in chunks by the service, never as one
+    # bytes object (SR-013 AC 6); the blocking store runs off the event loop.
+    attachment = await run_in_threadpool(
+        svc.store, actor, entry_id, filename, content_type, file.file
+    )
     return AttachmentResponse.model_validate(attachment)
 
 
@@ -76,9 +78,6 @@ def list_attachments(
     """List attachments for a clinical entry."""
     attachments = svc.list_attachments(actor, entry_id)
     return [AttachmentResponse.model_validate(a) for a in attachments]
-
-
-_CHUNK_SIZE = 65536  # 64 KiB
 
 
 @router.get(
@@ -99,19 +98,21 @@ def fetch_attachment(
     actor: Account = Depends(get_current_user),
     svc: AttachmentService = Depends(_get_attachment_service),
 ) -> StreamingResponse:
-    data, content_type, filename = svc.open(actor, attachment_id)
-
-    def _chunks(b: bytes, size: int) -> Iterator[bytes]:
-        for i in range(0, len(b), size):
-            yield b[i : i + size]
+    # Two-pass, bounded read (SR-013 AC 5, AC 6): every byte sent was verified against the stored
+    # SHA-256; a failure before the first byte is a 502 problem, one after the last aborts the
+    # transfer.
+    chunks, content_type, filename, size = svc.open_stream(actor, attachment_id)
 
     # SR-023 AC 2 / ADR-0016: the open succeeded but no content is served; the independent
     # FAILURE row is the record of the attempt.
     try:
         return StreamingResponse(
-            _chunks(data, _CHUNK_SIZE),
+            chunks,
             media_type=content_type,
-            headers={"Content-Disposition": content_disposition(filename)},
+            headers={
+                "Content-Disposition": content_disposition(filename),
+                "Content-Length": str(size),
+            },
         )
     except Exception:
         svc.record_access_failure(actor, attachment_id)

@@ -335,13 +335,15 @@ def test_allowed_deletion_of_own_account_writes_one_row(app_, factory) -> None:
     patient = _make_account(factory, UserType.PATIENT)
     app_.dependency_overrides[get_current_user] = lambda: patient
 
-    resp = _client(app_).request(
-        "DELETE",
-        f"/api/v1/accounts/{patient.id}",
-        json={"confirm_email": patient.email, "confirm_account_type": "PATIENT"},
-        headers={**HEADERS, **CSRF},
-        cookies=CSRF_COOKIE,
-    )
+    # The erasure now enqueues its code e-mail inside the request (SR-024 AC 6): no broker here.
+    with patch("app.workers.email_tasks.send_erasure_code_email.delay"):
+        resp = _client(app_).request(
+            "DELETE",
+            f"/api/v1/accounts/{patient.id}",
+            json={"confirm_email": patient.email, "confirm_account_type": "PATIENT"},
+            headers={**HEADERS, **CSRF},
+            cookies=CSRF_COOKIE,
+        )
 
     assert resp.status_code == 200
     rows = _authz_rows(factory, patient)

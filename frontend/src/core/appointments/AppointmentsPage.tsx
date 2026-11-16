@@ -6,12 +6,10 @@ import Box from "@mui/material/Box";
 import { apiClient } from "../../api";
 import { AppointmentList } from "./AppointmentList";
 import { CreateAppointmentForm } from "./CreateAppointmentForm";
+import { useMe } from "../../auth/useMe";
 
 export function AppointmentsPage() {
-  const { data: me, isLoading: meLoading } = useQuery({
-    queryKey: ["me"],
-    queryFn: () => apiClient.me(),
-  });
+  const { data: me, isLoading: meLoading } = useMe();
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["appointments"],

@@ -1,15 +1,11 @@
 import { useNavigate, useLocation, Outlet } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
-import { apiClient } from "../api";
+import { useMe } from "./useMe";
 
 export function ForcedPasswordGate() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { data: me } = useQuery({
-    queryKey: ["me"],
-    queryFn: () => apiClient.me(),
-  });
+  const { data: me } = useMe();
 
   const mustChangePassword = me?.mustChangePassword ?? false;
 

@@ -37,12 +37,16 @@ Central append-only `AuditService` (SI-AUDIT) records authentication, clinical-d
 
 Erasure/anonymization (SI-IDENTITY `U-ID-Erasure`) implements the now-decided retention policy; clinical records are anonymized rather than silently deleted (SR-024, SR-034.5). Patient self-access and consent control realize GDPR rights (SR-007, SR-008). See [ADR-0013](adr/0013-account-deletion-anonymized-retention.md).
 
+CR-006 changed the failure behaviour, not the policy: an erasure whose retrieval-code e-mail cannot be queued is rolled back and answers 503; the e-mail is sent only once the erasure is committed; the retention sweep erases each dataset in its own locked transaction (runtime views 6.14 and 6.15).
+
 **Deletion → 5-year anonymized retention with a user-held code (ADR-0013):** on account deletion (SR-034.5 / SR-024), credentials and PII are severed from the record data and the user's data is retained in **anonymized** form for **5 years**, after which a scheduled `SI-WORKER` job **permanently erases** it. At deletion time a high-entropy **anonymization code** is generated and sent to the user (email); with it the user can retrieve their own anonymized dataset at any time within the 5 years. The code is **never stored** in any recoverable form — only a salted KDF hash (Argon2id, consistent with credential handling, ADR-0011) is kept to *locate-and-authorize* retrieval; the code never appears in the DB, logs, or audit records. **Trade-off (by design):** losing the code makes the dataset unrecoverable — there is no recovery path, which is the intended privacy property (the operator cannot re-identify or surrender the data subject's dataset without the data subject's code).
 
 ## 8.6 Validation & error handling
 
 - Server-side validation via Pydantic at the API boundary is authoritative (password policy, required fields, references). Client validation is convenience only (SR-025, SR-031.5).
 - Errors are RFC 7807 `application/problem+json` with stable `type` URIs and field-level `errors[]`; the SPA surfaces clear, actionable messages (SR-027.3, api-design.md). Two problems were added by CR-004: `503` `session-cap-contention` with `Retry-After: 1`, and `400` `validation-error` with the rule `filename_max_bytes` for an attachment name over 255 UTF-8 bytes (section 12). The 500 handler logs the matched route template, never the raw path.
+- **Error contract added by CR-006:** `503` `erasure-notification-unavailable` with `Retry-After: 30` on `DELETE /api/v1/accounts/{id}`: the retrieval-code e-mail could not be queued, the erasure was rolled back, nothing changed, and the problem text names neither the address nor the code (SR-024 AC 6). It is additive: the OpenAPI document lists the `503` response. A wrong current password on `POST /api/v1/auth/password` is `400` `validation-error` with the `errors[]` entry `{field: currentPassword, rule: CURRENT_PASSWORD_INCORRECT}`, no longer `401`, because the client signs the user out on a 401 (SR-030 AC 8). `ProblemError` in the SPA is derived from the generated `ProblemDetail` schema (`frontend/src/api/problem.ts`).
+- **A success status means committed.** Every route's database session ends (commit or rollback) before the response is sent (`DbSession`, ADR-0023, section 4), so a commit failure reaches these handlers and the client receives a 5xx problem, never the prepared 2xx (SR-012 AC 5). Audit rows of a streamed download are committed before the first byte (SR-023 AC 10).
 
 ## 8.7 Module/plugin concept
 
@@ -56,7 +60,11 @@ Two-sided Module Contract (backend entry points + `ModuleManifest`; frontend reg
 
 ## 8.9 Performance
 
-Performance budgets (routine ops <3 s, DICOM initial render <10 s) met by: object storage off the DB path, client-side DICOM rendering, lazy module chunks, indexed consent/authorization queries, and deferring heavy work (uploads, full volumetric load) so initial interaction stays responsive (SR-026, NFR-008).
+Performance budgets (routine ops <3 s, DICOM initial render <10 s) met by: object storage off the DB path, client-side DICOM rendering, lazy module chunks, indexed consent/authorization queries, and deferring heavy work (uploads, full volumetric load) so initial interaction stays responsive (SR-026, NFR-008). CR-006 made the mechanisms explicit:
+
+- **Blocking IO in threads, pools sized together** (SR-026 AC 5, ADR-0022; sections 4 and 7). Memory per upload and download is bounded by the chunk size, independent of the object size (ADR-0021).
+- **Constant data-access cost** (SR-026 AC 6): btree indexes on the lookup columns (migrations 0011 and 0012) and one joined query for a user's groups, so the module-gating path costs the same number of queries for 1, 10 or 100 memberships (`TS-018`).
+- **Initial payload** (SR-026 AC 7): seven pages are lazy route chunks; `npm run build` fails above 165 kB gzip of initial JavaScript (section 10).
 
 ## 8.10 Internationalization & accessibility (baseline)
 
@@ -89,3 +97,9 @@ One JSON formatter and one redaction filter (`backend/app/core/logging.py`) are 
 - **Residual (human decision CR-004 D-19):** a hand-crafted `Referer` that carries a token, or a token in the query string of another path, sent to a non-activation location during an upstream failure or a 413, is written to the proxy error log (SR-043 AC 4). No MedHub URL or browser flow produces it. It is listed in section 11 for the release evaluation.
 - **Module discovery:** a rejected manifest is logged at WARNING with the first 80 characters of the offending value, never the whole manifest.
 - **Verification by hand:** `infra/log-secrets-check.sh` exercises activation, an erasure and a retrieval against a started stack and searches the logs for the secrets of `infra/.env`.
+
+## 8.15 Client session timers and chunk-failure boundary (CR-006)
+
+- **Session deadline from the server only.** The SPA never assumes a session length. `GET /me` (`sessionExpiresInSeconds`) and the extend response (`expiresInSeconds`) are the only inputs of the idle timer; user activity is not tracked, because the server slides the session on requests only. `GET /me/modules`, polled every 50 s by `useMyModules`, does not slide it (SR-030 AC 1, AC 2, AC 8; SR-015 AC 5; runtime view 6.16).
+- **Session end paths.** The client deadline, the warning countdown and an extend answered 401 call `handleExpired`, which ends the server session without waiting and redirects once to `/login?timeout=1`. A mutation's `AuthError` redirects to the same URL without a server logout (the server already answered 401); Log out awaits the logout and goes to `/login`. Every path sets the ended flag, so the query cache is cleared when the signed-in tree unmounts.
+- **Chunk-failure boundary.** `RouteChunkBoundary` catches a failed route import (`ChunkLoadError`), offers Retry (which rebuilds the rejected lazy components, since React caches a rejected import) and then a reload; navigation and the shell stay usable (SR-027 AC 3).
