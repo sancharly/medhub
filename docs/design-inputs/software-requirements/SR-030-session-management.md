@@ -2,11 +2,15 @@
 id: SR-030
 type: software-requirement
 title: Session management
-status: in_review
+status: approved
 version: "1.5"
 author: Carlos Santiago Liceras
 created: "2026-07-07"
 updated: "2026-11-16"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-11-16"
+approved_digest: 5434a4d098fceb9ef6047f226ada07608684fbd7aac01929e730a5614090af41
+approval_note: self-approved
 links:
   - target: RR-003
     relation: satisfies
