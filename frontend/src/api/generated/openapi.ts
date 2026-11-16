@@ -2379,6 +2379,15 @@ export interface operations {
                     "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
+            /** @description The upload body could not be spooled to temporary storage; nothing was saved. Retry later. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetail"];
+                };
+            };
         };
     };
     fetch_attachment_api_v1_attachments__attachment_id__get: {

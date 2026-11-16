@@ -2,14 +2,21 @@
 
 from __future__ import annotations
 
+import errno
+import logging
 import uuid
+from collections.abc import Callable, Coroutine
+from typing import Any
 
-from fastapi import APIRouter, Depends, UploadFile, status
+from fastapi import APIRouter, Depends, Request, Response, UploadFile, status
 from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import StreamingResponse
+from fastapi.routing import APIRoute
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app.api.content_disposition import content_disposition
 from app.api.deps import get_current_user
+from app.api.errors import UploadStorageUnavailableProblem
 from app.api.schemas.attachments import AttachmentResponse
 from app.attachments.service import AttachmentService
 from app.audit.service import AuditService
@@ -21,7 +28,44 @@ from app.db.repositories.clinical_repo import ClinicalRepository
 from app.db.repositories.consent_repo import ConsentRepository
 from app.db.repositories.session import DbSession
 
-router = APIRouter(tags=["attachments"])
+logger = logging.getLogger(__name__)
+
+
+class _SpoolFailureRoute(APIRoute):
+    """Answer a failed spool of the upload body as a logged 503 problem (TASK-232, PRB-092).
+
+    FastAPI re-raises any non-HTTP error from ``request.form()`` as a 400 ``from`` the original
+    error, so an ``OSError`` cause (scratch space full, I/O error) is the spool failing, not a
+    malformed body. A genuine 400 has no ``OSError`` cause and passes through unchanged.
+    """
+
+    def get_route_handler(self) -> Callable[[Request], Coroutine[Any, Any, Response]]:
+        handler = super().get_route_handler()
+
+        async def spool_aware_handler(request: Request) -> Response:
+            try:
+                return await handler(request)
+            except StarletteHTTPException as exc:
+                err = exc.__cause__
+                if exc.status_code != 400 or not isinstance(err, OSError):
+                    raise
+                # SR-043 AC 4: the route template, never the raw path, the file name or a field.
+                route = request.scope.get("route")
+                path = getattr(route, "path", None) or "<unmatched>"
+                logger.error(
+                    "Upload body could not be spooled for %s %s: %s (%s)",
+                    request.method,
+                    path,
+                    errno.errorcode.get(err.errno or 0, "unknown"),
+                    err.strerror,
+                    exc_info=err,
+                )
+                raise UploadStorageUnavailableProblem() from err
+
+        return spool_aware_handler
+
+
+router = APIRouter(tags=["attachments"], route_class=_SpoolFailureRoute)
 
 
 def _get_attachment_service(db: DbSession) -> AttachmentService:
@@ -44,6 +88,17 @@ def _get_attachment_service(db: DbSession) -> AttachmentService:
     "/clinical-entries/{entry_id}/attachments",
     status_code=status.HTTP_201_CREATED,
     response_model=AttachmentResponse,
+    responses={
+        503: {
+            "description": "The upload body could not be spooled to temporary storage; "
+            "nothing was saved. Retry later.",
+            "content": {
+                "application/problem+json": {
+                    "schema": {"$ref": "#/components/schemas/ProblemDetail"}
+                }
+            },
+        }
+    },
 )
 async def upload_attachment(
     entry_id: uuid.UUID,

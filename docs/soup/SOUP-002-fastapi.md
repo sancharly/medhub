@@ -2,18 +2,14 @@
 id: SOUP-002
 type: soup
 title: FastAPI
-status: approved
-version: "1.2"
+status: in_review
+version: "1.3"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
-updated: "2026-11-13"
+updated: "2026-11-16"
 manufacturer: Sebastián Ramírez (tiangolo)
 soup_version: 0.138.0
 anomaly_review: "2026-10-22"
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-11-13"
-approved_digest: 3b1121df3a516bfccfaee624dabf07b4169a3548a4ee8c329f3ab0cbb276dabd
-approval_note: self-approved
 links: []
 tags:
   - soup
@@ -35,6 +31,12 @@ is a 5xx response. The dependency cache key includes the scope (`fastapi/depende
 mixing scopes for one dependency gives two instances in one request. MedHub declares `get_db` only
 through one `scope="function"` alias and a test enforces it. FastAPI 0.138 keeps included routers lazy:
 the scope test reads routes with `fastapi.routing.iter_route_contexts`.
+
+Relied-on behaviour (CR-007, TASK-232, PRB-092): an exception other than `HTTPException` raised while
+reading a form body is re-raised as `starlette.exceptions.HTTPException(400)` `from` that exception
+(`fastapi/routing.py:420-465`), so the original error is its `__cause__`. MedHub's upload route class
+maps an `OSError` cause to a 503 problem (TASK-232, TS-007 TC-007.17); a FastAPI version that stops
+chaining the cause turns the 503 back into a 400 and fails that test.
 
 ## Required hardware and software environment
 
@@ -81,3 +83,4 @@ accountable. Hazard-relevant anomalies go to `risk-management`; defects affectin
   ADD-004 to one `soup` record per component (medical-records 0.3.2).
 - 2026-10-22 — 0.138.0 (unchanged). First anomaly-list review (TASK-154, CR-001 AC-11/AC-12): none found for 0.138.0; nothing hazard-relevant. Record 1.0 → 1.1; approval record removed for re-review.
 - 2026-11-13 — 0.138.0 (unchanged). Relied-on behaviour added: `Depends(scope="function")` teardown before the response (TASK-227, CR-006). Record 1.1 → 1.2; approval record removed for re-review. The anomaly review of 2026-10-22 is unchanged.
+- 2026-11-16 — 0.138.0 (unchanged). Relied-on behaviour added: the 400 raised on a form-body parse error is chained `from` the original exception, which the attachment upload route class uses to answer a spool failure as a 503 (TASK-232, CR-007 D-7, PRB-092). Record 1.2 → 1.3; approval record removed for re-review. The anomaly review of 2026-10-22 is unchanged.

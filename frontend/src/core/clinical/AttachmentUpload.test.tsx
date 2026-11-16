@@ -69,6 +69,33 @@ describe("AttachmentUpload", () => {
     expect(await screen.findByRole("alert")).toHaveTextContent("Authentication is required.");
   });
 
+  it("shows the server's detail when the server cannot receive the file (503)", async () => {
+    const detail =
+      "The server could not receive the file because its temporary storage is unavailable. Nothing was saved; please try again later.";
+    server.use(
+      http.post(
+        `${BASE}/clinical-entries/e1/attachments`,
+        () =>
+          HttpResponse.json(
+            {
+              type: "/errors/upload-storage-unavailable",
+              title: "Service Unavailable",
+              status: 503,
+              detail,
+            },
+            {
+              status: 503,
+              headers: { "Content-Type": "application/problem+json", "Retry-After": "30" },
+            }
+          )
+      )
+    );
+    renderUpload();
+    const user = userEvent.setup();
+    await user.upload(screen.getByLabelText("Upload file"), new File(["x"], "a.pdf"));
+    expect(await screen.findByRole("alert")).toHaveTextContent(detail);
+  });
+
   it("shows a generic message when the failure carries no problem document", async () => {
     server.use(
       http.post(`${BASE}/clinical-entries/e1/attachments`, () => new HttpResponse(null, { status: 500 }))

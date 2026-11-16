@@ -102,6 +102,14 @@ Checked against `backend/openapi/openapi.json` (regenerated; `frontend/src/api/g
 
 Everything else is unchanged: the attachment routes keep their signatures (the upload still takes `UploadFile`), so CR-006 did not alter the OpenAPI document for them. A `2xx` now means the change is committed (section 8.6).
 
+### API contract changes of CR-007
+
+Checked against `backend/openapi/openapi.json` (regenerated; `frontend/src/api/generated/openapi.ts` follows from it).
+
+| Endpoint | Change | Contract |
+|----------|--------|----------|
+| `POST /api/v1/clinical-entries/{entry_id}/attachments` | New response | `503` `upload-storage-unavailable` with `Retry-After: 30`: the upload body could not be spooled to temporary storage; logged, nothing stored. Additive (documented in the OpenAPI `responses`); no schema, parameter or request-body change |
+
 The successful login response always carries `evictedSession` (boolean, camelCase); it is `true` when the login evicted the oldest session (SR-030 AC 7).
 
 ## 12.2 Internal frontend interfaces

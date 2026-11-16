@@ -1747,6 +1747,16 @@
               }
             }
           },
+          "503": {
+            "description": "The upload body could not be spooled to temporary storage; nothing was saved. Retry later.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {

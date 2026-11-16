@@ -199,6 +199,11 @@ describe("ApiClient uploadAttachment", () => {
   it.each([
     [413, "/errors/payload-too-large", "The file is larger than 150 MiB."],
     [400, "/errors/validation-error", "The file type is not allowed."],
+    [
+      503,
+      "/errors/upload-storage-unavailable",
+      "The server could not receive the file because its temporary storage is unavailable. Nothing was saved; please try again later.",
+    ],
   ])("surfaces the server detail of a problem+json %i", async (status, type, detail) => {
     server.use(
       http.post(URL, () =>
