@@ -9,7 +9,7 @@
 //
 // Usage: node scripts/check-bundle-budget.mjs [distDir] [--clean]   (run after `vite build`)
 // --clean removes dist/.vite (the manifest) once the check passed, so it is not published.
-import { readFileSync, rmSync } from "node:fs";
+import { existsSync, readFileSync, rmSync } from "node:fs";
 import { gzipSync } from "node:zlib";
 import { join, resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -112,6 +112,14 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
     args.find((a) => !a.startsWith("--")) ??
       join(dirname(fileURLToPath(import.meta.url)), "..", "dist")
   );
+  const manifestPath = join(dist, ".vite", "manifest.json");
+  if (!existsSync(manifestPath)) {
+    console.error(
+      `bundle budget check: no manifest at ${manifestPath}. Run \`npm run build\` (it runs this check), ` +
+        "or `npx vite build` first to keep the manifest for a standalone check."
+    );
+    process.exit(1);
+  }
   const result = checkBudget(dist);
   console.log(result.message);
   if (result.ok && args.includes("--clean"))
