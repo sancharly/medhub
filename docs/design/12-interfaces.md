@@ -109,12 +109,13 @@ The successful login response always carries `evictedSession` (boolean, camelCas
 | Provider item   | Interface         | Consumers                       | Contract                                                                                               |
 |-----------------|-------------------|---------------------------------|--------------------------------------------------------------------------------------------------------|
 | SI-FE-APICLIENT | typed `ApiClient` | SI-FE-AUTH, SI-FE-CORE, modules | hand-written methods; request/response types generated from OpenAPI; attaches session cookie + CSRF (SR-031.3) |
-| SI-FE-MODREG    | `ModuleRegistry`  | SI-FE-SHELL, modules            | `register(FrontendModule)`; shell renders nav only if `moduleKey ∈ GET /me/modules` (SR-015, SR-016.2). **Not built** in `frontend/src`: [PRB-091](../problem-reports/PRB-091-approved-design-names-frontend-module-units-that-do-not-exist.md) |
 | SI-FE-AUTH      | `useMe()`         | SI-FE-SHELL, SI-FE-AUTH, SI-FE-CORE | the only reader of `GET /me` (query key `queryKeys.me`, no retries); exposes `sessionExpiresInSeconds` to the idle timer (SR-030 AC 8) |
 | SI-FE-MODREG    | `useMyModules()`  | SI-FE-CORE (`AttachmentItem`, the DICOM viewer link) | the only reader of `GET /me/modules`; polls every 50 s while the tab is visible, refetches on focus and mount, keeps the last list on error; admin module and membership mutations invalidate it (SR-015 AC 5) |
 | SI-FE-APICLIENT | `ProblemError` type | SI-FE-AUTH, SI-FE-CORE | derived from the generated `ProblemDetail` schema in `frontend/src/api/problem.ts`; uploads use the shared `request()` |
 | SI-FE-SHELL     | `ShellServices`   | SI-FE-CORE, modules             | navigation, confirmation dialog, error toast, layout slots (SR-027)                                    |
 | SI-FE-SHELL     | `routeRoles` (`frontend/src/core/nav/routeRoles.ts`) and `RequireRole` | SI-FE-SHELL (`navConfig.ts`, `App.tsx`) | role table per route path, the only source for both the navigation and the route guard (SR-005, SR-009; defence in depth) |
+
+**Planned (not built; PRB-048, TASK-100).** `SI-FE-MODREG` is to provide a `ModuleRegistry` with `register(FrontendModule)`; the shell would render a module's nav item only if `moduleKey ∈ GET /me/modules` (SR-015, SR-016 AC 2; [ADR-0005](adr/0005-plugin-module-mechanism.md)). Nothing of this exists in `frontend/src` ([PRB-091](../problem-reports/PRB-091-approved-design-names-frontend-module-units-that-do-not-exist.md)); the target shape is:
 
 ```ts
 interface FrontendModule {
@@ -129,7 +130,7 @@ interface FrontendModule {
 1. Data items (SI-CLINICAL, SI-ATTACH, SI-APPT, SI-IDENTITY, SI-GROUPS) **must** call `AuthorizationService` before returning protected data; they never re-implement access checks (SR-005, deny-by-default).
 2. Security-relevant operations **must** call `AuditService` (SR-023).
 3. Only SI-PERSIST talks to PostgreSQL; only SI-ATTACH talks to object storage; only SI-AUTH/SI-WORKER talk to Redis.
-4. Modules depend **only** on `PlatformServices` / `ModuleRegistry` — never on other items directly (SR-016).
+4. Modules depend **only** on `PlatformServices` (backend) and, once built, `ModuleRegistry` (frontend; PRB-048) — never on other items directly (SR-016).
 5. All cross-item interfaces are typed; the external contract is the OpenAPI document, expected to pass lint in CI (NFR-006).
 
 > The machine-readable external contract (`/api/v1/openapi.json`) plus this section together constitute the "definition of interfaces between software items" output of the Architecture design activity.

@@ -9,8 +9,8 @@ package "Frontend SPA (React + TS)" as SPA #lightblue {
   rectangle "App Shell\n(SI-FE-SHELL)" as Shell #lightblue
   rectangle "Auth/Session UI\n(SI-FE-AUTH)" as FEAuth #lightblue
   rectangle "Core Feature Views\n(SI-FE-CORE)" as FECore #lightblue
-  rectangle "Module Registry\n(SI-FE-MODREG)" as FEModReg #lightblue
-  rectangle "DICOM Viewer Module\n(SI-MOD-DICOM-FE)\nCornerstone3D" as FEDicom #lightblue
+  rectangle "Module List Reader\n(SI-FE-MODREG)\nregistry and nav gate (planned)" as FEModReg #lightblue
+  rectangle "DICOM Viewer Module\n(SI-MOD-DICOM-FE)\nCornerstone3D (planned)" as FEDicom #lightblue
   rectangle "API Client\n(hand-written; types from OpenAPI)" as FEApi #lightblue
 }
 
@@ -38,11 +38,11 @@ rectangle "SMTP" as SMTP #lightgray
 Proxy --> Shell : HTTPS
 Shell --> FEAuth
 Shell --> FECore
-Shell --> FEModReg
-FEModReg --> FEDicom : lazy chunk if enabled
+Shell ..> FEModReg : registry and nav gate (planned)
+FEModReg ..> FEDicom : lazy chunk if enabled (planned)
 FEAuth --> FEApi
 FECore --> FEApi
-FEDicom --> FEApi
+FEDicom ..> FEApi : (planned)
 FEApi --> Proxy
 Proxy --> API : HTTPS
 

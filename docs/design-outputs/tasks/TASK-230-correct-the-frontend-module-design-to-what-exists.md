@@ -2,8 +2,8 @@
 id: "TASK-230"
 type: task
 title: "Correct the frontend module design records to the units that exist"
-status: draft
-version: "1.0"
+status: approved
+version: "1.1"
 author: "Carlos Santiago Liceras"
 created: "2026-11-16"
 updated: "2026-11-16"
@@ -92,15 +92,72 @@ as existing units.
 
 ## Acceptance criteria
 
-- [ ] ADD-021, arc42 05 and 12 name as built only units and interfaces that exist in `frontend/src`.
-- [ ] The registry and the navigation gate are recorded as deferred to PRB-048 with TASK-100 and
+- [x] ADD-021, arc42 05 and 12 name as built only units and interfaces that exist in `frontend/src`.
+- [x] The registry and the navigation gate are recorded as deferred to PRB-048 with TASK-100 and
   TASK-101, so the target design is not lost.
-- [ ] ADD-021 is `in_review` 1.3 with its approval record removed and a version-history line.
+- [x] ADD-021 is `in_review` 1.3 with its approval record removed and a version-history line.
 
 ## Definition of Done
 
-- [ ] Records consistent; PRB-091 Resolution written; `traceability-check` no error for these records
+- [x] Records consistent; PRB-091 Resolution written; `traceability-check` no error for these records
+
+## Implementation record
+
+- ADD-021 1.3 `in_review` (approval record removed, version-history line); P-1 answered (a), D-2: SR-016 AC 2 deferred to PRB-048, no SR change (D-3).
+- `docs/design/05-building-blocks.md`, `docs/design/12-interfaces.md`, `docs/specifications/diagram-building-blocks.puml` corrected; PRB-091 1.1 Investigation and Resolution written (status left `open` for QA).
+- Checks: `grep ModuleRegistry|FrontendModule frontend/src` no hit; same grep on docs/design and ADD-021 hits only deferred/planned text and ADR-0005 (target design, out of scope); `plantuml` renders the diagram; built unit paths exist (`useMyModules.ts`, `AttachmentItem.tsx`); TS-005 TC-005.5 and TC-005.6 unchanged. `traceability-check` not run by the document writer: left to QA.
+
+## QA review round 1 (qa-engineer, 2026-11-16) — APPROVED
+
+0 CRITICAL, 0 HIGH, 1 MEDIUM, 3 LOW (not blocking).
+
+- **MEDIUM-1** — `docs/design/06-runtime-views.md:37` and
+  `docs/specifications/diagram-seq-dicom-view.puml:7,17-18` still describe the unbuilt navigation gate
+  and registry as the runtime ("The shell shows the viewer nav item only if the module is enabled ...
+  (SR-015.3, SR-016.2); the module loads as a lazy chunk"; participant "SPA Shell + Module Registry"),
+  with no "planned" mark, and ADD-021 1.3 sends the reader to section 06 for its runtime
+  interactions. The whole 6.4 scenario is the unbuilt frontend DICOM viewer (PRB-048), and CR-007
+  limits the correction to ADD-021, 05 and 12, so this is outside the approved scope and does not
+  block. Fix (next change of section 06, or a follow-up under PRB-048): one line under 6.4 and a
+  note in the sequence diagram, "Planned (PRB-048, PRB-091): the frontend module, its navigation
+  item and lazy chunk are not built; today the only client entry point is the viewer link of
+  `AttachmentItem`". `docs/design/04-solution-strategy.md:11,13` and
+  `docs/design/08-cross-cutting-concepts.md:53` state the ADR-0005 strategy and concept, not built
+  units: acceptable as target design. Recorded in PRB-091's QA confirmation.
+- **LOW-1** — `docs/specifications/diagram-building-blocks.puml:12,40-43`: `FEModReg` is drawn only
+  with planned (dashed) edges; the built relations are missing (`AttachmentItem` in SI-FE-CORE uses
+  `useMyModules`, which calls `apiClient.listMyModules()`). Fix: add `FECore --> FEModReg : useMyModules`
+  and `FEModReg --> FEApi : GET /me/modules`.
+- **LOW-2** — The diagram labels SI-FE-MODREG "Module List Reader" while ADD-021, 05 and 12 keep the
+  item name "Frontend Module Registry". Fix: use one name (for example keep "Module Registry" with
+  the "(registry and nav gate planned)" line) the next time the diagram or ADD-021 is changed.
+- **LOW-3** — CR-007 Verification and the TASK verification grep `register(` over `frontend/src`
+  match `unregister()` in `frontend/src/api/queryClient.test.tsx:53,61` (a false positive, not a
+  registry). Fix: grep `\bregister(` or `ModuleRegistry\|FrontendModule` only, as PRB-091 does.
+- Observations (not findings): ADD-021 keeps `implements SR-016` while its SR-016 part is deferred;
+  this keeps SR-016 covered by an ADD (class B) and the Requirements section states the deferral.
+  ADR-0005 and `api-design.md` left as target design: matches CR-007 Out of scope. The house PlantUML
+  rules (bare `@startuml`, no colour on the system's own elements) are not met by this file
+  (`@startuml building-blocks`, `#lightblue` throughout); that is the project's established diagram
+  convention and pre-existing, not changed here.
+
+Verification (working tree): `grep -rn "ModuleRegistry\|FrontendModule" frontend/src` no hit;
+`register(` hits only `unregister()` (LOW-3). `grep` of `ModuleRegistry|register(|FrontendModule|U-FEM-Registry|U-FEM-NavGate`
+over `docs/design` and ADD-021: every hit is a deferred/planned statement, the backend
+`register(RouterRegistry, ...)` (12:36) or ADR-0005. `useMyModules.ts` and `AttachmentItem.tsx` exist;
+`useMyModules` is the only reader of `listMyModules`, its only consumer is `AttachmentItem` (`:18-33`,
+link gated on `dicom-viewer`), and `GroupModules.tsx:34`, `GroupMembers.tsx:29,37` invalidate
+`queryKeys.myModules`, as ADD-021 states; "fail closed" matches TS-005 line 51 and TC-005.6. TS-005,
+ADR-0005, `api-design.md`, TASK-100 to TASK-102 and every SR unchanged (`git status`).
+`plantuml -checkonly docs/specifications/diagram-building-blocks.puml` exit 0; no rendered SVG/PNG
+tracked or left in the tree. ADD-021: 1.3 `in_review`, the four approval fields removed,
+version-history line present. `traceability-check` on CR-007, TASK-230, ADD-021, PRB-091, SR-015,
+SR-016, PRB-048, TASK-100, TASK-101: 474 records, 9 scoped, 0 errors, 0 warnings before the status
+change; after it, 0 errors and 3 expected W5 warnings (approved TASK-230 → ADD-021 `in_review`, awaiting
+the human; → TASK-100, TASK-101 `draft`, the deferred build).
 
 ## Version history
 
 - 1.0 (2026-11-16) — Created at the CR-007 Plan stage (Software Architect role), D-1 (PRB-091 by documentation correction). `draft`.
+- 1.1 (2026-11-16) — Implemented; `in_review`.
+- 1.1 (2026-11-16) — QA review round 1: APPROVED, `in_review` to `approved`; acceptance criteria and Definition of Done already ticked. PRB-091 1.2 `resolved`; ADD-021 1.3 stays `in_review` for the human.

@@ -29,7 +29,7 @@ Diagram: [`../specifications/diagram-building-blocks.puml`](../specifications/di
 | SI-FE-SHELL     | Frontend App Shell             | Layout, routing, responsive frame, navigation, route guard by role, module mounting, error/confirmation UX | SR-019, SR-020, SR-027, SR-005, SR-009 |
 | SI-FE-AUTH      | Frontend Auth/Session UI       | Login, activation, password, inactivity warning/extend                                       | SR-002, SR-025, SR-030, SR-033                 |
 | SI-FE-CORE      | Frontend Core Views            | Profile, patients, clinical entries, appointments, consent, admin (accounts/groups/modules)  | SR-003–016, SR-035, SR-036                     |
-| SI-FE-MODREG    | Frontend Module Registry       | Dynamic module registration, gated nav, lazy chunk loading                                   | SR-015, SR-016                                 |
+| SI-FE-MODREG    | Frontend Module Registry       | The user's module list for module-dependent views; registration, gated nav, lazy chunks deferred (PRB-048) | SR-015, SR-016                                 |
 | SI-MOD-DICOM-FE | DICOM Viewer Module (frontend) | Cornerstone3D viewport, window/level, zoom, pan, slice nav                                   | SR-017, SR-018                                 |
 | SI-FE-APICLIENT | Frontend API Client            | Hand-written typed `ApiClient` (types generated from OpenAPI); session/CSRF handling         | NFR-006, SR-031                                |
 | SI-DEPLOY       | Deployment Configuration       | Compose topology and start-up order, environment template, secret-setting rule, database roles, runtime users, proxy logging | SR-041, SR-042, SR-023, SR-022, SR-043 |
@@ -147,9 +147,8 @@ Deployed infrastructure, not application code; design record ADD-025, component 
 - `U-FEC-Profile`, `U-FEC-Patients`, `U-FEC-ClinicalEntries`, `U-FEC-Appointments`, `U-FEC-Consent`, `U-FEC-AdminAccounts`, `U-FEC-AdminGroupsModules`.
 
 ### SI-FE-MODREG
-- `U-FEM-Registry` — module registry + lazy import (SR-016).
-- `U-FEM-NavGate` — render nav only if enabled per `GET /me/modules` (SR-015).
-- `useMyModules` (`frontend/src/modules/useMyModules.ts`) is the one reader of the module list (today its consumer in code is `AttachmentItem`, which shows the DICOM viewer link only when the viewer module is enabled; no `ModuleRegistry` or module navigation item exists in `frontend/src`, so `U-FEM-Registry` and `U-FEM-NavGate` above are not built: [PRB-091](../problem-reports/PRB-091-approved-design-names-frontend-module-units-that-do-not-exist.md), open, outside CR-006): it polls every 50 s while the tab is visible, refetches on focus and on every mount, keeps the last list when a refetch fails, and admin module and membership mutations invalidate it. The poll does not extend the session (SR-015 AC 5; `GET /me/modules`, section 12).
+- `U-FEM-MyModules` — `useMyModules` (`frontend/src/modules/useMyModules.ts`) is the one reader of the module list. Its consumer in code is `AttachmentItem`, which shows the DICOM viewer link only when the viewer module is enabled. It polls every 50 s while the tab is visible, refetches on focus and on every mount, keeps the last list when a refetch fails, and admin module and membership mutations invalidate it. The poll does not extend the session (SR-015 AC 5; `GET /me/modules`, section 12).
+- **Deferred (not built):** `U-FEM-Registry` (module registry and lazy import, SR-016) and `U-FEM-NavGate` (navigation entry only if the module is enabled, SR-015) are the target design of [ADR-0005](adr/0005-plugin-module-mechanism.md). No `ModuleRegistry` or module navigation item exists in `frontend/src` ([PRB-091](../problem-reports/PRB-091-approved-design-names-frontend-module-units-that-do-not-exist.md)). They are built with the frontend DICOM viewer module (PRB-048; TASK-100, TASK-101, TASK-102), which then adds its chunk to `LAZY_GROUPS` of the bundle budget check (SR-026 AC 7). SR-016 AC 2 is deferred with them (CR-007 D-2).
 
 ### SI-MOD-DICOM-FE
 - `U-DICOMFE-Viewport` — Cornerstone3D init, parse, LUT, slice ordering, default W/L (SR-017).
@@ -179,4 +178,4 @@ is not deployed and no runtime item depends on it. Units: `U-INF-CIPipeline`, `U
 
 ## Module boundary note
 
-Items `SI-MOD-DICOM-BE` and `SI-MOD-DICOM-FE` are **modules** added through the plugin mechanism (SI-MODHOST / SI-FE-MODREG). They demonstrate SR-016: they are separate packages, touch PHI only via `PlatformServices`, and require no edits to other items. Future modules follow the same shape.
+Items `SI-MOD-DICOM-BE` and `SI-MOD-DICOM-FE` are **modules** added through the plugin mechanism (SI-MODHOST / SI-FE-MODREG). They demonstrate SR-016: they are separate packages, touch PHI only via `PlatformServices`, and require no edits to other items. Future modules follow the same shape. `SI-MOD-DICOM-FE` and the frontend registry (`U-FEM-Registry`, `U-FEM-NavGate`) are planned, not built (PRB-048, PRB-091); only the backend side (`SI-MODHOST`, `SI-MOD-DICOM-BE`) and the `useMyModules` reader exist.
