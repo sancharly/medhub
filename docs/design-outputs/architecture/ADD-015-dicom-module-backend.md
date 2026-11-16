@@ -2,11 +2,15 @@
 id: ADD-015
 type: architecture-doc
 title: DICOM Module (backend) (SI-MOD-DICOM-BE)
-status: in_review
+status: approved
 version: "1.2"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-11-14"
+updated: "2026-11-16"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-11-16"
+approved_digest: 9288eaf902a7dca406c4e5f5aacc3938abca8bc5f4b5ddba06b1fcb5020a3a18
+approval_note: self-approved
 links:
   - target: SR-016
     relation: implements

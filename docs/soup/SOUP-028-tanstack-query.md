@@ -2,14 +2,18 @@
 id: SOUP-028
 type: soup
 title: TanStack Query (@tanstack/react-query)
-status: in_review
+status: approved
 version: "1.4"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
-updated: "2026-11-14"
+updated: "2026-11-16"
 manufacturer: Tanner Linsley / TanStack
 soup_version: 5.101.0
 anomaly_review: "2026-10-22"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-11-16"
+approved_digest: 020c35482113316974fd01657d56da2888836052ccdc0295b19e2b774f895837
+approval_note: self-approved
 links: []
 tags:
   - soup

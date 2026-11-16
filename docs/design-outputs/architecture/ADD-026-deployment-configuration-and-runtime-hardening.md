@@ -2,12 +2,16 @@
 id: ADD-026
 type: architecture-doc
 title: Deployment configuration, secrets and runtime users (SI-DEPLOY)
-status: in_review
+status: approved
 version: "1.7"
 author: Carlos Santiago Liceras
 created: "2026-10-31"
-updated: "2026-11-15"
+updated: "2026-11-16"
 safety_class: B
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-11-16"
+approved_digest: f853eee7fb8ed48cc141e340a2dfa4954c7b15832aebd7dda17de1af6d1ce83c
+approval_note: self-approved
 links:
   - target: SR-026
     relation: implements

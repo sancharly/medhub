@@ -2,11 +2,15 @@
 id: ADD-018
 type: architecture-doc
 title: Frontend App Shell (SI-FE-SHELL)
-status: in_review
+status: approved
 version: "1.5"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-11-14"
+updated: "2026-11-16"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-11-16"
+approved_digest: 018e4065529b9509ef3985d91d6a2b193495f2f73a9f9f25010bf36da20dee64
+approval_note: self-approved
 links:
   - target: SR-026
     relation: implements

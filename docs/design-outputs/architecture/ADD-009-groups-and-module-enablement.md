@@ -2,11 +2,15 @@
 id: ADD-009
 type: architecture-doc
 title: Groups & Module Enablement (SI-GROUPS)
-status: in_review
+status: approved
 version: "1.2"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-11-15"
+updated: "2026-11-16"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-11-16"
+approved_digest: 0b7494a756ce26a0a995e0a78626d9598ae5ebeca76b025832943bf9eaba7921
+approval_note: self-approved
 links:
   - target: SR-014
     relation: implements

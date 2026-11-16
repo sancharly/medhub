@@ -2,11 +2,11 @@
 id: RISK-005
 type: risk
 title: Account takeover leading to disclosure or falsified clinical records
-status: in_review
+status: approved
 version: "1.12"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-11-15"
+updated: "2026-11-16"
 hazard: "An attacker acting as a legitimate user: reading PHI, or writing clinical entries as a clinician."
 cause: Credential stuffing, brute force, a stolen session token (including one brought back after logout, eviction or a password change by a racing session refresh, PRB-064), or a CSRF-able mutating endpoint → the attacker authenticates or rides an authenticated session → they read or write clinical data under someone else's identity.
 harm: Wrong clinical decisions from falsified data, plus privacy harm. Recoverable if detected via the audit trail.
@@ -15,6 +15,10 @@ probability_initial: 2
 severity_residual: 3
 probability_residual: 1
 acceptability: acceptable
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-11-16"
+approved_digest: 9cd5b844d273d2d0b7cf3c1f0cc5b8f4edda8d69ccc5c380b87e30d9bb3777a3
+approval_note: self-approved
 links:
   - target: SOUP-012
     relation: relates_to

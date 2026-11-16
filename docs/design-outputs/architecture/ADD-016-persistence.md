@@ -2,11 +2,15 @@
 id: ADD-016
 type: architecture-doc
 title: Persistence (SI-PERSIST)
-status: in_review
+status: approved
 version: "1.5"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-11-14"
+updated: "2026-11-16"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-11-16"
+approved_digest: 127300f720968c6d8fa9b27da654bc72fef1a4a4f9a9d488c46ea0fea0799636
+approval_note: self-approved
 links:
   - target: SR-026
     relation: implements

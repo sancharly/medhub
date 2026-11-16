@@ -2,11 +2,11 @@
 id: RISK-007
 type: risk
 title: Clinical information unavailable when needed
-status: in_review
+status: approved
 version: "1.19"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-11-15"
+updated: "2026-11-16"
 hazard: The application, its database, its object storage or its workers unavailable, or attachments unreadable.
 cause: Single-host outage, database or object-store failure, exhausted connection pool from a session leak, a missing storage SDK (PRB-002), or an encryption key rotation that makes old rows unreadable → the clinician cannot open the record → they proceed without it or wait.
 harm: Delayed care; decisions made without available history. No direct physical harm from the software itself.
@@ -15,6 +15,10 @@ probability_initial: 2
 severity_residual: 3
 probability_residual: 2
 acceptability: alarp
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-11-16"
+approved_digest: 651aedb1683736b5940079de0a20638a84098032aa5d1737eaec6ac78fda6b77
+approval_note: self-approved
 links:
   - target: SOUP-020
     relation: relates_to

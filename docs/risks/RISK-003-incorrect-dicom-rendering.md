@@ -2,11 +2,11 @@
 id: RISK-003
 type: risk
 title: DICOM image rendered incorrectly or the wrong study displayed
-status: in_review
+status: approved
 version: "1.5"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-11-15"
+updated: "2026-11-16"
 hazard: An imaging study displayed with wrong pixel data, wrong window/level, wrong orientation or laterality, or belonging to another study.
 cause: A defect in DICOM parsing, frame selection, transfer-syntax handling or viewport state (or a browser-specific rendering quirk) → the viewer shows an image that does not faithfully represent the acquired data → the clinician interprets it as the patient's image.
 harm: Missed or wrong diagnosis leading to wrong or delayed treatment.
@@ -15,6 +15,10 @@ probability_initial: 3
 severity_residual: 4
 probability_residual: 2
 acceptability: alarp
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-11-16"
+approved_digest: 0bd46f7608a9e8619df7864bfd1372f9632caf43d2b1375e76b2abd03fff16b7
+approval_note: self-approved
 links:
   - target: SOUP-015
     relation: relates_to

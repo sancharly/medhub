@@ -2,11 +2,15 @@
 id: ADD-019
 type: architecture-doc
 title: Frontend Auth/Session UI (SI-FE-AUTH)
-status: in_review
+status: approved
 version: "1.4"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-11-14"
+updated: "2026-11-16"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-11-16"
+approved_digest: a8d130485a0f73faf83ab37070d58276f2e518d842e94e511000412efc97fd52
+approval_note: self-approved
 links:
   - target: SR-026
     relation: implements

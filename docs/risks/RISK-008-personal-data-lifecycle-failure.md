@@ -2,11 +2,11 @@
 id: RISK-008
 type: risk
 title: Personal data retained, copied or erased contrary to its lawful basis
-status: in_review
+status: approved
 version: "1.8"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-11-15"
+updated: "2026-11-16"
 hazard: "PHI or PII living outside the controlled lifecycle: retained past its basis, copied into logs, or erased while still clinically or legally needed."
 cause: Worker logs write email addresses as structured fields, a retention sweep fails silently, or an erasure drops clinical data instead of anonymizing it → personal data exists in an uncontrolled copy, or required data is gone → the obligation in SR-024 and the GDPR requirement cannot be met.
 harm: Privacy harm to the patient and a regulatory breach; in the erase-too-much direction, loss of clinical history.
@@ -15,6 +15,10 @@ probability_initial: 3
 severity_residual: 2
 probability_residual: 2
 acceptability: acceptable
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-11-16"
+approved_digest: b607508409b6888a1691bef1b3c37e87ac458f21eab8663a35fb156a0468726a
+approval_note: self-approved
 links:
   - target: SOUP-014
     relation: relates_to
