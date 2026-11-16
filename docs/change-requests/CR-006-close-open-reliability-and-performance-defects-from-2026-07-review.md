@@ -2,7 +2,7 @@
 id: CR-006
 type: change-request
 title: Close the open reliability and performance defects from the 2026-07 review and audit
-status: in_progress
+status: closed
 version: "1.19"
 author: Carlos Santiago Liceras
 created: "2026-11-13"
