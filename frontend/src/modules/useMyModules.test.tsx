@@ -5,18 +5,19 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { delay, http, HttpResponse } from "msw";
 import { server } from "../tests/setup";
 import { queryKeys } from "../api/queryKeys";
-import { AttachmentItem } from "../core/clinical/AttachmentItem";
 import { GroupModules } from "../core/admin/groups/GroupModules";
 import { GroupMembers } from "../core/admin/groups/GroupMembers";
 import { useMyModules } from "./useMyModules";
 
 const BASE = "http://localhost/api/v1";
 
-const dicomAttachment = {
-  id: "att-1",
-  filename: "scan.dcm",
-  contentType: "application/dicom",
-} as never;
+const ENABLED = "dicom-viewer enabled";
+
+/** Test-only reader of the hook: shows whether the DICOM module is in the user's list. */
+function ModulesProbe() {
+  const { data } = useMyModules();
+  return <p>{data?.includes("dicom-viewer") ? ENABLED : "dicom-viewer off"}</p>;
+}
 
 function makeClient() {
   // Mirrors the production defaults that matter here: no focus refetch, retries off.
@@ -64,8 +65,8 @@ describe("useMyModules (SR-015 AC 5, RISK-004)", () => {
     // on a DOM change use `vi.waitFor`, because Testing Library's `waitFor` polls with setInterval.
     vi.useFakeTimers({ toFake: ["setInterval", "clearInterval", "Date"] });
     const state = serveModules(["dicom-viewer"]);
-    render(<AttachmentItem attachment={dicomAttachment} />, { wrapper: wrap(makeClient()) });
-    expect(await screen.findByText("Open in viewer")).toBeInTheDocument();
+    render(<ModulesProbe />, { wrapper: wrap(makeClient()) });
+    expect(await screen.findByText(ENABLED)).toBeInTheDocument();
 
     // Another administrator disables the module; this user does nothing.
     state.modules = [];
@@ -73,47 +74,47 @@ describe("useMyModules (SR-015 AC 5, RISK-004)", () => {
       await vi.advanceTimersByTimeAsync(50_000);
     });
 
-    await waitFor(() => expect(screen.queryByText("Open in viewer")).not.toBeInTheDocument());
+    await waitFor(() => expect(screen.queryByText(ENABLED)).not.toBeInTheDocument());
   });
 
   it("module enabled elsewhere appears within 60 s", async () => {
     vi.useFakeTimers({ toFake: ["setInterval", "clearInterval", "Date"] });
     const state = serveModules([]);
-    render(<AttachmentItem attachment={dicomAttachment} />, { wrapper: wrap(makeClient()) });
+    render(<ModulesProbe />, { wrapper: wrap(makeClient()) });
     await settle(() => expect(state.calls).toBe(1));
-    expect(screen.queryByText("Open in viewer")).not.toBeInTheDocument();
+    expect(screen.queryByText(ENABLED)).not.toBeInTheDocument();
 
     state.modules = ["dicom-viewer"];
     await act(async () => {
       await vi.advanceTimersByTimeAsync(50_000);
     });
 
-    expect(await screen.findByText("Open in viewer")).toBeInTheDocument();
+    expect(await screen.findByText(ENABLED)).toBeInTheDocument();
   });
 
   it("remount (next navigation) refetches", async () => {
     const state = serveModules(["dicom-viewer"]);
     const client = makeClient();
-    const first = render(<AttachmentItem attachment={dicomAttachment} />, {
+    const first = render(<ModulesProbe />, {
       wrapper: wrap(client),
     });
-    expect(await screen.findByText("Open in viewer")).toBeInTheDocument();
+    expect(await screen.findByText(ENABLED)).toBeInTheDocument();
     first.unmount();
 
     // Well inside staleTime: only refetchOnMount "always" can trigger the request.
     state.modules = [];
-    render(<AttachmentItem attachment={dicomAttachment} />, { wrapper: wrap(client) });
+    render(<ModulesProbe />, { wrapper: wrap(client) });
 
     await waitFor(() => expect(state.calls).toBe(2));
-    await waitFor(() => expect(screen.queryByText("Open in viewer")).not.toBeInTheDocument());
+    await waitFor(() => expect(screen.queryByText(ENABLED)).not.toBeInTheDocument());
   });
 
   it("failed refetch keeps the last known modules", async () => {
     vi.useFakeTimers({ toFake: ["setInterval", "clearInterval", "Date"] });
     const state = serveModules(["dicom-viewer"]);
     const client = makeClient();
-    render(<AttachmentItem attachment={dicomAttachment} />, { wrapper: wrap(client) });
-    expect(await screen.findByText("Open in viewer")).toBeInTheDocument();
+    render(<ModulesProbe />, { wrapper: wrap(client) });
+    expect(await screen.findByText(ENABLED)).toBeInTheDocument();
 
     state.fail = true;
     const callsBefore = state.calls;
@@ -128,7 +129,7 @@ describe("useMyModules (SR-015 AC 5, RISK-004)", () => {
     );
 
     expect(state.calls).toBe(callsBefore + 2);
-    expect(screen.getByText("Open in viewer")).toBeInTheDocument();
+    expect(screen.getByText(ENABLED)).toBeInTheDocument();
   });
 
   it("the change shows within 60 s when the server and the network are slow", async () => {
@@ -137,8 +138,8 @@ describe("useMyModules (SR-015 AC 5, RISK-004)", () => {
     // lands just after a read only after 60 s plus both latencies (SR-015 AC 5).
     vi.useFakeTimers({ toFake: ["setInterval", "clearInterval", "Date"] });
     const state = serveModules(["dicom-viewer"], 1000);
-    render(<AttachmentItem attachment={dicomAttachment} />, { wrapper: wrap(makeClient()) });
-    expect(await screen.findByText("Open in viewer", {}, { timeout: 3000 })).toBeInTheDocument();
+    render(<ModulesProbe />, { wrapper: wrap(makeClient()) });
+    expect(await screen.findByText(ENABLED, {}, { timeout: 3000 })).toBeInTheDocument();
 
     await act(async () => {
       await vi.advanceTimersByTimeAsync(50_000);
@@ -146,7 +147,7 @@ describe("useMyModules (SR-015 AC 5, RISK-004)", () => {
     await settle(() => expect(state.calls).toBe(2));
     state.modules = []; // the change lands right after the server read of this poll
     await act(() => new Promise((r) => setTimeout(r, 1500))); // its (old) response arrives
-    expect(screen.getByText("Open in viewer")).toBeInTheDocument();
+    expect(screen.getByText(ENABLED)).toBeInTheDocument();
 
     // 50 s after that response is the next poll; the change is 50 s old plus the latencies.
     await act(async () => {
@@ -154,7 +155,7 @@ describe("useMyModules (SR-015 AC 5, RISK-004)", () => {
     });
     await act(() => new Promise((r) => setTimeout(r, 1500)));
 
-    expect(screen.queryByText("Open in viewer")).not.toBeInTheDocument();
+    expect(screen.queryByText(ENABLED)).not.toBeInTheDocument();
   });
 
   it("a failed refetch leaves the cached list in place", async () => {
@@ -175,62 +176,76 @@ describe("useMyModules (SR-015 AC 5, RISK-004)", () => {
 
   it("admin module mutation invalidates myModules", async () => {
     const state = serveModules(["dicom-viewer"]);
-    server.use(http.put(`${BASE}/groups/grp-1/modules/dicom-viewer`, () => new HttpResponse(null, { status: 204 })));
+    server.use(
+      http.put(
+        `${BASE}/groups/grp-1/modules/dicom-viewer`,
+        () => new HttpResponse(null, { status: 204 })
+      )
+    );
     const client = makeClient();
     const user = userEvent.setup();
     render(
       <>
-        <AttachmentItem attachment={dicomAttachment} />
+        <ModulesProbe />
         <GroupModules
           groupId="grp-1"
           enabledModules={["dicom-viewer"]}
           installedModules={[
-            { moduleKey: "dicom-viewer", name: "DICOM Viewer", version: "1.0", requiredPermissions: [] },
+            {
+              moduleKey: "dicom-viewer",
+              name: "DICOM Viewer",
+              version: "1.0",
+              requiredPermissions: [],
+            },
           ]}
         />
       </>,
       { wrapper: wrap(client) }
     );
-    expect(await screen.findByText("Open in viewer")).toBeInTheDocument();
+    expect(await screen.findByText(ENABLED)).toBeInTheDocument();
     expect(state.calls).toBe(1);
 
     state.modules = [];
     await user.click(screen.getByRole("switch", { name: "Toggle DICOM Viewer" }));
 
-    await waitFor(() => expect(screen.queryByText("Open in viewer")).not.toBeInTheDocument());
+    await waitFor(() => expect(screen.queryByText(ENABLED)).not.toBeInTheDocument());
     expect(state.calls).toBe(2);
   });
 
   it("admin add-member mutation invalidates myModules", async () => {
     const state = serveModules([]);
-    server.use(http.post(`${BASE}/groups/grp-1/members`, () => new HttpResponse(null, { status: 204 })));
+    server.use(
+      http.post(`${BASE}/groups/grp-1/members`, () => new HttpResponse(null, { status: 204 }))
+    );
     const user = userEvent.setup();
     render(
       <>
-        <AttachmentItem attachment={dicomAttachment} />
+        <ModulesProbe />
         <GroupMembers groupId="grp-1" members={[]} />
       </>,
       { wrapper: wrap(makeClient()) }
     );
     await waitFor(() => expect(state.calls).toBe(1));
-    expect(screen.queryByText("Open in viewer")).not.toBeInTheDocument();
+    expect(screen.queryByText(ENABLED)).not.toBeInTheDocument();
 
     state.modules = ["dicom-viewer"];
     await user.type(screen.getByLabelText("Account ID or email"), "a9");
     await user.click(screen.getByRole("button", { name: "Add member" }));
 
-    expect(await screen.findByText("Open in viewer")).toBeInTheDocument();
+    expect(await screen.findByText(ENABLED)).toBeInTheDocument();
     expect(state.calls).toBe(2);
   });
 
   it("admin remove-member mutation invalidates myModules", async () => {
     const state = serveModules(["dicom-viewer"]);
-    server.use(http.delete(`${BASE}/groups/grp-1/members/a2`, () => new HttpResponse(null, { status: 204 })));
+    server.use(
+      http.delete(`${BASE}/groups/grp-1/members/a2`, () => new HttpResponse(null, { status: 204 }))
+    );
     const client = makeClient();
     const user = userEvent.setup();
     render(
       <>
-        <AttachmentItem attachment={dicomAttachment} />
+        <ModulesProbe />
         <GroupMembers
           groupId="grp-1"
           members={[{ accountId: "a2", name: "Bob Manual", membershipSource: "MANUAL" }]}
@@ -238,12 +253,12 @@ describe("useMyModules (SR-015 AC 5, RISK-004)", () => {
       </>,
       { wrapper: wrap(client) }
     );
-    expect(await screen.findByText("Open in viewer")).toBeInTheDocument();
+    expect(await screen.findByText(ENABLED)).toBeInTheDocument();
 
     state.modules = [];
     await user.click(screen.getByRole("button", { name: "Remove Bob Manual" }));
 
-    await waitFor(() => expect(screen.queryByText("Open in viewer")).not.toBeInTheDocument());
+    await waitFor(() => expect(screen.queryByText(ENABLED)).not.toBeInTheDocument());
   });
 });
 

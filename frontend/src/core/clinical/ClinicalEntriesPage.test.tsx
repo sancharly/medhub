@@ -274,7 +274,7 @@ describe("ClinicalEntriesPage", () => {
     });
   });
 
-  it("SR-013 AC-3 / SR-015/016: DICOM attachment offers 'Open in viewer' only when module is enabled", async () => {
+  it("SR-013 AC-3 / SR-017 AC 11: DICOM attachment offers no viewer link when the module is disabled", async () => {
     const postSpy = vi.fn();
     const uploaded: Record<string, unknown>[] = [];
 
@@ -317,7 +317,7 @@ describe("ClinicalEntriesPage", () => {
     expect(screen.queryByText(/open in viewer/i)).not.toBeInTheDocument();
   });
 
-  it("SR-013 AC-3 / SR-015/016: viewer link appears when DICOM module is enabled", async () => {
+  it("SR-013 AC-3 / SR-017 AC 11: DICOM attachment offers no viewer link even when the module is enabled", async () => {
     const postSpy = vi.fn();
     const uploaded: Record<string, unknown>[] = [];
 
@@ -354,8 +354,10 @@ describe("ClinicalEntriesPage", () => {
     await userEvent.upload(screen.getByLabelText(/upload file/i), dicomFile);
 
     await waitFor(() => {
-      expect(screen.getByText(/open in viewer/i)).toBeInTheDocument();
+      expect(screen.getByText("scan.dcm")).toBeInTheDocument();
     });
+    expect(screen.queryByText(/open in viewer/i)).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Download" })).toBeInTheDocument();
   });
 
   it("SR-012 AC-4: shows the authoring doctor's name, not the raw authorId", async () => {
