@@ -40,6 +40,14 @@ ALLOWED_PLATFORM_NAMES: dict[str, frozenset[str]] = {
     "app.api.errors": frozenset({"AuthorizationError", "ProblemDetail", "ValidationProblem"}),
     "app.audit.actions": frozenset({"AuditAction"}),
     "app.modules.module_settings": frozenset({"dicom_max_decoded_bytes", "dicom_max_stored_bytes"}),
+    "app.modules.dicom_support": frozenset(
+        {
+            "read_transfer_syntax",
+            "check_inflated_size",
+            "InflatedSizeExceeded",
+            "DeflateStreamError",
+        }
+    ),
 }
 
 # Names the contract re-exports on purpose; every other allowed name is defined in its module.

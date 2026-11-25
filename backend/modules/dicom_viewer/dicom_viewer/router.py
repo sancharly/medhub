@@ -26,8 +26,10 @@ def build_router() -> APIRouter:
             400: {
                 "description": (
                     "Not a DICOM object; stored size over the maximum (150 MiB, rule "
-                    "dicom_stored_size_exceeded); declared "
-                    "decoded size over the maximum (1 GiB, rule dicom_decoded_size_exceeded); "
+                    "dicom_stored_size_exceeded); transfer syntax not supported for frame "
+                    "decoding, or none declared (rule dicom_transfer_syntax_unsupported); "
+                    "inflated or declared decoded size over the maximum (1 GiB, rule "
+                    "dicom_decoded_size_exceeded); "
                     "or the pixel data could not be decoded (rule dicom_decode_failed). "
                     "No image is returned."
                 ),

@@ -30,6 +30,7 @@ from app.authz.service import AuthorizationService
 from app.db.models.account import Account, AccountStatus, UserType
 from app.db.models.attachment import Attachment
 from app.modules.platform_services import PlatformServices
+from tests.fixtures import build_compressed
 
 # The module's own ``tests`` package shadows backend/tests, so the shared fake store (TASK-217)
 # is loaded by path.
@@ -225,3 +226,36 @@ def test_reference_study_at_bounds_not_refused() -> None:
     assert resp.content == b"FRAME"
     pixel_array.assert_called_once()
     assert ("get_object", None) in store.calls
+
+
+def test_check_order_stored_then_syntax_then_declared_then_decode() -> None:
+    """TC-019.8 (SR-017 AC 6, AC 10): stored size, then transfer syntax, then declared decoded size,
+    then decode; each earlier refusal wins over a later one."""
+    over_declared = (32768, 32769)  # 1 GiB + 32768 declared
+    jpeg = "1.2.840.10008.1.2.4.50"
+    unsupported_big = build_compressed(jpeg, rows=over_declared[0], columns=over_declared[1])
+    supported_big, _ = _supported_over_declared()
+
+    with _pixel_array(_Frame()) as pixel_array:
+        # over the stored bound and unsupported: the stored bound wins
+        attachment = _attachment(unsupported_big, size=MAX_STORED + 1)
+        store = FakeObjectStore(unsupported_big)
+        resp = _get(_client(attachment, store), attachment)
+        _assert_problem(resp, "dicom_stored_size_exceeded")
+        assert store.calls == []
+
+        # unsupported and over the declared bound: the syntax wins
+        attachment = _attachment(unsupported_big)
+        resp = _get(_client(attachment, FakeObjectStore(unsupported_big)), attachment)
+        _assert_problem(resp, "dicom_transfer_syntax_unsupported")
+
+        # supported and over the declared bound: the declared bound
+        attachment = _attachment(supported_big)
+        resp = _get(_client(attachment, FakeObjectStore(supported_big)), attachment)
+        _assert_problem(resp, "dicom_decoded_size_exceeded")
+
+    pixel_array.assert_not_called()
+
+
+def _supported_over_declared() -> tuple[bytes, None]:
+    return _dicom(32768, 32769, bits=8, pixel_bytes=8), None
