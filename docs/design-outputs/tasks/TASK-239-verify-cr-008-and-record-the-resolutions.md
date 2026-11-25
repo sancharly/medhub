@@ -107,6 +107,20 @@ passes when restored; the started-stack results as listed; `traceability-check` 
 
 - [ ] Records updated; `traceability-check` 0 errors; any defect found raised as a PRB
 
+## Carried from TASK-236 (QA, 2026-11-25)
+
+TASK-236 was approved with these open findings (details in TASK-236 "QA review — round 1"):
+
+- R1-1 [MEDIUM] `backend/scripts/check_image_modules.py` compares entry-point names only; an entry point with the
+  right name and a wrong value passes. Add a `discover_modules()` (or `ep.load().module_key`) assertion, or record
+  the human's decision to rely on TC-010.8 and smoke 9b.
+- R1-2 [LOW] TASK-236 and TS-013 TC-013.15 say the `HEAD` 396e9de negative run is "to be verified on hosted CI";
+  hosted CI never builds 396e9de. Cite QA's run on the pre-TASK-233 image `infra-backend:latest` (exit 1) instead.
+- R1-3 [LOW] TS-010: add "system (TC-010.9)" to Levels and the started-stack precondition (`curl`, `python3`).
+- R1-4 [LOW] `infra/smoke-test.sh:175`: an empty `STUDY_ID` (no `python3`) requests `/studies/` and reports "module
+  route not mounted". Check it is non-empty or use a fixed UUID.
+- Hosted CI: record the Docker Build job's result for the new step on the pushed commit (TC-013.15).
+
 ## Version history
 
 - 1.0 (2026-11-25) — Created at the CR-008 Plan stage (Software Architect role). `draft`.
