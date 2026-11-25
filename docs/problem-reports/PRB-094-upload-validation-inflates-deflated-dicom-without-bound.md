@@ -3,7 +3,7 @@ id: "PRB-094"
 type: problem-report
 title: "DICOM upload validation inflates a Deflated object without a bound"
 status: open
-version: "1.0"
+version: "1.1"
 author: "Carlos Santiago Liceras"
 created: "2026-11-25"
 updated: "2026-11-25"
@@ -71,6 +71,12 @@ Not fixed yet. Taken into CR-008 by the human's decision of 2026-11-25 (CR-008 D
 (bounded inflation before `dcmread`, the TASK-234 mechanism and the 1 GiB `dicom_max_decoded_bytes`
 setting). The `resolves` link is on CR-008.
 
+TASK-240 implemented (2026-11-25, `in_review`): `validate_dicom` reads the transfer syntax from the file meta
+information and, for Deflated Explicit VR Little Endian, runs `check_inflated_size` against
+`dicom_max_decoded_bytes()` before `pydicom.dcmread`; above the bound it answers a 400 `ValidationProblem`
+(rule `dicom_decoded_size_exceeded`), nothing is stored. Verified by TS-007 TC-007.18. Status stays `open`:
+TASK-239 records the executed result and sets `resolved`.
+
 ## Source
 
 pydicom 3.0.2 published source (`filereader.py`, tag `v3.0.2`) and MedHub `HEAD` 396e9de: the file and line
@@ -79,3 +85,4 @@ references above. SOUP-015 1.3 "Review of 2026-11-25".
 ## Version history
 
 - 1.0 (2026-11-25) — Created at the CR-008 Plan stage (Software Architect role); taken into CR-008 (D-B).
+- 1.1 (2026-11-25) — TASK-240 implemented and handed to QA; status unchanged (`open`).
