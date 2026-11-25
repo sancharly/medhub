@@ -1,19 +1,8 @@
-"""Configure sys.path so both dicom_viewer and app are importable in DICOM module tests."""
+"""Settings fixture for the DICOM module tests; the module is an installed package (CR-008)."""
 
 from __future__ import annotations
 
-import sys
-from pathlib import Path
-
 import pytest
-
-# Add backend/ (for app.*) and backend/modules/dicom_viewer/ (for dicom_viewer.*)
-_backend = Path(__file__).parent.parent.parent.parent  # backend/
-_dicom_pkg = Path(__file__).parent.parent  # backend/modules/dicom_viewer/
-
-for _p in [str(_backend), str(_dicom_pkg)]:
-    if _p not in sys.path:
-        sys.path.insert(0, _p)
 
 _BASELINE_ENV = {
     "DATABASE_URL": "postgresql://user:db-pw-8f3k2xq7@localhost:5432/medhub",

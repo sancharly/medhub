@@ -2,18 +2,14 @@
 id: SOUP-015
 type: soup
 title: pydicom
-status: approved
-version: "1.2"
+status: in_review
+version: "1.3"
 author: Carlos Santiago Liceras
 created: "2026-10-21"
-updated: "2026-11-13"
+updated: "2026-11-25"
 manufacturer: pydicom contributors
 soup_version: 3.0.2
-anomaly_review: "2026-10-22"
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-11-13"
-approved_digest: 5aea87056b9822782acb11f996972895639638797aff8b60f1a4a0789a441550
-approval_note: self-approved
+anomaly_review: "2026-11-25"
 links: []
 tags:
   - soup
@@ -29,12 +25,39 @@ tags:
 
 DICOM parsing, metadata extraction and validation on upload, and pixel/frame access for the DICOM endpoint (SR-013, SR-017).
 
+**Relied on for pixel decoding (CR-008, D-3 (a), SR-017 AC 9 and AC 10; TASK-234, TASK-235).** For the
+five transfer syntaxes the frame path supports — Implicit VR Little Endian (`1.2.840.10008.1.2`),
+Explicit VR Little Endian (`1.2.840.10008.1.2.1`), Deflated Explicit VR Little Endian
+(`1.2.840.10008.1.2.1.99`), Explicit VR Big Endian (`1.2.840.10008.1.2.2`) and RLE Lossless
+(`1.2.840.10008.1.2.5`) — `Dataset.pixel_array` decodes with pydicom's own handlers and NumPy only
+([SOUP-037](SOUP-037-numpy.md)), no plugin, and returns exactly the stored sample values: shape
+(rows, columns[, samples]) for one frame and (frames, rows, columns[, samples]) for several, in native
+byte order. A decode error raises; it never returns a partly filled array. Also relied on: the file
+meta information (group 0002, including `TransferSyntaxUID`) can be read without reading or inflating
+the data set, so the module checks the transfer syntax before anything else is parsed. In 3.0.2 the
+public `read_file_meta_info()` takes a file path only; for in-memory bytes the module uses the public
+`pydicom.filereader.read_preamble(fp, False)` followed by the private `_read_file_meta_info(fp)`
+(`filereader.py` lines 645 and 732 at `v3.0.2`), which read the preamble and group 0002 and stop. The
+reliance on a private function is pinned by a test that fails if it changes (TASK-234, TC-019.6), and is
+re-checked at every pydicom upgrade. The frame path
+never relies on pydicom to refuse an unsupported syntax: the module's allow-list does (AC 10).
+
+**Not relied on, and guarded instead.** pydicom 3.0.2 inflates the whole data set of a Deflated Explicit
+VR Little Endian file in memory with one unbounded `zlib.decompress` while reading it
+(`src/pydicom/filereader.py`, lines 891-906 at tag `v3.0.2`), also with `stop_before_pixels=True`. The
+frame path therefore bounds the inflated size itself before calling `dcmread` on a deflated object
+(TASK-234, TS-019 TC-019.7), and upload validation in the host (`app/attachments/dicom_validation.py`)
+does the same with the shared helper `app.modules.dicom_support` (TASK-240, TS-007 TC-007.18; PRB-094).
+
 ## Required hardware and software environment
 
 Python 3.12. Pixel-data access (`Dataset.pixel_array`, used by the frame endpoint) requires NumPy,
-and compressed transfer syntaxes also need a decoding plugin (Pillow, pylibjpeg or GDCM). None of
-these is declared in `backend/pyproject.toml` or locked in `backend/uv.lock`, so the production
-image has none (see the anomaly-list review of 2026-10-22). Metadata parsing needs no other package.
+and compressed transfer syntaxes other than RLE Lossless also need a decoding plugin (Pillow, pylibjpeg or
+GDCM). From CR-008 (TASK-233) NumPy 2.5.5 ([SOUP-037](SOUP-037-numpy.md)) is declared by the DICOM viewer
+module (`backend/modules/dicom_viewer/pyproject.toml`) and locked in `backend/uv.lock`, so the production
+image has it. No decoding plugin is installed, by decision (CR-008 D-3 (a)): every syntax that would need
+one is refused before decoding. Metadata parsing needs no other package. pydicom is declared both by the
+host (upload validation) and by the module; the lock resolves one version.
 
 ## Anomaly list review
 
@@ -98,6 +121,37 @@ NumPy, and decide which transfer syntaxes the frame path supports) is a dependen
 separate CR. It should be planned together with PRB-048 (installing the module) and
 PRB-006's decode bound.
 
+### Review of 2026-11-25 (CR-008 Plan stage)
+
+Re-reviewed because CR-008 makes pixel decoding a relied-on function. Same sources as above, on
+2026-11-25:
+
+- OSV.dev `pydicom` 3.0.2: no vulnerability. GitHub Advisory Database `pydicom@3.0.2`: none. pydicom
+  repository advisories: only GHSA-v856-2rf8-9f28 (CVE-2026-32711), fixed in 3.0.2.
+- NVD keyword `pydicom`: CVE-2026-32711 and CVE-2026-48705 (published 2026-11-05). CVE-2026-48705 is a
+  MONAI defect (`PydicomReader._get_affine()` trusting non-finite spacing and orientation values, fixed in
+  MONAI 1.6.1); it is not a pydicom defect and MedHub does not use MONAI. Not applicable.
+- PyPI: 3.0.2 is still the latest release.
+- Open issues labelled `bug` mentioning pixel data: pydicom/pydicom#2260 (different pixel arrays after
+  JPEG 2000 Lossless compression with an embedded overlay). JPEG 2000 is refused by the frame path
+  (D-3 (a)); not applicable.
+- Published source, read only (tag `v3.0.2`, `src/pydicom/filereader.py`): the Deflated data set is
+  inflated in full with `zlib.decompress(zipped, -zlib.MAX_WBITS)`, with no output limit, during any
+  `dcmread` of a deflated file, before `stop_before_pixels` takes effect. A deflate stream reaches
+  ratios of about 1000:1, so an object within the 150 MiB stored bound can inflate to far more memory
+  than the API container has.
+
+**Findings.** No upstream anomaly applies to 3.0.2. One design property is hazard-relevant for MedHub
+(availability, RISK-007; not a pydicom defect): the unbounded inflation above.
+
+- **Frame path (CR-008).** Reachable once the module is installed. Controlled in CR-008: the transfer
+  syntax is read from the file meta information first and a deflated data set is inflated with a
+  bounded decompressor before pydicom reads it (TASK-234, TC-019.7).
+- **Upload validation (host, outside CR-008).** `app/attachments/dicom_validation.py` calls
+  `pydicom.dcmread(fp, stop_before_pixels=True)` on every uploaded `application/dicom` file, so a crafted
+  deflated file inflates without bound at upload today: PRB-094 (major), taken into CR-008 by the human
+  (D-B) and controlled by TASK-240 with the same helper (RISK-007 1.21).
+
 ## Monitoring
 
 Per [PLAN-002](../plans/PLAN-002-maintenance-plan.md): reviewed at every dependency change, before
@@ -110,3 +164,8 @@ accountable. Hazard-relevant anomalies go to `risk-management`; defects affectin
   ADD-004 to one `soup` record per component (medical-records 0.3.2).
 - 2026-10-22 — 3.0.2 (unchanged). First anomaly-list review (TASK-154, CR-001 AC-11/AC-12): no upstream anomaly applies to 3.0.2 (CVE-2026-32711 is fixed in it); found that NumPy, which pixel-data access needs, is not installed, so the `?frame=` path cannot decode (MedHub-affecting: PRB-046, minor; the module itself is not installed anywhere: PRB-048, major, found by QA); environment section corrected. Record 1.0 → 1.1; approval record removed for re-review.
 - 2026-11-13 — 3.0.2 (unchanged). Relied-on behaviour added: header-only read on the frame endpoint path to bound the decoded size before `pixel_array` (CR-006 TASK-218, SR-017 AC 6, D-2). Record 1.1 → 1.2; approval record removed for re-review.
+- 2026-11-25 — 3.0.2 (unchanged). CR-008 Plan stage: relied-on requirements extended to pixel decoding for
+  the five transfer syntaxes of D-3 (a) and to the file-meta read of the transfer syntax; NumPy now declared
+  by the module (SOUP-037); anomaly list re-reviewed (no upstream anomaly; CVE-2026-48705 is MONAI's); the
+  unbounded inflation of Deflated data sets recorded, guarded on the frame path (TASK-234) and in upload
+  validation (TASK-240, PRB-094, CR-008 D-B). Record 1.2 → 1.3; approval record removed for re-review.
