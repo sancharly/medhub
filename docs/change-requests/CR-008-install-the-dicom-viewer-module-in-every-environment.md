@@ -2,7 +2,7 @@
 id: CR-008
 type: change-request
 title: Install the DICOM viewer module in every environment and make its frame path work
-status: open
+status: in_progress
 version: "1.2"
 author: Carlos Santiago Liceras
 created: "2026-11-25"
