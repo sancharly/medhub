@@ -22,6 +22,7 @@ from pydicom.uid import (
     ExplicitVRBigEndian,
     ExplicitVRLittleEndian,
     ImplicitVRLittleEndian,
+    RLELossless,
 )
 
 SECONDARY_CAPTURE = "1.2.840.10008.5.1.4.1.1.7"
@@ -96,7 +97,10 @@ def build_dicom(
         shape = [frames, *shape]
     dtype = np.dtype(f"{'i' if pixel_representation else 'u'}{bits_allocated // 8}")
     count = int(np.prod(shape))
-    expected = (np.arange(count) % 251).astype(dtype).reshape(shape)
+    values = np.arange(count) % 251
+    if pixel_representation:
+        values = values - 125  # signed objects carry negative samples too
+    expected = values.astype(dtype).reshape(shape)
     if transfer_syntax == ExplicitVRBigEndian:
         pixel_bytes = expected.astype(dtype.newbyteorder(">")).tobytes()
     else:
@@ -104,6 +108,67 @@ def build_dicom(
     ds.add_new(0x7FE00010, "OB" if bits_allocated == 8 else "OW", pixel_bytes)
     data = _write(ds)
     return (data if transfer_syntax is not None else _without_transfer_syntax(data)), expected
+
+
+def build_rle(**kwargs: Any) -> tuple[bytes, np.ndarray]:
+    """The object ``build_dicom`` describes, RLE Lossless encoded, and its expected array."""
+    data, expected = build_dicom(ExplicitVRLittleEndian, **kwargs)
+    ds = pydicom.dcmread(io.BytesIO(data))
+    ds.compress(RLELossless)
+    return _write(ds), expected
+
+
+YBR_SAMPLES = np.array(
+    [[10, 90, 200], [20, 80, 190], [30, 70, 180], [40, 60, 170]] * 2, dtype=np.uint8
+).reshape(2, 4, 3)
+
+
+def build_ybr(photometric: str, *, rle: bool = False) -> tuple[bytes, np.ndarray]:
+    """A 2 x 4 colour object whose samples are stored as YCbCr, and the samples a client must get.
+
+    ``YBR_FULL`` stores (Y, Cb, Cr) per pixel; ``YBR_FULL_422`` stores (Y1, Y2, Cb, Cr) for each
+    pair of pixels, and the expected array repeats Cb and Cr for both pixels. Values are chosen so
+    that a YCbCr to RGB conversion would change them.
+    """
+    ds = _data_set(ExplicitVRLittleEndian, 2, 4, 1, 3, 8, 0)
+    ds.PhotometricInterpretation = photometric
+    if photometric == "YBR_FULL_422":
+        pairs = YBR_SAMPLES.reshape(2, 2, 2, 3)  # rows, pair, pixel-in-pair, sample
+        stored = np.concatenate(
+            [pairs[:, :, 0, :1], pairs[:, :, 1, :1], pairs[:, :, 0, 1:]], axis=2
+        ).astype(np.uint8)
+        expected = pairs.copy()
+        expected[:, :, 1, 1:] = expected[:, :, 0, 1:]  # chroma is shared by the pair
+        expected = expected.reshape(2, 4, 3)
+        ds.PlanarConfiguration = 0
+        raw = stored.tobytes()
+    else:
+        expected = YBR_SAMPLES
+        raw = expected.tobytes()
+    ds.add_new(0x7FE00010, "OB", raw)
+    if rle:
+        ds.compress(RLELossless)
+    return _write(ds), expected
+
+
+def build_frame_count_mismatch(declared: int | None, in_data: int) -> bytes:
+    """A 2 x 2 8-bit object declaring ``declared`` frames (None: no NumberOfFrames) and holding
+    ``in_data`` frames of pixel data."""
+    ds = _data_set(ExplicitVRLittleEndian, 2, 2, 1, 1, 8, 0)
+    if declared is not None:
+        ds.NumberOfFrames = declared
+    ds.add_new(0x7FE00010, "OB", bytes(range(1, 4 * in_data + 1)))
+    return _write(ds)
+
+
+def build_short_pixel_data(*, rows: int = 5, columns: int = 5) -> bytes:
+    """An 8-bit object whose pixel data is one byte shorter than the header declares.
+
+    The size is odd and the data is one byte short, so the even-length element needs no pad byte.
+    """
+    ds = _data_set(ExplicitVRLittleEndian, rows, columns, 1, 1, 8, 0)
+    ds.add_new(0x7FE00010, "OB", bytes(rows * columns - 1))
+    return _write(ds)
 
 
 def _without_transfer_syntax(data: bytes) -> bytes:
@@ -215,6 +280,10 @@ __all__ = [
     "build_corrupt_deflate",
     "build_deflate_bomb",
     "build_dicom",
+    "build_frame_count_mismatch",
+    "build_rle",
+    "build_short_pixel_data",
+    "build_ybr",
     "build_large_deflated",
     "call_with_timeout",
     "element",

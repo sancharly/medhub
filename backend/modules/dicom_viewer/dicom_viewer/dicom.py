@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import io
 import re
+from typing import Any
 
 from pydicom.uid import (
     DeflatedExplicitVRLittleEndian,
@@ -111,6 +112,16 @@ def _check_declared_decoded_size(data: bytes) -> None:
         )
 
 
+def _native_bytes(samples: Any) -> bytes:
+    """The samples as ``tobytes()`` writes them, in the server's native byte order (ADD-015).
+
+    pydicom returns the array of an Explicit VR Big Endian object with a big-endian dtype, so the
+    order is normalised; for every other syntax this is a no-copy view.
+    """
+    native: bytes = samples.astype(samples.dtype.newbyteorder("="), copy=False).tobytes()
+    return native
+
+
 def stream_dicom(data: bytes, frame: int | None) -> bytes:
     """Return DICOM bytes, optionally extracting a single frame.
 
@@ -118,10 +129,13 @@ def stream_dicom(data: bytes, frame: int | None) -> bytes:
     If frame is specified, uses pydicom to extract that frame's pixel data, after the
     transfer syntax has been checked against the allow-list (SR-017 AC 10), the inflated size of a
     Deflated object and the header-declared decoded size against the configured maximum (AC 6).
-    A decode that fails raises a problem; no partial bytes are returned.
+    A decode that fails raises a problem; no partial bytes are returned. The frame is returned as
+    ``ndarray.tobytes()`` in native byte order, the layout of ADD-015 "Frame response".
     """
     if frame is None:
         return data
+    if frame < 0:
+        raise ValidationProblem(f"Frame {frame} out of range; the first frame is 0.")
 
     import pydicom  # noqa: PLC0415
 
@@ -130,20 +144,28 @@ def stream_dicom(data: bytes, frame: int | None) -> bytes:
     _check_declared_decoded_size(data)
     try:
         ds = pydicom.dcmread(io.BytesIO(data))
+        # The samples as stored: no YCbCr to RGB conversion (pydicom converts YBR_FULL and
+        # YBR_FULL_422 by default); a YBR_FULL_422 object is still upsampled to 3 samples per pixel.
+        ds.pixel_array_options(as_rgb=False)
         pixel_array = ds.pixel_array
+        rows = int(ds["Rows"].value)
+        columns = int(ds["Columns"].value)
+        samples = int(ds.get("SamplesPerPixel", 1) or 1)
+        num_frames = int(ds.get("NumberOfFrames", 1) or 1)
     except Exception as exc:
         raise _problem("dicom_decode_failed", "The DICOM pixel data could not be decoded.") from exc
-    # pixel_array shape: (frames, rows, cols) for multi-frame or (rows, cols) for single
-    if pixel_array.ndim == 2:
-        if frame != 0:
-            raise ValidationProblem(f"Frame {frame} out of range; this DICOM has 1 frame.")
-        frame_data = pixel_array.tobytes()
-    else:
-        num_frames = pixel_array.shape[0]
-        if frame >= num_frames:
-            raise ValidationProblem(
-                f"Frame {frame} out of range; this DICOM has {num_frames} frames."
-            )
-        frame_data = pixel_array[frame].tobytes()
-
-    return frame_data
+    # The frame shape comes from the header; the decoded array must be exactly one frame of it, or
+    # exactly NumberOfFrames of them (absent means 1). Anything else is refused, never guessed.
+    frame_shape = (rows, columns) if samples == 1 else (rows, columns, samples)
+    shape = tuple(pixel_array.shape)
+    single = num_frames == 1 and shape == frame_shape
+    multiple = shape[1:] == frame_shape and shape[0] == num_frames
+    frame_bytes = rows * columns * samples * pixel_array.dtype.itemsize
+    if not (single or multiple) or pixel_array.nbytes != num_frames * frame_bytes:
+        raise _problem(
+            "dicom_decode_failed", "The DICOM pixel data does not match the size in the header."
+        )
+    if frame >= num_frames:
+        noun = "frame" if num_frames == 1 else "frames"
+        raise ValidationProblem(f"Frame {frame} out of range; this DICOM has {num_frames} {noun}.")
+    return _native_bytes(pixel_array if single else pixel_array[frame])

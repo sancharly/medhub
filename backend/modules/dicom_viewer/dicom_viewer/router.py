@@ -23,6 +23,25 @@ def build_router() -> APIRouter:
     @router.get(
         "/studies/{attachment_id}",
         responses={
+            200: {
+                "description": (
+                    "Without `frame`: the stored DICOM object, byte for byte "
+                    "(`application/dicom`). With `frame=N`: the samples of frame N "
+                    "(`application/octet-stream`), exactly as pydicom's `pixel_array` returns "
+                    "them, written with `ndarray.tobytes()` (C order, no header, no padding): "
+                    "rows x columns x samples per pixel, samples interleaved per pixel whatever "
+                    "the Planar Configuration, in the server's native byte order "
+                    "(little-endian), each sample `ceil(BitsAllocated / 8)` bytes, unsigned when "
+                    "Pixel Representation is 0 and two's-complement signed when 1. No rescale, "
+                    "windowing or photometric conversion is applied: YCbCr samples (YBR_FULL, "
+                    "YBR_FULL_422) are served as stored, not converted to RGB. A YBR_FULL_422 "
+                    "object is upsampled to 3 samples per pixel (Y, Cb, Cr interleaved, the "
+                    "chroma of each pixel pair repeated for both pixels). Read Rows, Columns, "
+                    "Samples per Pixel, Bits Allocated, Pixel Representation and Photometric "
+                    "Interpretation from the whole object."
+                ),
+                "content": {"application/dicom": {}, "application/octet-stream": {}},
+            },
             400: {
                 "description": (
                     "Not a DICOM object; stored size over the maximum (150 MiB, rule "
@@ -30,7 +49,8 @@ def build_router() -> APIRouter:
                     "decoding, or none declared (rule dicom_transfer_syntax_unsupported); "
                     "inflated or declared decoded size over the maximum (1 GiB, rule "
                     "dicom_decoded_size_exceeded); "
-                    "or the pixel data could not be decoded (rule dicom_decode_failed). "
+                    "or the pixel data could not be decoded, or does not match the size and frame "
+                    "count in the header (rule dicom_decode_failed). "
                     "No image is returned."
                 ),
                 "content": {
@@ -90,6 +110,7 @@ def build_router() -> APIRouter:
             outcome=AuditOutcome.SUCCESS,
             ip=None,
         )
-        return Response(content=result, media_type="application/dicom")
+        media_type = "application/dicom" if frame is None else "application/octet-stream"
+        return Response(content=result, media_type=media_type)
 
     return router

@@ -15,6 +15,7 @@ from contextlib import contextmanager
 from pathlib import Path
 from unittest.mock import MagicMock, PropertyMock, patch
 
+import numpy as np
 import pydicom
 from dicom_viewer.router import build_router
 from fastapi import FastAPI
@@ -30,7 +31,7 @@ from app.authz.service import AuthorizationService
 from app.db.models.account import Account, AccountStatus, UserType
 from app.db.models.attachment import Attachment
 from app.modules.platform_services import PlatformServices
-from tests.fixtures import build_compressed
+from tests.fixtures import build_compressed, build_dicom, build_short_pixel_data
 
 # The module's own ``tests`` package shadows backend/tests, so the shared fake store (TASK-217)
 # is loaded by path.
@@ -74,10 +75,23 @@ def _padded_to(total: int, rows: int, columns: int, frames: int) -> bytes:
 
 
 class _Frame:
-    """Stands in for the NumPy array of one 2-D frame."""
+    """Stands in for the NumPy array of a decode (or of one frame of it).
 
-    ndim = 2
-    shape = (1, 1)
+    ``shape`` is the array the header describes, since the code checks it against the header; the
+    bytes are never produced.
+    """
+
+    def __init__(self, shape: tuple[int, ...] = (1, 1), itemsize: int = 1) -> None:
+        self.shape = shape
+        self.ndim = len(shape)
+        self.dtype = np.dtype(f"u{itemsize}")
+        self.nbytes = int(np.prod(shape)) * itemsize
+
+    def __getitem__(self, index: int) -> _Frame:
+        return _Frame(self.shape[1:], self.dtype.itemsize)
+
+    def astype(self, dtype: np.dtype, copy: bool = True) -> _Frame:
+        return self
 
     def tobytes(self) -> bytes:
         return b"FRAME"
@@ -211,6 +225,34 @@ def test_truncated_pixel_stream_gives_error_and_no_image() -> None:
     assert "application/dicom" not in resp.headers["content-type"]
 
 
+def test_truncated_pixel_stream_real_decode() -> None:
+    """TC-019.3 (SR-017 AC 6): pixel data one byte short of the header is really refused by the
+    decoder: a 400 problem and no image."""
+    data = build_short_pixel_data()
+    attachment = _attachment(data)
+
+    resp = _get(_client(attachment, FakeObjectStore(data)), attachment)
+
+    _assert_problem(resp, "dicom_decode_failed")
+    assert "application/octet-stream" not in resp.headers["content-type"]
+    assert "application/dicom" not in resp.headers["content-type"]
+
+
+def test_real_decode_at_small_size_within_bounds() -> None:
+    """TC-019.3, TC-019.4 (SR-017 AC 6): a real 64 x 64 x 2-frame object, bounds at their defaults,
+    is decoded and each frame returned exactly."""
+    data, expected = build_dicom(ExplicitVRLittleEndian, rows=64, columns=64, frames=2)
+    attachment = _attachment(data)
+    client = _client(attachment, FakeObjectStore(data))
+
+    for n in range(2):
+        resp = _get(client, attachment, n)
+        assert resp.status_code == 200
+        assert resp.headers["content-type"] == "application/octet-stream"
+        assert resp.content == expected[n].astype("<u2").tobytes()
+        assert len(resp.content) == 64 * 64 * 2
+
+
 def test_reference_study_at_bounds_not_refused() -> None:
     """TC-019.4 (SR-017 AC 6, SR-026 AC 3): a 150 MiB stored object whose header declares exactly
     1 GiB passes both checks; the decode is stubbed."""
@@ -219,7 +261,7 @@ def test_reference_study_at_bounds_not_refused() -> None:
     attachment = _attachment(data)
     store = FakeObjectStore(data)
 
-    with _pixel_array(_Frame()) as pixel_array:
+    with _pixel_array(_Frame((8, 8192, 8192), 2)) as pixel_array:
         resp = _get(_client(attachment, store), attachment)
 
     assert resp.status_code == 200
