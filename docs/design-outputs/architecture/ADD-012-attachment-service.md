@@ -2,15 +2,11 @@
 id: ADD-012
 type: architecture-doc
 title: Attachment Service (SI-ATTACH)
-status: approved
-version: "1.9"
+status: in_review
+version: "1.10"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-11-16"
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-11-16"
-approved_digest: f4430eae153a450b49a7bd06f65eaa4096dd0269fdc0ac51e4bc535b8d4a4265
-approval_note: self-approved
+updated: "2026-11-25"
 links:
   - target: SR-013
     relation: implements
@@ -53,6 +49,12 @@ Upload/fetch attachment binaries via object storage, authorized
 - `U-ATT-Upload` — validate, store object (SSE), bind to entry/patient transactionally (SR-013). It refuses a
   file name longer than 255 UTF-8 bytes with a 400 problem (`filename_max_bytes`) before anything is written;
   the name is never truncated, as it is part of the clinical record (TASK-206, PRB-069). The display name and the storage key are one value, so a name with dot segments reaches the object store, which refuses it, and the upload answers 500 (PRB-073, open).
+- **CR-008 (TASK-240, PRB-094).** `U-ATT-Upload` inflates a Deflated Explicit VR Little Endian DICOM upload
+  under `dicom_max_decoded_bytes` (1 GiB) before validation reads it, with the bounded helper of ADD-014
+  (`app.modules.dicom_support`), and refuses above it with a 400 problem, rule `dicom_decoded_size_exceeded`;
+  nothing is stored. A corrupt deflate stream is an invalid-DICOM 400. Other transfer syntaxes are accepted
+  as before. Accepted residual: a Deflated upload within the bound is still inflated whole by pydicom, up to
+  about 1 GiB (RISK-007; CR-008 Q-2). The frame path and its allow-list are in ADD-015.
 - `U-ATT-Fetch` — authorized stream / scoped pre-signed URL (SR-005, SR-013.3). Before any byte is
   served it compares the SHA-256 of the content read from the store with the stored checksum
   (constant-time). On a mismatch it serves nothing, records an `ATTACHMENT_ACCESS` audit event with
@@ -122,3 +124,4 @@ Participates in RISK-002, RISK-007, RISK-011 (see `docs/risks/`); the control me
 - 1.7 (2026-11-13) — CR-006 Plan stage (Software Architect role): bounded upload and bound two-pass download (ADR-0021) marked "CR-006 (planned)"; links to SOUP-036 (conditional read), SOUP-003 (spooled upload file) and RISK-012 added. Content change, so the 1.6 approval record is cleared and the record returns to review.
 - 1.8 (2026-11-13) — TASK-227 (CR-006, ADR-0023): `U-ATT-Fetch` commits its audit rows before the body and follows the generator rule (plain values, own-transaction FAILURE row). Content change, so the 1.7 approval record is cleared and the record returns to review.
 - 1.9 (2026-11-14) — TASK-225 (Document Writer): the "CR-006 (planned, ADR-0021)" marker is removed; `U-ATT-Upload` (TASK-135) and `U-ATT-Fetch` (TASK-217) are implemented as described. Wording only. Content change on an approved record, so the 1.8 approval record is cleared and the record returns to review.
+- 1.10 (2026-11-25) — CR-008 TASK-238 (Document Writer): `U-ATT-Upload` bounds the inflation of a Deflated DICOM upload before validation (TASK-240, PRB-094). Content change on an approved record, so the 1.9 approval record is cleared and the record returns to review.

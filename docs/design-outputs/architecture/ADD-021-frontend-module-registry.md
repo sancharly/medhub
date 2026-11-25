@@ -2,15 +2,11 @@
 id: ADD-021
 type: architecture-doc
 title: Frontend Module Registry (SI-FE-MODREG)
-status: approved
-version: "1.3"
+status: in_review
+version: "1.4"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-11-16"
-approved_by: Carlos Santiago Liceras
-approved_on: "2026-11-16"
-approved_digest: 7c8633e1d466de10e22f93b8c0fd96ef3ea16d3712b0913d9fbea6daaeb24355
-approval_note: self-approved
+updated: "2026-11-25"
 links:
   - target: SOUP-028
     relation: relates_to
@@ -34,18 +30,20 @@ tags:
 
 ## Responsibility
 
-The signed-in user's module list for module-dependent views. Module registration, gated navigation and
+The signed-in user's module list for module-dependent views (no consumer in code until the viewer phase, CR-008 D-5). Module registration, gated navigation and
 lazy module chunks are deferred to the frontend DICOM viewer module (PRB-048).
 
 ## Software units (IEC 62304 §5.4.1)
 
 - `U-FEM-MyModules` — `useMyModules` (`frontend/src/modules/useMyModules.ts`), the one reader of
-  `GET /me/modules`; its consumer is `AttachmentItem` (`frontend/src/core/clinical/AttachmentItem.tsx`,
-  the DICOM viewer link of ADD-020, shown only when `dicom-viewer` is in the list). **CR-006 (D-4;
+  `GET /me/modules`. **CR-008 (D-5; TASK-237):** it has no consumer in code: `AttachmentItem`
+  (`frontend/src/core/clinical/AttachmentItem.tsx`) no longer shows a viewer link, so every attachment keeps
+  only its Download link. The first consumer is the viewer entry point of #29 (ADD-022). The hook and its
+  behaviour are unchanged and are exercised by a test-only probe component. **CR-006 (D-4;
   TASK-221):** one `useMyModules()` hook serves every module-dependent view: stale after 30 s, refetched every 50 s (the interval restarts when a response arrives, so the 60 s bound of SR-015 AC 5 keeps 10 s for the round trip and one retry), on window focus and on mount (next
   navigation), keeping the last known list when a refetch fails (fail closed: an unknown or failed list never shows the viewer link); admin group and module mutations
   (module toggle, member add and remove) invalidate it. A change reaches every affected user within 60 s or the next navigation (SR-015 AC 5);
-  the server guard stays the authority (SR-015 AC 3; RISK-004). Verified by TS-005 TC-005.5 and TC-005.6.
+  the server guard stays the authority (SR-015 AC 3; RISK-004). Verified by TS-005 TC-005.5 (TC-005.6 is retired, CR-008 D-5).
 
 **Deferred units.** `U-FEM-Registry` (module registry and lazy import, SR-016) and `U-FEM-NavGate`
 (navigation entry shown only when the module is enabled, SR-015) are the target design of
@@ -89,3 +87,4 @@ Participates in RISK-004 (see `docs/risks/`); the control measures are carried b
 - 1.2 (2026-11-14) — TASK-221 implemented: "planned" removed, hook location and the member add and remove invalidation recorded. Content change, so the approval record is removed. `in_review`.
 - 1.2 (2026-11-14) — TASK-221 round 2: refetch interval 50 s (was 60 s); the polling request is served without extending the session (ADD-006, SR-030 AC 1, AC 2). Still `in_review`.
 - 1.3 (2026-11-16) — CR-007 TASK-230 (PRB-091, D-1): the design is corrected to the unit that exists, `U-FEM-MyModules` (`useMyModules`); `U-FEM-Registry` and `U-FEM-NavGate` recorded as deferred to PRB-048 (TASK-100, TASK-101). Content change, so the 1.2 approval record is removed. `in_review`.
+- 1.4 (2026-11-25) — CR-008 TASK-238 (Document Writer): `useMyModules` has no consumer in code after D-5 (TASK-237 removed the viewer link); TC-005.6 retired. Content change on an approved record, so the 1.3 approval record is removed. `in_review`.
