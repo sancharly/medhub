@@ -230,10 +230,11 @@ else
         check "'backend' reaches object-store:8333" "connection failed"
     fi
     ROUND_TRIP=$(compose exec -T backend python -c '
+import io
 from app.core.object_storage import ObjectStorageClient
 c = ObjectStorageClient()
 k = "smoke/network-isolation.txt"
-c.put_object(k, b"smoke", "text/plain")
+c.put_object(k, io.BytesIO(b"smoke"), 5, "text/plain")
 try:
     assert c.get_object(k) == b"smoke"
 finally:

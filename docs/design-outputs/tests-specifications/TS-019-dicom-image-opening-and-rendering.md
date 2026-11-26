@@ -3,7 +3,7 @@ id: "TS-019"
 type: test-specification
 title: "DICOM image opening and rendering verification"
 status: approved
-version: "1.7"
+version: "1.8"
 author: "Carlos Santiago Liceras"
 created: "2026-11-13"
 updated: "2026-11-26"
@@ -26,7 +26,7 @@ to the unfinished DICOM viewer phase and have no test case here yet. Software it
 `U-DICOMBE-Studies` (`backend/modules/dicom_viewer/dicom_viewer/dicom.py`, `router.py`, ADD-015) and the host helper
 `backend/app/modules/dicom_support.py` (SI-MODHOST, ADD-014), SI-FE-CORE `AttachmentItem`
 (`frontend/src/core/clinical/AttachmentItem.tsx`; AC 11), over
-`AttachmentService.open(..., max_bytes=)` (ADD-012). Levels: unit and integration (the module router mounted
+`AttachmentService.open(..., max_bytes=)` (ADD-012). Levels: unit, integration and system (TC-019.5) (the module router mounted
 on a FastAPI app with the real `AttachmentService`, a fake object store and the RFC 7807 handlers).
 
 ## Preconditions and environment
@@ -114,3 +114,5 @@ TC-019.5 (backend frame part), TC-019.13 and the re-run of TC-019.1 to TC-019.12
 - 1.6 (2026-11-25, QA) — QA review of TASK-235 (round 2): TC-019.9 to TC-019.11 and the real TC-019.3 / TC-019.4 tests approved: `approved` (status only; content unchanged).
 - 1.7 (2026-11-26) — TASK-239 (CR-008 verification; TASK-238 QA-1, PRB-095). Added TC-019.13 (trailing bytes under one frame ignored, a whole extra frame refused); TC-019.5 records its backend frame part executed on a started stack (the 10-second render stays open for #29); TC-019.4 notes the fixed UID of PRB-095. Content change on an approved record, so the approval record is cleared: `in_review`.
 - 1.7 (2026-11-26, QA) — QA review of TASK-239 (round 1): TC-019.4 (fixed UID), TC-019.5 backend part and TC-019.13 approved: `approved` (status only; content unchanged). LOW QA-4 (Levels omit system, TC-019.5) carried in TASK-239.
+- 1.8 (2026-11-26) — TASK-239 QA-4: the Levels line adds "system (TC-019.5)". Content change on an approved record, so the approval record is cleared: `in_review`.
+- 1.8 (2026-11-26, QA) — QA review of TASK-241 (round 1): Levels line approved: `approved` (status only; content unchanged).

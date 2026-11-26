@@ -3,7 +3,7 @@ id: CR-008
 type: change-request
 title: Install the DICOM viewer module in every environment and make its frame path work
 status: in_progress
-version: "1.4"
+version: "1.5"
 author: Carlos Santiago Liceras
 created: "2026-11-25"
 updated: "2026-11-26"
@@ -17,6 +17,8 @@ links:
   - target: PRB-094
     relation: resolves
   - target: PRB-095
+    relation: resolves
+  - target: PRB-096
     relation: resolves
   - target: SR-017
     relation: relates_to
@@ -81,6 +83,8 @@ links:
   - target: TASK-239
     relation: relates_to
   - target: TASK-240
+    relation: relates_to
+  - target: TASK-241
     relation: relates_to
   - target: ADD-012
     relation: relates_to
@@ -308,6 +312,7 @@ export); TASK-234 and TASK-235 verify it.
 | TASK-240 | Bound the inflation of Deflated DICOM uploads before validation (PRB-094, D-B) | SR-013 AC 6 | RISK-007 | TASK-234 (parallel with 235, 236) |
 | TASK-238 | Documentation: arc42 05, 07, 12, ADD-012, ADD-014, ADD-015, ADD-021, DEPLOY.md (P-2) | SR-017, SR-028 | RISK-003 | TASK-233 to TASK-237, TASK-240 |
 | TASK-239 | Verification, risk re-score, PRB-048, PRB-046 and PRB-094 resolutions | SR-017 AC 6 to AC 11, SR-013 AC 6 | RISK-003, RISK-007 | all |
+| TASK-241 | Fix the smoke test's object-store round trip (PRB-096, D-E) | SR-040 AC 3, AC 5 | — | TASK-239 |
 
 Build order: TASK-233, TASK-234, then TASK-235, TASK-236 and TASK-240 (parallel), TASK-237 (any time),
 TASK-238, TASK-239. TASK-234 1.1 puts the transfer-syntax read and the bounded inflation in the host
@@ -369,9 +374,9 @@ Executed by TASK-239 on 2026-11-26 on branch `bug/dicom-module-install`, head 5b
 - Suites: module suite 84 passed; `tests/modules` 119; backend 1775 passed and 10 skipped, coverage 95.24 %; Ruff, Black, `mypy app` and `mypy` of the module clean; OpenAPI export identical to the committed file; frontend (Node 20.19.0) 412 passed, lint, typecheck and build clean; infra tests 178.
 - Clean checkout: `uv sync --frozen --python 3.12`, entry points `['dicom-viewer']` (PRB-048).
 - Negative controls, each failing as expected and passing restored: pre-TASK-233 image (image check exit 1), package uninstalled (TC-010.8), allow-list removed (TC-019.6), upload inflation check removed (TC-007.18), entry-point target `:nope` (the new `discover_modules()` assertion).
-- Started stack (a scratch Compose project): module route 401 unauthenticated and 403 without the module; frame bytes equal to the known values, `?frame=<frames>` 400, JPEG Baseline 400 `dicom_transfer_syntax_unsupported`, whole object byte-identical; a deflate bomb under 1 MiB stored refused 400 in 1.8 s with the backend at 152 to 153 MiB and no restart (PRB-094). Smoke test: 75 passed, 1 failed (PRB-096, an older defect of the smoke test, outside this CR).
-- PRB-048, PRB-046, PRB-094 and PRB-095 are `resolved` (PRB-095 by D-D: a fixed UID in the stored-bound test). RISK-003 (4 × 2) and RISK-007 (3 × 2) re-scored from the evidence, both alarp, unchanged; both stay `in_review` for the human's acceptance.
-- Not verified: the Docker Build job and the full workflow on hosted CI (verified on hosted CI after push); the first rendered image within 10 s (SR-026 AC 3, #29); smoke test "0 failed" (PRB-096).
+- Started stack (a scratch Compose project): module route 401 unauthenticated and 403 without the module; frame bytes equal to the known values, `?frame=<frames>` 400, JPEG Baseline 400 `dicom_transfer_syntax_unsupported`, whole object byte-identical; a deflate bomb under 1 MiB stored refused 400 in 1.8 s with the backend at 152 to 153 MiB and no restart (PRB-094). Smoke test: 75 passed, 1 failed on 2026-11-26 (PRB-096, an older defect of the smoke test); after TASK-241 it reads 79 passed, 0 failed on a started stack with every service built.
+- PRB-048, PRB-046, PRB-094, PRB-095 and PRB-096 are `resolved` (PRB-095 by D-D: a fixed UID in the stored-bound test). RISK-003 (4 × 2) and RISK-007 (3 × 2) re-scored from the evidence, both alarp, unchanged; both stay `in_review` for the human's acceptance.
+- Not verified: the Docker Build job and the full workflow on hosted CI (verified on hosted CI after push); the first rendered image within 10 s (SR-026 AC 3, #29).
 
 ## Assumptions
 
@@ -428,6 +433,12 @@ Executed by TASK-239 on 2026-11-26 on branch `bug/dicom-module-install`, head 5b
   TASK-239 with a fixed UID in `test_size_bounds.py`. Relayed by the coordinating agent; the human's
   MedTrace approval confirms it.
 
+- **D-E (2026-11-26):** the human answered in chat: PRB-096 (the smoke test's object-store round trip
+  calls `put_object` with the signature replaced in TASK-135, so the smoke test always reports one
+  failure) is taken into CR-008 and resolved by TASK-241, which also takes the TASK-239 QA findings
+  QA-2 to QA-5. The human also approved pushing the branch and opening the PR once TASK-241 is
+  approved. Relayed by the coordinating agent; the human's MedTrace approval confirms it.
+
 ## Version history
 
 - 1.0 (2026-11-25) — Specify stage of /ship-feature for GitHub sancharly/medhub#35 (Product Owner role).
@@ -444,3 +455,5 @@ Executed by TASK-239 on 2026-11-26 on branch `bug/dicom-module-install`, head 5b
 - 1.3 (2026-11-26) — D-D recorded: PRB-095 taken into scope with `resolves`, fixed in TASK-239
   (orchestrator).
 - 1.4 (2026-11-26) — TASK-239: Verification summary added (Software Developer role). Status stays `in_progress`.
+- 1.5 (2026-11-26) — D-E recorded: PRB-096 taken into scope with `resolves`, fixed in TASK-241
+  (orchestrator).

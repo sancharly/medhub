@@ -3,7 +3,7 @@ id: "TASK-239"
 type: task
 title: "Verify CR-008 end to end, re-score the risks and record the PRB resolutions"
 status: approved
-version: "1.2"
+version: "1.3"
 author: "Carlos Santiago Liceras"
 created: "2026-11-25"
 updated: "2026-11-26"
@@ -151,7 +151,7 @@ Run on branch `bug/dicom-module-install`, head `5bd10e7` plus this task's uncomm
 **Step 4, started stack.** Docker pulls did not stall: every image was local or cached. A scratch Compose project `tcheck` beside the user's running `infra` dev stack (not touched): a copy of `infra/docker-compose.yml` with absolute build contexts, subnet 10.78.78.0/24, the proxy published on `127.0.0.1:18443`, `frontend` using the local image `infra-frontend:latest` (no npm download), throwaway secrets generated for this run (never printed or kept), backend built from the working tree. The `tcheck` project was removed with `down -v --rmi local` afterwards (volumes, networks and images; no `tcheck` volume or image remains), and its secrets and test accounts deleted.
 
 - `entry_points(group='medhub.modules')` in the backend container is `['dicom-viewer']`; `check_image_modules.py /app` exits 0 there.
-- `bash smoke-test.sh` (a copy with `https://localhost` changed to the published port): 75 passed, 1 failed. Check 9b: `[PASS] unauthenticated GET /modules/dicom-viewer/studies/<uuid> returns 401` (TC-010.9). The one failure, `'backend' stores and reads back an object: TypeError: ObjectStorageClient.put_object() missing 1 required positional argument: 'content_type'`, is an older defect of the smoke test itself, raised as PRB-096 (not CR-008). "0 failed" was therefore not reached.
+- `bash smoke-test.sh` (a copy with `https://localhost` changed to the published port): 75 passed, 1 failed. That is 76 checks, not the 79 of a stack with every service built: the scratch project ran `frontend` from `image: infra-frontend:latest` without `build:`, so section 11 skipped its three frontend non-root checks (SR-041). After PRB-096 was fixed (TASK-241) the run with the frontend built reads 79 passed, 0 failed. Check 9b: `[PASS] unauthenticated GET /modules/dicom-viewer/studies/<uuid> returns 401` (TC-010.9). The one failure, `'backend' stores and reads back an object: TypeError: ObjectStorageClient.put_object() missing 1 required positional argument: 'content_type'`, is an older defect of the smoke test itself, raised as PRB-096 (not CR-008). "0 failed" was therefore not reached.
 - Flow (accounts created by a seed script in the backend container, everything else over HTTPS through the proxy): sysadmin created a group and enabled `dicom-viewer`; before enabling, a doctor in the group got 403; the patient granted consent to the doctor; the doctor created a clinical entry and uploaded:
   - a 4-frame 16-bit uncompressed object (33 264 bytes): `GET /studies/{id}` 200 `application/dicom`, SHA-256 equal to the upload; `?frame=0` and `?frame=3` 200 `application/octet-stream`, 8192 bytes equal to the known values (78 ms, 16 ms); `?frame=4` 400 "Frame 4 out of range; this DICOM has 4 frames.";
   - a JPEG Baseline object: `?frame=0` 400 `dicom_transfer_syntax_unsupported`; whole-object GET byte-identical;
@@ -251,3 +251,5 @@ reaches them yet (TR-001 and TR-002 date from 2026-10-21), so a release needs a 
 - 1.1 (2026-11-25) — CR-008 D-B: depends on TASK-240; also verifies and resolves PRB-094 (TC-007.18, started-stack upload of a deflate bomb); `implements` SR-013 added. `draft`.
 - 1.2 (2026-11-26) — D-D: PRB-095 added to the task's links. Implemented (Software Developer role): verification executed, records updated, carried QA items closed. `in_review`.
 - 1.2 (2026-11-26, QA) — QA review round 1: APPROVED with LOW QA-1 to QA-5; acceptance criteria and DoD ticked. `approved`.
+- 1.3 (2026-11-26) — TASK-239 QA-2: the 76 versus 79 smoke count explained; the later 79-passed, 0-failed run noted (TASK-241). Content change on an approved record, so the status returns to `in_review`.
+- 1.3 (2026-11-26, QA) — QA review of TASK-241 (round 1): the 1.3 edit is the QA-2 sentence only; QA-1 to QA-5 closed (QA-1 by D-E and TASK-241). `approved` (status only; content unchanged).
