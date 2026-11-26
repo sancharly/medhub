@@ -104,6 +104,8 @@ Everything else is unchanged: the attachment routes keep their signatures (the u
 
 ### Module endpoint of CR-008
 
+The table lists the responses CR-008 added or changed, and the unchanged `401`, `403` and `404` of every module route.
+
 Provider `SI-MOD-DICOM-BE`, mounted under `/api/v1/modules/dicom-viewer` when the module is installed (section 7). The module router is not part of the core OpenAPI export (`backend/openapi/openapi.json`), so no generated type changes; the route's `responses=` documents it. Layout and rules: ADD-015.
 
 | Endpoint | Response | Contract |
@@ -112,6 +114,7 @@ Provider `SI-MOD-DICOM-BE`, mounted under `/api/v1/modules/dicom-viewer` when th
 | `GET /api/v1/modules/dicom-viewer/studies/{attachment_id}?frame=N` | `200` `application/octet-stream` | The samples of frame N (`ndarray.tobytes()`, no header); byte layout in ADD-015 "Frame response". Frame decoding supports five lossless transfer syntaxes (ADD-015); `frame` is a non-negative integer |
 | same | `400` `dicom_transfer_syntax_unsupported` | Added by CR-008: a transfer syntax outside the allow-list, or none declared; the problem names the UID when it is well formed. The object stays downloadable whole |
 | same | `400` other rules | `dicom_stored_size_exceeded` (150 MiB), `dicom_decoded_size_exceeded` (inflated or declared size over 1 GiB), `dicom_decode_failed` (not decodable, or not matching the header's frame shape and count); a frame number out of range |
+| same | `401`, `403`, `404` | As for every module route, not changed by CR-008: `401` no valid session; `403` the module is not enabled for the user, or the user may not open the attachment; `404` the attachment or its stored object does not exist |
 | same | `502` | Stored object failed its checksum verification |
 
 ### API contract changes of CR-007

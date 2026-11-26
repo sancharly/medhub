@@ -2,11 +2,11 @@
 id: "PRB-094"
 type: problem-report
 title: "DICOM upload validation inflates a Deflated object without a bound"
-status: open
-version: "1.1"
+status: resolved
+version: "1.2"
 author: "Carlos Santiago Liceras"
 created: "2026-11-25"
-updated: "2026-11-25"
+updated: "2026-11-26"
 criticality: major
 links: []
 tags: ["hazard:availability", "dicom", "security", "found-in:CR-008-plan"]
@@ -67,15 +67,15 @@ needs to be installed. The stored data is not changed: the failed upload stores 
 
 ## Resolution
 
-Not fixed yet. Taken into CR-008 by the human's decision of 2026-11-25 (CR-008 D-B); planned as TASK-240
-(bounded inflation before `dcmread`, the TASK-234 mechanism and the 1 GiB `dicom_max_decoded_bytes`
-setting). The `resolves` link is on CR-008.
+Resolved in CR-008 (D-B; the `resolves` link is on CR-008), verified in the working tree on 2026-11-26 (TASK-239, branch `bug/dicom-module-install`, head 5bd10e7 plus the task's working-tree changes).
 
-TASK-240 implemented (2026-11-25, `in_review`): `validate_dicom` reads the transfer syntax from the file meta
-information and, for Deflated Explicit VR Little Endian, runs `check_inflated_size` against
-`dicom_max_decoded_bytes()` before `pydicom.dcmread`; above the bound it answers a 400 `ValidationProblem`
-(rule `dicom_decoded_size_exceeded`), nothing is stored. Verified by TS-007 TC-007.18. Status stays `open`:
-TASK-239 records the executed result and sets `resolved`.
+What changed: **TASK-240**. `validate_dicom` (`backend/app/attachments/dicom_validation.py`) reads the transfer syntax from the file meta information and, for Deflated Explicit VR Little Endian, runs `check_inflated_size` (the bounded helper of `backend/app/modules/dicom_support.py`, TASK-234) against `dicom_max_decoded_bytes()` before `pydicom.dcmread`; above the bound it raises a 400 `ValidationProblem`, rule `dicom_decoded_size_exceeded`, and nothing is stored. Other syntaxes are unchanged. A valid Deflated upload within the bound is still inflated whole by pydicom, up to about 1 GiB (RISK-007, CR-008 Q-2).
+
+Verification (2026-11-26):
+- TS-007 TC-007.18, `backend/tests/attachments/test_dicom_validation.py`: 14 passed; the within-bound and other-syntax tests now assert the returned Modality, PatientID and StudyDate values (TASK-240 QA-2).
+- Negative control: with the inflation check removed, `test_deflate_bomb_upload_refused_and_nothing_stored` and `test_deflate_bomb_through_validate_dicom_on_a_spooled_file` fail; restored, all 14 pass.
+- Started stack: a 1 044 152-byte Deflated upload inflating above 1 GiB, sent by a doctor with access, answered 400 `dicom_decoded_size_exceeded` in 1.8 s; the backend container stayed at 152 to 153 MiB (idle 152 MiB, `docker stats`), `RestartCount` 0, no OOM kill, one "Booting worker" line in the log (the start), and no attachment row was created; a small valid Deflated upload was accepted and downloaded byte-identical.
+- Hosted CI: the Docker Build job (including the TASK-236 image check) and the full workflow run only after the human approves a push; their result is verified on hosted CI after push and is not claimed here.
 
 ## Source
 
@@ -86,3 +86,4 @@ references above. SOUP-015 1.3 "Review of 2026-11-25".
 
 - 1.0 (2026-11-25) — Created at the CR-008 Plan stage (Software Architect role); taken into CR-008 (D-B).
 - 1.1 (2026-11-25) — TASK-240 implemented and handed to QA; status unchanged (`open`).
+- 1.2 (2026-11-26) — Resolved (TASK-239, CR-008): "Not fixed yet" replaced by the Resolution above. The human closes the PRB in MedTrace after the merge.

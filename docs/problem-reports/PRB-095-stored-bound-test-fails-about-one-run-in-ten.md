@@ -2,14 +2,14 @@
 id: "PRB-095"
 type: problem-report
 title: "TC-019.4 reference-study test fails about one run in 45 (random UID length)"
-status: open
-version: "1.1"
+status: resolved
+version: "1.2"
 author: "Carlos Santiago Liceras"
 created: "2026-11-25"
-updated: "2026-11-25"
+updated: "2026-11-26"
 criticality: minor
 links: []
-tags: ["test", "backend", "found-in:TASK-235", "outside:CR-008"]
+tags: ["test", "backend", "found-in:TASK-235", "cr:CR-008"]
 ---
 
 # PRB-095 — TC-019.4 reference-study test fails about one run in 45 (random UID length)
@@ -32,7 +32,11 @@ No safety impact and no contribution to a RISK: test-only, and a false red, neve
 
 ## Resolution
 
-Not yet resolved.
+Resolved in CR-008 (D-D; the `resolves` link is on CR-008) by TASK-239, verified in the working tree on 2026-11-26.
+
+What changed: `_dicom` in `backend/modules/dicom_viewer/tests/test_size_bounds.py` sets the Media Storage SOP Instance UID to the fixed `SOP_INSTANCE_UID` of `backend/modules/dicom_viewer/tests/fixtures.py` (as the other fixtures do) instead of `generate_uid()`, so the base and the padded object encode the same length and `_padded_to(MAX_STORED, ...)` reaches the bound exactly. Test only; the product code is unchanged.
+
+Verification: looping `_padded_to(MAX_STORED, 8192, 8192, 8)` 3000 times with the fixed UID gave 0 mismatches against `MAX_STORED`. Control, the same loop with a random UID per build: 54 mismatches in 3000 (1.8 %; QA measured 68 in 3000 on 2026-11-25). The module suite (84 tests) passes. Hosted CI is not needed for a test-only change but runs after push like the rest.
 
 ## Source
 
@@ -42,3 +46,4 @@ TASK-235 development (2026-11-25).
 
 - 1.0 (2026-11-25) — Created from TASK-235. `open`, `minor`, outside CR-008.
 - 1.1 (2026-11-25) — TASK-235 QA round 1 (R1-5): title and figures corrected (about one run in 45, not one in ten). Still `open`; the human decides whether it is resolved in CR-008.
+- 1.2 (2026-11-26) — Resolved (TASK-239, CR-008 D-D): fixed UID in `_dicom`; 0 mismatches in 3000 builds. The human closes the PRB in MedTrace after the merge.

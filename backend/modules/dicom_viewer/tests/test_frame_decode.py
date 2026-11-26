@@ -26,6 +26,7 @@ from tests.fixtures import (
     build_dicom,
     build_frame_count_mismatch,
     build_rle,
+    build_trailing_pixel_data,
     build_ybr,
 )
 from tests.test_size_bounds import FakeObjectStore, _assert_problem, _attachment, _client, _get
@@ -166,6 +167,32 @@ def test_frame_count_disagreeing_with_the_data_is_refused(
         resp = _get(client, attachment, n)
         _assert_problem(resp, "dicom_decode_failed")
         assert bytes(range(1, 13)) not in resp.content
+
+
+@pytest.mark.parametrize(
+    ("extra", "refused"),
+    [(2, False), (30, False), (32, True)],
+    ids=["two-extra-bytes", "thirty-extra-bytes", "one-whole-extra-frame"],
+)
+def test_trailing_pixel_data_under_one_frame_is_ignored_a_whole_frame_refused(
+    extra: int, refused: bool
+) -> None:
+    """TC-019.13 (SR-017 AC 9; ADD-015 "Frame response"): bytes after the last frame, fewer than
+    one frame's worth, are dropped by the decode and the exact frame is served; a whole extra frame
+    is a header mismatch and no frame is returned."""
+    data, frame = build_trailing_pixel_data(extra)
+    attachment = _attachment(data)
+    client = _client(attachment, FakeObjectStore(data))
+
+    resp = _get(client, attachment, 0)
+
+    if refused:
+        _assert_problem(resp, "dicom_decode_failed")
+        assert frame not in resp.content
+    else:
+        assert resp.status_code == 200
+        assert resp.headers["content-type"] == "application/octet-stream"
+        assert resp.content == frame
 
 
 def test_negative_frame_is_refused_before_decoding() -> None:

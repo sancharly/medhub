@@ -21,7 +21,7 @@ from dicom_viewer.router import build_router
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from pydicom.dataset import Dataset, FileMetaDataset
-from pydicom.uid import ExplicitVRLittleEndian, generate_uid
+from pydicom.uid import ExplicitVRLittleEndian
 
 from app.api.deps import get_current_user, get_platform_services
 from app.api.errors import register_error_handlers
@@ -31,7 +31,12 @@ from app.authz.service import AuthorizationService
 from app.db.models.account import Account, AccountStatus, UserType
 from app.db.models.attachment import Attachment
 from app.modules.platform_services import PlatformServices
-from tests.fixtures import build_compressed, build_dicom, build_short_pixel_data
+from tests.fixtures import (
+    SOP_INSTANCE_UID,
+    build_compressed,
+    build_dicom,
+    build_short_pixel_data,
+)
 
 # The module's own ``tests`` package shadows backend/tests, so the shared fake store (TASK-217)
 # is loaded by path.
@@ -52,7 +57,8 @@ def _dicom(rows: int, columns: int, *, frames: int = 1, bits: int = 16, pixel_by
     """A synthetic dataset: the header declares the size, ``pixel_bytes`` of OB data follow."""
     meta = FileMetaDataset()
     meta.MediaStorageSOPClassUID = "1.2.840.10008.5.1.4.1.1.7"
-    meta.MediaStorageSOPInstanceUID = generate_uid()
+    # A fixed UID: a random one varies in encoded length and misses the exact size (PRB-095).
+    meta.MediaStorageSOPInstanceUID = SOP_INSTANCE_UID
     meta.TransferSyntaxUID = ExplicitVRLittleEndian
     ds = Dataset()
     ds.file_meta = meta

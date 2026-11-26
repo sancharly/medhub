@@ -3,10 +3,10 @@ id: "PRB-075"
 type: problem-report
 title: "The backend does not start when a module with group enablement rows is uninstalled or its manifest is rejected"
 status: open
-version: "1.2"
+version: "1.3"
 author: "Carlos Santiago Liceras"
 created: "2026-11-08"
-updated: "2026-11-08"
+updated: "2026-11-26"
 criticality: major
 links: []
 tags: ["modules", "hazard:availability", "found-in:TASK-201-qa"]
@@ -92,6 +92,10 @@ release exists (CR-004 A-1), so no notification is needed. The human sets the fi
 
 Not fixed. Known anomaly outside CR-004, pending the human's decision. It has no `resolves` link.
 
+## Note (2026-11-26, CR-008 TASK-239)
+
+With `dicom-viewer` installed (CR-008, PRB-048) the registry sync now runs at every start; on a started stack on 2026-11-26 the backend started, the sync ran and `GET /api/v1/modules` listed `dicom-viewer`. The failure described here stays unreachable with one module: it needs a second discovered module while one with enablement rows is absent or rejected (RISK-007 1.21 and 1.22, "Change analysis (CR-008)"). Status unchanged, no `resolves` link.
+
 ## Source
 
 TASK-201 QA review 1, finding 1 (`docs/design-outputs/tasks/TASK-201-arc42-and-design-records-for-cr-004.md`).
@@ -99,3 +103,4 @@ TASK-201 QA review 1, finding 1 (`docs/design-outputs/tasks/TASK-201-arc42-and-d
 ## Version history
 
 - 1.0 (2026-11-08) — Created from the TASK-201 QA review. `open`, `major`.
+- 1.3 (2026-11-26) — Dated note from CR-008 TASK-239: the failure stays unreachable with one module installed. Status unchanged (`open`).

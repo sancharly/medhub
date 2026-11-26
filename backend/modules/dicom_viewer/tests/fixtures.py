@@ -161,6 +161,17 @@ def build_frame_count_mismatch(declared: int | None, in_data: int) -> bytes:
     return _write(ds)
 
 
+def build_trailing_pixel_data(extra: int) -> tuple[bytes, bytes]:
+    """A single-frame 4 x 4 16-bit object (one frame is 32 bytes) with ``extra`` bytes after it.
+
+    Returns the object and the frame's bytes (little-endian, the native order of the host).
+    """
+    frame = bytes(range(1, 33))
+    ds = _data_set(ExplicitVRLittleEndian, 4, 4, 1, 1, 16, 0)
+    ds.add_new(0x7FE00010, "OW", frame + bytes(extra))
+    return _write(ds), frame
+
+
 def build_short_pixel_data(*, rows: int = 5, columns: int = 5) -> bytes:
     """An 8-bit object whose pixel data is one byte shorter than the header declares.
 

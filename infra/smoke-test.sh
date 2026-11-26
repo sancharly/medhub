@@ -172,7 +172,8 @@ fi
 echo ""
 echo "-- DICOM module route (SR-017 AC 7) --"
 if command -v curl >/dev/null 2>&1; then
-    STUDY_ID=$(python3 -c 'import uuid; print(uuid.uuid4())')
+    # A fixed UUID: any well-formed id reaches the auth layer, and no python3 is needed to make one.
+    STUDY_ID="00000000-0000-4000-8000-000000000000"
     MODULE_STATUS=$(curl -sk -o /dev/null -w "%{http_code}" \
         "https://localhost/api/v1/modules/dicom-viewer/studies/$STUDY_ID" 2>/dev/null || true)
     case "$MODULE_STATUS" in

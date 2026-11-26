@@ -3,10 +3,10 @@ id: ADD-015
 type: architecture-doc
 title: DICOM Module (backend) (SI-MOD-DICOM-BE)
 status: in_review
-version: "1.4"
+version: "1.5"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-11-25"
+updated: "2026-11-26"
 links:
   - target: SR-016
     relation: implements
@@ -46,7 +46,8 @@ Authorized DICOM byte/frame endpoints behind the module contract
   a decode that fails part-way returns a problem and no image (SR-017 AC 6; SR-026 AC 3; RISK-003,
   RISK-007).
   **CR-008 (TASK-234, TASK-235; implemented).** With `frame=N` the unit checks, in this order and before any
-  decode: the frame number (negative: refused); the stored size (as above); the transfer syntax, read from
+  decode: the frame number (negative: refused); the stored size (as above); the content type (`validate_dicom_content_type`: an attachment whose type is not
+  `application/dicom` is refused, with or without `frame`); the transfer syntax, read from
   the file meta information only (group 0002; SOUP-015), against the allow-list below, refusing any other
   UID, or none, with an RFC 7807 400, rule `dicom_transfer_syntax_unsupported`, naming the UID when it is a
   well-formed one; for Deflated Explicit VR Little Endian only, the inflated size, with a bounded
@@ -133,3 +134,4 @@ Participates in RISK-003, RISK-007 (see `docs/risks/`); the control measures are
 - 1.2 (2026-11-14) — TASK-225 (Document Writer): the "CR-006 (planned, D-2; TASK-218)" marker is removed; the stored and decoded size bounds are implemented as described (TS-019). Wording only. Content change on an approved record, so the 1.1 approval record is cleared and the record returns to review.
 - 1.3 (2026-11-25) — CR-008 Plan stage (Software Architect role): installation as a uv workspace member with module-owned dependencies (ADR-0024), the transfer-syntax allow-list and check order, bounded inflation of Deflated objects, and the `application/octet-stream` frame layout, marked "CR-008 (planned)"; `implements` SR-028 and `relates_to` SOUP-037 added; the "NumPy is not installed" sentence removed. Content change, so the 1.2 approval record is cleared and the record returns to review.
 - 1.4 (2026-11-25) — CR-008 TASK-238 (Document Writer): the "CR-008 (planned)" marker is removed; the check order, allow-list, installation and frame layout are described as built. Frame response corrected to the implementation (samples as stored, no YCbCr conversion; YBR_FULL_422 upsampled; interleaved in native byte order; header match check; trailing data; frame range), upload-path inflation (TASK-240) and its residual added. Content change, so the record stays `in_review` for the human's approval.
+- 1.5 (2026-11-26) — CR-008 TASK-239 (TASK-238 QA-5): the check order names `validate_dicom_content_type` after the stored size. Wording only. Still `in_review`.

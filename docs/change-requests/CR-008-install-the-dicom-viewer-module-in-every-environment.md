@@ -3,10 +3,10 @@ id: CR-008
 type: change-request
 title: Install the DICOM viewer module in every environment and make its frame path work
 status: in_progress
-version: "1.2"
+version: "1.4"
 author: Carlos Santiago Liceras
 created: "2026-11-25"
-updated: "2026-11-25"
+updated: "2026-11-26"
 branch: bug/dicom-module-install
 risk_impact: affects_controls
 links:
@@ -15,6 +15,8 @@ links:
   - target: PRB-046
     relation: resolves
   - target: PRB-094
+    relation: resolves
+  - target: PRB-095
     relation: resolves
   - target: SR-017
     relation: relates_to
@@ -360,6 +362,17 @@ IEC 62304 §8.2.1 (change approval), §8.2.3 (verification of changes), §5.5 (u
 - **Whole change:** backend suite with coverage, module suite, Ruff, Black and mypy; Docker Build job
   including the D-6 step; `traceability-check` with no errors for this CR's records.
 
+## Verification summary
+
+Executed by TASK-239 on 2026-11-26 on branch `bug/dicom-module-install`, head 5bd10e7 plus the task's working-tree changes (details and numbers in the TASK-239 Implementation record).
+
+- Suites: module suite 84 passed; `tests/modules` 119; backend 1775 passed and 10 skipped, coverage 95.24 %; Ruff, Black, `mypy app` and `mypy` of the module clean; OpenAPI export identical to the committed file; frontend (Node 20.19.0) 412 passed, lint, typecheck and build clean; infra tests 178.
+- Clean checkout: `uv sync --frozen --python 3.12`, entry points `['dicom-viewer']` (PRB-048).
+- Negative controls, each failing as expected and passing restored: pre-TASK-233 image (image check exit 1), package uninstalled (TC-010.8), allow-list removed (TC-019.6), upload inflation check removed (TC-007.18), entry-point target `:nope` (the new `discover_modules()` assertion).
+- Started stack (a scratch Compose project): module route 401 unauthenticated and 403 without the module; frame bytes equal to the known values, `?frame=<frames>` 400, JPEG Baseline 400 `dicom_transfer_syntax_unsupported`, whole object byte-identical; a deflate bomb under 1 MiB stored refused 400 in 1.8 s with the backend at 152 to 153 MiB and no restart (PRB-094). Smoke test: 75 passed, 1 failed (PRB-096, an older defect of the smoke test, outside this CR).
+- PRB-048, PRB-046, PRB-094 and PRB-095 are `resolved` (PRB-095 by D-D: a fixed UID in the stored-bound test). RISK-003 (4 × 2) and RISK-007 (3 × 2) re-scored from the evidence, both alarp, unchanged; both stay `in_review` for the human's acceptance.
+- Not verified: the Docker Build job and the full workflow on hosted CI (verified on hosted CI after push); the first rendered image within 10 s (SR-026 AC 3, #29); smoke test "0 failed" (PRB-096).
+
 ## Assumptions
 
 - A-1. Class B is unchanged (`docs/medtrace.yml` `safety_class: B` and `CLAUDE.md` agree).
@@ -410,6 +423,10 @@ IEC 62304 §8.2.1 (change approval), §8.2.3 (verification of changes), §5.5 (u
   helper `backend/app/modules/dicom_support.py` (transfer-syntax read, bounded inflation), used by the
   module and by TASK-240, and its entry in the module-boundary allow-list; and TASK-240, TASK-238 1.1 and
   TASK-239 1.1 with it. Relayed by the coordinating agent; the human's MedTrace approval confirms it.
+- **D-D (2026-11-26):** the human answered in chat: PRB-095 (TC-019.4 stored-bound test fails about one
+  run in 45 because its `_dicom` helper uses a random-length UID) is taken into CR-008 and resolved by
+  TASK-239 with a fixed UID in `test_size_bounds.py`. Relayed by the coordinating agent; the human's
+  MedTrace approval confirms it.
 
 ## Version history
 
@@ -424,3 +441,6 @@ IEC 62304 §8.2.1 (change approval), §8.2.3 (verification of changes), §5.5 (u
   `resolves`; TASK-240 added; TASK-234, TASK-238, TASK-239 revised to 1.1; scope table and "Ask first"
   boundary updated for the `backend/app` upload validation and the shared helper; links `relates_to`
   SR-013, ADD-012, ADD-014 and TASK-240 added; ADR-0024 accepted.
+- 1.3 (2026-11-26) — D-D recorded: PRB-095 taken into scope with `resolves`, fixed in TASK-239
+  (orchestrator).
+- 1.4 (2026-11-26) — TASK-239: Verification summary added (Software Developer role). Status stays `in_progress`.

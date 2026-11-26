@@ -6,6 +6,8 @@ Run inside the production image by the CI job "Docker Build" (SR-017 AC 7, SR-02
 
 The one argument is the application directory (default /app). Exit 0 when:
 - the `medhub.modules` entry points are exactly `dicom-viewer`;
+- `discover_modules()` loads exactly `dicom-viewer`, so an entry point with the right name and a
+  broken target fails;
 - `dicom_viewer.manifest`, `numpy` and `pydicom` import;
 - `<app>/modules` does not exist (the source tree is not shipped, ADR-0024);
 - `dicom_viewer` is imported from `<app>/.venv/lib/python3.X/site-packages/`.
@@ -26,6 +28,18 @@ def failures(app: Path) -> list[str]:
     names = sorted(e.name for e in entry_points(group="medhub.modules"))
     if names != ["dicom-viewer"]:
         problems.append(f"medhub.modules entry points are {names}, expected ['dicom-viewer']")
+
+    # The script runs from <app>/scripts, so put the application itself on the path for `app.*`.
+    if str(app) not in sys.path:
+        sys.path.insert(0, str(app))
+    try:
+        from app.modules.discovery import discover_modules
+
+        keys = [m.module_key for m in discover_modules()]
+        if keys != ["dicom-viewer"]:
+            problems.append(f"discover_modules() loaded {keys}, expected ['dicom-viewer']")
+    except Exception as exc:  # any failure to run discovery is a failed check
+        problems.append(f"discover_modules() failed: {exc!r}")
 
     for module in ("dicom_viewer.manifest", "numpy", "pydicom"):
         try:

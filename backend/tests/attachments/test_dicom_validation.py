@@ -19,6 +19,7 @@ from types import SimpleNamespace
 from typing import Any
 from unittest.mock import MagicMock, patch
 
+import pydicom
 import pytest
 from pydicom.uid import DeflatedExplicitVRLittleEndian, ExplicitVRLittleEndian, JPEGBaseline8Bit
 
@@ -235,14 +236,28 @@ def test_deflate_bomb_through_validate_dicom_on_a_spooled_file() -> None:
     assert reads and max(reads) <= CHUNK
 
 
+EXPECTED_METADATA = {"modality": "CT", "patient_id": "P-0001", "study_date": "20261126"}
+
+
+def _with_metadata(data: bytes) -> bytes:
+    """The same object with a Modality, PatientID and StudyDate, so the values can be asserted."""
+    ds = pydicom.dcmread(io.BytesIO(data))
+    ds.Modality = "CT"
+    ds.PatientID = "P-0001"
+    ds.StudyDate = "20261126"
+    out = io.BytesIO()
+    pydicom.dcmwrite(out, ds, enforce_file_format=True)
+    return out.getvalue()
+
+
 def test_deflated_upload_within_bound_is_accepted() -> None:
     data, _ = fixtures.build_dicom(DeflatedExplicitVRLittleEndian, rows=64, columns=64)
-    fp = io.BytesIO(data)
+    fp = io.BytesIO(_with_metadata(data))
 
     with _decoded_limit():
         result = validate_dicom(fp)
 
-    assert set(result) == {"modality", "patient_id", "study_date"}
+    assert result == EXPECTED_METADATA
     assert fp.tell() == 0
 
 
@@ -285,7 +300,7 @@ def test_non_deflated_upload_unchanged(syntax: str) -> None:
         data, _ = fixtures.build_dicom(syntax)
     else:
         data = fixtures.build_compressed(syntax)
-    fp = io.BytesIO(data)
+    fp = io.BytesIO(_with_metadata(data))
 
     with (
         _decoded_limit(),
@@ -294,5 +309,5 @@ def test_non_deflated_upload_unchanged(syntax: str) -> None:
         result = validate_dicom(fp)
 
     check.assert_not_called()
-    assert set(result) == {"modality", "patient_id", "study_date"}
+    assert result == EXPECTED_METADATA
     assert fp.tell() == 0

@@ -3,10 +3,10 @@ id: "TASK-236"
 type: task
 title: "Fail CI when the production image does not discover the module; smoke test answers 401"
 status: approved
-version: "1.1"
+version: "1.2"
 author: "Carlos Santiago Liceras"
 created: "2026-11-25"
-updated: "2026-11-25"
+updated: "2026-11-26"
 links:
   - target: "SR-017"
     relation: implements
@@ -57,14 +57,14 @@ job; on a started stack an unauthenticated `GET /api/v1/modules/dicom-viewer/stu
 3. If `infra/tests/` has a test that parses `ci.yml` or `smoke-test.sh` (e.g. a step list or pin check),
    update it; `python3 infra/check_image_pins.py` must stay clean (no new `uses:` or tool pins).
 4. Records (same commit): **TS-013** (approved 1.6 → 1.7, `in_review`, remove the approval record): new
-   **TC-013.15** — Verifies SR-017 (AC 7), SR-028; the CI step; "fails on `HEAD` 396e9de (no entry point),
-   passes after TASK-233". **TS-010** (1.5 from TASK-233, stays `in_review`): new **TC-010.9** — the smoke
+   **TC-013.15** — Verifies SR-017 (AC 7), SR-028; the CI step; "fails on the pre-TASK-233 image (no entry point;
+   QA's run on `infra-backend:latest`), passes after TASK-233". **TS-010** (1.5 from TASK-233, stays `in_review`): new **TC-010.9** — the smoke
    check, system level, SR-017 AC 7. Version-history lines.
 
 ## Verification
 
-- Locally, the step's command against `docker build -t medhub-backend:ci ./backend` built at `HEAD` 396e9de
-  (before TASK-233): exit 1; built on the branch after TASK-233: exit 0. Record both.
+- Locally, the step's command against `docker build -t medhub-backend:ci ./backend` built before TASK-233
+  (QA ran it on the pre-TASK-233 image `infra-backend:latest`; hosted CI never builds 396e9de): exit 1; built on the branch after TASK-233: exit 0. Record both.
 - `python3 -m unittest discover -s infra/tests -v` and `python3 infra/check_image_pins.py`: pass.
 - The smoke check is executed on a started stack in TASK-239 (not here); here run `bash -n infra/smoke-test.sh`.
 - `traceability-check` on TASK-236, TS-013, TS-010, CR-008: 0 errors.
@@ -124,9 +124,9 @@ script's checks, so none changed.
   exit 0, `ok: dicom-viewer is discovered from the installed package`; `ls -d /app/modules` in the image: no such file.
   Image-level negative control: the same command with `/nonexistent-app` exits 1 (`dicom_viewer is imported from
   /app/.venv/lib/python3.12/site-packages/dicom_viewer/__init__.py, expected under ...`), which shows the path rule fires.
-  Not run locally: an image built at `HEAD` 396e9de (no entry point) - to be verified on hosted CI, as is the Docker Build job itself.
-- The negative run on `HEAD` 396e9de (image with no entry point) is reproduced by the "package uninstalled" control
-  on the stand-in; the build of that commit and the CI job result are to be verified on hosted CI.
+  Not run locally: the Docker Build job itself (verified on hosted CI after push). The negative run on an image with no entry point is QA's run on the pre-TASK-233 image `infra-backend:latest` (exit 1), repeated in TASK-239 (2026-11-26).
+- The negative run on an image with no entry point is reproduced by the "package uninstalled" control
+  on the stand-in and by QA's run on the pre-TASK-233 image `infra-backend:latest`; the CI job result is verified on hosted CI after push.
 
 ## QA review — round 1 (2026-11-25): APPROVED
 
@@ -149,8 +149,7 @@ image returns `[('dicom-viewer', '0.1.0')]`. Negative controls on this image, ea
 NumPy deleted from site-packages; the `medhub_dicom_viewer` dist-info deleted (entry points `[]`); `/app/modules`
 created. Negative control on a real pre-TASK-233 image: `infra-backend:latest` (built 2026-11-10, old Dockerfile layout
 with `/app/modules`) with the script mounted in: exit 1, five `FAIL:` lines (entry points `[]`, `dicom_viewer.manifest`
-and `numpy` not importable, `/app/modules` exists, `dicom_viewer` not imported). This stands in for the `HEAD` 396e9de
-negative run, which hosted CI will never perform (CI builds the branch, not 396e9de).
+and `numpy` not importable, `/app/modules` exists, `dicom_viewer` not imported). This is the negative run (hosted CI never builds 396e9de, only the branch).
 
 Still only "to be verified on hosted CI": the Docker Build job running this step on the pushed commit (clean checkout,
 linux/amd64 runner) and passing. The started-stack 401 (TC-010.9) is TASK-239.
@@ -192,3 +191,5 @@ style guide declared).
 - 1.0 (2026-11-25) — Created at the CR-008 Plan stage (Software Architect role). `draft`.
 - 1.1 (2026-11-25) — Implemented (software developer role): CI step, `backend/scripts/check_image_modules.py`, smoke check 9b, TS-013 1.7 / TS-010 1.7. `in_review`.
 - 1.1 (2026-11-25, QA) — Round 1 APPROVED (R1-1 MEDIUM, R1-2 to R1-4 LOW, carried to TASK-239); TASK-233 R1-2 image check run on image `57e3d35a9b47`. Status `approved`.
+- 1.2 (2026-11-26) — TASK-239 (QA R1-1, R1-2, R1-4): the HEAD-396e9de wording replaced by QA's run on the pre-TASK-233 image `infra-backend:latest`; the image check also asserts `discover_modules()` (negative control: entry-point target `dicom_viewer.manifest:nope`, exit 1); smoke check 9b uses a fixed UUID. Content change on an approved record, so the status returns to `in_review`.
+- 1.2 (2026-11-26, QA) — QA review of TASK-239 (round 1): R1-1 (`discover_modules()` assertion) and the R1-2 / R1-4 corrections verified; `approved` (status only; content unchanged).
