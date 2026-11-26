@@ -2,14 +2,18 @@
 id: SOUP-037
 type: soup
 title: NumPy
-status: in_review
+status: approved
 version: "1.0"
 author: Carlos Santiago Liceras
 created: "2026-11-25"
-updated: "2026-11-25"
+updated: "2026-11-26"
 manufacturer: NumPy Developers (NumFOCUS fiscally sponsored project)
 soup_version: 2.5.5
 anomaly_review: "2026-11-25"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-11-26"
+approved_digest: b668f38d48b5f998a9b1a29b7a3c699e30fe0d49d515b0a8d5eeba6c04abe0aa
+approval_note: self-approved
 links:
   - target: ADD-015
     relation: relates_to

@@ -2,7 +2,7 @@
 id: RISK-007
 type: risk
 title: Clinical information unavailable when needed
-status: in_review
+status: approved
 version: "1.22"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
@@ -15,6 +15,10 @@ probability_initial: 2
 severity_residual: 3
 probability_residual: 2
 acceptability: alarp
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-11-26"
+approved_digest: 8e766e126c09611410a34be43730ecc351ebb6ee73a803d41cd4ddcce5cfa07e
+approval_note: self-approved
 links:
   - target: SOUP-020
     relation: relates_to

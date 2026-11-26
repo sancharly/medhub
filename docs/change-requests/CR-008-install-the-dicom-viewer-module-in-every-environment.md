@@ -3,7 +3,7 @@ id: CR-008
 type: change-request
 title: Install the DICOM viewer module in every environment and make its frame path work
 status: in_progress
-version: "1.5"
+version: "1.6"
 author: Carlos Santiago Liceras
 created: "2026-11-25"
 updated: "2026-11-26"
@@ -173,7 +173,9 @@ CR confirms. Each states the options and the recommendation; nothing is chosen s
     Explicit VR Big Endian (`1.2.840.10008.1.2.2`, retired) and RLE Lossless (`1.2.840.10008.1.2.5`,
     pydicom's own decoder). Every other syntax — JPEG Baseline/Extended/Lossless, JPEG-LS, JPEG 2000,
     HTJ2K, MPEG/HEVC video, and a missing or unknown UID — is refused before decoding with a 400 problem,
-    rule `dicom_transfer_syntax_unsupported`, naming the UID.
+    rule `dicom_transfer_syntax_unsupported`. The detail names the UID when it is a well-formed UID
+    (PS3.5 §9.1: digits and dots, at most 64 characters); a malformed value is reported as invalid
+    without echoing it, and a missing one as missing.
   - (b) (a) **plus the JPEG family** through decoder plugins (pylibjpeg with `pylibjpeg-libjpeg` and
     `pylibjpeg-openjpeg`, or Pillow, or `python-gdcm`). Each plugin is a new SOUP item with an anomaly
     review, a new RISK-003 cause (decoder defect producing wrong pixels) and a licence review
@@ -186,9 +188,11 @@ CR confirms. Each states the options and the recommendation; nothing is chosen s
 - **D-4. What a frame response is — for approval.** Today a successful `?frame=N` returns
   `pixel_array[N].tobytes()` (raw decoded samples, no rows, columns or data type) labelled
   `application/dicom`, which is wrong: it is not a DICOM object.
-  - (a) Keep the raw samples and label them `application/octet-stream`; document the layout (native
-    little-endian samples of the decoded array, rows x columns x samples per pixel, in the object's
-    declared order) in the route's `responses=` and in ADD-015.
+  - (a) Keep the raw samples and label them `application/octet-stream`; document the layout (frame N
+    only, rows x columns x samples per pixel, samples interleaved per pixel whatever the object's
+    Planar Configuration, in the server's native byte order (little-endian), samples as stored with no
+    colour conversion; a YBR_FULL_422 object upsampled to 3 samples per pixel) in the route's
+    `responses=` and in ADD-015.
   - (b) Return a single-frame DICOM Part-10 object (`application/dicom`) built from the source header and
     frame N. Self-describing, consumable by Cornerstone3D, but needs an encoding path and more tests.
   - (c) Leave as is (rejected: a mislabelled payload is the kind of silent misinterpretation RISK-003 names).
@@ -356,7 +360,8 @@ IEC 62304 §8.2.1 (change approval), §8.2.3 (verification of changes), §5.5 (u
   frame N; frame N = number of frames answers the existing 400 problem. Run in the module suite and once on
   the started stack (TS-019 TC-019.5, backend frame part).
 - **PRB-046, loud refusal (SR-017 AC 10):** a JPEG Baseline, a JPEG 2000 and a missing-UID fixture each
-  answer 400 `application/problem+json` with rule `dicom_transfer_syntax_unsupported` naming the UID, no
+  answer 400 `application/problem+json` with rule `dicom_transfer_syntax_unsupported` (naming the UID
+  when it is well-formed, D-3), no
   pixel bytes, and `pixel_array` never called; negative control: drop the allow-list and the tests fail.
   The PRB-006 tests (TC-019.1 to TC-019.4) stay green, and their order (stored size, then transfer syntax
   or declared size, then decode) is asserted.
@@ -457,3 +462,6 @@ Executed by TASK-239 on 2026-11-26 on branch `bug/dicom-module-install`, head 5b
 - 1.4 (2026-11-26) — TASK-239: Verification summary added (Software Developer role). Status stays `in_progress`.
 - 1.5 (2026-11-26) — D-E recorded: PRB-096 taken into scope with `resolves`, fixed in TASK-241
   (orchestrator).
+- 1.6 (2026-11-26) — D-3 and D-4 wording aligned with the code (TASK-238 note): the refusal names the
+  UID only when it is well-formed; frame samples are always interleaved, as stored, native byte order
+  (orchestrator). No scope or decision change.

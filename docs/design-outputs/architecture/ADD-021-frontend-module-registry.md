@@ -2,11 +2,15 @@
 id: ADD-021
 type: architecture-doc
 title: Frontend Module Registry (SI-FE-MODREG)
-status: in_review
+status: approved
 version: "1.5"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
 updated: "2026-11-26"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-11-26"
+approved_digest: 9b05837c9809382c960c082889f163052bb346306f6458c4c7b71b0b916850d9
+approval_note: self-approved
 links:
   - target: SOUP-028
     relation: relates_to

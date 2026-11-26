@@ -2,11 +2,15 @@
 id: ADD-014
 type: architecture-doc
 title: Module Host / Plugin Registry (SI-MODHOST)
-status: in_review
+status: approved
 version: "1.2"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-11-25"
+updated: "2026-11-26"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-11-26"
+approved_digest: b36e342674efe468b70e2a3b45418adeb76a0c51f9a34907b2cfe79513a17ded
+approval_note: self-approved
 links:
   - target: SR-016
     relation: implements

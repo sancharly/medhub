@@ -2,11 +2,15 @@
 id: ADD-022
 type: architecture-doc
 title: DICOM Viewer Module (frontend) (SI-MOD-DICOM-FE)
-status: in_review
+status: approved
 version: "1.1"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-11-25"
+updated: "2026-11-26"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-11-26"
+approved_digest: a31f884c7ae2b1eb906e83bacae646add9e71235e6f6d11f0c4ba8bc35957649
+approval_note: self-approved
 links:
   - target: SR-017
     relation: implements

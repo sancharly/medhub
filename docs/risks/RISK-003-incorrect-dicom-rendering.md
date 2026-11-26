@@ -2,7 +2,7 @@
 id: RISK-003
 type: risk
 title: DICOM image rendered incorrectly or the wrong study displayed
-status: in_review
+status: approved
 version: "1.7"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
@@ -15,6 +15,10 @@ probability_initial: 3
 severity_residual: 4
 probability_residual: 2
 acceptability: alarp
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-11-26"
+approved_digest: a64868a028696df5a4e00a85b95058237cc9fd4996289e6109c25db232a12f34
+approval_note: self-approved
 links:
   - target: SOUP-015
     relation: relates_to

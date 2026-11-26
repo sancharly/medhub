@@ -2,11 +2,15 @@
 id: SR-017
 type: software-requirement
 title: DICOM image opening and rendering
-status: in_review
+status: approved
 version: "1.7"
 author: Carlos Santiago Liceras
 created: "2026-07-07"
-updated: "2026-11-25"
+updated: "2026-11-26"
+approved_by: Carlos Santiago Liceras
+approved_on: "2026-11-26"
+approved_digest: 20d32a9009f3dc5ef5b4f244b4a46369a4c96deaa91b709accd2068c5c1c1cc1
+approval_note: self-approved
 links:
   - target: RR-009
     relation: satisfies
