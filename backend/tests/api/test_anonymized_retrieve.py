@@ -110,7 +110,11 @@ def rate_env(monkeypatch):
     app = create_app()
     app.dependency_overrides[get_redis] = lambda: fakeredis.FakeRedis(server=server)
     retrieve = MagicMock(return_value=_make_dataset())
-    with patch("app.identity.erasure.ErasureService.retrieve_anonymized", retrieve):
+    # The DICOM viewer module is installed (CR-008); this fixture needs no module registry sync.
+    with (
+        patch("app.identity.erasure.ErasureService.retrieve_anonymized", retrieve),
+        patch("app.modules.discovery.discover_modules", return_value=[]),
+    ):
         yield app, retrieve
     get_settings.cache_clear()
 

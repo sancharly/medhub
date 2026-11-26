@@ -276,6 +276,8 @@ the module, enabled or not. Disabling the module for the groups does not help: i
 re-raises, so the backend does not start. Remedy: fix the manifest, or reinstall the previous version
 of the module, then restart the backend. This is a known defect (PRB-075).
 
+**The DICOM viewer module.** The module is part of the backend image; there is nothing to install. Being in the image does not enable it: a system administrator enables it per group. Per-frame decoding (`?frame=`) supports Implicit VR Little Endian, Explicit VR Little Endian, Deflated Explicit VR Little Endian, Explicit VR Big Endian and RLE Lossless. Every other transfer syntax (JPEG, JPEG-LS, JPEG 2000, HTJ2K, video) is refused there with `dicom_transfer_syntax_unsupported`; such an object stays downloadable whole (without `frame`).
+
 ### 5. Check the object store
 
 There is nothing to create by hand: the bucket is created by the stack. The object store is

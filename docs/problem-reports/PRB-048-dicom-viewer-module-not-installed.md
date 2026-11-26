@@ -2,11 +2,11 @@
 id: "PRB-048"
 type: problem-report
 title: "DICOM viewer module is not installed in any environment"
-status: open
-version: "1.1"
+status: resolved
+version: "1.2"
 author: "Carlos Santiago Liceras"
 created: "2026-10-22"
-updated: "2026-11-15"
+updated: "2026-11-26"
 criticality: major
 links: []
 tags: ["configuration-management", "modules", "dicom"]
@@ -84,6 +84,25 @@ In a separate CR (outside CR-001):
 - Plan PRB-046 (NumPy and transfer syntaxes) and PRB-006 (decode bound) in the same change, since
   installing the module makes their path reachable.
 
+## Resolution
+
+Resolved in CR-008 (the `resolves` link is on CR-008), verified in the working tree on 2026-11-26 (TASK-239, branch `bug/dicom-module-install`, head 5bd10e7 plus the task's working-tree changes).
+
+What changed:
+- **TASK-233** (D-1, D-7): `medhub-dicom-viewer` is a uv workspace member and a dependency of `medhub-backend` (`backend/pyproject.toml`, `backend/uv.lock`); the production image installs it non-editable (`backend/Dockerfile`, `uv sync --frozen --no-dev --no-editable`) and no longer ships `modules/` source; the module suite runs with `--import-mode=importlib` against the installed package (ADR-0024).
+- **TASK-236** (D-6): `backend/scripts/check_image_modules.py` and a Docker Build step fail the build when the image does not discover the module; `infra/smoke-test.sh` checks 401, not 404, on the module route.
+- **TASK-237** (D-5): the "Open in viewer" link, which opened the raw download, is removed; Download stays.
+- **TASK-238**: arc42, ADD, DEPLOY.md and SR-017 updated.
+
+Verification (2026-11-26):
+- Fresh clone of the branch (head 5bd10e7), `cd backend && uv sync --frozen --python 3.12`, then the CR-008 entry-point command prints `['dicom-viewer']`.
+- Image built from the branch with the project's Compose file: `entry_points(group='medhub.modules')` is `['dicom-viewer']` and `python scripts/check_image_modules.py /app` exits 0. The same check run against the pre-TASK-233 image `infra-backend:latest` exits 1 (no entry point, no `dicom_viewer`, no NumPy, `/app/modules` present). A stand-in install whose entry-point target is `dicom_viewer.manifest:nope` also exits 1 (a name-only check would have passed).
+- Started stack (a scratch Compose project, branch image): `GET /api/v1/modules/dicom-viewer/studies/<uuid>` unauthenticated answers 401; a doctor of a group without the module enabled answers 403; after a system administrator enabled `dicom-viewer` for the group, the doctor reaches the route (smoke test: `[PASS]` for the 401 check, TS-010 TC-010.9).
+- Module guard tests (TS-010 TC-010.8) pass; negative control: with `medhub-dicom-viewer` uninstalled the three guard tests fail, reinstalled they pass.
+- Frontend (TS-019 TC-019.12): suite 412 passed on Node 20.19.0, lint, typecheck and build clean.
+- Hosted CI: the Docker Build job (including the TASK-236 image check) and the full workflow run only after the human approves a push; their result is verified on hosted CI after push and is not claimed here.
+- Not part of this resolution: the viewer itself (#29) and the "first rendered image within 10 s" case (SR-026 AC 3), which stay with the viewer phase.
+
 ## Source
 
 Found by the QA review of TASK-154 (CR-001, 2026-10-22), while checking PRB-046 and SOUP-015.
@@ -93,3 +112,7 @@ source lines.
 ## Note (2026-11-15, CR-006 TASK-226)
 
 SR-026 AC 3 (the first rendered DICOM image within 10 s) is not verified by CR-006 and stays unverified until this problem report and PRB-046 are both resolved: on a started stack the viewer route is not mounted and the decode cannot run (TS-018 TC-018.11, TS-019 TC-019.5). CR-006 verifies the stored and decoded size bounds only (TASK-218, TS-019 TC-019.1 to TC-019.4); the deferral follows D-20 and is for the human to confirm.
+
+## Version history
+
+- 1.2 (2026-11-26) — Resolved (TASK-239, CR-008): fix and verification recorded in "Resolution". The human closes the PRB in MedTrace after the merge.

@@ -2,11 +2,11 @@
 id: "PRB-046"
 type: problem-report
 title: "DICOM frame extraction cannot work in the production image: NumPy is not declared"
-status: open
-version: "1.1"
+status: resolved
+version: "1.2"
 author: "Carlos Santiago Liceras"
 created: "2026-10-22"
-updated: "2026-11-15"
+updated: "2026-11-26"
 criticality: minor
 links: []
 tags: ["soup", "configuration-management", "dicom"]
@@ -71,6 +71,22 @@ bound on the same path):
   fixtures, plus a production-image import check like TS-013 TC-013.8.
 - Update SOUP-015 and add SOUP records for the new items.
 
+## Resolution
+
+Resolved in CR-008 (the `resolves` link is on CR-008), verified in the working tree on 2026-11-26 (TASK-239, branch `bug/dicom-module-install`, head 5bd10e7 plus the task's working-tree changes).
+
+What changed:
+- **TASK-233**: NumPy 2.5.5 is a declared runtime dependency of the module and is in the lock and the image (SOUP-037); the real decode runs in the module suite and in the image.
+- **TASK-234** (D-3 (a), SR-017 AC 10): the frame path reads the transfer syntax from the file meta information and serves only Implicit and Explicit VR Little Endian, Deflated Explicit VR Little Endian, Explicit VR Big Endian and RLE Lossless; any other UID, or none, is refused with a 400 `dicom_transfer_syntax_unsupported` before any decode; Deflated objects are inflated with a bounded decompressor (`backend/app/modules/dicom_support.py`).
+- **TASK-235** (D-4, SR-017 AC 9): a frame is returned as `application/octet-stream` in the documented ADD-015 layout; the whole object stays `application/dicom` and byte-identical.
+- **TASK-238**: documentation of the supported syntaxes and layout.
+
+Verification (2026-11-26):
+- Module suite 84 passed (TS-019 TC-019.6 to TC-019.11 and TC-019.13: real decodes of generated objects compared with the known values, five syntaxes, single and multi frame, 8-bit, signed 16-bit and RGB; trailing bytes under one frame ignored, a whole extra frame refused).
+- Negative control: with the allow-list removed the TC-019.6 tests fail (rule `dicom_decode_failed` instead of `dicom_transfer_syntax_unsupported`); restored, they pass.
+- Started stack (TS-019 TC-019.5, backend frame part): a 4-frame 16-bit uncompressed object uploaded by a doctor; `GET .../studies/{id}` answered 200 `application/dicom` with a SHA-256 equal to the upload; `?frame=0` and `?frame=3` answered 200 `application/octet-stream` with bytes equal to the known values (78 ms and 16 ms); `?frame=4` answered 400 "Frame 4 out of range; this DICOM has 4 frames."; a JPEG Baseline object with `?frame=0` answered 400 `dicom_transfer_syntax_unsupported`, and its whole-object GET returned the stored bytes. The "first rendered image within 10 s" part of TC-019.5 stays deferred to #29 (SR-026 AC 3).
+- Hosted CI: the Docker Build job (including the TASK-236 image check) and the full workflow run only after the human approves a push; their result is verified on hosted CI after push and is not claimed here.
+
 ## Source
 
 Raised by TASK-154, the first SOUP anomaly-list review (CR-001 AC-12, backend slice), on
@@ -79,3 +95,7 @@ Raised by TASK-154, the first SOUP anomaly-list review (CR-001 AC-12, backend sl
 ## Note (2026-11-15, CR-006 TASK-226)
 
 SR-026 AC 3 (the first rendered DICOM image within 10 s) is not verified by CR-006 and stays unverified until this problem report and PRB-048 are both resolved: on a started stack the viewer route is not mounted and the decode cannot run (TS-018 TC-018.11, TS-019 TC-019.5). CR-006 verifies the stored and decoded size bounds only (TASK-218, TS-019 TC-019.1 to TC-019.4); the deferral follows D-20 and is for the human to confirm.
+
+## Version history
+
+- 1.2 (2026-11-26) — Resolved (TASK-239, CR-008): fix and verification recorded in "Resolution". The human closes the PRB in MedTrace after the merge.

@@ -31,6 +31,15 @@ A single-tenant deployment (one organization per instance) orchestrated with **D
 - No service reads `infra/.env` as a whole. Each service lists the settings it reads, so the owner password reaches `postgres` and `db-migrate` only, and the API gets no SMTP credential. `celery-beat` holds object-store and field-key settings it does not use, and `db-migrate` holds object-store settings it does not use (it does use the field keyring), because the shared start-up rule checks them; narrowing this is an open decision (section 11).
 - Proxy logging: the access log is an allow-list JSON format with no request line, query string or header, and the two activation paths replaced by `[redacted]`; the activation locations log errors at `crit` only and the activation page sends `Referrer-Policy: no-referrer` (SR-043 AC 4).
 
+## Backend image and installed modules (CR-008)
+
+Decision: [ADR-0024](adr/0024-backend-modules-installed-as-uv-workspace-members.md). Image: `backend/Dockerfile`.
+
+- The builder stage copies `pyproject.toml`, `uv.lock` and `modules/`, and runs `uv sync --frozen --no-dev --no-editable`: every module, with its own dependencies (for the DICOM module `pydicom` and `numpy`), is installed from the lock as a built package. The runtime stage copies only the virtual environment, `alembic.ini`, `app/`, `scripts/` and the entry script; it does not ship `modules/`, so the module runs from `site-packages` and its entry point (group `medhub.modules`) is what start-up discovery finds (`U-MH-Discovery`, section 5).
+- Development and CI install workspace members editable (`uv sync --frozen`); only the image runs the built package, so a packaging defect shows in the image check.
+- The Docker Build job in `.github/workflows/ci.yml` runs `backend/scripts/check_image_modules.py` inside the built image and fails unless the `medhub.modules` entry points are exactly `dicom-viewer`, `dicom_viewer.manifest`, `numpy` and `pydicom` import, `/app/modules` does not exist, and `dicom_viewer` is imported from the virtual environment's `site-packages` (TS-013 TC-013.15, TASK-236). The started-stack smoke test (`infra/smoke-test.sh`) expects 401, not 404, for an unauthenticated `GET /api/v1/modules/dicom-viewer/studies/<uuid>`. The module suite has the matching guard for the test environment (TS-010 TC-010.8).
+- Installing a module makes it available, not enabled; a system administrator enables it per group. The operator's note is in `infra/DEPLOY.md`, "Module manifests".
+
 ## Object store network and start-up order
 
 Software item: SI-OBJSTORE ([05 building blocks](05-building-blocks.md)). Compose file: `infra/docker-compose.yml`.

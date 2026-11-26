@@ -109,7 +109,8 @@ jobs:
         working-directory: backend
         run: uv run pytest --cov=app --cov-report=term-missing --cov-fail-under=85
 
-      # The DICOM viewer module's tests live outside testpaths and need their own import root.
+      # The DICOM viewer module's tests live outside testpaths. The module is installed from uv.lock
+      # (a uv workspace member, CR-008), so they need no import root of their own.
       - name: Run DICOM viewer module tests
         working-directory: backend
         run: uv run pytest modules/dicom_viewer/tests
@@ -229,6 +230,11 @@ jobs:
 
       - name: Check production dependency set
         run: docker run --rm --entrypoint python medhub-backend:ci -c "import importlib.util, sys; import boto3; sys.exit(importlib.util.find_spec('fakeredis') is not None)"
+
+      # SR-017 AC 7, SR-028 (TASK-236, CR-008 D-6): the image must discover the DICOM module as an
+      # installed package, with no `/app/modules` source tree. Runs from /app inside the image.
+      - name: Check the production image discovers the DICOM module
+        run: docker run --rm --entrypoint python medhub-backend:ci scripts/check_image_modules.py /app
 
       - name: Build frontend image
         run: docker build -t medhub-frontend:ci ./frontend

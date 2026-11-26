@@ -3,12 +3,12 @@ id: RISK-007
 type: risk
 title: Clinical information unavailable when needed
 status: approved
-version: "1.20"
+version: "1.22"
 author: Carlos Santiago Liceras
 created: "2026-09-17"
-updated: "2026-11-16"
+updated: "2026-11-26"
 hazard: The application, its database, its object storage or its workers unavailable, or attachments unreadable.
-cause: Single-host outage, database or object-store failure, exhausted connection pool from a session leak, a missing storage SDK (PRB-002), an encryption key rotation that makes old rows unreadable, or upload scratch space full under concurrent large uploads (PRB-092) → the clinician cannot open the record → they proceed without it or wait.
+cause: Single-host outage, database or object-store failure, exhausted connection pool from a session leak, a missing storage SDK (PRB-002), an encryption key rotation that makes old rows unreadable, upload scratch space full under concurrent large uploads (PRB-092), a crafted Deflated DICOM object inflated without bound in the API process, or an optional module (the DICOM viewer) absent from the deployed image → the clinician cannot open the record → they proceed without it or wait.
 harm: Delayed care; decisions made without available history. No direct physical harm from the software itself.
 severity_initial: 3
 probability_initial: 2
@@ -16,8 +16,8 @@ severity_residual: 3
 probability_residual: 2
 acceptability: alarp
 approved_by: Carlos Santiago Liceras
-approved_on: "2026-11-16"
-approved_digest: feb2fd5f2fac99859f87769052a1bbb5ac08b30a24f6a0dfde3c9689d62df1ad
+approved_on: "2026-11-26"
+approved_digest: 8e766e126c09611410a34be43730ecc351ebb6ee73a803d41cd4ddcce5cfa07e
 approval_note: self-approved
 links:
   - target: SOUP-020
@@ -29,6 +29,10 @@ links:
   - target: SOUP-014
     relation: relates_to
   - target: SOUP-021
+    relation: relates_to
+  - target: SOUP-015
+    relation: relates_to
+  - target: SOUP-037
     relation: relates_to
 tags:
   - hazard:availability
@@ -43,7 +47,22 @@ The application, its database, its object storage or its workers unavailable, or
 
 ## Sequence of events
 
-Single-host outage, database or object-store failure, exhausted connection pool from a session leak, a missing storage SDK (PRB-002), an encryption key rotation that makes old rows unreadable, or upload scratch space full under concurrent large uploads (PRB-092) → the clinician cannot open the record → they proceed without it or wait.
+Single-host outage, database or object-store failure, exhausted connection pool from a session leak, a missing storage SDK (PRB-002), an encryption key rotation that makes old rows unreadable, upload scratch space full under concurrent large uploads (PRB-092), a crafted Deflated DICOM object inflated without bound in the API process, or an optional module (the DICOM viewer) absent from the deployed image → the clinician cannot open the record → they proceed without it or wait.
+
+Two DICOM causes are explicit since CR-008 (2026-11-25):
+
+- **Module absent from an environment (PRB-048).** Until CR-008 the DICOM viewer module was installed
+  nowhere, so its endpoint answered 404 in every environment and SR-017 was silently unavailable. A
+  packaging change could do it again (a module dropped from the lock, a wheel built without its
+  package, an import that fails at discovery, which logs and skips the module).
+- **Unbounded inflation of a Deflated object (pydicom 3.0.2, SOUP-015).** pydicom inflates the whole
+  data set of a Deflated Explicit VR Little Endian file in memory with no limit while reading it, even
+  header-only. An object within the 150 MiB stored bound can inflate about 1000-fold, so one crafted
+  object can exhaust the API container's memory and stop the worker that reads it. Two paths read it:
+  the module's frame path (reachable once CR-008 installs the module) and the host's upload validation
+  (`app/attachments/dicom_validation.py`, reachable today by any user who may upload an attachment;
+  [PRB-094](../problem-reports/PRB-094-upload-validation-inflates-deflated-dicom-without-bound.md), major).
+  Both are controlled in CR-008 by the same bounded inflation (rows below; D-B).
 
 A stored file name that cannot be represented in an HTTP header makes the attachment undownloadable (PRB-063): the download answered 500 for any character outside Latin-1.
 
@@ -108,6 +127,9 @@ occur); the score is severity × P2, the probability that the hazardous situatio
 | A write is acknowledged only after it is committed: the request transaction ends before the response is sent, so an immediate read finds the write and a failed commit is a 5xx the user sees, not a lost acknowledged write; a streamed download no longer holds a connection during the transfer (CR-006 D-27, PRB-080, ADR-0023) | Design | SR-012 AC 5; TASK-227 | TS-007 TC-007.14 (`backend/tests/db/test_request_commit_order.py`: success only after commit, a failed commit is a 5xx) and TC-007.15 (`test_download_audit_order.py`: audit rows committed before the first body chunk); passed 2026-11-15 on the branch head (TASK-226). The 20-client run (TC-018.3, which writes and reads back under load) showed no 5xx and no pool wait |
 | Spool failure on upload detected, logged at ERROR (HTTP method, route template, errno; no path, file name or clinical data) and answered 503 `application/problem+json` `upload-storage-unavailable` with `Retry-After: 30`; nothing stored; a malformed body stays 400 (CR-007 D-7, PRB-092, ADR-0021) | Protective | SR-013 AC 1, SR-027 AC 3; TASK-232 | TS-007 TC-007.17 (`backend/tests/api/test_attachments_router.py::TestUploadScratchSpaceFailure`, 4 tests, fail on `4eeef74`); TS-011 TC-011.7 (the upload form shows the 503 detail) |
 | Deployment guide names both temporary directories (the API container's `/tmp` unless `TMPDIR` is set, the proxy's nginx client-body directory), sizes them at about 300 MiB free per concurrent maximum-size upload where they share a disk, tells the operator to monitor the free space and states the failure behaviour (CR-007 D-1, D-7, D-8, PRB-092) | Information | SR-013 AC 1; TASK-231 | Review of `infra/DEPLOY.md` (TASK-231 QA); no automated test: information for safety |
+| DICOM viewer module installed from the lock in every environment (uv workspace member, non-editable in the image, ADR-0024), with the entry point proven discovered in the CI test environment and in the production image, which fails the build otherwise; the started stack answers 401, not 404, on the module route (CR-008 D-1, D-6, D-7, PRB-048) | Protective | SR-017 AC 7; TASK-233, TASK-236 | TS-010 TC-010.8 (guard test in the module suite; passed 2026-11-26; negative control run that day: package uninstalled and the three guard tests fail, reinstalled and they pass); TS-013 TC-013.15 (the image check, `backend/scripts/check_image_modules.py`, now also asserts `discover_modules()` returns `dicom-viewer`): exit 0 in an image built from the branch, exit 1 on the pre-TASK-233 image `infra-backend:latest` and on a stand-in install whose entry-point target is `dicom_viewer.manifest:nope`; the hosted Docker Build job: verified on hosted CI after push (pending); TS-010 TC-010.9 (smoke test 401): `[PASS]` on a started stack, 2026-11-26 |
+| Deflated objects inflated on the frame path with a bounded decompressor before pydicom reads them: an inflated data set above `dicom_max_decoded_bytes` (1 GiB) is refused with the AC 6 problem `dicom_decoded_size_exceeded`, holding at most the bound plus one chunk in memory (CR-008, SOUP-015 review 2026-11-25) | Protective | SR-017 AC 6, AC 10; TASK-234 | TS-019 TC-019.7 (a deflate bomb under 1 MiB stored is refused without inflating it in full; a valid deflated object decodes), passed 2026-11-26 (TASK-239) |
+| Deflated DICOM uploads inflated with the same bounded helper (`app.modules.dicom_support`) before upload validation reads them: an inflated data set above `dicom_max_decoded_bytes` (1 GiB) is refused with a 400 problem `dicom_decoded_size_exceeded` and nothing is stored; other syntaxes unchanged (CR-008 D-B, PRB-094) | Protective | SR-013 AC 6; TASK-240 | TS-007 TC-007.18 (bomb refused without full inflation, nothing stored; valid deflated upload accepted), passed 2026-11-26 (TASK-239); negative control: inflation check removed and two tests fail, restored and they pass; started stack 2026-11-26: a 1 044 152-byte Deflated upload inflating above 1 GiB answered 400 `dicom_decoded_size_exceeded` in 1.8 s, the backend container stayed at 152 to 153 MiB (idle 152 MiB), no worker restart, no attachment row; a small valid Deflated upload was accepted and downloaded byte-identical |
 
 ## Residual risk
 
@@ -154,6 +176,46 @@ probability that the space runs out; it makes the failure detectable and recover
 ALARP argument but is not scored as a reduction. The cause needs several concurrent maximum-size uploads
 on a host with little temporary space; ADR-0010 and PRB-057 still set the residual. The TC-018.3 load test
 uploads 1 MiB files and does not exercise this cause. Acceptance is the human's, in MedTrace.
+
+**Change analysis (CR-008, Risk stage, 2026-11-25; §7.4).** CR-008 installs the DICOM module in every
+environment and makes its frame path decode (PRB-048, PRB-046). Effects on this record:
+
+- *Removed cause.* SR-017 is no longer unavailable by construction: the module is installed from the
+  lock and its discovery is checked in CI and in the image build (protective row above). The
+  whole-object path serves any stored study (SR-017 AC 8).
+- *Added causes, each controlled in the CR.* The frame path becomes reachable, so pydicom's unbounded
+  inflation of Deflated objects becomes reachable through it: bounded inflation before pydicom reads
+  the object (row above). A study in a syntax outside D-3 (a) gets no server-decoded frame
+  (`dicom_transfer_syntax_unsupported`); the whole object stays available, so this is a refusal, not
+  unavailability of the study. A NumPy or module import failure at start-up is logged and the module
+  skipped; the core API still starts (discovery isolates per-module errors, `discovery.py`), and the
+  image-build check fails first.
+- *Start-up now runs the module registry sync* at every start, which it skipped while no module was
+  discovered. PRB-075 (start-up fails when a module with enablement rows disappears) **stays
+  unreachable**: it needs a second discovered module while one with rows is absent; with `dicom-viewer`
+  the only module, uninstalling it or a rejected manifest leaves none discovered and the sync is skipped
+  (PRB-075 Investigation). It becomes reachable with the first second module; not fixed here (CR-008 out
+  of scope).
+- *Upload-path inflation (PRB-094), taken into CR-008 (D-B, 2026-11-25).* Upload validation inflated
+  Deflated uploads without bound; reachable today by an authenticated user allowed to upload, with a
+  worker killed and uploads and reads delayed, no data lost. Controlled by TASK-240 (row above). A
+  legitimate Deflated upload within the bound is still inflated in full by pydicom, up to about 1 GiB per
+  request, the same peak the frame path accepts (Q-2); several concurrent ones on a small host can still
+  exhaust memory, which is consistent with probability 2.
+
+**Expected residual: 3 × 2 → alarp, unchanged** (`risk_matrix` row 3, column 2), still set by the
+single-host decision (ADR-0010), PRB-057 and PRB-081. Bringing PRB-094 under control removes a cause but
+does not lower the probability, which those three set. Accepted by the human on 2026-11-25 with its ALARP
+argument (CR-008 D-B; recorded, the MedTrace approval of this record confirms it); re-scored from the evidence at the CR-008
+verification task (TASK-239, 2026-11-26, branch head 5bd10e7 plus the task's working-tree changes): the
+controls above are shown by tests, negative controls and a started stack (see the rows). The started
+stack also shows that PRB-075 stays unreachable with one module: the registry sync ran at start-up with
+`dicom-viewer` the only module and the registry listed it. The drivers of the residual are
+unchanged: ADR-0010 (single host), PRB-057 and PRB-081 still set the probability, and a legitimate Deflated
+upload within the bound is still inflated in full. **Re-scored: 3 × 2 → alarp, unchanged**; initial 3 × 2
+unchanged. No change of residual, so the human's acceptance of 2026-11-25 stands as given; the record stays
+`in_review` for the MedTrace approval. Hosted CI (the Docker Build job and the full workflow) is verified
+after the push and is not claimed here.
 
 **Decided by:** pending — the owner's acceptance is the approval of this record.
 
@@ -212,6 +274,15 @@ CR-006 (2026-11-13), availability effects introduced by its controls:
   (D-5): the erasure is delayed, not lost (RISK-008).
 - A lazy route chunk that fails to load shows an error with a retry instead of the view.
 
+CR-008 (2026-11-25), availability effects introduced by its controls:
+
+- A production image that does not discover the module fails the Docker Build job, so a packaging
+  defect stops a deployment instead of shipping without the module.
+- `?frame=N` on a study in an unsupported syntax, or on a Deflated object that inflates above 1 GiB, is
+  refused with an RFC 7807 400 naming the syntax or the limit; the whole object stays downloadable.
+- The module's build backend (hatchling, pinned) is fetched at image build time; an unreachable package
+  index fails the build, as it already does for every locked wheel.
+
 ## Version history
 
 - 1.2 (2026-10-21) — Approved (self-approved, 2026-10-21).
@@ -252,3 +323,6 @@ CR-006 (2026-11-13), availability effects introduced by its controls:
 - 1.18 (2026-11-15) — TASK-226 (CR-006 verification): every remaining "none yet" row of the CR-006 controls replaced by the executed tests, the load-test result and the migration timings, all dated 2026-11-15; re-scored from that evidence, 3 × 2 → alarp, unchanged. Content change, so the record stays `in_review` for the owner's acceptance.
 - 1.19 (2026-11-15) — TASK-226 round 2 (QA M-2, L-1): the stack 502 named as the first-pass checksum path; AC 7 evidence is the production image build, 160.44 kB. Scores unchanged (3 × 2 → alarp). Stays `in_review`.
 - 1.20 (2026-11-16) — CR-007 TASK-231 (PRB-092): upload scratch space added as a cause, with a protective control row (TASK-232: logged 503, nothing stored) and an information row (`infra/DEPLOY.md`: both directories, about 300 MiB per concurrent maximum-size upload, monitor free space), and a residual paragraph; no capacity control (D-1). Round 2 restates the failure behaviour (round 1 wrongly said "a loud 5xx"; it was an unlogged 400 before TASK-232). Scores unchanged (3 × 2 → alarp). Content change, so the approval record is cleared and the record returns to review.
+  Same version, after the Plan gate (D-B): the upload-path cause is PRB-094 and is controlled by TASK-240 (row added, SR-013 AC 6, TC-007.18 planned); residual unchanged (3 × 2 → alarp), accepted in chat, recorded; stays `in_review` for the MedTrace approval.
+- 1.21 (2026-11-25) — CR-008 Risk stage, §7.4 change analysis (Software Architect role). `cause` and Sequence of events: the module absent from an environment (PRB-048) and pydicom's unbounded inflation of Deflated objects (frame path and upload validation). Two control rows added (module installed and its discovery checked in CI and the image, SR-017 AC 7, TASK-233 and TASK-236; bounded inflation on the frame path, SR-017 AC 6, TASK-234), each with planned verification. PRB-075 assessed: still unreachable with one module. Upload-validation inflation recorded as a known uncontrolled cause outside CR-008. Links `relates_to` SOUP-015 and SOUP-037. Expected residual stated; "Risks introduced by controls" extended. Scores unchanged (3 × 2 → alarp). Content change, so the approval record is cleared and the record returns to review.
+- 1.22 (2026-11-26) — TASK-239 (CR-008 verification, Software Architect role): the "planned" verification of the three CR-008 rows replaced by the executed tests, negative controls and started-stack results of 2026-11-26; hosted CI recorded as pending; re-scored from the evidence, 3 × 2 → alarp, unchanged. Content change, so the record stays `in_review` for the owner's acceptance.

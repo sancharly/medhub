@@ -165,6 +165,26 @@ else
     echo "  [SKIP] curl not available — schema migration check skipped"
 fi
 
+# ── 9b. The DICOM module route is mounted: 401 unauthenticated, not 404 (SR-017 AC 7, TASK-236) ──
+# A 404 means the image did not discover the module (PRB-048) so its router was never mounted;
+# 401 means the route exists and the auth layer refused the anonymous caller. Through the proxy,
+# like check 9: the backend port is not published, and the status comes from curl, not Compose text.
+echo ""
+echo "-- DICOM module route (SR-017 AC 7) --"
+if command -v curl >/dev/null 2>&1; then
+    # A fixed UUID: any well-formed id reaches the auth layer, and no python3 is needed to make one.
+    STUDY_ID="00000000-0000-4000-8000-000000000000"
+    MODULE_STATUS=$(curl -sk -o /dev/null -w "%{http_code}" \
+        "https://localhost/api/v1/modules/dicom-viewer/studies/$STUDY_ID" 2>/dev/null || true)
+    case "$MODULE_STATUS" in
+        401) check "unauthenticated GET /modules/dicom-viewer/studies/<uuid> returns 401" "ok" ;;
+        404) check "unauthenticated GET /modules/dicom-viewer/studies/<uuid> returns 401" "module route not mounted (404): the backend did not discover the dicom-viewer module" ;;
+        *) check "unauthenticated GET /modules/dicom-viewer/studies/<uuid> returns 401" "got HTTP '${MODULE_STATUS}' (expected 401)" ;;
+    esac
+else
+    echo "  [SKIP] curl not available — DICOM module route check skipped"
+fi
+
 # ── 10. Object-store network isolation (SR-040 AC 3, AC 5) ──────────────────
 # Started-stack checks: skipped, with a message, only when no container of the project is running.
 # When the stack is up, a missing object-store or backend is a FAIL, not a skip. The stack is the
@@ -210,10 +230,11 @@ else
         check "'backend' reaches object-store:8333" "connection failed"
     fi
     ROUND_TRIP=$(compose exec -T backend python -c '
+import io
 from app.core.object_storage import ObjectStorageClient
 c = ObjectStorageClient()
 k = "smoke/network-isolation.txt"
-c.put_object(k, b"smoke", "text/plain")
+c.put_object(k, io.BytesIO(b"smoke"), 5, "text/plain")
 try:
     assert c.get_object(k) == b"smoke"
 finally:

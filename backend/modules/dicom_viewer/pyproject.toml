@@ -2,11 +2,14 @@
 name = "medhub-dicom-viewer"
 version = "0.1.0"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = ["numpy>=2.5", "pydicom>=3.0.2"]
 
 [project.entry-points."medhub.modules"]
 dicom-viewer = "dicom_viewer.manifest:manifest"
 
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling==1.33.0"]
 build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["dicom_viewer"]

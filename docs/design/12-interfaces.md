@@ -102,6 +102,21 @@ Checked against `backend/openapi/openapi.json` (regenerated; `frontend/src/api/g
 
 Everything else is unchanged: the attachment routes keep their signatures (the upload still takes `UploadFile`), so CR-006 did not alter the OpenAPI document for them. A `2xx` now means the change is committed (section 8.6).
 
+### Module endpoint of CR-008
+
+The table lists the responses CR-008 added or changed, and the unchanged `401`, `403` and `404` of every module route.
+
+Provider `SI-MOD-DICOM-BE`, mounted under `/api/v1/modules/dicom-viewer` when the module is installed (section 7). The module router is not part of the core OpenAPI export (`backend/openapi/openapi.json`), so no generated type changes; the route's `responses=` documents it. Layout and rules: ADD-015.
+
+| Endpoint | Response | Contract |
+|----------|----------|----------|
+| `GET /api/v1/modules/dicom-viewer/studies/{attachment_id}` | `200` `application/dicom` | Without `frame`: the stored object, byte for byte, for any transfer syntax |
+| `GET /api/v1/modules/dicom-viewer/studies/{attachment_id}?frame=N` | `200` `application/octet-stream` | The samples of frame N (`ndarray.tobytes()`, no header); byte layout in ADD-015 "Frame response". Frame decoding supports five lossless transfer syntaxes (ADD-015); `frame` is a non-negative integer |
+| same | `400` `dicom_transfer_syntax_unsupported` | Added by CR-008: a transfer syntax outside the allow-list, or none declared; the problem names the UID when it is well formed. The object stays downloadable whole |
+| same | `400` other rules | `dicom_stored_size_exceeded` (150 MiB), `dicom_decoded_size_exceeded` (inflated or declared size over 1 GiB), `dicom_decode_failed` (not decodable, or not matching the header's frame shape and count); a frame number out of range |
+| same | `401`, `403`, `404` | As for every module route, not changed by CR-008: `401` no valid session; `403` the module is not enabled for the user, or the user may not open the attachment; `404` the attachment or its stored object does not exist |
+| same | `502` | Stored object failed its checksum verification |
+
 ### API contract changes of CR-007
 
 Checked against `backend/openapi/openapi.json` (regenerated; `frontend/src/api/generated/openapi.ts` follows from it).
@@ -118,7 +133,7 @@ The successful login response always carries `evictedSession` (boolean, camelCas
 |-----------------|-------------------|---------------------------------|--------------------------------------------------------------------------------------------------------|
 | SI-FE-APICLIENT | typed `ApiClient` | SI-FE-AUTH, SI-FE-CORE, modules | hand-written methods; request/response types generated from OpenAPI; attaches session cookie + CSRF (SR-031.3) |
 | SI-FE-AUTH      | `useMe()`         | SI-FE-SHELL, SI-FE-AUTH, SI-FE-CORE | the only reader of `GET /me` (query key `queryKeys.me`, no retries); exposes `sessionExpiresInSeconds` to the idle timer (SR-030 AC 8) |
-| SI-FE-MODREG    | `useMyModules()`  | SI-FE-CORE (`AttachmentItem`, the DICOM viewer link) | the only reader of `GET /me/modules`; polls every 50 s while the tab is visible, refetches on focus and mount, keeps the last list on error; admin module and membership mutations invalidate it (SR-015 AC 5) |
+| SI-FE-MODREG    | `useMyModules()`  | none in code until the viewer phase (#29; CR-008 D-5 removed the `AttachmentItem` viewer link) | the only reader of `GET /me/modules`; polls every 50 s while the tab is visible, refetches on focus and mount, keeps the last list on error; admin module and membership mutations invalidate it (SR-015 AC 5) |
 | SI-FE-APICLIENT | `ProblemError` type | SI-FE-AUTH, SI-FE-CORE | derived from the generated `ProblemDetail` schema in `frontend/src/api/problem.ts`; uploads use the shared `request()` |
 | SI-FE-SHELL     | `ShellServices`   | SI-FE-CORE, modules             | navigation, confirmation dialog, error toast, layout slots (SR-027)                                    |
 | SI-FE-SHELL     | `routeRoles` (`frontend/src/core/nav/routeRoles.ts`) and `RequireRole` | SI-FE-SHELL (`navConfig.ts`, `App.tsx`) | role table per route path, the only source for both the navigation and the route guard (SR-005, SR-009; defence in depth) |
